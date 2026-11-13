@@ -1,0 +1,666 @@
+# Dependency Intelligence — Stack tecnológico oficial propuesto
+
+**Versión:** 1.0  
+**Fecha:** 13 de noviembre de 2026  
+**Estado:** Propuesta consolidada para aprobación del equipo  
+**Base documental:** `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md` y `Requerimientos.md`
+
+---
+
+## 1. Propósito
+
+Este documento consolida una propuesta de stack tecnológico para Dependency Intelligence, integrando:
+
+- La arquitectura general del producto SaaS B2B.
+- Los requisitos funcionales y no funcionales recopilados.
+- El flujo de análisis de repositorios, generación de SBOM y detección de vulnerabilidades.
+- El módulo de documentación técnica e inteligencia artificial basado en RAG.
+- Las restricciones del MVP y la evolución hacia una plataforma empresarial.
+
+El objetivo es definir tecnologías coherentes entre sí, evitar dependencias incompatibles y separar lo necesario para el MVP de las capacidades que pueden incorporarse posteriormente.
+
+> **Estado de decisión:** este documento es una recomendación técnica derivada de los dos archivos. No implica que las tecnologías estén instaladas, implementadas o probadas. Las decisiones marcadas como pendientes deben aprobarse antes de considerarlas definitivas.
+
+---
+
+## 2. Criterios para seleccionar el stack
+
+El stack debe cumplir estos criterios:
+
+1. **Coherencia tecnológica:** las tecnologías deben integrarse de forma natural, especialmente en el ecosistema Java.
+2. **Viabilidad del MVP:** evitar infraestructura que retrase la demostración del flujo principal.
+3. **Evolución empresarial:** permitir multi-tenancy, auditoría, seguridad, escalabilidad y trazabilidad.
+4. **Separación de responsabilidades:** el dominio no debe depender directamente de GitHub, OSV, cdxgen, OpenAI ni de detalles de persistencia.
+5. **Evidencia y reproducibilidad:** cada análisis debe poder relacionarse con un repositorio, commit, versión de scanner, fecha y fuentes utilizadas.
+6. **Seguridad:** el contenido de repositorios y documentos debe tratarse como no confiable.
+7. **Uso correcto de IA:** los datos operativos se consultan de forma determinista; los embeddings se reservan para recuperación semántica documental.
+
+---
+
+## 3. Stack tecnológico propuesto
+
+### 3.1 Resumen general
+
+| Capa | Tecnología | Responsabilidad | Prioridad |
+|---|---|---|---|
+| Frontend | Angular + TypeScript | Aplicación web SaaS | MVP |
+| UI | Angular Material o PrimeNG | Componentes de interfaz y tablas | MVP |
+| Visualización de grafos | Cytoscape.js | Relaciones entre repositorios, paquetes y versiones | MVP |
+| Backend | Java + Spring Boot | API, reglas de negocio e integraciones | MVP |
+| Seguridad backend | Spring Security | Autenticación, autorización y protección de endpoints | MVP |
+| Persistencia | Spring Data JPA + Hibernate | Persistencia relacional | MVP |
+| Base de datos | PostgreSQL | Datos operativos, históricos y metadatos | MVP |
+| Migraciones | Flyway | Versionamiento del esquema | MVP |
+| Vector search | pgvector | Embeddings y recuperación semántica | Fase 2 |
+| Acceso vectorial | Spring AI o integración JDBC compatible con pgvector | Consultas vectoriales desde Java | Fase 2 |
+| Integración de código | GitHub App + GitHub REST API | Acceso autorizado a repositorios y eventos | MVP |
+| Generación SBOM | cdxgen | Detección de componentes | MVP |
+| Formato SBOM | CycloneDX | Intercambio normalizado de inventarios | MVP |
+| Vulnerabilidades | OSV API | Consulta de vulnerabilidades | MVP |
+| Procesamiento documental | Apache Tika / Apache PDFBox | Extracción de texto y metadatos | Fase 2 |
+| OCR | Tesseract OCR | Extracción de texto de páginas escaneadas | Fase 2 |
+| Embeddings | OpenAI Embeddings API | Representación vectorial de fragmentos | Fase 2 |
+| LLM | OpenAI API | Generación de respuestas fundamentadas | Fase 2 |
+| Contenedores | Docker | Empaquetado y aislamiento | MVP |
+| Proxy / servidor web | Nginx | Terminación HTTPS y publicación del frontend/API | Despliegue |
+| CI/CD | GitHub Actions | Build, pruebas y despliegue automatizado | MVP |
+| Pruebas backend | JUnit 5, Mockito y Testcontainers | Pruebas unitarias e integración | MVP |
+| Contratos API | OpenAPI + springdoc-openapi | Documentación y contrato REST | MVP |
+| Observabilidad | Spring Boot Actuator + Micrometer | Health checks y métricas | MVP básico |
+
+### 3.2 Frontend
+
+**Tecnologías:**
+- Angular.
+- TypeScript.
+- Angular Material o PrimeNG.
+- Cytoscape.js para el grafo.
+- Cliente HTTP de Angular para consumir la API REST.
+
+**Responsabilidades:**
+- Autenticación y navegación.
+- Dashboard organizacional.
+- Gestión de repositorios.
+- Inventario de dependencias.
+- Consulta de vulnerabilidades.
+- Historial de análisis.
+- Visualización del grafo.
+- Centro documental y asistente de IA en una fase posterior.
+- Reportes y exportaciones.
+
+**Recomendación:** escoger una sola biblioteca principal de componentes visuales. Angular Material y PrimeNG son alternativas; no se recomienda introducir ambas sin una necesidad concreta. La selección final debe considerar la calidad de tablas, filtros, formularios, accesibilidad y personalización visual.
+
+Cytoscape.js debe encargarse de la representación y exploración del grafo. La API del backend debe entregar nodos y relaciones; el frontend no debe inventar relaciones ni inferir impactos que el backend no haya identificado.
+
+### 3.3 Backend
+
+**Tecnologías:**
+- Java.
+- Spring Boot.
+- Spring Web.
+- Spring Security.
+- Spring Data JPA.
+- Hibernate.
+- Bean Validation.
+- Flyway.
+- springdoc-openapi.
+
+**Responsabilidades:**
+- Exponer la API REST.
+- Aplicar reglas de negocio.
+- Gestionar usuarios, organizaciones, roles y permisos.
+- Coordinar integraciones.
+- Crear y consultar análisis.
+- Persistir SBOM, componentes, relaciones y vulnerabilidades.
+- Aplicar aislamiento multi-tenant.
+- Gestionar documentación y consultas RAG cuando se incorpore ese módulo.
+- Generar reportes y auditoría.
+
+**Versión de Java:** utilizar una versión LTS compatible con la versión de Spring Boot elegida. Java 21 es una base conservadora razonable; confirmar compatibilidad y soporte al fijar las versiones exactas del proyecto.
+
+**Estilo arquitectónico:** monolito modular con arquitectura hexagonal y principios DDD. No iniciar con microservicios: la complejidad operativa no se justifica para el MVP.
+
+### 3.4 Base de datos relacional
+
+**Tecnología: PostgreSQL.**
+
+Será la fuente principal de verdad para los datos operativos.
+
+Almacenará, entre otros:
+
+- Organizaciones.
+- Usuarios y membresías.
+- Roles y permisos.
+- Integraciones.
+- Repositorios.
+- Análisis y snapshots.
+- Artefactos SBOM y referencias a ellos.
+- Componentes y versiones.
+- Relaciones entre dependencias.
+- Vulnerabilidades y asociaciones.
+- Documentos y metadatos.
+- Fragmentos documentales.
+- Resultados de análisis de impacto.
+- Reportes.
+- Notificaciones.
+- Eventos de auditoría.
+
+**Acceso:** Spring Data JPA + Hibernate para persistencia relacional. Para consultas especializadas, agregaciones o rendimiento, se podrán utilizar consultas SQL específicas o JDBC.
+
+**Migraciones:** Flyway. Los cambios de esquema deben versionarse; no depender de la generación automática de tablas en entornos compartidos o productivos.
+
+**Regla de diseño:** diferenciar el catálogo lógico de componentes de la presencia concreta de una versión en un repositorio, commit y snapshot.
+
+### 3.5 Búsqueda vectorial y RAG
+
+**Tecnología: PostgreSQL + pgvector.**
+
+No se propone una base vectorial separada para el MVP. pgvector permite mantener datos relacionales y vectores en el mismo sistema, con filtros de organización y permisos.
+
+Se utilizará para:
+- Indexar documentación técnica.
+- Recuperar fragmentos semánticamente relevantes.
+- Consultar README, ADR, manuales, PDF, DOCX, Markdown, TXT y documentación compatible.
+- Proporcionar contexto documental al asistente de IA.
+
+**Integración Java:** utilizar Spring AI con su integración compatible con pgvector, si la versión elegida satisface los requisitos; alternativamente, usar JDBC y SQL nativo con pgvector. No utilizar `Pgvector.EntityFrameworkCore`: pertenece al ecosistema .NET/Entity Framework Core y no corresponde a un backend Java.
+
+**Búsqueda híbrida:**
+1. Recuperación vectorial con pgvector.
+2. Búsqueda textual con las capacidades de full-text search de PostgreSQL.
+3. Combinación y reordenamiento de resultados.
+4. Aplicación obligatoria de filtros de tenant, permisos y asociaciones documentales.
+
+Los embeddings no reemplazan las consultas relacionales para determinar versiones, inventarios, vulnerabilidades o relaciones exactas.
+
+### 3.6 Integración con GitHub
+
+**Tecnología: GitHub App + GitHub REST API.**
+
+Responsabilidades:
+- Autorizar la instalación en una cuenta u organización.
+- Consultar repositorios permitidos.
+- Recuperar metadatos, commits y archivos requeridos.
+- Recibir webhooks.
+- Iniciar análisis ante eventos configurados.
+- Permitir revocar la integración.
+
+**Seguridad:**
+- Solicitar permisos mínimos.
+- Validar firmas de webhooks.
+- Proteger installation tokens y secretos.
+- No almacenar tokens en texto plano.
+- Respetar rate limits.
+- No entregar credenciales innecesarias al scanner.
+
+Se recomienda GitHub App frente a tokens personales de larga duración para la integración organizacional.
+
+### 3.7 Análisis de dependencias y SBOM
+
+**Tecnologías:**
+- cdxgen como herramienta inicial de generación de SBOM.
+- CycloneDX como formato inicial de intercambio.
+- PURL cuando corresponda para identificar paquetes.
+
+Flujo:
+1. Obtener el commit exacto.
+2. Recuperar los archivos necesarios.
+3. Preparar el entorno de análisis.
+4. Ejecutar cdxgen en un contenedor aislado.
+5. Generar el SBOM CycloneDX.
+6. Parsear y validar el documento.
+7. Normalizar componentes, versiones y relaciones.
+8. Persistir los resultados asociados al snapshot.
+
+La cobertura debe comprobarse por ecosistema y tipo de proyecto. No prometer detección completa de transitivas si no se dispone de lockfiles o de información suficiente del gestor de paquetes.
+
+**Ecosistemas iniciales candidatos:** Maven y npm. Esta selección aparece como recomendación en el contexto maestro, pero debe aprobarse y probarse con repositorios reales.
+
+### 3.8 Inteligencia de vulnerabilidades
+
+**Tecnología: OSV API.**
+
+Responsabilidades:
+- Consultar vulnerabilidades por paquete, ecosistema y versión.
+- Asociar hallazgos con componentes y repositorios.
+- Conservar identificadores, rangos afectados, severidad y versiones corregidas cuando la fuente los proporcione.
+- Normalizar resultados.
+- Evitar duplicados.
+- Conservar la procedencia y fecha de consulta.
+
+La integración debe estar detrás de un adaptador. El dominio no debe depender del formato JSON de OSV.
+
+### 3.9 Procesamiento documental
+
+Para la fase de Documentation Intelligence:
+
+| Función | Tecnología propuesta |
+|---|---|
+| Extracción de contenido y metadatos | Apache Tika |
+| Lectura y operaciones específicas de PDF | Apache PDFBox |
+| OCR de páginas escaneadas | Tesseract OCR |
+| Segmentación | Servicio Java de chunking |
+| Embeddings | OpenAI Embeddings API |
+| Persistencia vectorial | PostgreSQL + pgvector |
+| Recuperación | Búsqueda híbrida |
+| Generación | OpenAI API mediante una capa de proveedor |
+
+Tika y PDFBox pueden complementarse, pero no es necesario incorporar ambos indiscriminadamente: seleccionar el flujo según los formatos y necesidades de extracción probados.
+
+El OCR solo debe ejecutarse cuando el documento lo requiera. El procesamiento debe ser asíncrono y conservar metadatos de página, sección y orden para permitir citas.
+
+### 3.10 Infraestructura y despliegue
+
+**Tecnologías propuestas:**
+- Docker para empaquetar backend y servicios.
+- Docker Compose para el entorno inicial.
+- Nginx como reverse proxy.
+- HTTPS.
+- GitHub Actions para CI/CD.
+- PostgreSQL como servicio persistente.
+
+Para el scanner, utilizar un contenedor separado y restringido. No montar el Docker socket dentro del contenedor del scanner, no ejecutar con privilegios elevados y limitar CPU, memoria, red, almacenamiento y duración.
+
+Para producción, los archivos temporales y documentos deben tener una política explícita de almacenamiento, cifrado, acceso y eliminación. El almacenamiento de objetos compatible con S3 puede evaluarse cuando se necesite; no es requisito introducirlo en el primer MVP.
+
+---
+
+## 4. Arquitectura lógica propuesta
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                     Angular + TypeScript                    │
+│ Dashboard | Repositories | Inventory | Vulnerabilities      │
+│ Graph | History | Documentation | AI Assistant | Reports    │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ HTTPS / REST
+┌──────────────────────────────▼──────────────────────────────┐
+│                       Spring Boot API                       │
+│                                                              │
+│ API / Presentation                                            │
+│ Application / Use Cases                                       │
+│ Domain                                                        │
+│ Infrastructure / Adapters                                    │
+│                                                              │
+│ Security | Multi-tenancy | Audit | Integrations               │
+└──────────────┬───────────────────────┬───────────────────────┘
+               │                       │
+       ┌───────▼────────┐      ┌───────▼─────────────────────┐
+       │ PostgreSQL     │      │ Asynchronous Processing    │
+       │                │      │                             │
+       │ Relational     │      │ Scan orchestration          │
+       │ Data           │      │ Document indexing           │
+       │ Scan History   │      │ Vulnerability lookups       │
+       │ Audit          │      │ Report generation           │
+       │ pgvector       │      └──────────────┬──────────────┘
+       └────────────────┘                     │
+                                  ┌────────────▼─────────────┐
+                                  │ Isolated Scanner         │
+                                  │ Docker + cdxgen          │
+                                  │ CycloneDX SBOM           │
+                                  └────────────┬─────────────┘
+                                               │
+                  ┌────────────────────────────┼────────────────────┐
+                  │                            │                    │
+          ┌───────▼────────┐          ┌─────────▼──────┐    ┌────────▼────────┐
+          │ GitHub App/API │          │ OSV API        │    │ OpenAI API      │
+          │ Repositories   │          │ Vulnerabilities│    │ Embeddings/LLM  │
+          │ Commits/Webhooks│         │                │    │ (Phase 2)       │
+          └────────────────┘          └────────────────┘    └─────────────────┘
+```
+
+El diagrama representa límites lógicos, no obliga a desplegar cada módulo como un servicio independiente.
+
+---
+
+## 5. Arquitectura interna del backend
+
+Se recomienda organizar el backend por módulos de negocio y mantener separación hexagonal dentro de cada módulo.
+
+### 5.1 Capas
+
+| Capa | Responsabilidad | Puede depender de |
+|---|---|---|
+| Domain | Entidades, value objects, reglas y políticas | No depende de frameworks ni proveedores |
+| Application | Casos de uso, puertos y coordinación | Domain |
+| Infrastructure | Persistencia, GitHub, OSV, cdxgen, OpenAI y filesystem | Application y Domain mediante contratos |
+| API / Presentation | Controladores REST, DTOs y validación de entrada | Application |
+| Workers | Procesos asíncronos y consumidores de trabajos | Application |
+
+### 5.2 Módulos sugeridos
+
+- Identity & Organization
+- Access Control
+- GitHub Integration
+- Repository Management
+- Scan Management
+- SBOM & Components
+- Dependency Relationships
+- Vulnerability Intelligence
+- Dependency Graph
+- Scan History
+- Documentation
+- AI Assistant
+- Change Impact
+- Reporting
+- Notifications
+- Audit
+
+No es necesario implementar todos los módulos en el MVP. La separación debe facilitar la evolución sin generar abstracciones vacías.
+
+### 5.3 Adaptadores externos
+
+Definir interfaces propias para proveedores externos, por ejemplo:
+
+- `SourceCodeProvider`
+- `VulnerabilityProvider`
+- `SbomGenerator`
+- `DocumentTextExtractor`
+- `EmbeddingProvider`
+- `LanguageModelProvider`
+- `ReportStorage`
+
+Las implementaciones concretas se ubican en Infrastructure. Esto evita acoplar el dominio a GitHub, OSV, cdxgen u OpenAI.
+
+---
+
+## 6. Procesamiento asíncrono
+
+Los análisis de repositorios y la indexación documental no deben ejecutarse dentro de una petición HTTP larga.
+
+### Propuesta para el MVP
+
+- Crear un registro de trabajo persistente en PostgreSQL.
+- Devolver inmediatamente un identificador de análisis.
+- Procesar el trabajo en un worker separado o proceso de aplicación controlado.
+- Actualizar estados y resultados en la base de datos.
+- Implementar reintentos limitados, idempotencia y manejo de errores.
+
+Esta opción reduce infraestructura adicional durante las dos semanas iniciales.
+
+### Evolución
+
+Si crece el volumen o se requiere mayor desacoplamiento, evaluar RabbitMQ como broker de mensajes. No es obligatorio añadirlo antes de demostrar la necesidad.
+
+Los trabajos deben tener estados explícitos, por ejemplo: `PENDING`, `RUNNING`, `COMPLETED`, `FAILED` y, si aplica, `CANCELLED`.
+
+---
+
+## 7. Integración RAG con Dependency Intelligence
+
+El segundo documento describe una arquitectura donde los PDF originales permanecen en el equipo del cliente y el servidor conserva fragmentos, embeddings y metadatos.
+
+Esta propuesta puede integrarse como una modalidad de gestión documental, pero requiere explicar sus límites.
+
+### 7.1 Flujo de indexación propuesto
+
+1. El usuario selecciona un PDF desde el navegador.
+2. El archivo se transmite por HTTPS.
+3. El backend valida tamaño, tipo, permisos y seguridad del archivo.
+4. El archivo se almacena temporalmente en el servidor.
+5. Un trabajo asíncrono extrae texto y metadatos.
+6. Se aplica OCR a las páginas escaneadas cuando sea necesario.
+7. El texto se divide en fragmentos con tamaño y solapamiento configurables.
+8. Se conservan página, sección, orden, documento y organización.
+9. Se generan embeddings mediante OpenAI.
+10. Se guardan texto, vectores y metadatos en PostgreSQL + pgvector.
+11. Se verifica la indexación.
+12. Se elimina la copia temporal según la política de retención acordada.
+
+### 7.2 Flujo de consulta
+
+1. El usuario formula una pregunta.
+2. Se valida identidad, organización y permisos.
+3. Se genera el embedding de la pregunta con el mismo modelo del índice correspondiente.
+4. PostgreSQL recupera fragmentos relevantes con filtros de tenant y autorización.
+5. Se combina búsqueda vectorial y textual cuando convenga.
+6. Se seleccionan evidencias.
+7. El LLM genera una respuesta basada en los fragmentos recuperados.
+8. La respuesta presenta referencias al documento y página cuando los metadatos lo permitan.
+
+### 7.3 Limitaciones de no conservar el PDF original
+
+- El servidor puede consultar los fragmentos indexados aunque el computador del usuario esté apagado.
+- No puede volver a abrir ni verificar el PDF original si este ya no está disponible.
+- Las citas por página dependen de la calidad de extracción y de los metadatos guardados.
+- Tablas, imágenes, firmas y sellos pueden requerir el documento original.
+- Un cambio en el OCR o en el proceso de extracción puede exigir que el usuario vuelva a cargar el PDF.
+- Guardar un hash permite identificar el archivo, pero no sustituye su contenido.
+
+**Decisión pendiente:** confirmar si esta política de no conservar originales aplica a todos los documentos o únicamente a determinados tipos de expedientes. Dependency Intelligence también contempla documentación interna que puede necesitar políticas de retención diferentes.
+
+---
+
+## 8. Seguridad y aislamiento
+
+La seguridad debe formar parte de la arquitectura desde el MVP.
+
+### 8.1 Aplicación y multi-tenancy
+
+- Aplicar autorización en cada recurso.
+- Asociar los registros operativos a una organización.
+- Filtrar consultas por tenant.
+- Evitar que identificadores manipulados permitan consultar datos de otra organización.
+- Validar permisos antes de recuperar documentos para RAG.
+- Registrar acciones relevantes.
+- No registrar tokens, credenciales ni secretos en logs.
+
+### 8.2 Scanner
+
+- Ejecutar cdxgen en contenedor aislado.
+- Fijar y controlar las imágenes utilizadas.
+- No montar Docker socket.
+- Evitar privilegios elevados.
+- Limitar CPU, memoria, almacenamiento y tiempo.
+- Restringir red saliente.
+- Montar el repositorio como solo lectura cuando sea viable.
+- No entregar credenciales innecesarias.
+- Eliminar archivos temporales.
+- Validar rutas y tamaños.
+- Registrar herramienta y versión.
+
+### 8.3 Documentos e IA
+
+- Validar archivos y límites de tamaño.
+- Procesar documentos de forma aislada y controlada.
+- Tratar el texto recuperado como contenido no confiable.
+- Protegerse contra prompt injection en documentos.
+- No permitir que el LLM ejecute SQL libre.
+- Utilizar consultas parametrizadas, servicios de aplicación o herramientas permitidas.
+- Aplicar permisos antes de recuperar fragmentos.
+- Evitar filtraciones entre organizaciones.
+- Mostrar fuentes y distinguir hechos de inferencias.
+
+---
+
+## 9. Stack por fases
+
+### Fase 1 — MVP
+
+**Objetivo:** demostrar el flujo completo desde un repositorio conectado hasta un inventario de dependencias y vulnerabilidades.
+
+Incluye:
+
+- Angular + TypeScript.
+- Spring Boot + Java.
+- Spring Security.
+- PostgreSQL.
+- Spring Data JPA + Hibernate.
+- Flyway.
+- GitHub App.
+- cdxgen.
+- CycloneDX.
+- OSV API.
+- Docker para scanner aislado.
+- Cytoscape.js para grafo inicial.
+- OpenAPI / Swagger.
+- JUnit y pruebas de integración.
+- CI/CD básico.
+
+Flujo vertical:
+
+**Conectar GitHub → seleccionar repositorio → analizar commit → generar SBOM → persistir componentes y relaciones → consultar OSV → mostrar inventario y vulnerabilidades.**
+
+El procesamiento documental avanzado, RAG y el asistente de IA no deben bloquear la entrega de este flujo.
+
+### Fase 2 — Documentation Intelligence
+
+- Centro documental.
+- Apache Tika / PDFBox.
+- Tesseract OCR.
+- Procesamiento asíncrono.
+- OpenAI Embeddings.
+- PostgreSQL + pgvector.
+- Búsqueda híbrida.
+- RAG con citas y referencias.
+- Asistente contextual.
+- Gestión de documentos potencialmente desactualizados.
+
+### Fase 3 — Change Intelligence
+
+- Comparación de versiones.
+- Análisis de breaking changes documentados.
+- Change Impact Analysis.
+- Evidencias y nivel de confianza.
+- Pruebas sugeridas.
+- Alertas de cambios.
+- Simulación controlada, inicialmente sin modificar repositorios.
+
+### Fase 4 — Enterprise Intelligence
+
+- Reportes programados.
+- Auditoría avanzada.
+- Integraciones adicionales.
+- Políticas organizacionales.
+- SSO mediante OIDC/SAML según demanda.
+- GitHub Enterprise Server si se valida su necesidad.
+- Retención y residencia de datos.
+- Escalado de workers y broker de mensajes.
+- PR asistido con aprobación humana.
+
+---
+
+## 10. Tecnologías que no se deben introducir sin justificación
+
+| Tecnología / enfoque | Recomendación |
+|---|---|
+| `Pgvector.EntityFrameworkCore` | No usar: corresponde a .NET/EF Core, no a Java |
+| Base vectorial independiente | No necesaria inicialmente; evaluar solo si pgvector deja de cubrir las necesidades |
+| Microservicios | No para el MVP; comenzar con monolito modular |
+| Kubernetes | No necesario para la primera entrega; evaluar cuando la operación lo justifique |
+| RabbitMQ | Evolución posible; no obligatorio para el primer flujo |
+| Entrenamiento de modelo propio | No recomendado inicialmente |
+| LLM como fuente de vulnerabilidades | No; usar fuentes y lógica determinista |
+| Embeddings para inventario/versiones | No; utilizar PostgreSQL relacional |
+| Ejecución de scripts del repositorio | No sin controles y aislamiento explícitos |
+| Simulación que modifica repositorios | Fuera del MVP inicial |
+
+---
+
+## 11. Decisiones pendientes de aprobación
+
+Antes de congelar el stack, el equipo debe confirmar:
+
+1. **Java:** versión LTS y versión compatible de Spring Boot.
+2. **Frontend UI:** Angular Material o PrimeNG.
+3. **Ecosistemas MVP:** Maven y npm, u otra combinación.
+4. **Scanner:** cdxgen como herramienta inicial, validada con repositorios de prueba.
+5. **Vulnerabilidades:** OSV API como fuente inicial.
+6. **Procesamiento asíncrono:** tabla de trabajos y worker inicial; evaluar RabbitMQ posteriormente.
+7. **Autenticación:** estrategia de identidad para usuarios y organizaciones.
+8. **RAG:** confirmar si se implementará en una segunda fase y qué documentos podrán conservarse temporalmente.
+9. **PDF original:** confirmar política de eliminación, retención y posibilidad de reindexación.
+10. **Proveedor de IA:** confirmar OpenAI para embeddings y generación en la fase documental.
+11. **Despliegue:** definir VPS, almacenamiento, backups, HTTPS y ambientes.
+12. **Observabilidad:** definir métricas, logs, alertas y retención.
+
+---
+
+## 12. Riesgos técnicos que deben validarse con pruebas
+
+| Riesgo | Validación necesaria |
+|---|---|
+| Cobertura incompleta de cdxgen | Probar Maven/npm, con y sin lockfiles |
+| Dependencias transitivas no detectadas | Comparar SBOM con árboles resueltos por los gestores |
+| Límites de OSV | Probar paquetes, ecosistemas, versiones, aliases y respuestas parciales |
+| Rate limits de GitHub | Probar instalación, lectura, webhooks y reintentos |
+| Aislamiento del scanner | Ejecutar repositorios de prueba malformados y potencialmente maliciosos |
+| Aislamiento multi-tenant | Pruebas negativas de acceso cruzado |
+| Calidad de extracción PDF | Probar PDFs digitales, escaneados, tablas y documentos mixtos |
+| Calidad de RAG | Evaluar recuperación, citas, permisos y respuestas sin evidencia |
+| Costo de IA | Medir tokens, documentos, fragmentos y consultas |
+| Rendimiento de pgvector | Medir latencia con datos representativos y filtros por tenant |
+
+---
+
+## 13. Conclusión y recomendación
+
+El stack recomendado para Dependency Intelligence es:
+
+**Angular + TypeScript + Java + Spring Boot + PostgreSQL + Docker**, complementado con **GitHub App, cdxgen, CycloneDX, OSV y Cytoscape.js**.
+
+Para la evolución documental:
+
+**PostgreSQL + pgvector + Spring AI (o JDBC compatible) + OpenAI Embeddings + OpenAI API + Apache Tika/PDFBox + Tesseract OCR**.
+
+La decisión arquitectónica central es mantener un **monolito modular con arquitectura hexagonal**, una base relacional como fuente de verdad y procesos asíncronos aislados para análisis e indexación.
+
+El MVP debe priorizar el flujo GitHub → SBOM → PostgreSQL → OSV → visualización. RAG, IA documental y análisis avanzado de cambios deben incorporarse después de estabilizar ese flujo.
+
+Este enfoque permite demostrar valor temprano sin cerrar la puerta a una evolución empresarial.
+
+---
+
+## 14. Trazabilidad con los documentos de entrada
+
+### Del contexto maestro
+
+Se conservan como base:
+- Angular + TypeScript.
+- Java + Spring Boot.
+- PostgreSQL.
+- pgvector como evolución documental.
+- GitHub App / GitHub API.
+- cdxgen.
+- CycloneDX.
+- OSV API.
+- Docker.
+- Cytoscape.js.
+- Arquitectura hexagonal, DDD y monolito modular.
+- Separación entre MVP y fases posteriores.
+- Requisitos de seguridad, multi-tenancy, trazabilidad y evidencia.
+
+### Del documento RAG
+
+Se incorporan:
+- PDF original conservado en el equipo del cliente bajo la modalidad propuesta.
+- Carga temporal por HTTPS.
+- Procesamiento asíncrono.
+- Extracción de texto y OCR.
+- Fragmentación con metadatos de página y sección.
+- OpenAI Embeddings para el MVP documental.
+- PostgreSQL + pgvector.
+- Búsqueda híbrida.
+- Recuperación filtrada por tenant y autorización.
+- Respuestas con citas.
+- Eliminación de la copia temporal según política.
+- Limitaciones de no conservar el original.
+
+### Ajustes y aclaraciones introducidos en esta consolidación
+
+- Se corrige la incompatibilidad de `Pgvector.EntityFrameworkCore` con Java.
+- Se propone Spring AI o JDBC compatible con pgvector.
+- Se separa el stack del MVP del stack de fases futuras.
+- Se recomienda un worker con trabajos persistidos antes de introducir un broker adicional.
+- Se especifica que la búsqueda vectorial no sustituye la base relacional.
+- Se mantiene el LLM fuera de las decisiones deterministas de vulnerabilidades.
+- Se dejan explícitas las decisiones que requieren aprobación y validación práctica.
+
+
+## 15. Ajuste de ejecución local
+
+Por indicación del usuario, la estructura inicial se ejecuta exclusivamente en local con Docker Compose. No se configura hosting, despliegue público ni publicación automatizada. Nginx sirve Angular y redirige `/api` al backend dentro de la red de Compose. Los puertos se vinculan a `127.0.0.1`; PostgreSQL no se publica al host.
+
+GitHub, OSV y la descarga inicial de imágenes y dependencias necesitan internet. Los webhooks de GitHub no son accesibles desde GitHub sin conectividad entrante: el flujo inicial deberá usar análisis manual. No se configura ningún túnel público.
+
+La base técnica es Java 21, Spring Boot 3.5, Angular 22 y Angular Material. Las integraciones y el alcance funcional permanecen pendientes de implementación y validación. RAG, OCR, pgvector y proveedores de IA se reservan para fase 2.
