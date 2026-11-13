@@ -1,0 +1,3 @@
+@use '@angular/material' as mat;
+html { @include mat.theme((color: (primary: mat.$azure-palette), typography: Roboto, density: 0)); }
+body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fb; color: #17243b; }

@@ -1,0 +1,14 @@
+# Build y dependencias
+**/target/
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+.idea/
+.vscode/
+*.iml
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
