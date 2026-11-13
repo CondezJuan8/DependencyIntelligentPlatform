@@ -13,16 +13,36 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+  database-bootstrap:
+    image: postgres:17.7-alpine
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      PGHOST: database
+      PGUSER: ${POSTGRES_USER:-dependency}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Copia .env.example a .env}
+      PGDATABASE: ${POSTGRES_DB:-dependency_intelligence}
+      POSTGRES_DB: ${POSTGRES_DB:-dependency_intelligence}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Configura APP_DB_PASSWORD en .env}
+      MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Configura MIGRATION_DB_PASSWORD en .env}
+    volumes:
+      - ./infra/postgres/bootstrap.sql:/bootstrap.sql:ro
+    entrypoint: ["psql", "-X", "-f", "/bootstrap.sql"]
+    restart: "no"
   backend:
     build: ./backend
     environment:
       DB_HOST: database
       POSTGRES_DB: ${POSTGRES_DB:-dependency_intelligence}
-      POSTGRES_USER: ${POSTGRES_USER:-dependency}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copia .env.example a .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Configura APP_DB_PASSWORD en .env}
+      MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Configura MIGRATION_DB_PASSWORD en .env}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-core}
     depends_on:
       database:
         condition: service_healthy
+      database-bootstrap:
+        condition: service_completed_successfully
   frontend:
     build: ./frontend
     ports:

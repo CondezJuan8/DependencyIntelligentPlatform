@@ -33,15 +33,13 @@ El dominio no debe depender de Spring ni de formatos de proveedores. Application
 
 ## Estado y decisiones
 
-Incluye compilación, conexión PostgreSQL, Flyway, Actuator y pantalla inicial. JUnit, Mockito, Spring Security Test y Testcontainers están preparados para pruebas. Las únicas pruebas iniciales comprueban la política de acceso HTTP.
+La base ya tiene migraciones, referencias, índices, FKs compuestas y RLS con FORCE. Flyway usa un rol de migración independiente; la API usa `dependency_app`, sin DDL ni BYPASSRLS. Consultar [la guía de base de datos](docs/database/README.md), el [reporte de validación](docs/database/implementation-report.md) y los [diagramas editables](diagramas/README.md).
 
-No están implementados autenticación, aislamiento multi-tenant, esquema de negocio, GitHub, scanner, parseo CycloneDX, OSV, procesamiento asíncrono, inventario ni grafo. Los paquetes indican ubicación, no capacidades terminadas. La migración inicial valida Flyway sin definir entidades todavía. Antes de exponer datos deben implementarse identidad, autorización, filtros por organización y pruebas de acceso cruzado.
+Perfil `core`: 76 tablas. Perfil `future`: 115 tablas e incluye documentación, impacto y notificaciones sin activar servicios externos. El vector opcional añade una tabla y requiere pgvector; no está habilitado en la base local. Si vienes del arranque anterior, añadir `APP_DB_PASSWORD` y `MIGRATION_DB_PASSWORD` a `.env`. El bootstrap funciona también sobre el volumen existente y conserva V1.
 
-Solo `/actuator/health` es público en la API; el resto se deniega. OpenAPI está instalado pero deshabilitado hasta configurar acceso. PostgreSQL y backend solo son accesibles desde la red interna de Compose. Nginx publica exclusivamente en `127.0.0.1`.
+El esquema prepara el producto; todavía faltan autenticación, autorización por recurso, adaptadores GitHub/OSV/cdxgen, workers e interfaces funcionales. Los endpoints de negocio siguen denegados. `/health` comprueba la conexión; PostgreSQL y backend solo son accesibles en la red interna de Compose. Nginx publica en `127.0.0.1`.
 
-Material es la biblioteca visual inicial. cdxgen será un scanner aislado, no una dependencia de la API. GitHub y OSV podrán usar el cliente HTTP de Spring; no se agregan SDK sin necesidad. El modo local prioriza análisis manual: GitHub no puede enviar webhooks directamente a localhost. No se abre ningún túnel.
-
-RAG, pgvector, OpenAI, Tika/PDFBox y OCR pertenecen a fase 2; no se agregan dependencias inactivas. No se incluye pipeline de despliegue.
+Material es la biblioteca visual inicial. cdxgen se ejecutará aislado, sin Docker socket ni credenciales innecesarias. El modo local prioriza análisis manual: GitHub no puede enviar webhooks directamente a localhost. RAG y OCR siguen en fase 2; no se añaden SDK o proveedores de IA por anticipado. No hay despliegue público.
 
 ## Verificación
 

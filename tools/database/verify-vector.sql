@@ -1,0 +1,12 @@
+INSERT INTO document_chunk_embeddings (id,organization_id,document_chunk_id,embedding_model_id,embedding) VALUES ('f54d2ce5-2d94-59c2-a0ad-f1aef68765f2','10e4c11d-6888-5d03-a540-766b38437f71','6db676e8-5b55-50a6-8b19-83b29e93bce2','36fcfa17-e7a3-5486-8da8-657ac1e92e9b','[1,2,3]'::vector);
+SELECT pg_temp.expect_failure('INSERT INTO document_chunk_embeddings (id,organization_id,document_chunk_id,embedding_model_id,embedding) VALUES (''7d393ed3-0611-531f-a494-d92657763ae6'',''10e4c11d-6888-5d03-a540-766b38437f71'',''6db676e8-5b55-50a6-8b19-83b29e93bce2'',''36fcfa17-e7a3-5486-8da8-657ac1e92e9b'',''[1,2,3]''::vector)','23505','duplicate chunk-model embedding rejected');
+SELECT pg_temp.expect_failure('INSERT INTO document_chunk_embeddings (id,organization_id,document_chunk_id,embedding_model_id,embedding) VALUES (''aba2cd11-1ec8-5236-b06a-91361a726a23'',''10e4c11d-6888-5d03-a540-766b38437f71'',''0070e45e-20d5-5a15-9c4d-138d76551f16'',''36fcfa17-e7a3-5486-8da8-657ac1e92e9b'',''[1,2]''::vector)','23514','embedding shape must match registered model');
+SELECT pg_temp.expect_failure('INSERT INTO document_chunk_embeddings (id,organization_id,document_chunk_id,embedding_model_id,embedding) VALUES (''1a2f44bd-61a1-5e51-ac6d-05fd20ea8b3e'',''10e4c11d-6888-5d03-a540-766b38437f71'',''0070e45e-20d5-5a15-9c4d-138d76551f16'',''36fcfa17-e7a3-5486-8da8-657ac1e92e9b'',''[1,2,3]''::vector)','23503','embedding cannot reference foreign chunk');
+SELECT pg_temp.assert_true((SELECT count(*)=1 FROM document_chunk_embeddings),'correct-dimensional embedding accepted');
+RESET ROLE;
+INSERT INTO assistant_model_versions (id,provider_id,model_name,model_version) VALUES ('ec1c48cb-01fc-5ef8-9055-332d8fa3a347','549d8d32-4d17-5b70-b83a-cae6ac610bd7','fixture-embedding2','v1');
+INSERT INTO embedding_models (id,model_version_id,dimensions) VALUES ('0ff142c2-a3e0-5fb5-a975-8c00c8dcef7d','ec1c48cb-01fc-5ef8-9055-332d8fa3a347',2);
+SELECT pg_temp.expect_failure('UPDATE embedding_models SET dimensions=4 WHERE id=''36fcfa17-e7a3-5486-8da8-657ac1e92e9b''','23514','model dimension cannot mutate historical embeddings');
+SET LOCAL ROLE dependency_app;
+INSERT INTO document_chunk_embeddings (id,organization_id,document_chunk_id,embedding_model_id,embedding) VALUES ('8fbbad56-25f9-59b9-bef8-f9789dca6074','10e4c11d-6888-5d03-a540-766b38437f71','6db676e8-5b55-50a6-8b19-83b29e93bce2','0ff142c2-a3e0-5fb5-a975-8c00c8dcef7d','[1,2]'::vector);
+SELECT pg_temp.assert_true((SELECT count(*)=2 FROM document_chunk_embeddings),'one chunk supports different model dimensions safely');

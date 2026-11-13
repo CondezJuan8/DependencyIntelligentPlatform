@@ -1,0 +1,4 @@
+# Future modules are optional and require no external provider or pgvector.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/future

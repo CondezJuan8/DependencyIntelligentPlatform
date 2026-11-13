@@ -1,0 +1,41 @@
+# Isolated ephemeral validation stack. Never mounts postgres_data or publishes ports.
+services:
+  database:
+    image: pgvector/pgvector:0.8.1-pg17
+    environment:
+      POSTGRES_DB: dependency_validation
+      POSTGRES_USER: dependency
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configura .env}
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dependency -d dependency_validation"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  database-bootstrap:
+    image: postgres:17.7-alpine
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      PGHOST: database
+      PGUSER: dependency
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Configura .env}
+      PGDATABASE: dependency_validation
+      POSTGRES_DB: dependency_validation
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Configura .env}
+      MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Configura .env}
+      ENABLE_PGVECTOR: "true"
+    volumes:
+      - ./infra/postgres/bootstrap.sql:/bootstrap.sql:ro
+    entrypoint: ["psql", "-X", "-f", "/bootstrap.sql"]
+  backend:
+    image: dependency-intelligence-backend
+    environment:
+      DB_HOST: database
+      POSTGRES_DB: dependency_validation
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Configura .env}
+      MIGRATION_DB_PASSWORD: ${MIGRATION_DB_PASSWORD:?Configura .env}
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration,classpath:db/future,classpath:db/vector
+    command: ["--spring.main.web-application-type=none"]
