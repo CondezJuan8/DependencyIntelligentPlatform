@@ -8,23 +8,17 @@ Primera salida confirmada por el usuario: **demo local para presentar**. Flujo d
 
 Capacidad confirmada: **25 horas efectivas por semana**, una persona responsable del proyecto asistida por Codex. Las horas incluyen implementación, revisión, depuración, pruebas necesarias y documentación breve. El trabajo de Codex se considera asistencia dentro de esa capacidad; no se asume que elimina el tiempo de integración o validación. El inicio de ejecución todavía debe fijarse para convertir las semanas relativas en fechas de calendario.
 
-## Primera entrega: demo local en 2–3 semanas
+## Primera entrega: demo local en dos semanas
 
-| Bloque | Esfuerzo | Resultado verificable |
-| --- | --- | --- |
-| Preparar escenario, SBOM y contrato de importación | 6–8 h | Un SBOM conocido, su procedencia y un guion de presentación definidos |
-| Importar y persistir snapshot/componentes | 12–18 h | Importación manual por comando o adaptador local; sin scanner ni GitHub; errores sin escrituras parciales |
-| Consultar inventario local | 6–10 h | Consulta del snapshot con búsqueda y acceso acotado a la demo local |
-| Construir pantalla y ensayar presentación | 8–12 h | Interfaz con datos importados reales, estado vacío/error y arranque documentado |
-| **Subtotal** | **32–48 h** | |
-| **Reserva del 25 %** | **8–12 h** | Ajustes de integración y presentación |
-| **Total** | **40–60 h** | **2–3 semanas a 25 h/semana** |
+Plazo solicitado por el usuario: **dos semanas con 25 horas semanales, 50 horas totales**. Se fija un presupuesto de **40 horas de trabajo y 10 horas de reserva**. La estimación previa de 40–60 horas / 2–3 semanas queda sustituida para esta demo por un alcance cerrado.
 
-Secuencia orientativa: semana 1, escenario y parser/persistencia; semana 2, consulta e interfaz; semana 3, margen de correcciones y ensayo si hace falta. Dos semanas aportan 50 horas: el extremo alto de 60 horas requiere parte de una tercera semana.
+El documento de ejecución es [Funciones de la demo en dos semanas](FUNCIONES_DEMO_DOS_SEMANAS.md): funciones F01–F09, criterios de aceptación, calendario de diez jornadas y comprobaciones necesarias.
 
-La demo no incluye login multiusuario, conexión GitHub, ejecución del scanner, consulta OSV, grafo, comparación, IA ni despliegue público. No se presentarán vulnerabilidades ficticias como resultados reales. El acceso de demostración se acotará al entorno local y a datos de ejemplo; la política general que bloquea los endpoints de negocio no se deshabilitará globalmente. La forma concreta del acceso local se resuelve en el bloque de consultas.
+Flujo obligatorio: cargar manualmente un SBOM CycloneDX JSON de ejemplo → validar → persistir snapshot y componentes → consultar y buscar inventario → mostrar detalle/procedencia. Se trabaja con una organización y un repositorio locales; el acceso de demo no abre globalmente los endpoints de negocio.
 
-Se acepta la demo cuando, desde el arranque documentado, se pueda importar el SBOM y mostrar su inventario y procedencia, repetir la presentación y controlar un archivo inválido. Parser, persistencia y consultas se diseñan para reutilizarlos en el piloto. El [backlog](BACKLOG_MVP.md) prioriza esta ruta.
+Semana 1: escenario, carga, parser, persistencia y consulta de backend (25 h). Semana 2: tabla Angular, detalle, errores, documentación y verificación (15 h), más reserva (10 h). La reserva absorbe correcciones; no se utiliza para añadir funcionalidades.
+
+Quedan fuera GitHub, scanner automático, login multiusuario, OSV, grafo, comparación, IA y despliegue público. Si se añade una función obligatoria, sustituir esfuerzo equivalente o revisar el plazo. Es un objetivo de entrega con alcance acotado, no una garantía del proyecto completo.
 
 ## Estado comprobado
 
@@ -73,7 +67,7 @@ Semanas de trabajo sostenido, sin descontar festivos, vacaciones o interrupcione
 | Hito | Momento orientativo a 25 h/semana | Qué se puede demostrar |
 | --- | --- | --- |
 | Base técnica | Disponible | Separación de capas y persistencia inicial |
-| Demo acotada | 2–3 semanas | Importar manualmente un SBOM conocido y consultar inventario local con una interfaz sencilla |
+| Demo local de presentación | 2 semanas / 50 h | Importar manualmente un SBOM conocido y consultar inventario local con una interfaz sencilla |
 | Primer análisis con scanner | Referencia anterior: 4–6 semanas; reestimar tras la demo | Repositorio → scanner → SBOM → inventario |
 | Piloto privado | Referencia anterior: 8–11 semanas; reestimar tras la demo | Flujo autorizado completo con vulnerabilidades, historial y operación básica |
 

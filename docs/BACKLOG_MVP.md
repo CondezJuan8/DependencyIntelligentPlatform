@@ -6,14 +6,14 @@ Estados: `Pendiente`, `En curso`, `Bloqueado`, `Terminado`. Mantener una sola en
 
 ## Primera salida: demo local
 
-Estos elementos tienen prioridad sobre el piloto. Total previsto con reserva: **40–60 h / 2–3 semanas**.
+Estos elementos tienen prioridad sobre el piloto. Plazo solicitado: **dos semanas / 50 horas**, distribuidas en **40 h de trabajo y 10 h de reserva**. Consultar [las funciones F01–F09 y el calendario diario](FUNCIONES_DEMO_DOS_SEMANAS.md), que concretan este backlog.
 
 | ID | Entrega | Depende de | Estado | Criterio de aceptación |
 | --- | --- | --- | --- | --- |
-| DEMO-01 | Escenario y SBOM de ejemplo | Elegir un repositorio/ecosistema de presentación | Pendiente | Archivo conocido con procedencia documentada y resultados esperados del inventario |
-| DEMO-02 | Importación manual y persistencia | DEMO-01 | Pendiente | Guarda snapshot y componentes reales; archivo inválido no deja datos parciales |
-| DEMO-03 | Consulta local de inventario | DEMO-02 | Pendiente | Devuelve componentes del snapshot con búsqueda y acceso limitado al escenario local; no abre globalmente los endpoints de negocio |
-| DEMO-04 | Pantalla de inventario y ensayo | DEMO-03 | Pendiente | Muestra datos importados, procedencia y estados vacío/error; guion y arranque reproducibles |
+| DEMO-01 | Escenario y SBOM de ejemplo — F01 | Elegir un repositorio/ecosistema de presentación | Pendiente | Archivo conocido con procedencia documentada y resultados esperados del inventario |
+| DEMO-02 | Carga, validación y persistencia — F02–F04 | DEMO-01 | Pendiente | Carga manual desde la interfaz, snapshot y componentes reales; archivo inválido no deja datos parciales |
+| DEMO-03 | Consulta local de inventario — F05 | DEMO-02 | Pendiente | Devuelve componentes del snapshot con búsqueda y paginación; no abre globalmente los endpoints de negocio |
+| DEMO-04 | Pantalla, detalle y ensayo — F06–F09 | DEMO-03 | Pendiente | Muestra inventario, detalle/procedencia y estados vacío/error; guion y arranque reproducibles |
 
 No se bloquea la demo por login multiusuario, GitHub, scanner u OSV. No se mostrará como integración ejecutada algo que no se haya implementado. El parser y la persistencia deben poder reutilizarse en MVP-08/MVP-09.
 
@@ -56,6 +56,6 @@ Las elecciones de proveedor y contrato se concretan antes de desarrollar cada in
 
 | Semana | Horas efectivas | Entregas terminadas | Bloqueos | Horas restantes revisadas |
 | --- | --- | --- | --- | --- |
-| Inicial | Capacidad: 25 h/semana; consumidas: por registrar | Arquitectura y persistencia inicial | Elegir escenario/SBOM y fecha de inicio | 40–60 h para la demo; piloto se reestima después |
+| Inicial | Capacidad: 25 h/semana; consumidas: por registrar | Arquitectura y persistencia inicial | Elegir escenario/SBOM y fecha de inicio | Presupuesto de demo: 50 h en dos semanas; piloto se reestima después |
 
 Registrar las horas reales al cerrar cada entrega. Si se consume la reserva o cambia el alcance, actualizar la fecha estimada y explicar la causa.
