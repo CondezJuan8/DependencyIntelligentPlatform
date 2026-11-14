@@ -10,6 +10,8 @@ Recorrido de la demo:
 
 Un SBOM es el archivo que describe los componentes de un proyecto. Para esta entrega se importa un archivo CycloneDX JSON ya generado. Los resultados deben proceder del archivo importado; la demo no analizará automáticamente el código fuente.
 
+Seguimiento: [bitácora de cada bloque](BITACORA_TRABAJO.md). F01 ya tiene perfil/bootstrap y [archivos sintéticos de ejemplo Maven, CycloneDX 1.6](../fixtures/demo/README.md); su aceptación completa sigue pendiente del arranque en el equipo de presentación. Ver [instrucciones de demo local](DEMO_LOCAL.md).
+
 ## Base que ya se puede reutilizar
 
 - Módulos Domain, Application e Infrastructure y estructura Angular.

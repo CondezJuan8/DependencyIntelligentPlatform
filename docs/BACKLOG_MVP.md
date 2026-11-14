@@ -10,7 +10,7 @@ Estos elementos tienen prioridad sobre el piloto. Plazo solicitado: **dos semana
 
 | ID | Entrega | Depende de | Estado | Criterio de aceptación |
 | --- | --- | --- | --- | --- |
-| DEMO-01 | Escenario y SBOM de ejemplo — F01 | Elegir un repositorio/ecosistema de presentación | Pendiente | Archivo conocido con procedencia documentada y resultados esperados del inventario |
+| DEMO-01 | Escenario y SBOM de ejemplo — F01 | Verificar arranque completo en equipo de presentación | En curso | Perfil/bootstrap y ejemplos Maven CycloneDX 1.6 preparados y probados en PostgreSQL; falta validar Compose/navegador |
 | DEMO-02 | Carga, validación y persistencia — F02–F04 | DEMO-01 | Pendiente | Carga manual desde la interfaz, snapshot y componentes reales; archivo inválido no deja datos parciales |
 | DEMO-03 | Consulta local de inventario — F05 | DEMO-02 | Pendiente | Devuelve componentes del snapshot con búsqueda y paginación; no abre globalmente los endpoints de negocio |
 | DEMO-04 | Pantalla, detalle y ensayo — F06–F09 | DEMO-03 | Pendiente | Muestra inventario, detalle/procedencia y estados vacío/error; guion y arranque reproducibles |

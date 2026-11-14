@@ -37,6 +37,8 @@ Consultar el [roadmap de salida](docs/ROADMAP.md) para alcance, esfuerzo y escen
 
 La primera entrega se planifica en dos semanas: ver [funciones de la demo local y calendario de 50 horas](docs/FUNCIONES_DEMO_DOS_SEMANAS.md).
 
+El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Para preparar el escenario, consultar [demo local](docs/DEMO_LOCAL.md).
+
 Incluye conexión PostgreSQL, Flyway, Actuator y pantalla inicial. El esquema del MVP contiene organizaciones, usuarios, membresías, integraciones, repositorios, análisis, artefactos, componentes, ocurrencias, relaciones, vulnerabilidades, hallazgos y auditoría. V2 amplía V1 sin reescribirla. Las claves compuestas impiden relaciones entre organizaciones y snapshots distintos; ver [base de datos](docs/BASE_DE_DATOS.md).
 
 Están implementados los casos de uso de registro/consulta de repositorios y solicitud de análisis, con persistencia real y consultas por organización. La solicitud queda `PENDING`: todavía no existen worker, GitHub, scanner, parseo CycloneDX, OSV ni las pantallas de inventario y grafo. Los demás contextos conservan paquetes de extensión. Las pruebas cubren reglas, límites de arquitectura, seguridad HTTP, persistencia, restricciones y actualización V1 → V2.
