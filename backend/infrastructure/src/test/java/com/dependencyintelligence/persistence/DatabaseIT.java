@@ -68,9 +68,9 @@ class DatabaseIT {
     }
 
     @Test void migrationsAndJpaValidationBootSuccessfully() {
-        assertEquals("2", flyway.info().current().getVersion().getVersion());
+        assertEquals("3", flyway.info().current().getVersion().getVersion());
         flyway.validate();
-        assertEquals(13, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
+        assertEquals(14, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
     }
 
     @Test void registersReadsAndQueuesScanThroughRealAdapters() {
@@ -129,9 +129,9 @@ class DatabaseIT {
         jdbc.execute("create table " + schema + ".retained_record (value text not null)");
         jdbc.update("insert into " + schema + ".retained_record values ('existing data')");
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(1, latest.migrate().migrationsExecuted);
+        assertEquals(2, latest.migrate().migrationsExecuted);
         latest.validate();
-        assertEquals("2", latest.info().current().getVersion().getVersion());
+        assertEquals("3", latest.info().current().getVersion().getVersion());
         assertEquals("existing data", jdbc.queryForObject("select value from " + schema + ".retained_record", String.class));
         assertEquals(0, latest.migrate().migrationsExecuted);
     }

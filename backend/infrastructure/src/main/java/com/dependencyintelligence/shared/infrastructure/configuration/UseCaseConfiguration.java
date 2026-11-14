@@ -14,11 +14,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import java.time.Clock;
+import com.dependencyintelligence.sbom.application.port.in.ImportSbom;
+import com.dependencyintelligence.sbom.application.port.out.SbomParser;
+import com.dependencyintelligence.sbom.application.port.out.SbomImportStore;
+import com.dependencyintelligence.sbom.application.usecase.ImportSbomUseCase;
 
 /** Composition root owns framework wiring and use case transaction boundaries. */
 @Configuration
 public class UseCaseConfiguration {
     @Bean Clock clock() { return Clock.systemUTC(); }
+
+    @Bean ImportSbom importSbom(RepositoryStore repositories, SbomParser parser, SbomImportStore imports,
+                               Clock clock, PlatformTransactionManager manager) {
+        var useCase = new ImportSbomUseCase(repositories, parser, imports, clock);
+        var transaction = new TransactionTemplate(manager);
+        return command -> transaction.execute(status -> useCase.execute(command));
+    }
 
     @Bean RegisterRepository registerRepository(OrganizationLookup organizations, RepositoryStore repositories,
                                                 Clock clock, PlatformTransactionManager manager) {

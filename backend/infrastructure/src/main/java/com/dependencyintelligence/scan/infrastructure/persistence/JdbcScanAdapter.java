@@ -16,12 +16,12 @@ public class JdbcScanAdapter implements ScanStore {
     public Scan add(Scan scan) {
         jdbc.update("""
             insert into scans (id, organization_id, repository_id, git_reference, status,
-                               requested_at, started_at, finished_at, failure_reason)
-            values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               requested_at, started_at, finished_at, failure_reason, origin)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, scan.id(), scan.organizationId().value(), scan.repositoryId().value(),
             scan.gitReference(), scan.status().name(), Timestamp.from(scan.requestedAt()),
             scan.startedAt() == null ? null : Timestamp.from(scan.startedAt()),
-            scan.finishedAt() == null ? null : Timestamp.from(scan.finishedAt()), scan.failureReason());
+            scan.finishedAt() == null ? null : Timestamp.from(scan.finishedAt()), scan.failureReason(), scan.origin().name());
         return scan;
     }
 }
