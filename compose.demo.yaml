@@ -1,0 +1,7 @@
+# Use with a separate project: docker compose -p dependency-intelligence-demo -f compose.yaml -f compose.demo.yaml ...
+services:
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: demo
+      # Container-only listener; backend has no published host port.
+      SERVER_ADDRESS: 0.0.0.0
