@@ -1,8 +1,23 @@
 # Backlog de salida del MVP
 
-Complementa el [roadmap y sus estimaciones](ROADMAP.md). Prioridades propuestas al 14 de noviembre de 2026; el alcance y las horas semanales siguen pendientes de confirmación. Una fila se completa por su resultado verificable, no por crear paquetes o interfaces.
+Complementa el [roadmap y sus estimaciones](ROADMAP.md). Confirmado por el usuario: **25 horas semanales y demo local para presentar como primera salida**. Una fila se completa por su resultado verificable, no por crear paquetes o interfaces.
 
 Estados: `Pendiente`, `En curso`, `Bloqueado`, `Terminado`. Mantener una sola entrega principal en curso por responsable.
+
+## Primera salida: demo local
+
+Estos elementos tienen prioridad sobre el piloto. Total previsto con reserva: **40–60 h / 2–3 semanas**.
+
+| ID | Entrega | Depende de | Estado | Criterio de aceptación |
+| --- | --- | --- | --- | --- |
+| DEMO-01 | Escenario y SBOM de ejemplo | Elegir un repositorio/ecosistema de presentación | Pendiente | Archivo conocido con procedencia documentada y resultados esperados del inventario |
+| DEMO-02 | Importación manual y persistencia | DEMO-01 | Pendiente | Guarda snapshot y componentes reales; archivo inválido no deja datos parciales |
+| DEMO-03 | Consulta local de inventario | DEMO-02 | Pendiente | Devuelve componentes del snapshot con búsqueda y acceso limitado al escenario local; no abre globalmente los endpoints de negocio |
+| DEMO-04 | Pantalla de inventario y ensayo | DEMO-03 | Pendiente | Muestra datos importados, procedencia y estados vacío/error; guion y arranque reproducibles |
+
+No se bloquea la demo por login multiusuario, GitHub, scanner u OSV. No se mostrará como integración ejecutada algo que no se haya implementado. El parser y la persistencia deben poder reutilizarse en MVP-08/MVP-09.
+
+## Después de la demo: piloto
 
 | ID | Entrega | Prioridad | Depende de | Estado | Criterio de aceptación |
 | --- | --- | --- | --- | --- | --- |
@@ -27,11 +42,13 @@ P0 bloquea la salida del piloto propuesto. P1 amplía el producto después del p
 
 ## Próximo bloque de implementación
 
-Resolver MVP-01 a MVP-03 antes de habilitar los endpoints de negocio. Separar por funcionalidad:
+Resolver DEMO-01 y avanzar con importación, consulta y pantalla. Commits propuestos por funcionalidad, cada uno con su validación necesaria:
 
-1. `✨ feat(identity): implementa autenticación e identidad del usuario`
-2. `✨ feat(organization): crea organización inicial y membresías`
-3. `✨ feat(accesscontrol): autoriza repositorios y análisis por organización`
+1. `✨ feat(sbom): importa y persiste un snapshot CycloneDX local`
+2. `✨ feat(inventory): consulta el inventario del snapshot de demostración`
+3. `✨ feat(frontend): presenta el inventario importado en la demo local`
+
+Al cerrar la demo, reestimar el piloto. Resolver MVP-01 a MVP-03 antes de habilitar el acceso de negocio para usuarios del piloto.
 
 Las elecciones de proveedor y contrato se concretan antes de desarrollar cada integración. Este backlog no autoriza despliegues ni nuevas contrataciones.
 
@@ -39,6 +56,6 @@ Las elecciones de proveedor y contrato se concretan antes de desarrollar cada in
 
 | Semana | Horas efectivas | Entregas terminadas | Bloqueos | Horas restantes revisadas |
 | --- | --- | --- | --- | --- |
-| Inicial | Por confirmar | Arquitectura y persistencia inicial | Identidad, scanner y capacidad semanal por concretar | 180–275 h para el piloto propuesto |
+| Inicial | Capacidad: 25 h/semana; consumidas: por registrar | Arquitectura y persistencia inicial | Elegir escenario/SBOM y fecha de inicio | 40–60 h para la demo; piloto se reestima después |
 
 Registrar las horas reales al cerrar cada entrega. Si se consume la reserva o cambia el alcance, actualizar la fecha estimada y explicar la causa.
