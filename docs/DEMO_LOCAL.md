@@ -2,7 +2,7 @@
 
 ## Estado
 
-F01 dispone de perfil local, bootstrap idempotente y archivos de ejemplo. El importador, las consultas de inventario y sus pantallas siguen pendientes. La pantalla inicial actual no permite todavía cargar SBOM.
+F01 dispone de perfil local, bootstrap idempotente y archivos de ejemplo. F03 ya tiene parser de CycloneDX JSON 1.6/Maven probado de forma unitaria; todavía no está conectado a la importación persistente. La carga, las consultas de inventario y sus pantallas siguen pendientes. La pantalla inicial actual no permite todavía cargar SBOM.
 
 El perfil `demo` crea al arrancar, después de Flyway:
 

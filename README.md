@@ -41,7 +41,7 @@ El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACOR
 
 Incluye conexión PostgreSQL, Flyway, Actuator y pantalla inicial. El esquema del MVP contiene organizaciones, usuarios, membresías, integraciones, repositorios, análisis, artefactos, componentes, ocurrencias, relaciones, vulnerabilidades, hallazgos y auditoría. V2 amplía V1 sin reescribirla. Las claves compuestas impiden relaciones entre organizaciones y snapshots distintos; ver [base de datos](docs/BASE_DE_DATOS.md).
 
-Están implementados los casos de uso de registro/consulta de repositorios y solicitud de análisis, con persistencia real y consultas por organización. La solicitud queda `PENDING`: todavía no existen worker, GitHub, scanner, parseo CycloneDX, OSV ni las pantallas de inventario y grafo. Los demás contextos conservan paquetes de extensión. Las pruebas cubren reglas, límites de arquitectura, seguridad HTTP, persistencia, restricciones y actualización V1 → V2.
+Están implementados los casos de uso de registro/consulta de repositorios y solicitud de análisis, con persistencia real y consultas por organización. También existe un parser acotado de CycloneDX JSON 1.6/Maven, todavía sin conectar a carga y persistencia del inventario. La solicitud queda `PENDING`: no existen worker, GitHub, scanner, OSV ni las pantallas de inventario y grafo. Los demás contextos conservan paquetes de extensión. Las pruebas cubren reglas, parser, límites de arquitectura, seguridad HTTP, persistencia, restricciones y actualización V1 → V2.
 
 Faltan autenticación y autorización por membresía. La integridad referencial y los filtros de organización no sustituyen esos controles; no hay RLS. Los endpoints de negocio permanecen bloqueados.
 

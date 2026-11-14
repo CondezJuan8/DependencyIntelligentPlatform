@@ -47,6 +47,20 @@ Los DTO no son entidades JPA. `RepositoryId` y `OrganizationId` evitan intercamb
 
 ## Seguridad y alcance
 
+### Lectura de SBOM implementada — F03
+
+`SbomParser` es un puerto de salida de Application. `CycloneDxJsonParser`, ubicado en Infrastructure, implementa el subconjunto CycloneDX JSON 1.6/Maven acordado para la demo mediante Jackson, ya incluido por Spring Web. No se ha añadido SDK de scanner ni biblioteca nueva.
+
+El resultado usa DTO propios (`ParsedSbom`, `SbomComponent`) y el value object de Domain `PackageCoordinates`. El paquete/versionado se distingue de la ocurrencia identificada por `bom-ref`: dos referencias distintas pueden apuntar al mismo PURL. El componente raíz de `metadata.component` no se incorpora como biblioteca. No se infieren tipo de dependencia, commit ni hallazgos.
+
+Límites de aplicación: 5 MiB y 500 componentes. El adaptador limita lectura, profundidad JSON, longitud de cadenas y números; rechaza claves JSON repetidas, documentos concatenados, referencias duplicadas —incluida la raíz—, campos obligatorios ausentes, versiones no soportadas y PURL incompatibles con las coordenadas declaradas. Los errores usan razones propias de Application, sin exponer excepciones Jackson como contrato.
+
+Es un parser acotado, no un validador completo del estándar ni una importación terminada. Por ahora solo admite bibliotecas planas y PURL Maven simples que coincidan literalmente con grupo/nombre/versión; no admite qualifiers, subpaths, coordenadas codificadas ni componentes anidados. No sigue URLs ni ejecuta procesos. El puerto recibe un stream propiedad del llamador y no lo cierra. La carga HTTP, persistencia de snapshots y consulta de inventario todavía deben conectarse.
+
+Las pruebas focalizadas de este bloque son `CycloneDxJsonParserTest` y `HexagonalArchitectureTest`. No necesitan PostgreSQL ni levantar Spring.
+
+### Acceso a la aplicación
+
 Los adaptadores HTTP de repositorios y scans existen bajo `/api/organizations/{organizationId}/repositories`, pero la política actual deniega todos los endpoints de negocio. Solo health es público. Un ID recibido en una ruta **no autoriza** al usuario: antes de habilitar estas rutas deben implementarse identidad, validación de membresía y permisos. Los filtros y claves compuestas protegen la coherencia de relaciones, pero no sustituyen autorización ni implementan RLS.
 
 La solicitud de scan se guarda; todavía no existe worker ni integración con scanner, GitHub u OSV. Los contextos restantes conservan sus puntos de extensión. Ver [BASE_DE_DATOS.md](BASE_DE_DATOS.md) para el esquema y las pruebas.

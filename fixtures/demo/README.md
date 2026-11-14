@@ -19,6 +19,6 @@ La aplicación de `metadata.component` identifica el proyecto raíz; no cuenta e
 
 Las tres ocurrencias se clasificarán como `UNKNOWN`: el archivo no demuestra si son dependencias directas o transitivas. Cada importación aceptada generará su propio identificador de snapshot; `serialNumber` es procedencia del archivo, no el ID de la fila en la base.
 
-El archivo de rechazo es JSON sintácticamente válido y deliberadamente inválido para el contrato del importador. El parser todavía no está implementado: preparar el archivo no equivale a haber probado su rechazo por la aplicación.
+El archivo de rechazo es JSON sintácticamente válido y deliberadamente inválido para el contrato del importador. El parser ya está implementado y sus pruebas unitarias cubren este tipo de referencias repetidas; todavía no hay carga HTTP ni persistencia conectadas. Este bloque no ejecutó los archivos de esta carpeta contra un flujo de importación completo.
 
 Ver [arranque local](../../docs/DEMO_LOCAL.md).

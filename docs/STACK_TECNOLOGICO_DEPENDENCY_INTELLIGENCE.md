@@ -21,6 +21,18 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 > **Estado de decisión:** este documento es una recomendación técnica derivada de los dos archivos. No implica que las tecnologías estén instaladas, implementadas o probadas. Las decisiones marcadas como pendientes deben aprobarse antes de considerarlas definitivas.
 
+### Actualización de implementación — 14 de noviembre de 2026
+
+Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El usuario confirmó una demo local de dos semanas con 25 horas semanales; el alcance está en `FUNCIONES_DEMO_DOS_SEMANAS.md`.
+
+- Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
+- Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.
+- Verificación de este bloque: JUnit 5 para el parser y ArchUnit para las fronteras de arquitectura; compilación con JDK local 25 y destino Java 21. No se repitieron las pruebas de base de datos porque no cambió la persistencia.
+- Se mantiene PostgreSQL/Flyway para la persistencia posterior del importador. No se han incorporado microservicios, RabbitMQ, pgvector, RAG ni proveedores nuevos.
+- cdxgen, GitHub y OSV siguen pendientes y fuera de la demo inicial. El parser implementado no demuestra cobertura del scanner ni consulta de vulnerabilidades. El soporte de Maven para este ejemplo no aprueba por sí solo la cobertura de todos los ecosistemas del piloto.
+
+El detalle vigente de responsabilidades está en `ARQUITECTURA_BACKEND.md`; los resultados y límites de cada bloque están en `BITACORA_TRABAJO.md`.
+
 ---
 
 ## 2. Criterios para seleccionar el stack

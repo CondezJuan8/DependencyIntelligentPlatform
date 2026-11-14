@@ -15,6 +15,8 @@ Estos elementos tienen prioridad sobre el piloto. Plazo solicitado: **dos semana
 | DEMO-03 | Consulta local de inventario — F05 | DEMO-02 | Pendiente | Devuelve componentes del snapshot con búsqueda y paginación; no abre globalmente los endpoints de negocio |
 | DEMO-04 | Pantalla, detalle y ensayo — F06–F09 | DEMO-03 | Pendiente | Muestra inventario, detalle/procedencia y estados vacío/error; guion y arranque reproducibles |
 
+Avance de DEMO-02: **F03 (parser) implementada y validada de forma unitaria**. F02 (carga) y F04 (persistencia de la importación) siguen pendientes; por eso la entrega completa continúa pendiente.
+
 No se bloquea la demo por login multiusuario, GitHub, scanner u OSV. No se mostrará como integración ejecutada algo que no se haya implementado. El parser y la persistencia deben poder reutilizarse en MVP-08/MVP-09.
 
 ## Después de la demo: piloto

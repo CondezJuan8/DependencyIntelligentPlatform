@@ -1,5 +1,7 @@
 # Instrucciones de trabajo
 
+- Antes de implementar, revisar `docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`, `docs/ARQUITECTURA_BACKEND.md` y `docs/STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`. Distinguir la visión y propuestas históricas del estado implementado y del alcance de demo confirmado por el usuario.
+
 - Mantener `docs/BITACORA_TRABAJO.md` en cada bloque: petición, cambios concretos, herramientas/tecnologías utilizadas, verificaciones ejecutadas con resultado y siguiente paso. Distinguir herramientas usadas de dependencias nuevas implementadas. No inventar horas ni resultados.
 - Mantener Domain y Application independientes de Spring/JPA; los adaptadores y la configuración pertenecen a Infrastructure.
 - Ejecutar únicamente las pruebas necesarias para el cambio. Repetirlas si cambia el comportamiento cubierto, fallan o queda una duda concreta.

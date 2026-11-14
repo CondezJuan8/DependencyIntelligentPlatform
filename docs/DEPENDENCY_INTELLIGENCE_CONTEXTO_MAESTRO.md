@@ -6,6 +6,18 @@
 
 > Este documento consolida el contexto disponible de las conversaciones. Distingue lo que ya se propuso de lo que está decidido. Las propuestas no deben tratarse como decisiones aprobadas si el usuario todavía no las confirmó. Tampoco se deben interpretar ejemplos, datos de mockups o estimaciones como resultados reales.
 
+## Actualización de continuidad — 14 de noviembre de 2026
+
+Las secciones numeradas posteriores conservan el contexto histórico del 12 de noviembre. Para el estado de implementación actual, aplicar esta actualización y contrastar `ARQUITECTURA_BACKEND.md`, `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md` y `BITACORA_TRABAJO.md`.
+
+- El usuario confirmó **25 horas semanales y una demo local para presentar en dos semanas**. Se limita a carga manual de un SBOM conocido, snapshot e inventario con búsqueda y detalle; no es el piloto SaaS completo. El presupuesto es 40 horas de trabajo y 10 de reserva.
+- Hay tres módulos Maven independientes, esquema Flyway V1/V2 y casos de uso de registro/consulta de repositorios y solicitud de análisis. Las APIs de negocio siguen bloqueadas hasta implementar su acceso correspondiente.
+- Existe un perfil `demo` con bootstrap transaccional de organización/repositorio y ejemplos CycloneDX sintéticos identificados como tales. Su arranque completo mediante Docker sigue pendiente de verificación en el equipo de presentación.
+- **F03 implementada como parser:** puerto `SbomParser` en Application, DTO propios y value object de coordenadas en Domain; adaptador Jackson en Infrastructure para CycloneDX JSON 1.6/Maven, bibliotecas planas, límites de 5 MiB/500 componentes y validación de referencias/PURL. No está conectado todavía a carga HTTP ni a persistencia del inventario.
+- Los datos del ejemplo no son resultados de cdxgen. No se infieren dependencias directas/transitivas, hashes de commit ni vulnerabilidades. GitHub, scanner, OSV, grafo, IA y despliegue público quedan para etapas posteriores.
+- Verificaciones de este bloque: ocho pruebas del parser y cuatro reglas de arquitectura aprobadas, sin ejecutar suites de base de datos ni frontend. El siguiente bloque es conectar la importación con persistencia transaccional (F04) y carga local (F02).
+- Mantener la bitácora en cada bloque con herramientas, resultados y siguiente paso; usar commits coherentes por funcionalidad, siempre con emoji, y ejecutar solo pruebas relevantes.
+
 ---
 
 # 1. Resumen ejecutivo del proyecto
