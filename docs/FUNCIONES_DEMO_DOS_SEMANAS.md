@@ -12,7 +12,7 @@ Un SBOM es el archivo que describe los componentes de un proyecto. Para esta ent
 
 Seguimiento: [bitácora de cada bloque](BITACORA_TRABAJO.md). F01 ya tiene perfil/bootstrap y [archivos sintéticos de ejemplo Maven, CycloneDX 1.6](../fixtures/demo/README.md); su aceptación completa sigue pendiente del arranque en el equipo de presentación. Ver [instrucciones de demo local](DEMO_LOCAL.md).
 
-F03 está implementada como parser aislado y probado; todavía no está conectada a la carga de F02 ni a la persistencia de F04. El soporte es deliberadamente limitado al subconjunto documentado en [arquitectura](ARQUITECTURA_BACKEND.md).
+F03 (parser) y F04 (importación persistente) están implementadas y probadas; todavía no están conectadas a la carga HTTP/interfaz de F02. El soporte es deliberadamente limitado al subconjunto documentado en [arquitectura](ARQUITECTURA_BACKEND.md).
 
 ## Base que ya se puede reutilizar
 

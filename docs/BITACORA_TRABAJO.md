@@ -101,3 +101,64 @@ No se iniciaron base de datos, Docker ni frontend; no cambiaron persistencia o e
 ### Commits
 
 Tres cambios coherentes: contratos/coordenadas, adaptador CycloneDX con pruebas y actualización de documentos prioritarios/bitácora. Todos con emoji; sus identificadores quedan en el historial de Git.
+
+## Bloque 03 — Importación transaccional del SBOM (F04)
+
+Fecha: 14 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Objetivo y documentos revisados
+
+Continuar con F04, respetando contexto maestro, arquitectura backend, stack y alcance de demo. Se revisaron el esquema V2, los puertos existentes, el agregado Scan y las decisiones de procedencia: no inventar commit, referencia Git, scanner o relaciones.
+
+### Implementación
+
+- Añadidos el puerto de entrada `ImportSbom`, comando/resultado, `ImportSbomUseCase` y el puerto de salida `SbomImportStore`, sin frameworks en Application.
+- El caso de uso verifica repositorio dentro de la organización antes de leer; valida el documento y calcula SHA-256 de los bytes originales antes de escribir. Conserva la propiedad del stream en el llamador.
+- Extendido el agregado Scan con origen explícito: los análisis normales siguen siendo `REPOSITORY_SCAN`; `Scan.imported` crea un snapshot terminal `SBOM_IMPORT`, sin referencia Git inventada. Sus fechas representan importación, no duración de scanner.
+- Flyway V3 añade namespace al catálogo, origen al snapshot y tabla de procedencia `sbom_imports`. V1/V2 no se modifican. La base actual tiene 14 tablas de negocio.
+- `UseCaseConfiguration` delimita la transacción; `JdbcSbomImportAdapter` la exige y guarda snapshot, procedencia, catálogo y ocurrencias con SQL parametrizado.
+- Se reutiliza el catálogo por organización/PURL solo si coinciden las coordenadas; un conflicto provoca rollback sin sobrescribir información previa. Cada carga aceptada crea otro snapshot; sus ocurrencias conservan `bom-ref` y clasificación `UNKNOWN`.
+- No se almacenan archivos originales ni se crean filas de artefactos con rutas ficticias. No se ejecutan scanner, OSV o GitHub.
+- Sincronizados contexto maestro, arquitectura, stack, base de datos, roadmap, backlog y documentación de demo con el avance real.
+
+### Herramientas y tecnologías
+
+| Herramienta / tecnología | Uso | Incorporación |
+| --- | --- | --- |
+| Java estándar: DigestInputStream, MessageDigest y SHA-256 | Identificar los bytes originales del documento | Sin dependencia nueva |
+| Spring TransactionTemplate / gestor transaccional existente | Delimitar el caso de uso y rollback atómico | Ya existente; Application sigue sin Spring |
+| JdbcTemplate y PostgreSQL ON CONFLICT | Persistir y reutilizar catálogo compatible dentro de cada organización | Ya existentes; sin ORM/SDK adicional |
+| Flyway | Evolución V3 sin reescribir migraciones aplicadas | Una migración nueva, sin dependencia nueva |
+| Jackson | Validación previa mediante el parser implementado en el bloque anterior | Reutilizado, sin cambios al parser |
+| JUnit, Spring Boot Test y ArchUnit | Verificar reglas afectadas, integración real y fronteras de capas | Dependencias ya existentes |
+| Maven, JDK, PowerShell y Git | Compilar, ejecutar pruebas focalizadas y registrar commits | Herramientas de trabajo |
+
+### Verificación ejecutada y resultados
+
+Se ejecutó desde `backend/` la selección:
+
+```bash
+mvn verify -Pdatabase-it -Dtest=ScanTest,ImportSbomUseCaseTest,HexagonalArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=SbomImportIT,DatabaseIT#migrationsAndJpaValidationBootSuccessfully+upgradesExistingV1WithoutRewritingItsChecksumOrDeletingData+registersReadsAndQueuesScanThroughRealAdapters -Dfailsafe.failIfNoSpecifiedTests=false
+```
+
+**BUILD SUCCESS; 18 comprobaciones aprobadas, 0 fallos, 0 errores, 0 omisiones:**
+
+- ScanTest: 5 pruebas del ciclo de vida, incluido origen de importación y referencia Git ausente.
+- ImportSbomUseCaseTest: 2 pruebas; repositorio ajeno/ausente no llega al parser y documento inválido no llega a persistencia.
+- HexagonalArchitectureTest: 4 reglas de dependencia/ubicación.
+- DatabaseIT: solo 3 métodos afectados; arranque con 14 tablas y V3, actualización desde V1 preservando datos/checksums y solicitud normal de análisis.
+- SbomImportIT: 4 pruebas en PostgreSQL; procedencia/SHA-256, snapshots separados y catálogo reutilizado, rechazo de documentos inválidos, aislamiento por organización y rollback después de escrituras parciales ante conflicto de catálogo.
+
+Se reutilizó PostgreSQL 18.6 temporal para comprobar también la actualización de una base con V2. Se detuvo al terminar. Entorno: Maven 3.9.11, JDK local 25 y destino Java 21. No se repitieron las pruebas unitarias del parser ni las suites de frontend/seguridad HTTP: esos componentes no cambiaron.
+
+### Límites y próximo paso
+
+- F03 y F04 están conectadas a nivel de caso de uso y adaptadores. F02 sigue pendiente: no existe endpoint de carga ni interfaz que invoque la importación; DEMO-02 no se marca completa.
+- Las pruebas usaron documentos JSON construidos en los tests; no se hizo aún el recorrido de presentación con los archivos de fixtures.
+- No se verificaron importaciones simultáneas, reinicio del equipo ni Docker/Compose; el catálogo usa upsert, pero no se presenta una prueba de concurrencia como ejecutada.
+- Las filas históricas de componentes reciben namespace vacío por V3 sin deducciones. Si sus coordenadas entran en conflicto con una importación, la operación se rechaza y requiere revisión.
+- Siguiente bloque: F02, carga HTTP acotada a la organización/repositorio de demo con errores claros; después F05, consultas del inventario. Se conserva el bloqueo general de negocio hasta definir el acceso local de esos adaptadores.
+
+### Commits
+
+Separación en tres cambios con emoji: caso de uso/modelo, persistencia/migración con pruebas focalizadas y actualización documental/bitácora. Consultar el historial para los identificadores.

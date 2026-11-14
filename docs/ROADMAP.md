@@ -25,7 +25,7 @@ Quedan fuera GitHub, scanner automático, login multiusuario, OSV, grafo, compar
 | Área | Estado | Evidencia / límite |
 | --- | --- | --- |
 | Arquitectura | Base implementada | Tres módulos Maven: Domain, Application e Infrastructure |
-| Persistencia | Esquema inicial implementado | 13 tablas, Flyway V1/V2, integridad por organización y snapshot; no equivale a tener todos los casos de uso |
+| Persistencia | Esquema e importación SBOM implementados | 14 tablas, Flyway V1/V2/V3, importación transaccional y procedencia; no equivale a tener todos los casos de uso |
 | Repositorios | Parcial | Registro y consulta con persistencia; endpoints bloqueados hasta implementar autorización |
 | Análisis | Parcial | Solicitudes persistidas en PENDING y reglas del agregado; falta ejecutor |
 | Autenticación y permisos | Pendiente | No hay identidad ni validación operativa de membresías |

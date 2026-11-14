@@ -55,9 +55,21 @@ El resultado usa DTO propios (`ParsedSbom`, `SbomComponent`) y el value object d
 
 Límites de aplicación: 5 MiB y 500 componentes. El adaptador limita lectura, profundidad JSON, longitud de cadenas y números; rechaza claves JSON repetidas, documentos concatenados, referencias duplicadas —incluida la raíz—, campos obligatorios ausentes, versiones no soportadas y PURL incompatibles con las coordenadas declaradas. Los errores usan razones propias de Application, sin exponer excepciones Jackson como contrato.
 
-Es un parser acotado, no un validador completo del estándar ni una importación terminada. Por ahora solo admite bibliotecas planas y PURL Maven simples que coincidan literalmente con grupo/nombre/versión; no admite qualifiers, subpaths, coordenadas codificadas ni componentes anidados. No sigue URLs ni ejecuta procesos. El puerto recibe un stream propiedad del llamador y no lo cierra. La carga HTTP, persistencia de snapshots y consulta de inventario todavía deben conectarse.
+Es un parser acotado, no un validador completo del estándar. Por ahora solo admite bibliotecas planas y PURL Maven simples que coincidan literalmente con grupo/nombre/versión; no admite qualifiers, subpaths, coordenadas codificadas ni componentes anidados. No sigue URLs ni ejecuta procesos. El puerto recibe un stream propiedad del llamador y no lo cierra. Ya está conectado al caso de uso de importación persistente F04; la carga HTTP y consulta de inventario siguen pendientes.
 
 Las pruebas focalizadas de este bloque son `CycloneDxJsonParserTest` y `HexagonalArchitectureTest`. No necesitan PostgreSQL ni levantar Spring.
+
+### Importación persistente implementada — F04
+
+`ImportSbom` recibe un comando con organización, repositorio y stream. `ImportSbomUseCase` verifica primero el repositorio dentro de la organización, lee mediante `SbomParser` y calcula SHA-256 sobre los bytes originales con `DigestInputStream`. Solo después de validar llama a `SbomImportStore`. El llamador conserva la propiedad del stream.
+
+`UseCaseConfiguration` envuelve el caso de uso en una transacción. `JdbcSbomImportAdapter` exige esa transacción y guarda snapshot, procedencia, catálogo y ocurrencias mediante JDBC parametrizado. Un error revierte todo el bloque; no deja un snapshot fallido ni componentes parciales. La verificación de organización es de coherencia; la futura entrada HTTP deberá aplicar además los controles de acceso correspondientes.
+
+V3 añade namespace al catálogo, origen del snapshot y tabla `sbom_imports`. Un snapshot de importación se crea `COMPLETED`, con origen `SBOM_IMPORT`, referencia Git y metadatos de scanner ausentes. Sus tiempos representan el instante de importación, no una ejecución medida de scanner. Los análisis normales conservan origen `REPOSITORY_SCAN` y referencia Git obligatoria.
+
+El adaptador reutiliza el catálogo por organización/PURL mediante `ON CONFLICT`, conservando namespace, nombre, versión y ecosistema. Si las coordenadas registradas son incompatibles, rechaza la importación en lugar de sobrescribirlas. Cada importación aceptada crea un snapshot nuevo y cada `bom-ref` conserva su propia ocurrencia, clasificada `UNKNOWN`. No crea aristas, hallazgos ni artefactos con rutas ficticias.
+
+`sbom_imports` conserva formato, versión de especificación, serial cuando existe y SHA-256 del documento. No se conserva el archivo original; el hash permite identificar bytes, no reconstruirlos ni sustituir su almacenamiento. F04 se verifica con `ImportSbomUseCaseTest`, `SbomImportIT`, pruebas afectadas de `ScanTest` y comprobaciones de migración/arquitectura.
 
 ### Acceso a la aplicación
 
