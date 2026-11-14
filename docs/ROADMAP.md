@@ -2,11 +2,29 @@
 
 Fecha de revisión: 14 de noviembre de 2026. Estimación inicial basada en el código actual; no es una fecha de entrega comprometida.
 
-## Objetivo y supuesto de capacidad
+## Objetivo y capacidad confirmados
 
-Primera salida propuesta: **piloto privado para pocos usuarios** que puedan iniciar sesión, conectar un repositorio GitHub, solicitar un análisis manual y consultar inventario, vulnerabilidades e historial con aislamiento por organización.
+Primera salida confirmada por el usuario: **demo local para presentar**. Flujo de la presentación: importar manualmente un SBOM CycloneDX conocido → guardar el snapshot → consultar su inventario en una interfaz sencilla. Se trabaja con un repositorio de ejemplo y un ecosistema para acotar el alcance.
 
-Referencia provisional: una persona responsable del proyecto, asistida por Codex, con **25 horas efectivas por semana**. Las horas incluyen implementación, revisión, depuración, pruebas necesarias y documentación breve. El trabajo de Codex se considera asistencia dentro de esa capacidad; no se asume que elimina el tiempo de integración o validación. Confirmar disponibilidad semanal y tipo de primera salida antes de fijar una fecha.
+Capacidad confirmada: **25 horas efectivas por semana**, una persona responsable del proyecto asistida por Codex. Las horas incluyen implementación, revisión, depuración, pruebas necesarias y documentación breve. El trabajo de Codex se considera asistencia dentro de esa capacidad; no se asume que elimina el tiempo de integración o validación. El inicio de ejecución todavía debe fijarse para convertir las semanas relativas en fechas de calendario.
+
+## Primera entrega: demo local en 2–3 semanas
+
+| Bloque | Esfuerzo | Resultado verificable |
+| --- | --- | --- |
+| Preparar escenario, SBOM y contrato de importación | 6–8 h | Un SBOM conocido, su procedencia y un guion de presentación definidos |
+| Importar y persistir snapshot/componentes | 12–18 h | Importación manual por comando o adaptador local; sin scanner ni GitHub; errores sin escrituras parciales |
+| Consultar inventario local | 6–10 h | Consulta del snapshot con búsqueda y acceso acotado a la demo local |
+| Construir pantalla y ensayar presentación | 8–12 h | Interfaz con datos importados reales, estado vacío/error y arranque documentado |
+| **Subtotal** | **32–48 h** | |
+| **Reserva del 25 %** | **8–12 h** | Ajustes de integración y presentación |
+| **Total** | **40–60 h** | **2–3 semanas a 25 h/semana** |
+
+Secuencia orientativa: semana 1, escenario y parser/persistencia; semana 2, consulta e interfaz; semana 3, margen de correcciones y ensayo si hace falta. Dos semanas aportan 50 horas: el extremo alto de 60 horas requiere parte de una tercera semana.
+
+La demo no incluye login multiusuario, conexión GitHub, ejecución del scanner, consulta OSV, grafo, comparación, IA ni despliegue público. No se presentarán vulnerabilidades ficticias como resultados reales. El acceso de demostración se acotará al entorno local y a datos de ejemplo; la política general que bloquea los endpoints de negocio no se deshabilitará globalmente. La forma concreta del acceso local se resuelve en el bloque de consultas.
+
+Se acepta la demo cuando, desde el arranque documentado, se pueda importar el SBOM y mostrar su inventario y procedencia, repetir la presentación y controlar un archivo inválido. Parser, persistencia y consultas se diseñan para reutilizarlos en el piloto. El [backlog](BACKLOG_MVP.md) prioriza esta ruta.
 
 ## Estado comprobado
 
@@ -23,7 +41,9 @@ Referencia provisional: una persona responsable del proyecto, asistida por Codex
 
 No se asigna un porcentaje global: contar carpetas, tablas o pruebas como funcionalidades completas daría una impresión incorrecta del avance.
 
-## Estimación restante del piloto
+## Etapa posterior: referencia de esfuerzo del piloto
+
+El piloto privado ya no es la primera entrega. Su objetivo posterior es permitir login, conexión GitHub, análisis manual con scanner, inventario, vulnerabilidades e historial por organización. La siguiente estimación conserva la línea base anterior a la demo: se recalculará al terminarla, descontando trabajo reutilizable y añadiendo lo que aparezca. No debe sumarse automáticamente el total de la demo al del piloto.
 
 | Orden | Entrega | Esfuerzo | Condición de finalización |
 | --- | --- | --- | --- |
@@ -43,7 +63,7 @@ La tabla se suma de forma conservadora: no descuenta trabajo paralelo. La interf
 | Dedicación efectiva | Piloto estimado, incluida la reserva |
 | --- | --- |
 | 10 h/semana | 18–28 semanas |
-| 25 h/semana — referencia provisional | 8–11 semanas |
+| 25 h/semana — capacidad confirmada | 8–11 semanas |
 | 40 h/semana | 5–7 semanas |
 
 Semanas de trabajo sostenido, sin descontar festivos, vacaciones o interrupciones. Si se añaden personas, no se divide automáticamente el esfuerzo: hay integración y coordinación.
@@ -54,10 +74,10 @@ Semanas de trabajo sostenido, sin descontar festivos, vacaciones o interrupcione
 | --- | --- | --- |
 | Base técnica | Disponible | Separación de capas y persistencia inicial |
 | Demo acotada | 2–3 semanas | Importar manualmente un SBOM conocido y consultar inventario local con una interfaz sencilla |
-| Primer análisis real | 4–6 semanas | Repositorio → scanner → SBOM → inventario; escenario acotado y todavía sin garantías de piloto |
-| Piloto privado | 8–11 semanas | Flujo autorizado completo con vulnerabilidades, historial y operación básica |
+| Primer análisis con scanner | Referencia anterior: 4–6 semanas; reestimar tras la demo | Repositorio → scanner → SBOM → inventario |
+| Piloto privado | Referencia anterior: 8–11 semanas; reestimar tras la demo | Flujo autorizado completo con vulnerabilidades, historial y operación básica |
 
-La demo acotada es una opción de entrega temprana. Si se toma como desvío independiente, reservar **40–60 h** y revisar su impacto en el piloto; no se promete que ejecutar ambas rutas mantenga la misma fecha. Reutilizar parser y consultas para evitar trabajo desechable. En dos semanas se puede perseguir una demo recortada, pero no se estima terminada toda la plataforma actual.
+La demo es ahora la primera entrega elegida. Las fechas del piloto y del lanzamiento público se revisarán con las horas reales consumidas y el trabajo reutilizado; no se mantiene una promesa de fecha para esas etapas.
 
 ## Después del piloto
 
@@ -70,12 +90,12 @@ Estimaciones adicionales independientes; no están incluidas en las 180–275 h.
 | Documentación e IA/RAG | Por estimar tras definir un caso de uso | Fuentes, permisos, recuperación y criterios de evaluación definidos |
 | Simulación de cambios, SSO y capacidades empresariales | Fuera de esta versión | Validación del piloto y requisitos concretos |
 
-Lanzamiento público con el mismo alcance funcional: **255–400 h en total desde el estado actual**, aproximadamente **11–16 semanas a 25 h/semana**, antes de considerar una ventana de uso y feedback del piloto. Incluye la reserva de ambas etapas; no incluye cobros, requisitos contractuales, cumplimiento específico, RAG ni ampliaciones del grafo. No se despliega ni se contrata infraestructura como parte de este documento.
+Referencia anterior para lanzamiento público con el alcance funcional del piloto: **255–400 h**, aproximadamente **11–16 semanas a 25 h/semana**, antes de considerar una ventana de uso y feedback. Reestimar después de la demo. Incluye la reserva de las etapas de piloto y lanzamiento; no incluye cobros, requisitos contractuales, cumplimiento específico, RAG ni ampliaciones del grafo. No se despliega ni se contrata infraestructura como parte de este documento.
 
 ## Decisiones que pueden mover la estimación
 
-- Confirmar horas semanales y si la primera salida es demo, piloto o producto público.
-- Elegir el mecanismo de autenticación antes de implementar login y sesiones.
+- Confirmados: 25 h/semana y demo local como primera salida. Pendientes: fecha de inicio y escenario/SBOM de presentación.
+- Elegir el mecanismo de autenticación para el piloto; no bloquea el parser de la demo.
 - Propuesta para acotar el piloto: un ecosistema inicial y un conjunto pequeño de repositorios; elegir Maven o npm después de una prueba técnica. La elección todavía no está confirmada.
 - Validar primero scanner, resolución de dependencias privadas y SBOM en repositorios reales. Es el principal riesgo técnico del camino crítico.
 - Mantener análisis manual como primera versión; webhooks, monorepos complejos y muchos ecosistemas requieren estimación adicional.
@@ -83,7 +103,7 @@ Lanzamiento público con el mismo alcance funcional: **255–400 h en total desd
 
 ## Seguimiento y pruebas
 
-Actualizar semanalmente horas consumidas, entregas aceptadas, bloqueos y estimación restante. Reestimar tras el primer análisis real; esa evidencia vale más que el rango inicial.
+Actualizar semanalmente horas consumidas, entregas aceptadas, bloqueos y estimación restante. Reestimar al terminar la demo y después del primer análisis con scanner; esa evidencia vale más que el rango inicial.
 
 Probar solo lo necesario para cada cambio: reglas de negocio modificadas, autorización y aislamiento cuando se toquen, integración real de persistencia o proveedor cuando corresponda y un recorrido completo antes del piloto. Repetir una verificación si cambia el código relevante, falla una prueba o queda una duda concreta.
 
