@@ -17,19 +17,32 @@ public final class Scan {
     private final Instant startedAt;
     private final Instant finishedAt;
     private final String failureReason;
+    private final ScanOrigin origin;
 
     public Scan(UUID id, OrganizationId organizationId, RepositoryId repositoryId,
                 String gitReference, ScanStatus status, Instant requestedAt,
                 Instant startedAt, Instant finishedAt, String failureReason) {
+        this(id, organizationId, repositoryId, gitReference, status, requestedAt,
+            startedAt, finishedAt, failureReason, ScanOrigin.REPOSITORY_SCAN);
+    }
+
+    public Scan(UUID id, OrganizationId organizationId, RepositoryId repositoryId,
+                String gitReference, ScanStatus status, Instant requestedAt,
+                Instant startedAt, Instant finishedAt, String failureReason, ScanOrigin origin) {
         this.id = Objects.requireNonNull(id, "Scan id is required");
         this.organizationId = Objects.requireNonNull(organizationId, "Organization id is required");
         this.repositoryId = Objects.requireNonNull(repositoryId, "Repository id is required");
         this.status = Objects.requireNonNull(status, "Status is required");
         this.requestedAt = Objects.requireNonNull(requestedAt, "Request time is required");
-        if (gitReference == null || gitReference.isBlank() || gitReference.strip().length() > 255) {
+        this.origin = Objects.requireNonNull(origin, "Origin is required");
+        if (origin == ScanOrigin.REPOSITORY_SCAN &&
+                (gitReference == null || gitReference.isBlank() || gitReference.strip().length() > 255)) {
             throw new IllegalArgumentException("Git reference must contain between 1 and 255 characters");
         }
-        this.gitReference = gitReference.strip();
+        if (origin == ScanOrigin.SBOM_IMPORT && (gitReference != null || status != ScanStatus.COMPLETED)) {
+            throw new IllegalArgumentException("Manual import must be completed without a fabricated Git reference");
+        }
+        this.gitReference = gitReference == null ? null : gitReference.strip();
         boolean valid = switch (status) {
             case PENDING -> startedAt == null && finishedAt == null && failureReason == null;
             case RUNNING -> startedAt != null && finishedAt == null && failureReason == null;
@@ -55,6 +68,12 @@ public final class Scan {
     public Instant startedAt() { return startedAt; }
     public Instant finishedAt() { return finishedAt; }
     public String failureReason() { return failureReason; }
+    public ScanOrigin origin() { return origin; }
+
+    public static Scan imported(UUID id, OrganizationId organizationId, RepositoryId repositoryId, Instant importedAt) {
+        return new Scan(id, organizationId, repositoryId, null, ScanStatus.COMPLETED,
+            importedAt, importedAt, importedAt, null, ScanOrigin.SBOM_IMPORT);
+    }
 
     @Override public boolean equals(Object other) {
         return this == other || other instanceof Scan scan && id.equals(scan.id);

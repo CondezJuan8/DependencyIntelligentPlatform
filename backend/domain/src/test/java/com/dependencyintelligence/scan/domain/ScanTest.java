@@ -15,6 +15,15 @@ class ScanTest {
             new RepositoryId(UUID.randomUUID()), "main", now);
     }
 
+    @Test void importedSnapshotHasNoInventedGitReferenceAndIsTerminal() {
+        var scan = Scan.imported(UUID.randomUUID(), new OrganizationId(UUID.randomUUID()),
+            new RepositoryId(UUID.randomUUID()), now);
+        assertEquals(ScanOrigin.SBOM_IMPORT, scan.origin());
+        assertEquals(ScanStatus.COMPLETED, scan.status());
+        assertNull(scan.gitReference());
+        assertThrows(IllegalStateException.class, () -> scan.start(now));
+    }
+
     @Test void completedScanCannotBeRestarted() {
         var original = pending();
         var completed = original.start(now.plusSeconds(1)).complete(now.plusSeconds(2));
