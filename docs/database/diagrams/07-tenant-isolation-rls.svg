@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1774" height="1037" viewBox="-20 -20 1774 1037">
+<rect x="-20" y="-20" width="100%" height="100%" fill="white"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#64748b"/></marker></defs>
+<polyline points="440,295.0 460,295.0 460,375.0 1630,375.0 1630,215.0 755.0,215.0 755.0,240.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="975,283.3333333333333 1005,283.3333333333333 1005,387.0 1642,387.0 1642,203.0 1290.0,203.0 1290.0,240.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="1510,277.5 1550,277.5 1550,399.0 1654,399.0 1654,456.0 755.0,456.0 755.0,505.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="975,560.0 1025,560.0 1025,676.0 1666,676.0 1666,444.0 220.0,444.0 220.0,505.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="1510,295.0 1570,295.0 1570,423.0 1678,423.0 1678,432.0 1290.0,432.0 1290.0,505.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="1510,312.5 1530,312.5 1530,435.0 1690,435.0 1690,685.0 755.0,685.0 755.0,770.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="440,825.0 470,825.0 470,977.0 1702,977.0 1702,408.0 755.0,408.0 755.0,505.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<polyline points="975,306.6666666666667 1015,306.6666666666667 1015,459.0 1714,459.0 1714,661.0 1290.0,661.0 1290.0,770.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+<text x="0" y="24.0" font-family="monospace" font-size="24" fill="#1e293b">Aislamiento tenant y roles SQL</text>
+<text x="0" y="56.0" font-family="monospace" font-size="14" fill="#1e293b">Flujo de seguridad del esquema real; RLS no sustituye autorización. Identidades globales se controlan desde autenticación.</text>
+<text x="0" y="86.0" font-family="monospace" font-size="14" fill="#1e293b">PK / U = participa en clave (puede ser compuesta); FK = referencia; ? = nullable</text>
+<text x="0" y="103.5" font-family="monospace" font-size="14" fill="#1e293b">Azul: tenant/RLS · Gris: global · Blanco: referencia externa al módulo · conectores ER: 0..N → 1/0..1</text>
+<rect x="0" y="240" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="12" y="266.0" font-family="monospace" font-size="16" fill="#1e293b">Aplicación autorizada</text>
+<text x="12" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">Valida membresía/permisos</text>
+<text x="12" y="310.5" font-family="monospace" font-size="14" fill="#1e293b">La autorización funcional sigue pendiente</text>
+<rect x="535" y="240" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="547" y="266.0" font-family="monospace" font-size="16" fill="#1e293b">TenantTransactions</text>
+<text x="547" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">SET LOCAL app.organization_id</text>
+<text x="547" y="310.5" font-family="monospace" font-size="14" fill="#1e293b">Misma conexión y transacción JPA/JDBC</text>
+<rect x="1070" y="240" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="1082" y="266.0" font-family="monospace" font-size="16" fill="#1e293b">dependency_app</text>
+<text x="1082" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">LOGIN no propietario</text>
+<text x="1082" y="310.5" font-family="monospace" font-size="14" fill="#1e293b">Sin DDL, SUPERUSER ni BYPASSRLS</text>
+<rect x="0" y="505" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="12" y="531.0" font-family="monospace" font-size="16" fill="#1e293b">app_private.current_organization_id</text>
+<text x="12" y="558.0" font-family="monospace" font-size="14" fill="#1e293b">Contexto UUID local</text>
+<text x="12" y="575.5" font-family="monospace" font-size="14" fill="#1e293b">Sin contexto: no ve filas tenant</text>
+<rect x="535" y="505" width="440" height="110" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="531.0" font-family="monospace" font-size="16" fill="#1e293b">Tablas tenant</text>
+<text x="547" y="558.0" font-family="monospace" font-size="14" fill="#1e293b">85 tablas con ENABLE + FORCE RLS</text>
+<text x="547" y="575.5" font-family="monospace" font-size="14" fill="#1e293b">USING / WITH CHECK y FK compuestas</text>
+<rect x="1070" y="505" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="1082" y="531.0" font-family="monospace" font-size="16" fill="#1e293b">Catálogos globales</text>
+<text x="1082" y="558.0" font-family="monospace" font-size="14" fill="#1e293b">Ecosistemas/advisories/roles</text>
+<text x="1082" y="575.5" font-family="monospace" font-size="14" fill="#1e293b">SELECT runtime; escrituras restringidas</text>
+<rect x="0" y="770" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="12" y="796.0" font-family="monospace" font-size="16" fill="#1e293b">dependency_migrator</text>
+<text x="12" y="823.0" font-family="monospace" font-size="14" fill="#1e293b">Capability de mantenimiento</text>
+<text x="12" y="840.5" font-family="monospace" font-size="14" fill="#1e293b">Credenciales separadas del runtime</text>
+<rect x="535" y="770" width="440" height="110" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="796.0" font-family="monospace" font-size="16" fill="#1e293b">Auditoría</text>
+<text x="547" y="823.0" font-family="monospace" font-size="14" fill="#1e293b">INSERT/SELECT para runtime</text>
+<text x="547" y="840.5" font-family="monospace" font-size="14" fill="#1e293b">UPDATE/DELETE denegados</text>
+<rect x="1070" y="770" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="1082" y="796.0" font-family="monospace" font-size="16" fill="#1e293b">Fin de transacción</text>
+<text x="1082" y="823.0" font-family="monospace" font-size="14" fill="#1e293b">COMMIT / ROLLBACK</text>
+<text x="1082" y="840.5" font-family="monospace" font-size="14" fill="#1e293b">Contexto local no queda en el pool</text>
+<text x="445" y="288.0" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="980" y="276.3333333333333" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="1515" y="270.5" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="980" y="553.0" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="1515" y="288.0" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="1515" y="305.5" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="445" y="818.0" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+<text x="980" y="299.6666666666667" font-family="monospace" font-size="11" fill="#475569">control / flujo</text>
+</svg>

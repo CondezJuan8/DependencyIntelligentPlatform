@@ -1,8 +1,74 @@
 # Base de datos de Dependency Intelligence
 
-- [Diseño objetivo vigente](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md).
-- [Tablas actuales, brechas y transición pendiente](implementation-report.md).
-- [Contexto maestro y alcance funcional](../DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
-- [Arquitectura del backend](../ARQUITECTURA_BACKEND.md).
+Fuente: [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). El esquema aplicado hasta **V11** tiene **121 tablas de negocio, 85 con RLS forzado y 208 claves foráneas**. `flyway_schema_history` se cuenta aparte. Las tablas preparan capacidades; los servicios y pantallas pendientes siguen en el contexto maestro.
 
-La especificación nueva todavía no está implementada. El núcleo actual conserva V1–V3 y 14 tablas de negocio. Diccionario, normalización y diagramas Excalidraw se completarán a partir del SQL objetivo implementado; no se presentan como terminados.
+- [Informe de implementación y pruebas](implementation-report.md).
+- [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
+- [Normalización y decisiones de integridad](normalization.md).
+- [ADR: vectores opcionales y dimensión pendiente](adr/001-optional-pgvector.md).
+- [Catálogo exportado](schema.json) y [validación de diagramas](diagram-validation.json).
+
+## Arranque y actualización
+
+Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una configuración existente. Configurar contraseñas distintas para `POSTGRES_PASSWORD` (migración/administración local) y `POSTGRES_APP_PASSWORD` (runtime, mínimo 12 caracteres). Los valores de ejemplo son solo para desarrollo local. Desde la raíz:
+
+```sh
+docker compose up --build -d
+```
+
+El entrypoint de PostgreSQL crea `dependency_app`; Flyway usa sus propias credenciales y aplica V1–V11. El datasource de negocio usa ese login limitado, miembro de `dependency_runtime`. No se crean usuarios de la plataforma ni contraseñas de acceso a la aplicación.
+
+**Volumen existente:** los scripts initdb solo se ejecutan al inicializarlo. Añadir `POSTGRES_APP_PASSWORD` a `.env`, recrear el servicio de base para recibir la variable y aprovisionar antes del backend:
+
+```sh
+docker compose up -d database
+docker compose exec database sh /docker-entrypoint-initdb.d/10-runtime.sh
+docker compose up --build -d backend frontend
+```
+
+Conservar el volumen. Respaldar y probar la actualización en una copia antes de usar datos importantes. V1–V3 conservan sus checksums. V4–V11 convierten relaciones e identificadores; inconsistencias históricas no representables hacen fallar la migración para revisión en lugar de descartarse silenciosamente.
+
+Sin Docker, ejecutar `infra/database/provision-runtime.sql` con `psql`, administrador autorizado y `POSTGRES_APP_PASSWORD` en el entorno. Es idempotente y permite rotar la contraseña. Para el JAR configurar `DB_HOST`, `DB_PORT`, `POSTGRES_DB`, `DB_RUNTIME_USER`, `POSTGRES_APP_PASSWORD`, `MIGRATION_USER` y `MIGRATION_PASSWORD`. Las dos Últimas admiten `POSTGRES_USER`/`POSTGRES_PASSWORD` como fallback local. La creación inicial de roles requiere administración; en servidor separar aprovisionamiento, migración y runtime.
+
+`RuntimeDatabaseRoleGuard` rechaza el datasource de negocio si es propietario, permite DDL o tiene capacidades de mantenimiento/BYPASSRLS. No desactivarlo para resolver una configuración productiva. Los fixtures usan administración separada; las pruebas runtime mantienen el control activado.
+
+## Aislamiento e integridad
+
+`TenantTransactions` establece `app.organization_id` local a la transacción con la misma conexión/gestor que JPA/JDBC. Impide cambiar de organización dentro de una transacción activa; commit/rollback elimina el contexto del pool. Sin contexto no se ven filas tenant. USING, WITH CHECK y FK compuestas protegen lecturas, escrituras y asociaciones entre organizaciones.
+
+El tenant debe proceder de una operación autorizada: un UUID de URL no acredita membresía. RLS protege frente a omisiones de filtros; no frente a un backend comprometido que use arbitrariamente credenciales runtime y cambie el contexto. Autenticación/autorización funcional siguen pendientes; las APIs de negocio continúan denegadas. Usuarios/identidades globales son privados del subsistema de autenticación y no tienen RLS por tenant.
+
+Roles capability NOLOGIN: `dependency_runtime`, `dependency_migrator`, `dependency_catalog_writer`, `dependency_audit_admin`. Catálogos de lectura para runtime; auditoría INSERT/SELECT y UPDATE/DELETE denegados. La administración excepcional requiere otro rol. Superusuarios y BYPASSRLS pueden eludir RLS aun con FORCE: [PostgreSQL](https://www.postgresql.org/docs/17/ddl-rowsecurity.html).
+
+## Comprobaciones
+
+Desde `backend/`, JDK 21 y Maven:
+
+```sh
+mvn verify -Pdatabase-it
+```
+
+Usa PostgreSQL 17.7 de Testcontainers con Docker. Alternativa: `TEST_DATABASE_URL`, `TEST_DATABASE_USER`, `TEST_DATABASE_PASSWORD` apuntando exclusivamente a una base desechable; los fixtures crean esquemas y roles. Para cambios solo de restricciones seleccionar clases/métodos afectados con `-Dit.test=...`. Resultados realmente obtenidos: [informe](implementation-report.md).
+
+## Diagramas y regeneración
+
+Archivos JSON nativos editables en Excalidraw, acompañados de SVG y PNG:
+
+1. [Contexto del sistema](diagrams/01-system-data-context.excalidraw).
+2. [Identidad, permisos e integraciones](diagrams/02-identity-access-integrations.excalidraw).
+3. [Scans, SBOM, componentes y grafo](diagrams/03-scans-sbom-components-graph.excalidraw).
+4. [Vulnerabilidades y evidencia](diagrams/04-vulnerability-intelligence.excalidraw).
+5. [Documentos y RAG; vectores opcionales](diagrams/05-documentation-rag-pgvector.excalidraw).
+6. [Impacto, reportes, notificaciones y retención](diagrams/06-change-impact-reporting-notifications.excalidraw).
+7. [Aislamiento y roles SQL](diagrams/07-tenant-isolation-rls.excalidraw).
+
+Desde una copia migrada, exportar con una conexión autorizada y variables de conexión locales, sin registrar contraseñas:
+
+```sh
+psql -X -qAt -v ON_ERROR_STOP=1 -f infra/database/export-schema.sql -o docs/database/schema.json
+python infra/database/generate-documentation.py docs/database/schema.json docs/database
+```
+
+El export contiene estructura/políticas/flags de roles, nunca filas de negocio ni contraseñas. El generador usa Python estándar; Pillow, si está disponible, añade PNG. No instala bibliotecas ni llama proveedores. Diagramas 2–6: entidades/FK reales con referencias externas compartidas. Diagramas 1/7: flujos lógicos discontinuos. Validación de IDs, bindings y cobertura de 208 FK. `elements`, `appState`, `files`: [estructura nativa documentada](https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/initialdata).
+
+No se ejecutó Docker/Compose ni se abrieron archivos en la interfaz de Excalidraw en este bloque. Se validaron estructura, enlaces y exportaciones locales. No se instaló pgvector ni se configuraron modelos de IA.

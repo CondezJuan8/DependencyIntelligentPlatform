@@ -1,52 +1,53 @@
 # Estado real de implementación de la base de datos
 
-## Referencia y alcance
+Referencia: [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Bloque 05 de la [bitácora](../BITACORA_TRABAJO.md), 14 de noviembre de 2026. Esquema probado en una base temporal; no se actualizó una base externa del usuario ni se declara terminado el producto.
 
-Diseño objetivo: [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Este informe describe lo implementado; no sustituye esa especificación. El usuario confirmó que la base nueva existe solo como documento.
+## Resultado
 
-## Esquema ejecutable actual
+**121 tablas de negocio, 85 con ENABLE/FORCE RLS y 208 FK**, sin contar Flyway. V1–V3 no se reescriben; se añaden ocho migraciones V4–V11. El [diccionario](data-dictionary.md) explica cada tabla; [schema.json](schema.json) procede del catálogo de PostgreSQL.
 
-V1 inicializa Flyway, V2 crea el esquema inicial y V3 soporta importaciones manuales. Son **14 tablas de negocio**, más `flyway_schema_history` al aplicar Flyway. No se consultó una base del usuario en ejecución en este bloque.
-
-| Tabla | Función / situación actual |
+| Migración | Función |
 | --- | --- |
-| organizations | Organización propietaria; bootstrap y validaciones existentes |
-| users | Identidad inicial por subject/correo; no implementa login |
-| memberships | Usuario/organización y rol textual; falta normalizar RBAC/equipos/permisos |
-| integrations | Estructura inicial de conexiones; falta instalación GitHub funcional |
-| repositories | Registro y consulta internos; falta integración GitHub |
-| scans | Solicitudes y snapshots manuales; sin worker/scanner |
-| scan_artifacts | Referencias/checksum; sin almacenamiento conectado |
-| components | Paquete y versión juntos; requiere separar ambos conceptos |
-| scan_components | Ocurrencias por snapshot/bom-ref; importación funcional con UNKNOWN |
-| dependency_relationships | Estructura de aristas; falta importación/consulta del grafo |
-| vulnerabilities | Advisory/payload inicial; faltan OSV, aliases, rangos y severidades normalizados |
-| vulnerability_findings | Asociación inicial advisory/ocurrencia; sin generación de hallazgos |
-| audit_events | Estructura inicial; falta emisión y comportamiento append-only |
-| sbom_imports | Procedencia/hash funcionales; no almacena archivo original |
+| V4 | Paquete/versión/identificadores/aparición separados; aristas entre apariciones del mismo snapshot |
+| V5 | Identidad local/externa, membresías, RBAC, equipos, permisos por repositorio e instalaciones GitHub |
+| V6 | Jobs/intentos/etapas, commits, artefactos, SBOM, comparaciones, hashes y licencias |
+| V7 | Advisories, aliases, severidades, fuentes/rangos/fixes y evidencia de hallazgos privados |
+| V8 | Documentos/versiones/chunks, procesamiento, metadatos de modelos, conversaciones y citas tipadas |
+| V9 | Impacto, simulaciones/pruebas, propuestas PR, reportes, alertas, auditoría, retención y eliminación |
+| V10 | Roles SQL, RLS forzado, grants mínimos, FK/Índices y auditoría append-only |
+| V11 | Evidencias del mismo análisis, reintentos acotados e inmutabilidad de resultados/procedencia terminados |
 
-Configuración actual: PostgreSQL 17.7 en Compose, destino Java 21 y Spring Boot 3.5.16. Las validaciones anteriores usaron PostgreSQL 18.6 temporal y JDK local 25 con destino 21; no prueban Docker.
+Se siembran códigos de referencia, no usuarios de la plataforma, claves, modelos/dimensiones ni ejecuciones/hallazgos ficticios. Paquetes privados por organización; advisories públicos compartidos. Autores/maintainers eran condicionales sin caso de uso y no se añaden por anticipado.
 
-## Brechas respecto del diseño objetivo
+V101 vectorial se entrega fuera de la ubicación Flyway predeterminada y no fue ejecutada: faltan modelo/dimensión comprobados y pgvector. V8 permite metadatos sin extensión: [ADR](adr/001-optional-pgvector.md).
 
-- Identidad local/Google/GitHub, invitaciones, membresías normalizadas, roles/permisos, equipos y acceso por repositorio.
-- RLS, rol runtime no propietario, rol de migración separado y contexto tenant transaccional seguro en el pool.
-- Separación paquete/versión/presencia; migración de IDs/FK y decisión documentada de scope para catálogos privados sin exponer paquetes entre organizaciones.
-- Instalaciones GitHub, commits, webhooks idempotentes, jobs/intentos/etapas, SBOM/artefactos y aristas por snapshot.
-- Normalización de vulnerabilidades, aliases/referencias, rangos/eventos, versiones corregidas y evidencia de hallazgos; eliminar asociaciones canónicas multivaluadas en JSONB.
-- Comparaciones, impacto, pruebas aisladas y propuestas de PR aprobables con trazabilidad.
-- Documentos/originales privados, versiones, asociaciones, chunks, embeddings Ollama, citas y conversaciones Gemini.
-- Reportes, artefactos, notificaciones in-app, auditoría append-only, retención y solicitudes de eliminación.
-- Diccionario completo, matriz de normalización y siete diagramas Excalidraw derivados del SQL implementado.
+## Transición y compatibilidad
 
-No se fija el número final de tablas antes del DDL: la especificación contiene alternativas y entidades opcionales. No se declara la base actual conforme a 5NF ni a RLS.
+La conversión conserva organizaciones, sujetos históricos, membresías/roles, repositorios, snapshots, procedencia, versiones/PURL alternativos, apariciones, aristas y hallazgos. Fixes multivaluados pasan a filas. `sbom_imports` pasa a `sbom_documents`. Se conservan checksums previos. Datos incompatibles requieren revisión; no se eliminan silenciosamente para forzar el arranque.
 
-## Transición requerida
+Adaptadores existentes compatibles con paquete/versión/identificadores separados. La importación conserva cada bom-ref y UNKNOWN, no inventa commit/scanner/grafo y revierte Íntegramente ante conflicto. El parser continúa acotado a Maven; el catálogo npm no implementa su parser.
 
-1. Inventariar datos, claves, puertos y consultas afectados; mapear tablas actuales y objetivo.
-2. Diseñar migraciones nuevas posteriores a V3 y adaptar los casos de uso en el mismo bloque. No borrar bases/volúmenes ni reescribir migraciones para evitar la transición.
-3. Validar arranque limpio, actualización conservando datos, integridad y comportamiento de los adaptadores existentes.
-4. Introducir roles SQL/contexto/RLS con pruebas negativas específicas; no activar pgvector hasta fijar y comprobar modelo/dimensión.
-5. Derivar documentación y diagramas del DDL real, e implementar funciones completas por fases.
+Infrastructure delimita tenant mediante `TenantTransactions`, también en el bootstrap. Domain/Application siguen sin Spring/JPA. Credenciales Flyway/runtime separadas y guard contra datasource propietario/privilegiado. Aprovisionamiento del login comprobado dos veces para verificar idempotencia.
 
-Este bloque solo concreta alcance y referencias. **No añadió SQL ni ejecutó migraciones o suites.** Resultados históricos de importación: [bitácora](../BITACORA_TRABAJO.md), bloque 03. No se atribuyen a la nueva base pendiente.
+## Verificación ejecutada
+
+PostgreSQL **18.6 nativo temporal**, Maven 3.9.11, JDK local 25 y compilación destino Java 21. Compose conserva PostgreSQL 17.7/Java 21; el entorno nativo no prueba esas imágenes.
+
+Primera selección: 8 unitarias/arquitectura/seguridad y 22 de integración, todas correctas. Clases: ImportSbomUseCaseTest, SecurityConfigurationTest, HexagonalArchitectureTest, DatabaseIT, DemoBootstrapIT, SbomImportIT, NormalizedSchemaIT, RuntimeDatabaseIT. Tras V11: solo 7 de NormalizedSchemaIT y 2 métodos de migración/arranque de DatabaseIT, 9 correctas. **31 pruebas distintas**; ocho se repitieron por cambios pertinentes, no son 39 casos diferentes.
+
+Cobertura:
+
+- Instalación limpia, actualización desde V1/V3 con datos, checksums intactos y validación JPA.
+- Dos PURL con qualifiers convertidos al mismo paquete/versión, manteniendo apariciones/aristas; identidad, roles, advisory, base explícita del hash de payload y fixes preservados.
+- FK del mismo tenant/repositorio/snapshot/paquete/análisis; equipos, comparación, documentos/citas, reportes y entregas.
+- Login runtime real sin DDL/propiedad: lecturas/escrituras ajenas y escritura de catálogos rechazadas; contexto transaccional eliminado y cambio interno de tenant rechazado.
+- Importador y JPA con ese login; rollback/reimportación/bootstrap.
+- Auditoría append-only; VALIDATED exige prueba terminada del mismo análisis; resultados terminados inmutables, PR con aprobación y reintentos acotados.
+
+Siete Excalidraw nativos más SVG/PNG y diccionario generados desde catálogo aplicado. Comprobación estructural: 121 tablas, 208 FK, IDs Únicos y bindings existentes. Se inspeccionaron exportaciones locales; no apertura interactiva en Excalidraw. No se midieron rendimiento/concurrencia ni se ejecutaron Docker, pgvector o IA. Se detiene el servidor temporal al cerrar el bloque.
+
+## Pendientes de producto
+
+Las tablas están disponibles; faltan servicios y recorridos. Sigue registro/login local, verificación/recuperación/sesiones, autorización de membresía/permisos y HTTP/UI. Después Google/GitHub, instalación GitHub, worker/scanner Maven/npm, OSV, inventario/grafo/comparación e impacto. Almacenamiento documental, Ollama/Gemini, reportes/alertas, ejecución de retención y operación/backup requieren implementación y aceptación.
+
+RLS no autentica; el tenant de ruta no acredita permisos. Identidades globales requieren acceso restringido por autenticación. APIs de negocio continúan denegadas. No se declara 5NF universal: [normalización](normalization.md) documenta dependencias y excepciones.
