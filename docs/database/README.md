@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente de diseño en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V12**, con **121 tablas de negocio, 85 con RLS forzado y 208 claves foráneas**. Se cuenta `flyway_schema_history` aparte. V12 permite consultar organizaciones propias bajo contexto de usuario autenticado. Las funciones actuales de acceso se describen en [ACCESO_LOCAL](../ACCESO_LOCAL.md).
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V13**, con **121 tablas de negocio, 85 con RLS forzado y 208 FK**. Se cuenta Flyway aparte. V13 añade versión de credenciales e índice de solicitudes sobre el modelo de cuentas existente. Funciones de acceso en [ACCESO_LOCAL](../ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](../VERIFICACION_Y_RECUPERACION.md).
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,7 +16,7 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint de PostgreSQL crea `dependency_app`. Flyway usa sus propias credenciales y aplica V1–V12. El datasource usa ese login limitado, miembro de `dependency_runtime`. El usuario crea su cuenta desde el formulario de registro.
+El entrypoint de PostgreSQL crea `dependency_app`. Flyway usa sus propias credenciales y aplica V1–V13. El datasource usa ese login limitado, miembro de `dependency_runtime`. El usuario crea su cuenta desde el formulario de registro.
 
 **Volumen existente:** los scripts initdb solo se ejecutan al inicializarlo. Añadir `POSTGRES_APP_PASSWORD` a `.env`, recrear el servicio de base para recibir la variable y aprovisionar antes del backend:
 
@@ -26,7 +26,7 @@ docker compose exec database sh /docker-entrypoint-initdb.d/10-runtime.sh
 docker compose up --build -d backend frontend
 ```
 
-Conservar el volumen. Respaldar y probar la actualización en una copia antes de usar datos importantes. V1–V11 mantienen sus checksums en el bloque de acceso. V12 añade políticas de consulta propia y una función de contexto local. Los detalles de transición del modelo están en el informe.
+Conservar el volumen. Respaldar y probar la actualización en una copia antes de usar datos importantes. V1–V12 mantienen sus checksums en el bloque de recuperación. V13 añade una columna y un índice. Las cuentas anteriores reciben credential_version cero. Los detalles de transición están en el informe.
 
 Sin Docker, ejecutar `infra/database/provision-runtime.sql` con `psql`, administrador autorizado y `POSTGRES_APP_PASSWORD` en el entorno. Es idempotente y permite rotar la contraseña. Para el JAR configurar `DB_HOST`, `DB_PORT`, `POSTGRES_DB`, `DB_RUNTIME_USER`, `POSTGRES_APP_PASSWORD`, `MIGRATION_USER` y `MIGRATION_PASSWORD`. Las dos Últimas admiten `POSTGRES_USER`/`POSTGRES_PASSWORD` como fallback local. La creación inicial de roles requiere administración; en servidor separar aprovisionamiento, migración y runtime.
 

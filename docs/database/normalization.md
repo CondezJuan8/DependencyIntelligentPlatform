@@ -1,6 +1,6 @@
-# Normalización del esquema aplicado V12
+# Normalización del esquema aplicado V13
 
-Fuente en catálogo real, diccionario y migraciones V4–V12. V12 añade políticas SELECT para consultar membresías/organizaciones propias con contexto autenticado de usuario local a la transacción. Las claves, columnas y dependencias del inventario mantienen su estructura. La revisión de 1NF–5NF analiza dependencias declaradas y excepciones técnicas. Las reglas de negocio adicionales requieren revisar las descomposiciones. [Catálogo](schema.json), [diccionario](data-dictionary.md).
+Fuente en catálogo real, diccionario y migraciones V4–V13. V13 incorpora credential_version, atributo escalar determinado por el usuario, e índice de solicitudes de tokens. Los cambios de contraseña actualizan hash y versión dentro de la transacción. El inventario de claves mantiene su estructura. La revisión de 1NF–5NF analiza dependencias declaradas y excepciones técnicas. [Catálogo](schema.json), [diccionario](data-dictionary.md).
 
 ## Criterios y decisiones
 

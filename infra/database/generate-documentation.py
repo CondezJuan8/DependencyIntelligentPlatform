@@ -18,7 +18,7 @@ from pathlib import Path
 
 PURPOSES = {
     'organizations': ('identity', 'Organización propietaria y límite de tenant.'),
-    'users': ('identity', 'Identidad personal global; no se duplica por organización.'),
+    'users': ('identity', 'Identidad global con verificación de correo y versión de credenciales para revocar sesiones.'),
     'user_identities': ('identity', 'Vínculos verificados a identidades externas Google/GitHub y sujetos históricos.'),
     'user_password_credentials': ('identity', 'Hash de contraseña local, separado de identidades externas.'),
     'user_access_tokens': ('identity', 'Hashes de tokens de verificación, recuperación o sesión, con expiración y consumo.'),
@@ -333,7 +333,7 @@ def entity_diagram(schema, modules, filename, title, destination):
                 for column in key['columns'] or []: marks[column].add({'p':'PK','u':'U','f':'FK'}[key['kind']])
         lines=[]
         for column in table['columns']:
-            if column['name'] in marks or (name in main and column['name'] in ('code','name','status','origin','classification','version','sha256')):
+            if column['name'] in marks or (name in main and column['name'] in ('code','name','status','origin','classification','version','sha256','credential_version','email_verified_at')):
                 prefix='/'.join(sorted(marks[column['name']]))
                 line=f"{prefix} {column['name']}{'?' if column['nullable'] else ''}: {column['type']}".strip()
                 lines += textwrap.wrap(line,46,subsequent_indent='  ')

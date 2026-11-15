@@ -297,3 +297,46 @@ Build Angular de producción correcto. API real health UP, frontend HTTP 200 y c
 Continuar con verificación/recuperación de correo y entrega transaccional local comprobable. Después identidad Google/GitHub, vinculación, invitaciones y gestión HTTP/UI de equipos/permisos. Las cuentas locales actuales tienen correo sin verificar. La UI de repositorios/scans y los servicios de scanner/OSV continúan en sus fases.
 
 Tres commits con emoji para backend de acceso/autorización, interfaz local y documentación/contexto/artefactos. Consultar el historial para hashes.
+
+## Bloque 07 — Verificación de correo y recuperación de contraseña
+
+Fecha del trabajo, 15 de noviembre de 2026, America/Bogota. Horas reales sin medir. El usuario autorizó continuar con verificación/recuperación y entrega local del correo transaccional.
+
+### Cambios realizados
+
+- PasswordPolicy en Domain comparte la regla entre registro y recuperación. Application incorpora RecoverAccount y puertos de tokens, correo y persistencia, manteniendo Java puro.
+- Tokens SecureRandom de 32 bytes, Base64 URL-safe, SHA-256 en user_access_tokens, propósito, caducidad, consumo único y espera de reenvío configurable. La emisión consume enlaces anteriores del mismo propósito. Verificación confirmada se refleja en emailVerified.
+- V13 añade credential_version e índice por usuario/propósito/creación. Recuperar contraseña sustituye hash, incrementa versión y consume tokens en una transacción. SessionIdentity conserva la versión leída junto al hash autenticado y el filtro rechaza sesiones antiguas en cada petición. V1–V12 se conservan.
+- Adaptador JDBC serializa operaciones bloqueando la fila de usuario y comprueba caducidad tras obtener el bloqueo. Dos confirmaciones simultáneas producen un único ganador. Un fallo de envío revierte la sustitución del token y preserva el enlace previo.
+- JavaMailSender SMTP configurable, con timeouts. El envío de recuperación se procesa en un ejecutor acotado en memoria y el endpoint devuelve 202 uniforme antes de consultar la cuenta. Cola llena devuelve 429. Fallos registrados con código y tipo de excepción, excluyendo direcciones y secretos del mensaje.
+- Mailpit v1.33.1 configurado como bandeja local en Compose, con puertos vinculados a 127.0.0.1. Se utilizó también el binario oficial temporal para validar SMTP real. Expiración de verificación 24 horas, recuperación 30 minutos y espera de reenvío 60 segundos como valores iniciales configurables.
+- Angular incorpora Olvidé mi contraseña, confirmación de enlace, contraseña nueva/confirmación y aviso de verificación. El fragmento del enlace se retira de la barra de direcciones y se mantiene temporalmente en memoria. POST requiere confirmación y CSRF. Enlaces abiertos con la aplicación ya cargada se reconocen por cambio de fragmento.
+- Actualizados contexto maestro, arquitectura, stack, roadmap, README y acceso local. Añadido VERIFICACION_Y_RECUPERACION.md. Catálogo V13, diccionario y diagramas regenerados, manteniendo 121 tablas, 85 con RLS forzado y 208 FK.
+
+### Herramientas y tecnologías
+
+| Herramienta o tecnología | Uso | Incorporación |
+| --- | --- | --- |
+| Spring Boot starter-mail / JavaMailSender | Adaptador SMTP con configuración y timeouts | Nueva dependencia de Infrastructure, versión del BOM existente |
+| Mailpit 1.33.1 | Bandeja SMTP local y API de comprobación | Servicio de desarrollo en Compose y binario temporal oficial para pruebas |
+| SecureRandom, SHA-256, Base64 y Clock de Java | Tokens y tiempo de vigencia | Bibliotecas estándar |
+| Spring JDBC, transacciones, Spring Security, ThreadPoolTaskExecutor | Persistencia, sesión y cola local acotada | Bibliotecas existentes |
+| Angular Forms, Material y RxJS | Formularios, estados y consumo de enlaces/CSRF | Dependencias existentes |
+| PowerShell, rg, Git, Maven 3.9.11, JDK 25 destino 21, JUnit/ArchUnit/Failsafe | Inspección, compilación y verificación focalizada | Herramientas existentes |
+| PostgreSQL 18.6, psql, Node 24.22.1, Python estándar y Pillow | Base temporal, frontend, parser y artefactos del catálogo | Herramientas existentes |
+
+Referencias consultadas en [Spring Boot email](https://docs.spring.io/spring-boot/reference/io/email.html), [Mailpit Docker](https://mailpit.axllent.org/docs/install/docker/), [Mailpit v1.33.1](https://github.com/axllent/mailpit/releases/tag/v1.33.1), [API Mailpit](https://mailpit.axllent.org/docs/api-v1/) y [OWASP recuperación](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html).
+
+### Comprobaciones ejecutadas
+
+20 casos distintos pertinentes correctos. Siete de seguridad, arquitectura y límite de intentos. Seis de AccountRecoveryIT con SMTP Mailpit real, cinco de LocalAccessIT y dos métodos de arranque/actualización de DatabaseIT. Se ejecutaron con PostgreSQL nativo temporal, login runtime limitado y datos sintéticos de example.test.
+
+Se verificaron hash de token confirmado frente al enlace recibido por SMTP, propósito, expiración, reenvío/cooldown, replay, confirmaciones concurrentes con un único ganador, contraseñas inválidas sin consumir el enlace, revocación de dos sesiones, login con contraseña nueva, error uniforme, CSRF, autenticación y rollback ante fallo de correo simulado. La primera espera de ocho segundos resultó corta para un mensaje asíncrono, que después se comprobó recibido y confirmado. Se amplió a veinte segundos y se repitieron las seis pruebas afectadas junto con el ajuste de caducidad después de esperar bloqueo. Todas pasaron.
+
+Build Angular de producción correcto. Cuatro aserciones directas sobre el parser real de enlaces correctas. Validación estructural de catálogo, diccionario/diagramas y enlaces documentales al cerrar los cambios. La comprobación del navegador conectado volvió a indicar host indisponible. La revisión visual y Compose permanecen pendientes.
+
+### Límites y siguiente paso
+
+Sesiones y cola de recuperación actuales residen en memoria. La entrega SMTP y el commit de PostgreSQL tienen un límite entre sistemas. Si el correo fue aceptado y luego falla el commit, debe pedirse un enlace nuevo. La cola carece de reintentos durables y debe sustituirse o ampliarse para operación en servidor. Las cuentas pueden usar acceso local mientras verifican correo. Google/GitHub, vinculación, invitaciones y gestión de equipos siguen pendientes.
+
+Se detienen PostgreSQL y Mailpit temporales al finalizar. Correos capturados en localhost con datos sintéticos. Siguiente bloque de identidad con Google/GitHub y vinculación segura, seguido de invitaciones y gestión de equipos/permisos. Tres commits con emoji para backend/SMTP, formularios y documentación/contexto/artefactos.

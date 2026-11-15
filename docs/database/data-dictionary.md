@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V12. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V13. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -3806,6 +3806,7 @@ Referencias entrantes: ninguna.
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
+- `CREATE INDEX ix_account_token_requests ON public.user_access_tokens USING btree (user_id, purpose, created_at DESC)`
 - `CREATE INDEX ix_user_access_tokens_user ON public.user_access_tokens USING btree (user_id, purpose)`
 - `CREATE UNIQUE INDEX user_access_tokens_pkey ON public.user_access_tokens USING btree (id)`
 - `CREATE UNIQUE INDEX user_access_tokens_token_hash_key ON public.user_access_tokens USING btree (token_hash)`
@@ -3877,7 +3878,7 @@ Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valo
 
 ## users
 
-Identidad personal global; no se duplica por organización.
+Identidad global con verificación de correo y versión de credenciales para revocar sesiones.
 
 Módulo: **identity**. Ámbito: **global**. RLS: False; FORCE: False.
 
@@ -3892,10 +3893,12 @@ Módulo: **identity**. Ámbito: **global**. RLS: False; FORCE: False.
 | `avatar_url` | `text` | Sí | — |  |
 | `is_active` | `boolean` | No | true |  |
 | `updated_at` | `timestamp with time zone` | Sí | — |  |
+| `credential_version` | `bigint` | No | 0 |  |
 
 Restricciones:
 
 - `uq_user_email_normalized`: `UNIQUE (email_normalized)`. Validada: True.
+- `users_credential_version_check`: `CHECK ((credential_version >= 0))`. Validada: True.
 - `users_display_name_check`: `CHECK ((btrim((display_name)::text) <> ''::text))`. Validada: True.
 - `users_email_check`: `CHECK ((btrim((email)::text) <> ''::text))`. Validada: True.
 - `users_pkey`: `PRIMARY KEY (id)`. Validada: True.

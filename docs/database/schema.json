@@ -16157,6 +16157,10 @@
             "comment": null,
             "indexes": [
                 {
+                    "name": "ix_account_token_requests",
+                    "definition": "CREATE INDEX ix_account_token_requests ON public.user_access_tokens USING btree (user_id, purpose, created_at DESC)"
+                },
+                {
                     "name": "ix_user_access_tokens_user",
                     "definition": "CREATE INDEX ix_user_access_tokens_user ON public.user_access_tokens USING btree (user_id, purpose)"
                 },
@@ -16553,6 +16557,13 @@
                     "default": null,
                     "nullable": true,
                     "generated": false
+                },
+                {
+                    "name": "credential_version",
+                    "type": "bigint",
+                    "default": "0",
+                    "nullable": false,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -16581,6 +16592,18 @@
                     "on_delete": null,
                     "validated": true,
                     "definition": "UNIQUE (email_normalized)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "users_credential_version_check",
+                    "columns": [
+                        "credential_version"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((credential_version >= 0))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -18215,5 +18238,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "12"
+    "latest_migration": "13"
 }

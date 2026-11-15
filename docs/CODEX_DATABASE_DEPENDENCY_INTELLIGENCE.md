@@ -11,7 +11,7 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
-Referencia vigente de diseño. Núcleo implementado hasta V12 con 121 tablas, 85 con RLS forzado y 208 FK. V12 permite descubrir organizaciones propias del usuario autenticado. Acceso local y autorización de repositorios entregados en bloque 06. Estado, diagramas, diccionario y normalización se consultan en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
+Referencia vigente de diseño. Núcleo hasta V13 con 121 tablas, 85 con RLS forzado y 208 FK. V12 permite consultar organizaciones propias y V13 incorpora versión de credenciales e índice de solicitudes de tokens. Verificación/recuperación operativas en bloque 07. Estado, diagramas, diccionario y normalización en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 

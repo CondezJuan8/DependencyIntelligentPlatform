@@ -1,5 +1,13 @@
 # Estado real de implementación de la base de datos
 
+## Actualización de recuperación V13, bloque 07
+
+15 de noviembre de 2026. V13 añade users.credential_version con default cero y un índice por usuario/propósito/creación en user_access_tokens. Permanecen 121 tablas, 85 con FORCE RLS y 208 FK. Catálogo, diccionario y diagramas regenerados. V1–V12 conservan sus checksums.
+
+20 pruebas distintas pertinentes correctas con PostgreSQL nativo 18.6, Mailpit 1.33.1 nativo, JDK 25 con destino 21 y Maven 3.9.11. Incluyen seis de recuperación, cinco de acceso local, dos métodos de migración y siete de seguridad/arquitectura/límite de peticiones. SMTP real comprobado mediante API de Mailpit y hash confirmado en PostgreSQL. Se amplió la espera inicial de ocho a veinte segundos para la entrega asíncrona y se repitió únicamente la clase afectada al ajustar la comprobación de caducidad tras bloqueo. Build Angular y cuatro aserciones directas del parser de enlaces correctos.
+
+Sesiones anteriores se rechazan al incrementar versión. Tokens de un uso, propósito, expiración, reenvío, cooldown, confirmación concurrente y rollback de emisión comprobados. SMTP y PostgreSQL conservan un límite de entrega entre sistemas y la cola de recuperación es local en memoria. La revisión visual sigue pendiente por host de navegador indisponible, y Compose queda por ejecutar. Detalles en [VERIFICACION_Y_RECUPERACION](../VERIFICACION_Y_RECUPERACION.md). Las secciones siguientes conservan el historial de bloques anteriores.
+
 ## Actualización de acceso V12, bloque 06
 
 15 de noviembre de 2026. V12 añade `app_private.current_user_id()` y políticas SELECT de descubrimiento propio en organizations/organization_memberships. Contexto `app.user_id` local a transacción, obtenido de la sesión. La estructura conserva 121 tablas, 85 con FORCE RLS y 208 FK. Exportación, diccionario y diagramas regenerados desde el catálogo aplicado. V1–V11 conservan sus checksums.

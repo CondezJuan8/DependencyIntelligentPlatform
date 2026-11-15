@@ -1,6 +1,6 @@
 # Instrucciones de trabajo
 
-- Antes de implementar, revisar `docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`, `docs/ARQUITECTURA_BACKEND.md`, `docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `docs/STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`. Priorizar las decisiones vigentes del usuario sobre propuestas históricas. Núcleo database V1–V12, 121 tablas, acceso local y autorización de repositorios implementados. Ver `docs/database/implementation-report.md` y `docs/ACCESO_LOCAL.md`. Continuar con verificación/recuperación de correo y funciones de identidad pendientes según el maestro.
+- Antes de implementar, revisar `docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`, `docs/ARQUITECTURA_BACKEND.md`, `docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `docs/STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`. Priorizar decisiones vigentes del usuario. Núcleo database V1–V13, 121 tablas, acceso local, autorización y verificación/recuperación con SMTP implementados. Ver `docs/database/implementation-report.md`, `docs/ACCESO_LOCAL.md` y `docs/VERIFICACION_Y_RECUPERACION.md`. Continuar con Google/GitHub, vinculación segura e invitaciones según el maestro.
 
 - Mantener `docs/BITACORA_TRABAJO.md` en cada bloque: petición, cambios concretos, herramientas/tecnologías utilizadas, verificaciones ejecutadas con resultado y siguiente paso. Distinguir herramientas usadas de dependencias nuevas implementadas. No inventar horas ni resultados.
 - Mantener Domain y Application independientes de Spring/JPA; los adaptadores y la configuración pertenecen a Infrastructure.

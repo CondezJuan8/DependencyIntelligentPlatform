@@ -112,10 +112,12 @@
 <rect x="535" y="1133" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
 <text x="547" y="1159.0" font-family="monospace" font-size="16" fill="#1e293b">user_password_credentials</text>
 <text x="547" y="1186.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK user_id: uuid</text>
-<rect x="1070" y="1133" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<rect x="1070" y="1133" width="440" height="136" rx="4" fill="#f1f5f9" stroke="#334155"/>
 <text x="1082" y="1159.0" font-family="monospace" font-size="16" fill="#1e293b">users</text>
 <text x="1082" y="1186.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
 <text x="1082" y="1203.5" font-family="monospace" font-size="14" fill="#1e293b">U email_normalized?: text</text>
+<text x="1082" y="1221.0" font-family="monospace" font-size="14" fill="#1e293b">email_verified_at?: timestamp with time zone</text>
+<text x="1082" y="1238.5" font-family="monospace" font-size="14" fill="#1e293b">credential_version: bigint</text>
 <rect x="1605" y="1133" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
 <text x="1617" y="1159.0" font-family="monospace" font-size="16" fill="#1e293b">github_installations</text>
 <text x="1617" y="1186.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>

@@ -23,6 +23,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Bloque 07, 15 de noviembre de 2026. Incorporado `spring-boot-starter-mail` en Infrastructure con versión gestionada por Spring Boot. Mailpit v1.33.1 como bandeja SMTP local, verificada mediante binario oficial temporal y configurada en Compose. Tokens con SecureRandom/SHA-256 de Java estándar. V13 añade versión de credenciales e índice de solicitudes. Angular permite solicitar y confirmar enlaces. La cola de recuperación y las sesiones actuales residen en memoria. Resultados y límites en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md).
+
 Actualización del bloque 06, 15 de noviembre de 2026. Acceso local en Spring Security y Angular con registro/login/logout, cookie HttpOnly/SameSite=Lax, CSRF enmascarado y sesión de servidor en memoria. PBKDF2-HMAC-SHA256 con 600.000 iteraciones y salt aleatorio mediante la biblioteca existente. Roles/equipos autorizan repositorios/scans en transacción tenant. V12 añade descubrimiento de organizaciones propias. Detalles operativos y límites de verificación visual en [ACCESO_LOCAL](ACCESO_LOCAL.md). Verificación/recuperación y proveedores externos son el siguiente trabajo.
 
 Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El objetivo vigente es el producto completo listo para usar, por fases, primero local y después servidor. El plan anterior de demo/50 horas deja de limitar el alcance o la aceptación. Decisiones y pendientes: `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; diseño database vigente: `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md`.

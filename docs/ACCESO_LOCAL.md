@@ -1,6 +1,6 @@
 # Acceso local y autorización
 
-Actualizado el 15 de noviembre de 2026. El bloque 06 entrega registro, login, logout, restauración de sesión, creación de organización con propietario y consulta de las organizaciones activas del usuario. Angular consume estas operaciones desde la misma procedencia que la API.
+Actualizado el 15 de noviembre de 2026. El bloque 06 entrega registro, login, logout, restauración de sesión, creación de organización con propietario y consulta de organizaciones propias. El bloque 07 añade verificación y recuperación mediante enlaces SMTP. Procedimiento en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md).
 
 ## Recorrido de usuario
 
@@ -55,4 +55,4 @@ La comprobación y el caso de uso comparten transacción tenant. La revocación 
 
 Pruebas focalizadas de HTTP/CSRF/sesión/autorización con PostgreSQL nativo 18.6 y login runtime real, actualización desde V1, RLS y límites de capas. Build Angular de producción correcto. Health de la API respondió UP, frontend HTTP 200 y cabecera real de cookie comprobada con HttpOnly/SameSite=Lax. La revisión visual en navegador quedó pendiente por indisponibilidad del host de browser y timeout de autorización al acceder a Chrome.
 
-Continúan pendientes verificación de correo, recuperación de contraseña, identidad Google/GitHub, vinculación e invitaciones, gestión HTTP/UI de equipos y permisos, UI de repositorios/scans y persistencia de sesiones para operación en servidor. Las cuentas locales actuales tienen correo sin verificar. Las asignaciones de equipos del test se construyen como fixtures SQL. El siguiente bloque implementará verificación/recuperación y entrega local comprobable del correo transaccional antes de la vinculación externa.
+Verificación y recuperación se entregaron en el bloque 07. La cuenta expone emailVerified y la versión de credenciales revoca sesiones tras recuperar contraseña. Continúan Google/GitHub, vinculación, invitaciones, gestión HTTP/UI de equipos, UI de repositorios/scans y persistencia de sesiones/entrega durable para servidor. Las asignaciones de equipos de pruebas se construyen como fixtures SQL. La revisión visual continúa pendiente por host de navegador indisponible. El siguiente bloque aborda proveedores externos y vinculación segura.

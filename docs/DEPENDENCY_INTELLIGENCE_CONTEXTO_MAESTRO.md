@@ -13,7 +13,7 @@ Las secciones numeradas posteriores conservan el contexto histórico. Las decisi
 ### Decisiones cerradas
 
 - Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.
-- Nueva base implementada mediante V4–V12 con 121 tablas, 85 con RLS forzado y 208 FK. V12 añade consulta de organizaciones propias del usuario autenticado. Las funciones entregadas se registran por separado en la matriz. Pgvector sigue opcional.
+- Nueva base implementada mediante V4–V13 con 121 tablas, 85 con RLS forzado y 208 FK. V13 incorpora versión de credenciales e índice de solicitudes de tokens. Las funciones entregadas se registran en la matriz. Pgvector sigue opcional.
 - Acceso: correo/contraseña, Google y GitHub, con recuperación/verificación y vinculación segura de identidades. Login GitHub y acceso a repositorios mediante instalación/autorización son funciones distintas.
 - Ecosistemas: Java/Maven y JavaScript/npm.
 - Primer piloto con equipos y permisos por repositorio; pruebas de cambios aisladas y propuesta de PR sujeta a aprobación. Roles personalizados no se consideran confirmados.
@@ -28,7 +28,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 
 | Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
 | --- | --- | --- | --- |
-| Identidad, organizaciones y permisos — RF-001–006 | Registro/login/logout local, sesión, creación de organización OWNER y consulta de propias organizaciones en HTTP/Angular. Roles y equipos autorizan repositorios/scans | Verificación/recuperación, Google/GitHub, vinculación, invitaciones, gestión HTTP/UI de equipos/permisos y revisión visual pendiente | Correo transaccional, configuración de proveedores, servicios de membresía |
+| Identidad, organizaciones y permisos — RF-001–006 | Registro/login/logout, organización OWNER, permisos por rol/equipo, verificación de correo y recuperación con SMTP/Angular. Cambiar contraseña revoca sesiones previas | Google/GitHub, vinculación segura, invitaciones, gestión HTTP/UI de equipos/permisos, entrega durable y revisión visual | Configuración de proveedores, servicios de membresía y operación de correo |
 | GitHub — RF-007–014 | Tabla de conexión y repositorios manuales | Instalar/revocar App, seleccionar repositorios reales, obtener commits/archivos y procesar webhooks idempotentes | Identidad, permisos, credenciales |
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
 | SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
@@ -48,15 +48,16 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 ### Estado de la base y del código existente
 
 - Tres módulos Maven Domain/Application/Infrastructure; Domain y Application sin Spring/JPA.
-- Flyway V1–V12 con 121 tablas de negocio, 85 con RLS forzado y 208 FK. Diccionario y siete diagramas actualizados desde el catálogo. V12 permite consultar membresías/organizaciones propias bajo contexto autenticado de usuario.
+- Flyway V1–V13 con 121 tablas, 85 con RLS forzado y 208 FK. Diccionario y siete diagramas actualizados. V12 permite consultar organizaciones propias y V13 soporta revocación de sesiones por versión de credenciales.
 - F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
 - Registro/login/logout, creación/listado de organizaciones y restauración de sesión disponibles en Angular. APIs de repositorios/scans autorizadas con rol y equipo. Las sesiones viven en memoria del backend y vencen por inactividad. Docker y el recorrido visual completo siguen pendientes. Ver `ACCESO_LOCAL.md`.
+- Verificación y recuperación operativas con tokens aleatorios, hash, caducidad y uso único. Mailpit 1.33.1 recibe los correos locales. Cola de recuperación acotada en memoria, con reenvío manual ante fallo/reinicio. SMTP y PostgreSQL requieren reenvío si una aceptación de correo precede a un commit fallido. Configuración y pruebas en `VERIFICACION_Y_RECUPERACION.md`.
 - La transición separa paquete/versión/presencia y normaliza los módulos. Casos de uso con tenant transaccional y credenciales runtime/migración separadas. Autorización consulta cuenta, organización, membresía, rol y equipo activos en cada petición. Los workers y servicios restantes se desarrollan por la matriz.
 
 ### Orden de implementación propuesto
 
-1. Base y contratos completados hasta V12, con artefactos derivados del catálogo aplicado. Mantener migraciones incrementales y verificar modelo/dimensión al activar vectores.
-2. Continuar identidad con verificación/recuperación de correo y sesiones, después Google/GitHub, vinculación, invitaciones y gestión de equipos/permisos. Acceso local y controles de repositorios entregados en bloque 06.
+1. Base y contratos hasta V13, con artefactos derivados del catálogo aplicado. Mantener migraciones incrementales y verificar modelo/dimensión al activar vectores.
+2. Continuar Google/GitHub y vinculación segura, invitaciones y gestión de equipos/permisos. Acceso local en bloque 06 y verificación/recuperación en bloque 07. Completar entrega durable y aceptación de operación para servidor.
 3. GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI.
 4. Comparación, recomendaciones e impacto; pruebas aisladas y propuesta de PR con aprobación para cerrar el primer piloto.
 5. Documentos privados, extracción/búsqueda, embeddings Ollama y asistente Gemini; reportes y alertas in-app según sus dependencias.
