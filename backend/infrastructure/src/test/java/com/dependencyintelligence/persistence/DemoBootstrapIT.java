@@ -7,38 +7,20 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 @ActiveProfiles("demo")
 @AutoConfigureMockMvc
-class DemoBootstrapIT {
-    private static PostgreSQLContainer<?> postgres;
-
+class DemoBootstrapIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void database(DynamicPropertyRegistry registry) {
-        var url = System.getenv("TEST_DATABASE_URL");
-        if (url == null || url.isBlank()) {
-            postgres = new PostgreSQLContainer<>("postgres:17.7-alpine");
-            postgres.start();
-            registry.add("spring.datasource.url", postgres::getJdbcUrl);
-            registry.add("spring.datasource.username", postgres::getUsername);
-            registry.add("spring.datasource.password", postgres::getPassword);
-        } else {
-            registry.add("spring.datasource.url", () -> url);
-            registry.add("spring.datasource.username", () -> System.getenv("TEST_DATABASE_USER"));
-            registry.add("spring.datasource.password", () -> System.getenv("TEST_DATABASE_PASSWORD"));
-        }
-    }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
 
     @Autowired JdbcTemplate jdbc;
     @Autowired DemoProperties demo;

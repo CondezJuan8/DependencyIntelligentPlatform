@@ -2,6 +2,7 @@ package com.dependencyintelligence.scan.infrastructure.persistence;
 
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
 import com.dependencyintelligence.scan.domain.Scan;
+import com.dependencyintelligence.scan.domain.ScanOrigin;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
@@ -16,12 +17,13 @@ public class JdbcScanAdapter implements ScanStore {
     public Scan add(Scan scan) {
         jdbc.update("""
             insert into scans (id, organization_id, repository_id, git_reference, status,
-                               requested_at, started_at, finished_at, failure_reason, origin)
-            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               requested_at, started_at, finished_at, failure_reason, origin, trigger_type)
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, scan.id(), scan.organizationId().value(), scan.repositoryId().value(),
             scan.gitReference(), scan.status().name(), Timestamp.from(scan.requestedAt()),
             scan.startedAt() == null ? null : Timestamp.from(scan.startedAt()),
-            scan.finishedAt() == null ? null : Timestamp.from(scan.finishedAt()), scan.failureReason(), scan.origin().name());
+            scan.finishedAt() == null ? null : Timestamp.from(scan.finishedAt()), scan.failureReason(), scan.origin().name(),
+            scan.origin() == ScanOrigin.SBOM_IMPORT ? "IMPORT" : "MANUAL");
         return scan;
     }
 }

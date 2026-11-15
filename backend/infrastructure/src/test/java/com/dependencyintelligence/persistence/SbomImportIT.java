@@ -9,11 +9,9 @@ import com.dependencyintelligence.sbom.application.port.in.ImportSbom;
 import com.dependencyintelligence.shared.application.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -21,25 +19,9 @@ import java.util.HexFormat;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class SbomImportIT {
-    private static PostgreSQLContainer<?> postgres;
-
+class SbomImportIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void database(DynamicPropertyRegistry registry) {
-        var url = System.getenv("TEST_DATABASE_URL");
-        if (url == null || url.isBlank()) {
-            postgres = new PostgreSQLContainer<>("postgres:17.7-alpine");
-            postgres.start();
-            registry.add("spring.datasource.url", postgres::getJdbcUrl);
-            registry.add("spring.datasource.username", postgres::getUsername);
-            registry.add("spring.datasource.password", postgres::getPassword);
-        } else {
-            registry.add("spring.datasource.url", () -> url);
-            registry.add("spring.datasource.username", () -> System.getenv("TEST_DATABASE_USER"));
-            registry.add("spring.datasource.password", () -> System.getenv("TEST_DATABASE_PASSWORD"));
-        }
-    }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
 
     @Autowired JdbcTemplate jdbc;
     @Autowired RegisterRepository register;
@@ -56,13 +38,13 @@ class SbomImportIT {
         assertEquals(2, count("scans", tenant));
         assertEquals(1, count("components", tenant));
         assertEquals(4, count("scan_components", tenant));
-        assertEquals(2, count("sbom_imports", tenant));
+        assertEquals(2, count("sbom_documents", tenant));
         assertEquals(HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(content.getBytes(StandardCharsets.UTF_8))), first.sha256());
-        assertEquals(first.sha256(), jdbc.queryForObject("select sha256 from sbom_imports where organization_id = ? and scan_id = ?", String.class, tenant, first.scanId()));
-        assertEquals("1.6", jdbc.queryForObject("select specification_version from sbom_imports where scan_id = ?", String.class, first.scanId()));
-        assertEquals("urn:uuid:33333333-3333-4333-8333-333333333333", jdbc.queryForObject("select serial_number from sbom_imports where scan_id = ?", String.class, first.scanId()));
+        assertEquals(first.sha256(), jdbc.queryForObject("select sha256 from sbom_documents where organization_id = ? and scan_id = ?", String.class, tenant, first.scanId()));
+        assertEquals("1.6", jdbc.queryForObject("select specification_version from sbom_documents where scan_id = ?", String.class, first.scanId()));
+        assertEquals("urn:uuid:33333333-3333-4333-8333-333333333333", jdbc.queryForObject("select serial_number from sbom_documents where scan_id = ?", String.class, first.scanId()));
         assertEquals("org.example", jdbc.queryForObject("select namespace from components where organization_id = ?", String.class, tenant));
-        assertEquals(2, jdbc.queryForObject("select count(*) from scans where organization_id = ? and origin = 'SBOM_IMPORT' and status = 'COMPLETED' and git_reference is null and commit_sha is null and scanner_name is null", Integer.class, tenant));
+        assertEquals(2, jdbc.queryForObject("select count(*) from scans where organization_id = ? and origin = 'SBOM_IMPORT' and status = 'COMPLETED' and git_reference is null and repository_commit_id is null and scanner_name is null", Integer.class, tenant));
         assertEquals(4, jdbc.queryForObject("select count(*) from scan_components where organization_id = ? and dependency_type = 'UNKNOWN'", Integer.class, tenant));
         assertEquals(0, count("scan_artifacts", tenant));
     }
@@ -74,7 +56,7 @@ class SbomImportIT {
         assertThrows(InvalidSbomException.class, () -> importer.execute(command(tenant, repository, invalid)));
         assertEquals(0, count("scans", tenant));
         assertEquals(0, count("components", tenant));
-        assertEquals(0, count("sbom_imports", tenant));
+        assertEquals(0, count("sbom_documents", tenant));
     }
 
     @Test void tenantScopeAppliesToRepositoryAndCatalog() {
@@ -97,17 +79,16 @@ class SbomImportIT {
     @Test void persistenceConflictRollsBackSnapshotProvenanceAndEarlierComponents() {
         var tenant = organization();
         var repository = repository(tenant);
-        jdbc.update("""
-            insert into components(id, organization_id, purl, ecosystem, namespace, name, version)
-            values (?, ?, 'pkg:maven/org.example/conflict@1.0.0', 'Maven', 'org.example', 'conflict', 'different')
-            """, UUID.randomUUID(), tenant);
+        var packageId = jdbc.queryForObject("insert into components(organization_id, package_ecosystem_id, namespace, name) select ?, id, 'org.example', 'conflict' from package_ecosystems where code = 'maven' returning id", UUID.class, tenant);
+        var versionId = jdbc.queryForObject("insert into component_versions(organization_id, component_id, version) values (?, ?, 'different') returning id", UUID.class, tenant, packageId);
+        jdbc.update("insert into component_identifiers(organization_id, component_version_id, identifier_type, value) values (?, ?, 'PURL', 'pkg:maven/org.example/conflict@1.0.0')", tenant, versionId);
         String content = document(component("new", "new-package") + "," + component("conflict", "conflict"));
         assertThrows(ConflictingPackageException.class, () -> importer.execute(command(tenant, repository, content)));
         assertEquals(0, count("scans", tenant));
-        assertEquals(0, count("sbom_imports", tenant));
+        assertEquals(0, count("sbom_documents", tenant));
         assertEquals(0, count("scan_components", tenant));
         assertEquals(1, count("components", tenant));
-        assertEquals("different", jdbc.queryForObject("select version from components where organization_id = ?", String.class, tenant));
+        assertEquals("different", jdbc.queryForObject("select version from component_versions where organization_id = ?", String.class, tenant));
     }
 
     private UUID organization() {

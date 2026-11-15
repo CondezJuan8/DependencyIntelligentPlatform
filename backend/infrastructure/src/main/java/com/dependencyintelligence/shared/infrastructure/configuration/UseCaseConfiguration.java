@@ -11,8 +11,7 @@ import com.dependencyintelligence.scan.application.port.out.ScanStore;
 import com.dependencyintelligence.scan.application.usecase.RequestScanUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
+import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import java.time.Clock;
 import com.dependencyintelligence.sbom.application.port.in.ImportSbom;
 import com.dependencyintelligence.sbom.application.port.out.SbomParser;
@@ -25,27 +24,25 @@ public class UseCaseConfiguration {
     @Bean Clock clock() { return Clock.systemUTC(); }
 
     @Bean ImportSbom importSbom(RepositoryStore repositories, SbomParser parser, SbomImportStore imports,
-                               Clock clock, PlatformTransactionManager manager) {
+                               Clock clock, TenantTransactions transactions) {
         var useCase = new ImportSbomUseCase(repositories, parser, imports, clock);
-        var transaction = new TransactionTemplate(manager);
-        return command -> transaction.execute(status -> useCase.execute(command));
+        return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
     }
 
     @Bean RegisterRepository registerRepository(OrganizationLookup organizations, RepositoryStore repositories,
-                                                Clock clock, PlatformTransactionManager manager) {
+                                                Clock clock, TenantTransactions transactions) {
         var useCase = new RegisterRepositoryUseCase(organizations, repositories, clock);
-        var transaction = new TransactionTemplate(manager);
-        return command -> transaction.execute(status -> useCase.execute(command));
+        return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
     }
 
-    @Bean FindRepository findRepository(RepositoryStore repositories) {
-        return new FindRepositoryUseCase(repositories);
+    @Bean FindRepository findRepository(RepositoryStore repositories, TenantTransactions transactions) {
+        var useCase = new FindRepositoryUseCase(repositories);
+        return (organizationId, repositoryId) -> transactions.execute(organizationId, () -> useCase.execute(organizationId, repositoryId));
     }
 
     @Bean RequestScan requestScan(RepositoryStore repositories, ScanStore scans,
-                                 Clock clock, PlatformTransactionManager manager) {
+                                 Clock clock, TenantTransactions transactions) {
         var useCase = new RequestScanUseCase(repositories, scans, clock);
-        var transaction = new TransactionTemplate(manager);
-        return command -> transaction.execute(status -> useCase.execute(command));
+        return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
     }
 }

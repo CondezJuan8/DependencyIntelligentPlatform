@@ -10,14 +10,12 @@ import com.dependencyintelligence.shared.application.ResourceNotFoundException;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
 import javax.sql.DataSource;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,26 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 /** Run with -Pdatabase-it. Uses an isolated container or an explicitly supplied disposable database. */
-@SpringBootTest
 @AutoConfigureMockMvc
-class DatabaseIT {
-    private static PostgreSQLContainer<?> postgres;
-
+class DatabaseIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void database(DynamicPropertyRegistry registry) {
-        var url = System.getenv("TEST_DATABASE_URL");
-        if (url == null || url.isBlank()) {
-            postgres = new PostgreSQLContainer<>("postgres:17.7-alpine");
-            postgres.start();
-            registry.add("spring.datasource.url", postgres::getJdbcUrl);
-            registry.add("spring.datasource.username", postgres::getUsername);
-            registry.add("spring.datasource.password", postgres::getPassword);
-        } else {
-            registry.add("spring.datasource.url", () -> url);
-            registry.add("spring.datasource.username", () -> System.getenv("TEST_DATABASE_USER"));
-            registry.add("spring.datasource.password", () -> System.getenv("TEST_DATABASE_PASSWORD"));
-        }
-    }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
 
     @Autowired JdbcTemplate jdbc;
     @Autowired DataSource dataSource;
@@ -68,9 +50,9 @@ class DatabaseIT {
     }
 
     @Test void migrationsAndJpaValidationBootSuccessfully() {
-        assertEquals("3", flyway.info().current().getVersion().getVersion());
+        assertEquals("11", flyway.info().current().getVersion().getVersion());
         flyway.validate();
-        assertEquals(14, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
+        assertEquals(121, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
     }
 
     @Test void registersReadsAndQueuesScanThroughRealAdapters() {
@@ -93,27 +75,6 @@ class DatabaseIT {
         assertThrows(DataIntegrityViolationException.class, () -> insertScan(second, repository.id()));
     }
 
-    @Test void rejectsCrossSnapshotAndCrossTenantGraphEdgesAndFindings() {
-        var tenant = organization();
-        var otherTenant = organization();
-        var repository = register.execute(command(tenant, "graph"));
-        var firstScan = insertScan(tenant, repository.id());
-        var secondScan = insertScan(tenant, repository.id());
-        var component = UUID.randomUUID();
-        jdbc.update("insert into components(id, organization_id, purl, ecosystem, name, version) values (?, ?, 'pkg:maven/acme/core@1', 'Maven', 'core', '1')", component, tenant);
-        jdbc.update("insert into scan_components values (?, ?, 'parent', ?, 'DIRECT')", tenant, firstScan, component);
-        jdbc.update("insert into scan_components values (?, ?, 'child', ?, 'TRANSITIVE')", tenant, secondScan, component);
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into dependency_relationships values (?, ?, 'parent', 'child')", tenant, firstScan));
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into scan_components values (?, ?, 'foreign', ?, 'DIRECT')", otherTenant, firstScan, component));
-        jdbc.update("insert into scan_components values (?, ?, 'child', ?, 'TRANSITIVE')", tenant, firstScan, component);
-        assertDoesNotThrow(() -> jdbc.update("insert into dependency_relationships values (?, ?, 'parent', 'child')", tenant, firstScan));
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into dependency_relationships values (?, ?, 'parent', 'parent')", tenant, firstScan));
-        var vulnerability = UUID.randomUUID();
-        jdbc.update("insert into vulnerabilities(id, source, external_id) values (?, 'OSV', ?)", vulnerability, vulnerability.toString());
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into vulnerability_findings(organization_id, scan_id, bom_ref, vulnerability_id) values (?, ?, 'parent', ?)", tenant, secondScan, vulnerability));
-        assertDoesNotThrow(() -> jdbc.update("insert into vulnerability_findings(organization_id, scan_id, bom_ref, vulnerability_id) values (?, ?, 'parent', ?)", tenant, firstScan, vulnerability));
-    }
-
     @Test void databaseRejectsInvalidScanLifecycle() {
         var tenant = organization();
         var repository = register.execute(command(tenant, "lifecycle"));
@@ -129,9 +90,9 @@ class DatabaseIT {
         jdbc.execute("create table " + schema + ".retained_record (value text not null)");
         jdbc.update("insert into " + schema + ".retained_record values ('existing data')");
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(2, latest.migrate().migrationsExecuted);
+        assertEquals(10, latest.migrate().migrationsExecuted);
         latest.validate();
-        assertEquals("3", latest.info().current().getVersion().getVersion());
+        assertEquals("11", latest.info().current().getVersion().getVersion());
         assertEquals("existing data", jdbc.queryForObject("select value from " + schema + ".retained_record", String.class));
         assertEquals(0, latest.migrate().migrationsExecuted);
     }

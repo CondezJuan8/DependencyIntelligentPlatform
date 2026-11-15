@@ -6,8 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
+import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 
 /** Explicit local demo bootstrap; never runs in the default profile or overwrites existing rows. */
 @Configuration
@@ -15,8 +14,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 @EnableConfigurationProperties(DemoProperties.class)
 public class DemoConfiguration {
     @Bean
-    ApplicationRunner demoBootstrap(JdbcTemplate jdbc, DemoProperties demo, PlatformTransactionManager manager) {
-        return arguments -> new TransactionTemplate(manager).executeWithoutResult(status -> {
+    ApplicationRunner demoBootstrap(JdbcTemplate jdbc, DemoProperties demo, TenantTransactions transactions) {
+        return arguments -> transactions.execute(demo.organizationId(), () -> {
             jdbc.update("""
                 insert into organizations(id, name, slug) values (?, 'Dependency Intelligence Demo', 'local-demo')
                 on conflict (id) do nothing
@@ -41,6 +40,7 @@ public class DemoConfiguration {
             if (!Boolean.TRUE.equals(repositoryMatches)) {
                 throw new IllegalStateException("Demo repository id is already used by different data");
             }
+            return null;
         });
     }
 }
