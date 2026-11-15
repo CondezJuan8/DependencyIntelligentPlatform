@@ -12,6 +12,18 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(InvalidAccountTokenException.class)
+    public ProblemDetail invalidToken(InvalidAccountTokenException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+    @ExceptionHandler(AccountMailUnavailableException.class)
+    public ProblemDetail mailUnavailable(AccountMailUnavailableException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
+    }
+    @ExceptionHandler(org.springframework.core.task.TaskRejectedException.class)
+    public ProblemDetail recoveryBusy(Exception exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, "Demasiadas solicitudes. Inténtalo más tarde.");
+    }
     @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
     public ProblemDetail invalidBody(Exception exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Revisa los campos obligatorios y sus límites.");

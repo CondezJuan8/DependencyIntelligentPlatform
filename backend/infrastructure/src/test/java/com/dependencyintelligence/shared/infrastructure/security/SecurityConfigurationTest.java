@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Bean;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import com.dependencyintelligence.identity.application.port.in.FindActiveAccount;
+import com.dependencyintelligence.identity.application.port.in.ValidateAccountSession;
 import java.time.Clock;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({SecurityConfiguration.class, SecurityConfigurationTest.ProbeController.class, SecurityConfigurationTest.TestClock.class})
 class SecurityConfigurationTest {
     @Autowired MockMvc mvc;
-    @MockitoBean FindActiveAccount accounts;
+    @MockitoBean ValidateAccountSession accounts;
 
     @Test
     void healthIsAccessibleWithoutAuthentication() throws Exception {

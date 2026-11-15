@@ -1,7 +1,7 @@
 package com.dependencyintelligence.identity.application.port.in;
 
-import com.dependencyintelligence.identity.application.dto.AccountResult;
+import com.dependencyintelligence.identity.application.dto.AuthenticatedAccount;
 
 public interface AuthenticateAccount {
-    AccountResult execute(String email, String password);
+    AuthenticatedAccount execute(String email, String password);
 }

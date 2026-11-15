@@ -1,6 +1,6 @@
 package com.dependencyintelligence.shared.infrastructure.security;
 
-import com.dependencyintelligence.identity.application.port.in.FindActiveAccount;
+import com.dependencyintelligence.identity.application.port.in.ValidateAccountSession;
 import com.dependencyintelligence.identity.infrastructure.security.ActiveAccountFilter;
 import com.dependencyintelligence.identity.infrastructure.security.AuthenticationRateLimitFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityContextRepository contexts, CsrfTokenRepository csrf,
-            FindActiveAccount accounts, Clock clock,
+            ValidateAccountSession accounts, Clock clock,
             @Value("${app.security.authentication.max-attempts-per-minute:20}") int maxAttempts) throws Exception {
         return http
             .securityContext(context -> context.securityContextRepository(contexts))
@@ -44,8 +44,9 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/me", "/api/organizations", "/api/organizations/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/password-reset/request",
+                    "/api/auth/password-reset/confirm", "/api/auth/email-verification/confirm").permitAll()
+                .requestMatchers("/api/auth/me", "/api/auth/email-verification/request", "/api/organizations", "/api/organizations/**").authenticated()
                 .anyRequest().denyAll())
             .exceptionHandling(errors -> errors
                 .authenticationEntryPoint((request, response, exception) -> response.setStatus(401))

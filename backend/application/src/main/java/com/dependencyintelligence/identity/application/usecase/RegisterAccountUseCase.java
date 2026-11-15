@@ -6,6 +6,7 @@ import com.dependencyintelligence.identity.application.port.in.RegisterAccount;
 import com.dependencyintelligence.identity.application.port.out.AccountStore;
 import com.dependencyintelligence.identity.application.port.out.PasswordHashing;
 import com.dependencyintelligence.identity.domain.EmailAddress;
+import com.dependencyintelligence.identity.domain.PasswordPolicy;
 
 public final class RegisterAccountUseCase implements RegisterAccount {
     private final AccountStore accounts;
@@ -23,10 +24,7 @@ public final class RegisterAccountUseCase implements RegisterAccount {
             throw new IllegalArgumentException("El nombre debe tener entre 1 y 200 caracteres");
         }
         String password = command.password();
-        if (password == null || password.isBlank() || password.codePointCount(0, password.length()) < 15
-                || password.length() > 128) {
-            throw new IllegalArgumentException("La contraseña debe tener entre 15 y 128 caracteres");
-        }
+        PasswordPolicy.validate(password);
         return accounts.create(email, name, passwords.hash(password));
     }
 }

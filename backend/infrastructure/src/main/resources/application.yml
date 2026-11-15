@@ -17,6 +17,19 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      "[mail.smtp.auth]": ${SMTP_AUTH:false}
+      "[mail.smtp.starttls.enable]": ${SMTP_STARTTLS:false}
+      "[mail.smtp.starttls.required]": ${SMTP_STARTTLS:false}
+      "[mail.smtp.connectiontimeout]": 3000
+      "[mail.smtp.timeout]": 3000
+      "[mail.smtp.writetimeout]": 3000
 management:
   endpoints:
     web:
@@ -46,3 +59,10 @@ app:
   security:
     authentication:
       max-attempts-per-minute: ${AUTH_MAX_ATTEMPTS_PER_MINUTE:20}
+    account-tokens:
+      verification-lifetime: ${EMAIL_VERIFICATION_LIFETIME:PT24H}
+      reset-lifetime: ${PASSWORD_RESET_LIFETIME:PT30M}
+      resend-cooldown: ${ACCOUNT_MAIL_COOLDOWN:PT60S}
+  mail:
+    from: ${MAIL_FROM:Dependency Intelligence <no-reply@dependency.local>}
+    public-base-url: ${PUBLIC_BASE_URL:http://localhost:8088}

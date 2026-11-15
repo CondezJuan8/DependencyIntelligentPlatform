@@ -28,23 +28,30 @@ public class JdbcAccountAdapter implements AccountStore {
                 UUID id = UUID.randomUUID();
                 jdbc.update("insert into users(id, email, display_name) values (?, ?, ?)", id, email, displayName);
                 jdbc.update("insert into user_password_credentials(user_id, password_hash) values (?, ?)", id, passwordHash);
-                return new AccountResult(id, email, displayName);
+                return new AccountResult(id, email, displayName, false);
             });
         } catch (DuplicateKeyException exception) { throw new AccountAlreadyExistsException(); }
     }
 
     @Override public Optional<AccountCredentials> credentials(String email) {
         return jdbc.query("""
-            select u.id, u.email, u.display_name, u.is_active, c.password_hash
+            select u.id, u.email, u.display_name, u.is_active, u.email_verified_at, u.credential_version, c.password_hash
             from users u join user_password_credentials c on c.user_id = u.id where u.email_normalized = ?
             """, (row, index) -> new AccountCredentials(new AccountResult(row.getObject("id", UUID.class),
-                row.getString("email"), row.getString("display_name")), row.getString("password_hash"), row.getBoolean("is_active")), email)
+                row.getString("email"), row.getString("display_name"), row.getTimestamp("email_verified_at") != null),
+                row.getString("password_hash"), row.getBoolean("is_active"), row.getLong("credential_version")), email)
             .stream().findFirst();
     }
 
     @Override public Optional<AccountResult> findActive(UUID userId) {
-        return jdbc.query("select id, email, display_name from users where id = ? and is_active",
-            (row, index) -> new AccountResult(row.getObject("id", UUID.class), row.getString("email"), row.getString("display_name")), userId)
+        return jdbc.query("select id, email, display_name, email_verified_at from users where id = ? and is_active",
+            (row, index) -> new AccountResult(row.getObject("id", UUID.class), row.getString("email"), row.getString("display_name"),
+                row.getTimestamp("email_verified_at") != null), userId)
             .stream().findFirst();
+    }
+
+    @Override public boolean sessionCurrent(UUID userId, long version) {
+        return Boolean.TRUE.equals(jdbc.queryForObject(
+            "select exists(select 1 from users where id = ? and is_active and credential_version = ?)", Boolean.class, userId, version));
     }
 }

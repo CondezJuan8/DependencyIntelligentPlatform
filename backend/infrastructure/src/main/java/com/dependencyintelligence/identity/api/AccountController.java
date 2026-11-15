@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
+import com.dependencyintelligence.identity.infrastructure.security.SessionIdentity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,7 +43,7 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResult register(@Valid @RequestBody RegistrationRequest body, HttpServletRequest request, HttpServletResponse response) {
         var account = registration.execute(new RegisterAccountCommand(body.email(), body.displayName(), body.password()));
-        signIn(account, request, response);
+        signIn(new AuthenticatedAccount(account, 0), request, response);
         return account;
     }
 
@@ -50,14 +51,15 @@ public class AccountController {
     public AccountResult login(@Valid @RequestBody LoginRequest body, HttpServletRequest request, HttpServletResponse response) {
         var account = authentication.execute(body.email(), body.password());
         signIn(account, request, response);
-        return account;
+        return account.account();
     }
 
     @GetMapping("/me")
     public AccountResult me(Principal principal) { return currentAccount.execute(UUID.fromString(principal.getName())); }
 
-    private void signIn(AccountResult account, HttpServletRequest request, HttpServletResponse response) {
-        var auth = UsernamePasswordAuthenticationToken.authenticated(account.id().toString(), null, List.of());
+    private void signIn(AuthenticatedAccount account, HttpServletRequest request, HttpServletResponse response) {
+        var identity = new SessionIdentity(account.account().id(), account.credentialVersion());
+        var auth = UsernamePasswordAuthenticationToken.authenticated(identity, null, List.of());
         sessions.onAuthentication(auth, request, response);
         var context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);

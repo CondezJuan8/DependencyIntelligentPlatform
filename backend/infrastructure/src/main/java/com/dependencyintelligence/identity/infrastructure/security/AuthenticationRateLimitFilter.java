@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /** Bounded, per-process fixed window for expensive anonymous password operations. */
 public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
@@ -16,6 +17,9 @@ public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
     private final Map<String, Window> windows = new HashMap<>();
     private final Clock clock;
     private final int maximum;
+    private static final Set<String> PASSWORD_PATHS = Set.of("/api/auth/login", "/api/auth/register",
+        "/api/auth/password-reset/request", "/api/auth/password-reset/confirm",
+        "/api/auth/email-verification/request", "/api/auth/email-verification/confirm");
 
     public AuthenticationRateLimitFilter(Clock clock, int maximum) {
         if (maximum < 1) throw new IllegalArgumentException("Authentication rate limit must be positive");
@@ -24,8 +28,7 @@ public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
     }
 
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !"POST".equals(request.getMethod()) || !(request.getServletPath().equals("/api/auth/login")
-            || request.getServletPath().equals("/api/auth/register"));
+        return !"POST".equals(request.getMethod()) || !PASSWORD_PATHS.contains(request.getServletPath());
     }
 
     private synchronized boolean allow(String address) {

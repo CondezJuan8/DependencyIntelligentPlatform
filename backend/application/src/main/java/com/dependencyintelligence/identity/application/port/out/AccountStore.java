@@ -9,4 +9,5 @@ public interface AccountStore {
     AccountResult create(String email, String displayName, String passwordHash);
     Optional<AccountCredentials> credentials(String email);
     Optional<AccountResult> findActive(UUID userId);
+    boolean sessionCurrent(UUID userId, long credentialVersion);
 }
