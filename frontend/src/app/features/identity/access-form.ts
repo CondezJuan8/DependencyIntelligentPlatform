@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,17 +14,21 @@ import { accessError, SessionApiService } from '../../core/session-api.service';
 })
 export class AccessForm {
   private readonly api = inject(SessionApiService);
-  readonly registering = signal(false);
+  readonly mode = signal<'login' | 'register' | 'recover'>('login');
+  readonly registering = computed(() => this.mode() === 'register');
+  readonly recovering = computed(() => this.mode() === 'recover');
   readonly pending = signal(false);
   readonly error = signal('');
+  readonly message = signal('');
   email = '';
   displayName = '';
   password = '';
   confirmation = '';
 
-  changeMode(): void {
-    this.registering.update(value => !value);
+  changeMode(mode: 'login' | 'register' | 'recover'): void {
+    this.mode.set(mode);
     this.error.set('');
+    this.message.set('');
     this.password = '';
     this.confirmation = '';
   }
@@ -37,6 +41,14 @@ export class AccessForm {
     }
     this.pending.set(true);
     this.error.set('');
+    if (this.recovering()) {
+      this.api.post<void>('/api/auth/password-reset/request', { email: this.email })
+        .pipe(finalize(() => this.pending.set(false))).subscribe({
+          next: () => this.message.set('Si la cuenta admite recuperación, recibirás un enlace para cambiar la contraseña.'),
+          error: error => this.error.set(accessError(error)),
+        });
+      return;
+    }
     this.api.authenticate(this.registering() ? 'register' : 'login', {
       email: this.email, password: this.password, displayName: this.displayName,
     }).pipe(finalize(() => this.pending.set(false))).subscribe({

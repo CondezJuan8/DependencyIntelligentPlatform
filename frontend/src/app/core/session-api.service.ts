@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
-export interface Account { id: string; email: string; displayName: string; }
+export interface Account { id: string; email: string; displayName: string; emailVerified: boolean; }
 export interface Organization { id: string; name: string; }
 interface CsrfToken { headerName: string; token: string; }
 
@@ -48,6 +48,7 @@ export class SessionApiService {
 }
 
 export function accessError(error: HttpErrorResponse): string {
+  if (error.status === 503 && typeof error.error?.detail === 'string') return error.error.detail;
   if (error.status === 0 || error.status >= 500) return 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
   if (error.status === 429) return 'Has realizado demasiados intentos. Espera un minuto e inténtalo de nuevo.';
   if (error.status === 403) return 'No se pudo autorizar la operación. Actualiza la página e inténtalo de nuevo.';

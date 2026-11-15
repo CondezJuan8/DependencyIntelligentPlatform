@@ -4,15 +4,19 @@ import { finalize } from 'rxjs';
 import { SessionApiService, accessError } from './core/session-api.service';
 import { AccessForm } from './features/identity/access-form';
 import { OrganizationWorkspace } from './features/organizations/organization-workspace';
+import { AccountLinkService } from './features/identity/account-link.service';
+import { AccountAction } from './features/identity/account-action';
+import { EmailVerification } from './features/identity/email-verification';
 
 @Component({
-  imports: [MatButtonModule, AccessForm, OrganizationWorkspace],
+  imports: [MatButtonModule, AccessForm, OrganizationWorkspace, AccountAction, EmailVerification],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
 })
 export class App implements OnInit {
   readonly session = inject(SessionApiService);
+  readonly links = inject(AccountLinkService);
   readonly loading = signal(true);
   readonly pending = signal(false);
   readonly error = signal('');

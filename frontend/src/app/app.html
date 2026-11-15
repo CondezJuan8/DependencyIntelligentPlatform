@@ -15,6 +15,7 @@
     <div class="error" role="alert">{{ error() }} <button mat-button (click)="restore()">Reintentar</button></div>
   }
   @if (loading()) { <p role="status">Comprobando sesión…</p> }
-  @else if (session.account()) { <app-organization-workspace /> }
+  @else if (links.action()) { <app-account-action /> }
+  @else if (session.account()) { <app-email-verification /><app-organization-workspace /> }
   @else if (!error()) { <app-access-form /> }
 </main>
