@@ -1,0 +1,35 @@
+// Paleta de producto y variantes para texto legible sobre superficies claras.
+@mixin properties() {
+  --di-navy: #101827;
+  --di-primary: #2563eb;
+  --di-primary-hover: #1d4ed8;
+  --di-accent: #06b6d4;
+  --di-accent-text: #0e7490;
+  --di-slate: #1e293b;
+  --di-background: #f8fafc;
+  --di-white: #ffffff;
+  --di-surface: var(--di-white);
+  --di-text: #0f172a;
+  --di-text-muted: var(--di-slate);
+  --di-border: #e2e8f0;
+  --di-control-border: #64748b;
+
+  --di-sidebar-background: var(--di-navy);
+  --di-sidebar-active: var(--di-accent);
+  --di-link: var(--di-primary);
+  --di-info-background: #eff6ff;
+  --di-info-text: #1e40af;
+
+  --di-success: #16a34a;
+  --di-success-text: #166534;
+  --di-success-background: #f0fdf4;
+  --di-warning: #eab308;
+  --di-warning-text: #854d0e;
+  --di-warning-background: #fefce8;
+  --di-high-risk: #f97316;
+  --di-high-risk-text: #9a3412;
+  --di-high-risk-background: #fff7ed;
+  --di-critical: #dc2626;
+  --di-critical-text: #991b1b;
+  --di-critical-background: #fef2f2;
+}

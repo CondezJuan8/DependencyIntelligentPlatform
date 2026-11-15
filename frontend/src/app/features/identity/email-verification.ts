@@ -18,7 +18,7 @@ import { accessError, SessionApiService } from '../../core/session-api.service';
       }
     }
   `,
-  styles: `section { margin-top: 24px; padding: 20px; border: 1px solid #ccd8ec; border-radius: 12px; background: #edf3ff; } p { margin-top: 0; line-height: 1.5; } [role="alert"] { color: #a22720; }`,
+  styles: `section { margin-top: 24px; padding: 20px; border: 1px solid var(--di-border); border-radius: 12px; background: var(--di-info-background); color: var(--di-info-text); } p { margin-top: 0; line-height: 1.5; } [role="alert"] { color: var(--di-critical-text); }`,
 })
 export class EmailVerification {
   readonly api = inject(SessionApiService);

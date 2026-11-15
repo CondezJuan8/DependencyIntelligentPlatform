@@ -1,3 +1,47 @@
 @use '@angular/material' as mat;
-html { @include mat.theme((color: (primary: mat.$azure-palette), typography: Roboto, density: 0)); }
-body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fb; color: #17243b; }
+@use './theme/tokens';
+
+html {
+  color-scheme: light;
+  @include tokens.properties();
+  @include mat.theme((color: (primary: mat.$azure-palette), typography: Roboto, density: 0));
+  @include mat.theme-overrides((
+    primary: var(--di-primary),
+    on-primary: var(--di-white),
+    primary-container: var(--di-info-background),
+    on-primary-container: var(--di-info-text),
+    secondary: var(--di-accent-text),
+    on-secondary: var(--di-white),
+    tertiary: var(--di-accent),
+    on-tertiary: var(--di-navy),
+    surface: var(--di-surface),
+    on-surface: var(--di-text),
+    on-surface-variant: var(--di-text-muted),
+    outline: var(--di-control-border),
+    outline-variant: var(--di-border),
+    error: var(--di-critical),
+    on-error: var(--di-white),
+    error-container: var(--di-critical-background),
+    on-error-container: var(--di-critical-text),
+  ));
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--di-background);
+  color: var(--di-text);
+}
+
+a {
+  color: var(--di-link);
+  text-underline-offset: 0.2em;
+}
+
+a:hover { color: var(--di-primary-hover); }
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--di-primary);
+  outline-offset: 3px;
+}

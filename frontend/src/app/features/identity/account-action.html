@@ -1,7 +1,7 @@
 <section class="access" aria-labelledby="action-title">
   <h2 id="action-title">{{ verification ? 'Verifica tu correo' : 'Elige una contraseña nueva' }}</h2>
   @if (done()) {
-    <p role="status">{{ verification ? 'Correo verificado correctamente.' : 'Contraseña actualizada. Inicia sesión con tu contraseña nueva.' }}</p>
+    <p class="success" role="status">{{ verification ? 'Correo verificado correctamente.' : 'Contraseña actualizada. Inicia sesión con tu contraseña nueva.' }}</p>
   } @else {
     <form #form="ngForm" (ngSubmit)="submit(form)" [attr.aria-busy]="pending()">
       @if (!verification) {
