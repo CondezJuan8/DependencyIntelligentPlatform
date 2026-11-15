@@ -31,6 +31,18 @@ springdoc:
   swagger-ui:
     enabled: false
 server:
+  servlet:
+    session:
+      timeout: ${SESSION_TIMEOUT:30m}
+      tracking-modes: cookie
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:false}
   error:
     include-message: never
     include-stacktrace: never
+app:
+  security:
+    authentication:
+      max-attempts-per-minute: ${AUTH_MAX_ATTEMPTS_PER_MINUTE:20}

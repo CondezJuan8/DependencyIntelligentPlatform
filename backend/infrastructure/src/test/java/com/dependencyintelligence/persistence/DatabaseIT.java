@@ -50,7 +50,7 @@ class DatabaseIT extends PostgresIntegrationSupport {
     }
 
     @Test void migrationsAndJpaValidationBootSuccessfully() {
-        assertEquals("11", flyway.info().current().getVersion().getVersion());
+        assertEquals("12", flyway.info().current().getVersion().getVersion());
         flyway.validate();
         assertEquals(121, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
     }
@@ -90,9 +90,9 @@ class DatabaseIT extends PostgresIntegrationSupport {
         jdbc.execute("create table " + schema + ".retained_record (value text not null)");
         jdbc.update("insert into " + schema + ".retained_record values ('existing data')");
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(10, latest.migrate().migrationsExecuted);
+        assertEquals(11, latest.migrate().migrationsExecuted);
         latest.validate();
-        assertEquals("11", latest.info().current().getVersion().getVersion());
+        assertEquals("12", latest.info().current().getVersion().getVersion());
         assertEquals("existing data", jdbc.queryForObject("select value from " + schema + ".retained_record", String.class));
         assertEquals(0, latest.migrate().migrationsExecuted);
     }

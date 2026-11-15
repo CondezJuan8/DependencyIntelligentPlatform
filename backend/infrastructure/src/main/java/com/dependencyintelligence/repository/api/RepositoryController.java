@@ -11,30 +11,35 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.UUID;
+import java.security.Principal;
+import com.dependencyintelligence.identity.infrastructure.security.AuthorizedRepositoryActions;
 
-/** Inbound adapter. Remains blocked by security until membership authorization is implemented. */
+/** Inbound adapter with membership, role and repository-team authorization. */
 @RestController
 @RequestMapping("/api/organizations/{organizationId}/repositories")
 public class RepositoryController {
     private final RegisterRepository register;
     private final FindRepository find;
+    private final AuthorizedRepositoryActions access;
 
-    public RepositoryController(RegisterRepository register, FindRepository find) {
+    public RepositoryController(RegisterRepository register, FindRepository find, AuthorizedRepositoryActions access) {
         this.register = register;
         this.find = find;
+        this.access = access;
     }
 
     @PostMapping
     public ResponseEntity<RepositoryResult> register(@PathVariable UUID organizationId,
-                                                     @Valid @RequestBody RegisterRepositoryRequest request) {
-        var result = register.execute(new RegisterRepositoryCommand(organizationId, request.provider(),
-            request.externalId(), request.fullName(), request.defaultBranch()));
+                                                     @Valid @RequestBody RegisterRepositoryRequest request, Principal principal) {
+        var result = access.execute(principal, organizationId, null, "repository.manage", () ->
+            register.execute(new RegisterRepositoryCommand(organizationId, request.provider(),
+                request.externalId(), request.fullName(), request.defaultBranch())));
         return ResponseEntity.created(URI.create("/api/organizations/" + organizationId + "/repositories/" + result.id())).body(result);
     }
 
     @GetMapping("/{repositoryId}")
-    public RepositoryResult find(@PathVariable UUID organizationId, @PathVariable UUID repositoryId) {
-        return find.execute(organizationId, repositoryId);
+    public RepositoryResult find(@PathVariable UUID organizationId, @PathVariable UUID repositoryId, Principal principal) {
+        return access.execute(principal, organizationId, repositoryId, "repository.read", () -> find.execute(organizationId, repositoryId));
     }
 
     public record RegisterRepositoryRequest(@NotBlank @Size(max = 40) String provider,
