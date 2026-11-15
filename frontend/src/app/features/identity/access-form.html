@@ -1,0 +1,33 @@
+<section class="access" aria-labelledby="access-title">
+  <h2 id="access-title">{{ registering() ? 'Crea tu cuenta' : 'Inicia sesión' }}</h2>
+  <p>Accede a tus organizaciones y repositorios.</p>
+  <form #form="ngForm" (ngSubmit)="submit(form)" [attr.aria-busy]="pending()">
+    @if (registering()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput name="displayName" [(ngModel)]="displayName" required maxlength="200" autocomplete="name" [disabled]="pending()">
+      </mat-form-field>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>Correo electrónico</mat-label>
+      <input matInput type="email" name="email" [(ngModel)]="email" required email maxlength="320" autocomplete="username" [disabled]="pending()">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Contraseña</mat-label>
+      <input matInput type="password" name="password" [(ngModel)]="password" required [minlength]="registering() ? 15 : 1" maxlength="128"
+        [attr.autocomplete]="registering() ? 'new-password' : 'current-password'" [disabled]="pending()">
+      @if (registering()) { <mat-hint>Utiliza entre 15 y 128 caracteres.</mat-hint> }
+    </mat-form-field>
+    @if (registering()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Repite la contraseña</mat-label>
+        <input matInput type="password" name="confirmation" [(ngModel)]="confirmation" required maxlength="128" autocomplete="new-password" [disabled]="pending()">
+      </mat-form-field>
+    }
+    @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    <button mat-flat-button type="submit" [disabled]="pending() || form.invalid">{{ pending() ? 'Procesando…' : registering() ? 'Crear cuenta' : 'Entrar' }}</button>
+  </form>
+  <button class="switch" mat-button type="button" (click)="changeMode()" [disabled]="pending()">
+    {{ registering() ? 'Ya tengo una cuenta' : 'Crear una cuenta' }}
+  </button>
+</section>

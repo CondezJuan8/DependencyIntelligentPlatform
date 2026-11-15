@@ -1,0 +1,56 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
+
+export interface Account { id: string; email: string; displayName: string; }
+export interface Organization { id: string; name: string; }
+interface CsrfToken { headerName: string; token: string; }
+
+@Injectable({ providedIn: 'root' })
+export class SessionApiService {
+  private readonly http = inject(HttpClient);
+  readonly account = signal<Account | null>(null);
+
+  restore(): Observable<Account | null> {
+    return this.http.get<Account>('/api/auth/me').pipe(
+      tap(account => this.account.set(account)),
+      catchError((error: HttpErrorResponse) => {
+        this.account.set(null);
+        return error.status === 401 ? of(null) : throwError(() => error);
+      }),
+    );
+  }
+
+  authenticate(mode: 'login' | 'register', body: { email: string; password: string; displayName?: string }): Observable<Account> {
+    return this.post<Account>(`/api/auth/${mode}`, body).pipe(tap(account => this.account.set(account)));
+  }
+
+  logout(): Observable<void> {
+    return this.post<void>('/api/auth/logout', {}).pipe(tap(() => this.account.set(null)));
+  }
+
+  get<T>(path: string): Observable<T> {
+    return this.http.get<T>(path).pipe(catchError(error => this.handleFailure(error)));
+  }
+
+  post<T>(path: string, body: unknown): Observable<T> {
+    // Fetch a fresh masked token because authentication/logout rotates the server token.
+    return this.http.get<CsrfToken>('/api/auth/csrf').pipe(
+      switchMap(csrf => this.http.post<T>(path, body, { headers: { [csrf.headerName]: csrf.token } })),
+      catchError(error => this.handleFailure(error)),
+    );
+  }
+
+  private handleFailure(error: HttpErrorResponse): Observable<never> {
+    if (error.status === 401) this.account.set(null);
+    return throwError(() => error);
+  }
+}
+
+export function accessError(error: HttpErrorResponse): string {
+  if (error.status === 0 || error.status >= 500) return 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+  if (error.status === 429) return 'Has realizado demasiados intentos. Espera un minuto e inténtalo de nuevo.';
+  if (error.status === 403) return 'No se pudo autorizar la operación. Actualiza la página e inténtalo de nuevo.';
+  if (error.status === 401) return 'La sesión ha expirado o las credenciales son incorrectas.';
+  return typeof error.error?.detail === 'string' ? error.error.detail : 'Revisa los datos e inténtalo de nuevo.';
+}

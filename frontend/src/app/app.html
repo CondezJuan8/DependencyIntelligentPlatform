@@ -1,13 +1,20 @@
 <main>
-  <p class="eyebrow">ENTORNO LOCAL · DOCKER</p>
-  <h1>Dependency Intelligence</h1>
-  <p>Inventario, vulnerabilidades y trazabilidad de dependencias.</p>
-  <mat-card appearance="outlined">
-    <mat-card-header><mat-card-title>Base del proyecto preparada</mat-card-title></mat-card-header>
-    <mat-card-content>
-      <p>El siguiente paso es conectar un repositorio y analizar un commit.</p>
-      <p>GitHub, generación de SBOM, OSV y el grafo están pendientes de implementación.</p>
-    </mat-card-content>
-  </mat-card>
-  <router-outlet />
+  <header>
+    <div>
+      <h1>Dependency Intelligence</h1>
+      <p>Inventario y trazabilidad de dependencias</p>
+    </div>
+    @if (session.account(); as account) {
+      <div class="account">
+        <span>{{ account.displayName }}</span>
+        <button mat-stroked-button type="button" (click)="logout()" [disabled]="pending()">Cerrar sesión</button>
+      </div>
+    }
+  </header>
+  @if (error()) {
+    <div class="error" role="alert">{{ error() }} <button mat-button (click)="restore()">Reintentar</button></div>
+  }
+  @if (loading()) { <p role="status">Comprobando sesión…</p> }
+  @else if (session.account()) { <app-organization-workspace /> }
+  @else if (!error()) { <app-access-form /> }
 </main>
