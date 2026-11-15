@@ -35,11 +35,11 @@ Domain contiene agregados, reglas y value objects en Java puro. Application coor
 
 Consultar el [roadmap de salida](docs/ROADMAP.md) para alcance, esfuerzo y escenarios según horas semanales.
 
-La primera entrega se planifica en dos semanas: ver [funciones de la demo local y calendario de 50 horas](docs/FUNCIONES_DEMO_DOS_SEMANAS.md).
+Objetivo vigente: producto completo listo para usar por fases, primero local y después servidor. Alcance, decisiones y matriz de pendientes: [contexto maestro](docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md). El plan anterior de demo/50 horas ya no limita la aceptación.
 
-El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Para preparar el escenario, consultar [demo local](docs/DEMO_LOCAL.md).
+El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Referencias de datos: [nueva especificación](docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable/pendientes](docs/database/implementation-report.md).
 
-Incluye conexión PostgreSQL, Flyway, Actuator y pantalla inicial. El esquema del MVP contiene organizaciones, usuarios, membresías, integraciones, repositorios, análisis, artefactos, componentes, ocurrencias, relaciones, vulnerabilidades, hallazgos, auditoría y procedencia de importaciones SBOM. V3 amplía las migraciones previas sin reescribirlas. Las claves compuestas impiden relaciones entre organizaciones y snapshots distintos; ver [base de datos](docs/BASE_DE_DATOS.md).
+Incluye conexión PostgreSQL, Flyway, Actuator y pantalla inicial. El esquema actual tiene 14 tablas de negocio; la nueva base completa está especificada pero aún no implementada. V1–V3 y los casos de uso existentes son el punto de transición; ver [estado de base de datos](docs/database/implementation-report.md).
 
 Están implementados los casos de uso de registro/consulta de repositorios, solicitud de análisis e importación persistente de SBOM, con consultas por organización. El parser acotado de CycloneDX JSON 1.6/Maven alimenta una importación atómica con procedencia y catálogo reutilizable. Todavía falta conectarla a carga HTTP e inventario visual. Las solicitudes de análisis quedan `PENDING`; las importaciones manuales crean snapshots `COMPLETED` con origen explícito y sin inventar commit ni scanner. No existen worker, GitHub, scanner, OSV ni las pantallas de inventario y grafo. Las pruebas cubren reglas, parser, arquitectura, seguridad, persistencia, rollback y migraciones hasta V3.
 
@@ -49,7 +49,7 @@ Solo `/actuator/health` es público en la API; el resto se deniega. OpenAPI est�
 
 Material es la biblioteca visual inicial. cdxgen será un scanner aislado, no una dependencia de la API. GitHub y OSV podrán usar el cliente HTTP de Spring; no se agregan SDK sin necesidad. El modo local prioriza análisis manual: GitHub no puede enviar webhooks directamente a localhost. No se abre ningún túnel.
 
-RAG, pgvector, OpenAI, Tika/PDFBox y OCR pertenecen a fase 2; no se agregan dependencias inactivas. No se incluye pipeline de despliegue.
+RAG, pgvector, Ollama, Gemini, Tika/PDFBox y OCR se implementarán en sus fases; no se agregan dependencias inactivas. Codex queda fuera del producto hasta nueva instrucción. No se incluye todavía pipeline de despliegue.
 
 ## Verificación
 

@@ -162,3 +162,51 @@ Se reutilizó PostgreSQL 18.6 temporal para comprobar también la actualización
 ### Commits
 
 Separación en tres cambios con emoji: caso de uso/modelo, persistencia/migración con pruebas focalizadas y actualización documental/bitácora. Consultar el historial para los identificadores.
+
+## Bloque 04 — Alcance completo y nueva referencia database
+
+Fecha: 14 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y decisiones confirmadas
+
+Concretar qué falta para que funcione toda la visión del maestro, adoptar la nueva especificación database y retirar la referencia anterior. Se hicieron preguntas de alcance antes de implementar nuevos módulos.
+
+- El usuario confirmó que la nueva base solo está definida en el documento; no existe otro esquema nuevo implementado que debamos dar por terminado.
+- La instrucción vigente prioriza producto completo listo para usar, local primero y servidor después. Sustituye el alcance anterior de demo/50 horas. Disponibilidad declarada: 25 horas semanales; no se inventó una fecha total nueva.
+- Acceso con correo/contraseña, Google y GitHub; Maven/npm; equipos y permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto.
+- Notificaciones in-app; correo de notificaciones posterior, separado del correo transaccional de cuentas.
+- Decisión final de IA: Gemini dentro de la plataforma y Ollama para embeddings. El usuario aclaró explícitamente que Codex se retomará solo cuando lo indique: no se seleccionó SDK/CLI/API ni se reservó una ventana de implementación.
+- El usuario delegó retención documental. Se adopta conservación privada de originales con descarga/reindexación autorizadas y retención/eliminación configurable, distinguiéndolos de temporales que se eliminan. No está implementada todavía.
+
+### Cambios documentales
+
+- Adoptada `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` como diseño objetivo; corregido el nombre de su fuente maestra y añadidas las decisiones posteriores sin presentarlo como DDL ejecutado.
+- Conservadas las eliminaciones que el usuario realizó durante la revisión: BASE_DE_DATOS, BACKLOG_MVP, DEMO_LOCAL y FUNCIONES_DEMO_DOS_SEMANAS. No se restauraron los documentos retirados.
+- Añadidos `docs/database/README.md` y `implementation-report.md`: inventario actual de 14 tablas, brechas con el modelo nuevo y orden de transición conservando datos y migraciones.
+- Contexto maestro actualizado con matriz de cobertura RF-001–RF-091, interfaz y requisitos transversales, dependencias y criterios para aceptar producto listo para usar. Se conservan las secciones históricas y se identifica qué decisiones prevalecen.
+- Alineados arquitectura, stack, instrucciones AGENTS, README, roadmap y referencias de fixtures. El roadmap anterior se sustituye por fases sin presupuesto de demo ni fechas no justificadas.
+- Identificadas brechas de base: paquete/versión/presencia, RBAC/equipos, jobs, RLS/roles SQL, vulnerabilidades normalizadas y módulos de documentos/IA/reportes/notificaciones/auditoría. No se estimó un número final de tablas sin diseñar DDL.
+
+### Herramientas y fuentes
+
+| Herramienta / fuente | Uso | Cambios al producto |
+| --- | --- | --- |
+| PowerShell, rg y editor de archivos | Inspeccionar documentos, migraciones y enlaces; editar decisiones y matriz | Solo documentación |
+| Git | Diferenciar cambios del usuario, conservar eliminaciones y preparar commits coherentes | Sin cambios de lógica |
+| Habilidad openai-docs y documentación oficial de Codex/OpenAI | Precisar la pregunta sobre uso como herramienta de desarrollo o integración del producto | Ninguna integración añadida; aclarada por el usuario |
+| Documentación oficial GitHub Apps | Verificar separación entre identidad/autorización de usuario e instalación/acceso a repositorios | Ningún proveedor configurado |
+| Documentación oficial Gemini y Ollama | Confirmar que cuotas/modelos/dimensión deben verificarse, sin prometer gratuidad o fijar dimensiones | Ninguna librería, clave ni modelo instalado |
+
+Referencias consultadas: [GitHub Apps](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps), [límites Gemini](https://ai.google.dev/gemini-api/docs/rate-limits), [embeddings Ollama](https://docs.ollama.com/capabilities/embeddings), [Codex SDK](https://developers.openai.com/codex/sdk/) y [quickstart OpenAI](https://developers.openai.com/api/docs/quickstart). Las últimas dos se consultaron para aclarar superficie; no constituyen una selección de implementación.
+
+### Verificación y límites
+
+Revisión de diferencias, referencias y enlaces de documentos modificados. No se ejecutaron suites, SQL, migraciones, instalaciones ni despliegues: este bloque solo concreta alcance. V1–V3 y el código permanecen sin modificar. Los 18 resultados del bloque anterior no se atribuyen a la nueva especificación.
+
+Modelo de embeddings/dimensión, modelos Gemini, límites de consumo, periodos operativos, configuración de proveedores y estimación total quedan para concretarse antes de su implementación. No se asumen roles personalizados ni integraciones adicionales. No hay Codex del producto programado.
+
+### Próximo trabajo y commits
+
+Diseñar el mapeo de transición V1–V3 → modelo database, sus migraciones y adaptación de casos de uso; priorizar integridad, aislamiento y trazabilidad. Después implementar las funciones por las dependencias de la matriz del maestro. Este bloque no crea PR externos ni habilita acceso público.
+
+Dos commits documentales: adopción de la especificación/estado real y alineación del alcance/instrucciones/bitácora. Todos con emoji y descripción en español.

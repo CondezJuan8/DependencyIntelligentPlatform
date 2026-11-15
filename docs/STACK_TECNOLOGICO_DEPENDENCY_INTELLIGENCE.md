@@ -23,7 +23,15 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
-Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El usuario confirmó una demo local de dos semanas con 25 horas semanales; el alcance está en `FUNCIONES_DEMO_DOS_SEMANAS.md`.
+Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El objetivo vigente es el producto completo listo para usar, por fases, primero local y después servidor. El plan anterior de demo/50 horas deja de limitar el alcance o la aceptación. Decisiones y pendientes: `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; diseño database vigente: `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md`.
+
+- Acceso confirmado: correo/contraseña, Google y GitHub; equipos y permisos por repositorio en el primer piloto. La identidad GitHub no sustituye la autorización/instalación para acceder a repositorios.
+- Ecosistemas del producto: Java/Maven y JavaScript/npm. El soporte actual del parser solo cubre el subconjunto Maven del ejemplo.
+- IA de la plataforma: Gemini. Embeddings: Ollama. Modelo, versión, dimensión y límites concretos se verifican al implementar los adaptadores; no se incorporan librerías por anticipado.
+- Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
+- Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
+- Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
+- La nueva base está definida pero pendiente: RBAC/equipos, paquete/versión/presencia, jobs, RLS y módulos posteriores. El estado V1–V3 se documenta en `database/implementation-report.md`.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
 - Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.
@@ -43,7 +51,7 @@ El stack debe cumplir estos criterios:
 1. **Coherencia tecnológica:** las tecnologías deben integrarse de forma natural, especialmente en el ecosistema Java.
 2. **Viabilidad del MVP:** evitar infraestructura que retrase la demostración del flujo principal.
 3. **Evolución empresarial:** permitir multi-tenancy, auditoría, seguridad, escalabilidad y trazabilidad.
-4. **Separación de responsabilidades:** el dominio no debe depender directamente de GitHub, OSV, cdxgen, OpenAI ni de detalles de persistencia.
+4. **Separación de responsabilidades:** el dominio no debe depender directamente de GitHub, OSV, cdxgen, Gemini/Ollama ni de detalles de persistencia.
 5. **Evidencia y reproducibilidad:** cada análisis debe poder relacionarse con un repositorio, commit, versión de scanner, fecha y fuentes utilizadas.
 6. **Seguridad:** el contenido de repositorios y documentos debe tratarse como no confiable.
 7. **Uso correcto de IA:** los datos operativos se consultan de forma determinista; los embeddings se reservan para recuperación semántica documental.
@@ -72,8 +80,8 @@ El stack debe cumplir estos criterios:
 | Vulnerabilidades | OSV API | Consulta de vulnerabilidades | MVP |
 | Procesamiento documental | Apache Tika / Apache PDFBox | Extracción de texto y metadatos | Fase 2 |
 | OCR | Tesseract OCR | Extracción de texto de páginas escaneadas | Fase 2 |
-| Embeddings | OpenAI Embeddings API | Representación vectorial de fragmentos | Fase 2 |
-| LLM | OpenAI API | Generación de respuestas fundamentadas | Fase 2 |
+| Embeddings | Ollama, modelo por fijar | Representación vectorial de fragmentos | Fase documental |
+| LLM | Gemini API, modelo por fijar | Generación de respuestas fundamentadas | Fase documental |
 | Contenedores | Docker | Empaquetado y aislamiento | MVP |
 | Proxy / servidor web | Nginx | Terminación HTTPS y publicación del frontend/API | Despliegue |
 | CI/CD | GitHub Actions | Build, pruebas y despliegue automatizado | MVP |
@@ -253,10 +261,10 @@ Para la fase de Documentation Intelligence:
 | Lectura y operaciones específicas de PDF | Apache PDFBox |
 | OCR de páginas escaneadas | Tesseract OCR |
 | Segmentación | Servicio Java de chunking |
-| Embeddings | OpenAI Embeddings API |
+| Embeddings | Ollama mediante adaptador propio |
 | Persistencia vectorial | PostgreSQL + pgvector |
 | Recuperación | Búsqueda híbrida |
-| Generación | OpenAI API mediante una capa de proveedor |
+| Generación | Gemini API mediante una capa de proveedor |
 
 Tika y PDFBox pueden complementarse, pero no es necesario incorporar ambos indiscriminadamente: seleccionar el flujo según los formatos y necesidades de extracción probados.
 
@@ -316,7 +324,7 @@ Para producción, los archivos temporales y documentos deben tener una política
                   ┌────────────────────────────┼────────────────────┐
                   │                            │                    │
           ┌───────▼────────┐          ┌─────────▼──────┐    ┌────────▼────────┐
-          │ GitHub App/API │          │ OSV API        │    │ OpenAI API      │
+          │ GitHub App/API │          │ OSV API        │    │ Gemini API      │
           │ Repositories   │          │ Vulnerabilities│    │ Embeddings/LLM  │
           │ Commits/Webhooks│         │                │    │ (Phase 2)       │
           └────────────────┘          └────────────────┘    └─────────────────┘
@@ -336,7 +344,7 @@ Se recomienda organizar el backend por módulos de negocio y mantener separació
 |---|---|---|
 | Domain | Entidades, value objects, reglas y políticas | No depende de frameworks ni proveedores |
 | Application | Casos de uso, puertos y coordinación | Domain |
-| Infrastructure | Persistencia, GitHub, OSV, cdxgen, OpenAI y filesystem | Application y Domain mediante contratos |
+| Infrastructure | Persistencia, GitHub, OSV, cdxgen, Gemini/Ollama y filesystem | Application y Domain mediante contratos |
 | API / Presentation | Controladores REST, DTOs y validación de entrada | Application |
 | Workers | Procesos asíncronos y consumidores de trabajos | Application |
 
@@ -373,7 +381,7 @@ Definir interfaces propias para proveedores externos, por ejemplo:
 - `LanguageModelProvider`
 - `ReportStorage`
 
-Las implementaciones concretas se ubican en Infrastructure. Esto evita acoplar el dominio a GitHub, OSV, cdxgen u OpenAI.
+Las implementaciones concretas se ubican en Infrastructure. Esto evita acoplar el dominio a GitHub, OSV, cdxgen ni Gemini/Ollama.
 
 ---
 
@@ -389,7 +397,7 @@ Los análisis de repositorios y la indexación documental no deben ejecutarse de
 - Actualizar estados y resultados en la base de datos.
 - Implementar reintentos limitados, idempotencia y manejo de errores.
 
-Esta opción reduce infraestructura adicional durante las dos semanas iniciales.
+Esta opción reduce infraestructura adicional durante las primeras fases del producto.
 
 ### Evolución
 
@@ -415,7 +423,7 @@ Esta propuesta puede integrarse como una modalidad de gestión documental, pero 
 6. Se aplica OCR a las páginas escaneadas cuando sea necesario.
 7. El texto se divide en fragmentos con tamaño y solapamiento configurables.
 8. Se conservan página, sección, orden, documento y organización.
-9. Se generan embeddings mediante OpenAI.
+9. Se generan embeddings mediante el modelo Ollama configurado y verificado.
 10. Se guardan texto, vectores y metadatos en PostgreSQL + pgvector.
 11. Se verifica la indexación.
 12. Se elimina la copia temporal según la política de retención acordada.
@@ -431,16 +439,16 @@ Esta propuesta puede integrarse como una modalidad de gestión documental, pero 
 7. El LLM genera una respuesta basada en los fragmentos recuperados.
 8. La respuesta presenta referencias al documento y página cuando los metadatos lo permitan.
 
-### 7.3 Limitaciones de no conservar el PDF original
+### 7.3 Originales privados, temporales y retención
 
 - El servidor puede consultar los fragmentos indexados aunque el computador del usuario esté apagado.
-- No puede volver a abrir ni verificar el PDF original si este ya no está disponible.
+- El original retenido permite descarga autorizada y reindexación. Si se elimina según política, no se puede recuperar a partir del hash.
 - Las citas por página dependen de la calidad de extracción y de los metadatos guardados.
 - Tablas, imágenes, firmas y sellos pueden requerir el documento original.
-- Un cambio en el OCR o en el proceso de extracción puede exigir que el usuario vuelva a cargar el PDF.
+- Un cambio en OCR/extracción permite reindexar el original retenido; si se eliminó, puede requerir nueva carga.
 - Guardar un hash permite identificar el archivo, pero no sustituye su contenido.
 
-**Decisión pendiente:** confirmar si esta política de no conservar originales aplica a todos los documentos o únicamente a determinados tipos de expedientes. Dependency Intelligence también contempla documentación interna que puede necesitar políticas de retención diferentes.
+**Decisión vigente delegada:** conservar originales en almacenamiento privado y configurar su retención/eliminación por organización. Eliminar temporales al terminar/expirar el trabajo. Quedan por concretar periodos y excepciones, no la distinción entre original y copia temporal.
 
 ---
 
@@ -522,7 +530,7 @@ El procesamiento documental avanzado, RAG y el asistente de IA no deben bloquear
 - Apache Tika / PDFBox.
 - Tesseract OCR.
 - Procesamiento asíncrono.
-- OpenAI Embeddings.
+- Embeddings mediante Ollama.
 - PostgreSQL + pgvector.
 - Búsqueda híbrida.
 - RAG con citas y referencias.
@@ -576,14 +584,14 @@ Antes de congelar el stack, el equipo debe confirmar:
 
 1. **Java:** versión LTS y versión compatible de Spring Boot.
 2. **Frontend UI:** Angular Material o PrimeNG.
-3. **Ecosistemas MVP:** Maven y npm, u otra combinación.
+3. **Ecosistemas:** Maven y npm confirmados; validar cobertura real y resolver extensiones posteriores.
 4. **Scanner:** cdxgen como herramienta inicial, validada con repositorios de prueba.
 5. **Vulnerabilidades:** OSV API como fuente inicial.
 6. **Procesamiento asíncrono:** tabla de trabajos y worker inicial; evaluar RabbitMQ posteriormente.
-7. **Autenticación:** estrategia de identidad para usuarios y organizaciones.
+7. **Autenticación:** métodos confirmados, correo/contraseña y Google/GitHub; concretar configuración y vinculación segura.
 8. **RAG:** confirmar si se implementará en una segunda fase y qué documentos podrán conservarse temporalmente.
 9. **PDF original:** confirmar política de eliminación, retención y posibilidad de reindexación.
-10. **Proveedor de IA:** confirmar OpenAI para embeddings y generación en la fase documental.
+10. **Modelos de IA:** proveedores confirmados, Ollama para embeddings y Gemini para generación; faltan modelo/versiones, dimensión y límites operativos.
 11. **Despliegue:** definir VPS, almacenamiento, backups, HTTPS y ambientes.
 12. **Observabilidad:** definir métricas, logs, alertas y retención.
 
@@ -614,7 +622,7 @@ El stack recomendado para Dependency Intelligence es:
 
 Para la evolución documental:
 
-**PostgreSQL + pgvector + Spring AI (o JDBC compatible) + OpenAI Embeddings + OpenAI API + Apache Tika/PDFBox + Tesseract OCR**.
+**PostgreSQL + pgvector + adaptadores compatibles + Ollama embeddings + Gemini API + Apache Tika/PDFBox + Tesseract OCR**. Evaluar bibliotecas auxiliares al verificar compatibilidad, sin añadirlas por anticipado.
 
 La decisión arquitectónica central es mantener un **monolito modular con arquitectura hexagonal**, una base relacional como fuente de verdad y procesos asíncronos aislados para análisis e indexación.
 
@@ -651,7 +659,7 @@ Se incorporan:
 - Procesamiento asíncrono.
 - Extracción de texto y OCR.
 - Fragmentación con metadatos de página y sección.
-- OpenAI Embeddings para el MVP documental.
+- La fuente original proponía OpenAI Embeddings; la decisión vigente del usuario es Ollama para embeddings y Gemini para generación.
 - PostgreSQL + pgvector.
 - Búsqueda híbrida.
 - Recuperación filtrada por tenant y autorización.

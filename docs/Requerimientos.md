@@ -1,5 +1,7 @@
 # Arquitectura RAG  — Java - Springboot y pgvector
 
+> Antecedente histórico. La política vigente delegada por el usuario conserva originales en almacenamiento privado, permite descarga/reindexación autorizadas y configura retención/eliminación por organización; elimina copias temporales. Proveedores vigentes: Ollama para embeddings y Gemini para generación. Las decisiones actuales del contexto maestro, arquitectura, database y stack prevalecen sobre las propuestas anteriores de este archivo.
+
 1. ## Objetivo
 
   Permitir que cada cliente conserve los PDF originales en su computador mientras consulta y analiza su

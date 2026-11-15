@@ -6,18 +6,67 @@
 
 > Este documento consolida el contexto disponible de las conversaciones. Distingue lo que ya se propuso de lo que está decidido. Las propuestas no deben tratarse como decisiones aprobadas si el usuario todavía no las confirmó. Tampoco se deben interpretar ejemplos, datos de mockups o estimaciones como resultados reales.
 
-## Actualización de continuidad — 14 de noviembre de 2026
+## Decisiones vigentes y estado de continuidad — 14 de noviembre de 2026
 
-Las secciones numeradas posteriores conservan el contexto histórico del 12 de noviembre. Para el estado de implementación actual, aplicar esta actualización y contrastar `ARQUITECTURA_BACKEND.md`, `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md` y `BITACORA_TRABAJO.md`.
+Las secciones numeradas posteriores conservan el contexto histórico. Las decisiones de este apartado, confirmadas por el usuario, prevalecen sobre propuestas pendientes o límites de entregas anteriores. Referencias prioritarias: este contexto, `ARQUITECTURA_BACKEND.md`, `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`.
 
-- El usuario confirmó **25 horas semanales y una demo local para presentar en dos semanas**. Se limita a carga manual de un SBOM conocido, snapshot e inventario con búsqueda y detalle; no es el piloto SaaS completo. El presupuesto es 40 horas de trabajo y 10 de reserva.
-- Hay tres módulos Maven independientes, esquema Flyway V1/V2/V3 y casos de uso de registro/consulta de repositorios, solicitud de análisis e importación persistente de SBOM. Las APIs de negocio siguen bloqueadas hasta implementar su acceso correspondiente.
-- Existe un perfil `demo` con bootstrap transaccional de organización/repositorio y ejemplos CycloneDX sintéticos identificados como tales. Su arranque completo mediante Docker sigue pendiente de verificación en el equipo de presentación.
-- **F03 implementada como parser:** puerto `SbomParser` en Application, DTO propios y value object de coordenadas en Domain; adaptador Jackson en Infrastructure para CycloneDX JSON 1.6/Maven, bibliotecas planas, límites de 5 MiB/500 componentes y validación de referencias/PURL. Está conectado a F04; falta carga HTTP.
-- **F04 implementada como importación persistente:** `ImportSbomUseCase` verifica organización/repositorio, valida y calcula SHA-256 antes de escribir; `SbomImportStore` guarda snapshot, procedencia y ocurrencias en una transacción. V3 incorpora namespace, origen `SBOM_IMPORT` y tabla de procedencia; no inventa referencia Git/scanner ni conserva el archivo original. Conflictos revierten todas las escrituras. Reimportar crea otro snapshot reutilizando el catálogo compatible dentro del tenant.
-- Los datos del ejemplo no son resultados de cdxgen. No se infieren dependencias directas/transitivas, hashes de commit ni vulnerabilidades. GitHub, scanner, OSV, grafo, IA y despliegue público quedan para etapas posteriores.
-- Verificación anterior del parser: ocho pruebas y cuatro reglas de arquitectura aprobadas. Bloque F04: pruebas focalizadas de dominio, caso de uso, arquitectura e integración/migraciones en PostgreSQL; resultados exactos en la bitácora. El siguiente bloque es conectar F02, carga local, y después F05, consulta de inventario.
-- Mantener la bitácora en cada bloque con herramientas, resultados y siguiente paso; usar commits coherentes por funcionalidad, siempre con emoji, y ejecutar solo pruebas relevantes.
+### Decisiones cerradas
+
+- Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.
+- Nueva base: solo definida en la especificación, todavía sin implementar. Se retira la documentación anterior y se conserva el esquema actual como punto de transición, no como diseño final.
+- Acceso: correo/contraseña, Google y GitHub, con recuperación/verificación y vinculación segura de identidades. Login GitHub y acceso a repositorios mediante instalación/autorización son funciones distintas.
+- Ecosistemas: Java/Maven y JavaScript/npm.
+- Primer piloto con equipos y permisos por repositorio; pruebas de cambios aisladas y propuesta de PR sujeta a aprobación. Roles personalizados no se consideran confirmados.
+- IA de la plataforma: Gemini. Embeddings: Ollama. No integrar ni planificar Codex como proveedor del producto hasta nueva instrucción explícita del usuario. Su uso como herramienta de desarrollo no equivale a una integración del producto.
+- Notificaciones iniciales dentro de la aplicación; correo de notificaciones después. El correo de recuperación/verificación de cuentas se trata por separado.
+- Política documental delegada: conservar originales en almacenamiento privado para descarga autorizada y reindexación; retención/eliminación configurable por organización y borrado de temporales. Sustituye la propuesta histórica de originales solo en el equipo del cliente. Su implementación está pendiente.
+- Modelos concretos, dimensión de embeddings, límites de proveedores y periodos operativos se verifican/configuran al implementar, sin inventarlos. No se promete gratuidad de Gemini ni disponibilidad ilimitada.
+
+### Matriz de funciones por completar
+
+Estado a partir del repositorio, no del número de tablas o carpetas. Una función se acepta con backend, acceso autorizado, interfaz aplicable y resultado verificable; una tabla creada no equivale a una función terminada.
+
+| Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
+| --- | --- | --- | --- |
+| Identidad, organizaciones y permisos — RF-001–006 | Tablas iniciales y validaciones por organización | Login local/Google/GitHub, recuperación/verificación, sesiones, invitaciones, equipos, acceso por repositorio y aislamiento RLS | Transición de base, configuración de proveedores/correo |
+| GitHub — RF-007–014 | Tabla de conexión y repositorios manuales | Instalar/revocar App, seleccionar repositorios reales, obtener commits/archivos y procesar webhooks idempotentes | Identidad, permisos, credenciales |
+| Repositorios y análisis — RF-015–021 | Registro/consulta internos y solicitud persistida | API/interfaz autorizadas, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
+| SBOM/componentes — RF-022–032 | Parser CycloneDX 1.6/Maven acotado e importación atómica | Carga HTTP, scanner aislado, Maven/npm reales, paquete/versión/presencia normalizados y aristas con evidencia | Nuevo modelo, jobs, artefactos |
+| Vulnerabilidades — RF-033–040 | Esquema inicial sin OSV | Consulta, rangos/aliases/severidades, coincidencia por versión, evidencia y hallazgos normalizados | Catálogo normalizado, snapshots |
+| Inventario — RF-041–046 | Escritura de ocurrencias, sin consulta de inventario ni UI | Búsqueda/filtros/paginación, versiones, repositorios y directa/transitiva solo con evidencia | SBOM/grafo y permisos |
+| Grafo — RF-047–052 | Estructura inicial de relaciones | Importar/consultar aristas por snapshot y navegar rutas/riesgos en UI | Presencias, OSV, grafo completo |
+| Historial/comparación — RF-053–059 | Snapshots importados con procedencia | Consulta por commit y comparación añadidos/eliminados/actualizados del mismo repositorio | Nuevo modelo, inventario |
+| Recomendaciones — RF-060–065 | Pendiente | Versiones candidatas/corregidas, cambios documentados, riesgos, evidencia y pruebas sugeridas | OSV, releases/documentos, comparación |
+| Alertas — RF-066–070 | Pendiente | Eventos, deduplicación, suscripción, estado y entrega in-app; correo después | Jobs, hallazgos/cambios |
+| SBOM/artefactos — RF-071–074 | Solo hash/procedencia; original no retenido | Conservar/consultar/exportar SBOM y comparar snapshots; formatos y trazabilidad | Almacenamiento privado, permisos |
+| Documentos/IA — RF-075–080 | Pendiente | Originales privados, versiones, asociaciones, extracción/OCR, búsqueda híbrida, Ollama, Gemini y respuestas citadas con permisos | Jobs, almacenamiento, modelos/configuración, pgvector aislado |
+| Impacto — RF-081–085 y RF-091 | Pendiente | ADD/UPDATE/REMOVE/REPLACE con evidencia KNOWN/POTENTIAL/VALIDATED, documentos por revisar, pruebas aisladas y propuesta de PR aprobable | Grafo, versiones, documentos y ejecutor aislado |
+| Reportes — RF-086–090 | Pendiente | Informes técnicos/ejecutivos, PDF/CSV/JSON/SBOM, artefactos trazables y programación posterior | Inventario, hallazgos, permisos, jobs |
+| Auditoría y requisitos no funcionales | Health, restricciones FK y pruebas focalizadas | Auditoría append-only, RLS/roles SQL, logs/métricas, límites, secretos, retención, backup/restauración y operación en servidor | Transversal a cada fase |
+| Interfaz — pantallas del apartado 6 | Estructura Angular y pantalla inicial | Navegación, formularios, tablas, estados de carga/error, accesibilidad y recorridos con datos reales | Contratos y funciones por módulo |
+
+### Estado de la base y del código existente
+
+- Tres módulos Maven Domain/Application/Infrastructure; Domain y Application sin Spring/JPA.
+- Flyway V1–V3 y 14 tablas de negocio, todavía diferentes del modelo objetivo nuevo. Estado y transición: `database/implementation-report.md`.
+- F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
+- Un perfil local prepara una organización/repositorio sintéticos; Docker/navegador completo sigue pendiente de verificar. Las APIs de negocio continúan denegadas.
+- La base nueva requiere separar paquete/versión/presencia, RBAC/equipos, jobs, RLS y los módulos posteriores. Adaptar casos de uso junto con migraciones sin reescribir V1–V3 ni perder datos.
+
+### Orden de implementación propuesto
+
+1. Base y contratos: transición del esquema actual al objetivo por módulos, conservando datos y funciones; documentación/normalización/diagramas derivados del SQL implementado.
+2. Identidad, organizaciones, equipos, permisos y aislamiento; recorrido local autorizado.
+3. GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI.
+4. Comparación, recomendaciones e impacto; pruebas aisladas y propuesta de PR con aprobación para cerrar el primer piloto.
+5. Documentos privados, extracción/búsqueda, embeddings Ollama y asistente Gemini; reportes y alertas in-app según sus dependencias.
+6. Completar visión empresarial, automatizaciones/reportes programados y operación en servidor. Correo de notificaciones después de in-app. Codex queda fuera hasta nueva instrucción.
+
+Estos pasos no autorizan contrataciones, publicación ni PR sobre repositorios externos en este bloque. No se presume una fecha del piloto: equipos/permisos y pruebas aisladas/PR amplían el trabajo y exigen reestimación. Mantener bitácora por bloque, pruebas relevantes y commits coherentes con emoji.
+
+### Criterio de producto listo para usar
+
+Arranque reproducible; usuarios y organización operativos; permisos efectivos; recorridos reales sin fixtures presentados como producción; trabajos recuperables; evidencias/citas y estados de error; configuración/secretos externos al código; backup y restauración comprobados; documentación y pruebas de aceptación de los módulos entregados. Las pantallas o tablas vacías no satisfacen este criterio.
 
 ---
 

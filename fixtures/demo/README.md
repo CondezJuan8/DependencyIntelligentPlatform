@@ -21,4 +21,4 @@ Las tres ocurrencias se clasificarán como `UNKNOWN`: el archivo no demuestra si
 
 El archivo de rechazo es JSON sintácticamente válido y deliberadamente inválido para el contrato del importador. Parser y persistencia ya están conectados en el caso de uso; sus pruebas cubren referencias repetidas y ausencia de escrituras parciales. Todavía no hay carga HTTP conectada. Las pruebas usan documentos construidos dentro de las clases de test; estos archivos siguen reservados para el recorrido de presentación.
 
-Ver [arranque local](../../docs/DEMO_LOCAL.md).
+El escenario sigue siendo un fixture de desarrollo, no el alcance del producto completo. Referencias vigentes: [contexto maestro](../../docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md), [database](../../docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado implementado](../../docs/database/implementation-report.md). El documento anterior de demo fue retirado por el usuario.
