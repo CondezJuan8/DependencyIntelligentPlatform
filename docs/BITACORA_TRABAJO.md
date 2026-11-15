@@ -210,3 +210,52 @@ Modelo de embeddings/dimensión, modelos Gemini, límites de consumo, periodos o
 Diseñar el mapeo de transición V1–V3 → modelo database, sus migraciones y adaptación de casos de uso; priorizar integridad, aislamiento y trazabilidad. Después implementar las funciones por las dependencias de la matriz del maestro. Este bloque no crea PR externos ni habilita acceso público.
 
 Dos commits documentales: adopción de la especificación/estado real y alineación del alcance/instrucciones/bitácora. Todos con emoji y descripción en español.
+
+## Bloque 05 — Implementación prioritaria de la base completa
+
+Fecha: 14 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y alcance
+
+Priorizar la base de datos usando CODEX_DATABASE_DEPENDENCY_INTELLIGENCE como fuente para SQL, migraciones y diagramas. Conservar datos y migraciones existentes, respetar hexagonal/DDD y separar commits con emoji por responsabilidad. No se habilitan APIs de negocio sin identidad/autorización.
+
+### Cambios realizados
+
+- Ocho migraciones nuevas V4–V11; V1–V3 intactas. Núcleo aplicado: 121 tablas de negocio, 85 con ENABLE/FORCE RLS y 208 FK, sin contar Flyway.
+- Paquete/versión/identificadores/aparición separados y aristas del mismo snapshot; conversión conserva IDs/referencias y PURL alternativos. Membresías y roles históricos normalizados; identidad local/externa, equipos y acceso por repositorio; instalación GitHub separada de login.
+- Jobs/intentos/etapas/logs/artefactos, commits, SBOM y comparaciones; advisories/fuentes/aliases/severidades/rangos/fixes/evidencia normalizados. El hash de payload legado se etiqueta CANONICAL_JSON, sin afirmar que sean bytes HTTP originales.
+- Documentos/versiones/originales privados, temporales con expiración, chunks, procesamiento, metadatos de modelos, conversaciones y citas con FK reales. No se inventa modelo/dimensión ni se agrega Codex al producto.
+- Impacto ADD/UPDATE/REMOVE/REPLACE, evidencia KNOWN/POTENTIAL/VALIDATED, simulaciones/pruebas, propuestas PR con aprobación; reportes, notificaciones, auditoría append-only, retención/eliminación tipadas. Tablas no equivalen a servicios ejecutables.
+- Roles capability separados y login runtime no propietario; credenciales Flyway separadas, guard de privilegios y TenantTransactions local a la transacción JPA/JDBC, incluido bootstrap. Adaptados importador y scan sin añadir frameworks al Domain/Application ni bibliotecas nuevas.
+- Aprovisionamiento administrativo idempotente del login; Compose y ejemplo de entorno incluyen contraseña runtime separada, sin versionar secretos. Instrucciones para volúmenes existentes sin borrarlos.
+- Migración vectorial opcional fuera del Flyway predeterminado y ADR de activación pendiente. Núcleo sin dependencia de extensión ni modelo inventado.
+- Export estructural desde pg_catalog; diccionario completo de cada tabla, matriz de normalización con inventario de claves y límites formales, siete Excalidraw nativos editables con SVG/PNG y validación de cobertura. Se evita declarar 5NF universal.
+- Alineados contexto maestro, arquitectura, stack, README, roadmap e instrucciones de continuidad. Referencia de entrada: [documentación de base](database/README.md).
+
+### Herramientas y tecnologías utilizadas
+
+| Herramienta / tecnología | Uso efectivo | Incorporación al producto |
+| --- | --- | --- |
+| PowerShell, rg, edición de archivos y Git | Inventario, revisión, documentación y commits | Sin nueva dependencia |
+| PostgreSQL 18.6 nativo temporal y psql | Aplicar SQL, exportar catálogo, comprobar rol y aprovisionamiento | Compose sigue en PostgreSQL 17.7; no se instaló otro servicio productivo |
+| Flyway, Spring JDBC/JPA y transacciones existentes | Migraciones incrementales, persistencia normalizada y contexto tenant | SQL, configuración y adaptadores propios; no otra biblioteca |
+| Maven 3.9.11, JDK local 25 con destino 21, JUnit/ArchUnit y Failsafe | Compilación, pruebas focalizadas y límites de capas | Herramientas y dependencias ya presentes |
+| Python 3.12 estándar | Generar diccionario y archivos nativos Excalidraw/SVG desde catálogo real | Generador de desarrollo; sin dependencia runtime |
+| Pillow ya disponible | Exportar PNG e inspeccionar vista conjunta/detalle de diagramas | No instalada como dependencia del producto |
+| Documentación oficial PostgreSQL y Excalidraw | Confirmar FORCE/BYPASSRLS y estructura nativa editable | Referencias enlazadas en README de base |
+
+### Verificaciones y resultados
+
+Primera selección: 8 unitarias/arquitectura/seguridad y 22 de integración, todas correctas. Incluyó ImportSbomUseCaseTest, SecurityConfigurationTest, HexagonalArchitectureTest, DatabaseIT, DemoBootstrapIT, SbomImportIT, NormalizedSchemaIT y RuntimeDatabaseIT. Tras endurecer integridad en V11 se ejecutaron solo NormalizedSchemaIT (7) y dos métodos afectados de DatabaseIT: 9 correctas. Total: **31 casos distintos**, con 8 repeticiones justificadas; no se presenta el total de ejecuciones como casos adicionales.
+
+Se comprobaron arranque limpio, actualización desde V1/V3 con datos/checksums, deduplicación paquete/versión sin perder PURL/apariciones/aristas, transformación de roles/sujetos/advisories/fixes, FK compuestas, rollback y bootstrap. Login runtime real: no propietario ni DDL, aislamiento de lecturas/escrituras/asociaciones, catálogos sin escritura, auditoría sin UPDATE/DELETE y contexto eliminado al terminar. JPA e importador operaron con ese login. Integridad focalizada en documentos/citas/reportes/notificaciones, evidencia VALIDATED de la misma prueba/análisis, inmutabilidad terminada, aprobación PR y reintentos máximos. El aprovisionamiento SQL se ejecutó dos veces correctamente en la base desechable.
+
+Exportación estructural y verificación de diagramas: 121 tablas, 208 FK, siete archivos nativos, IDs únicos y bindings válidos. Inspección de lámina conjunta y detalle PNG. Diccionario y catálogo no contienen filas de negocio ni credenciales. Se revisan diferencias, enlaces locales y formato antes de cerrar los commits. El servidor temporal se detiene al finalizar; no se actualiza una base externa del usuario.
+
+### Límites, siguiente paso y commits
+
+No se ejecutó Docker/Compose, pgvector, IA, carga/concurrencia ni apertura de la UI de Excalidraw. El entorno nativo no prueba las imágenes PostgreSQL 17.7/Java 21. V101 requiere extensión/modelo/dimensión verificados y pruebas antes de activarse. La autorización funcional y el login siguen pendientes; las APIs de negocio permanecen denegadas. No se afirma que las 121 tablas completen todos los recorridos del producto.
+
+Siguiente bloque: registro/login local y verificación/recuperación/sesiones, autorización por membresía/equipo/repositorio y recorrido HTTP/UI; después identidad Google/GitHub e instalación GitHub. Servicios de workers/scanner/OSV, almacenamiento/documentos/IA, impacto, reportes y alertas se desarrollan según dependencias del maestro.
+
+Cuatro commits separados con emoji: núcleo relacional con aislamiento/runtime y adaptación probada; migración vectorial opcional con ADR; diagramas/diccionario y documentación derivados del catálogo; sincronización de contexto/bitácora. El primer bloque conserva juntas migraciones, configuración y adaptadores dependientes para no dejar versiones incompatibles entre sí. Consultar historial para hashes; no se hace push ni publicación.

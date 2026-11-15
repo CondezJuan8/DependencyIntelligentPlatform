@@ -1,6 +1,6 @@
 # Instrucciones de trabajo
 
-- Antes de implementar, revisar `docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`, `docs/ARQUITECTURA_BACKEND.md`, `docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `docs/STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`. Priorizar las decisiones vigentes del usuario sobre propuestas históricas. La nueva base es especificación pendiente, no esquema implementado.
+- Antes de implementar, revisar `docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`, `docs/ARQUITECTURA_BACKEND.md`, `docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `docs/STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`. Priorizar las decisiones vigentes del usuario sobre propuestas históricas. El núcleo database V1–V11 está implementado y probado: 121 tablas; ver `docs/database/implementation-report.md`. Esto no completa los servicios de los módulos ni activa pgvector.
 
 - Mantener `docs/BITACORA_TRABAJO.md` en cada bloque: petición, cambios concretos, herramientas/tecnologías utilizadas, verificaciones ejecutadas con resultado y siguiente paso. Distinguir herramientas usadas de dependencias nuevas implementadas. No inventar horas ni resultados.
 - Mantener Domain y Application independientes de Spring/JPA; los adaptadores y la configuración pertenecen a Infrastructure.

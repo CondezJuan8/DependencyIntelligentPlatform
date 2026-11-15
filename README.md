@@ -11,7 +11,7 @@ cp -n .env.example .env
 docker compose up --build -d
 ```
 
-El archivo `.env` no se versiona; `cp -n` conserva una configuración local existente.
+El archivo `.env` no se versiona; `cp -n` conserva una configuración local existente. Configurar `POSTGRES_PASSWORD` y `POSTGRES_APP_PASSWORD` distintas; esta última es obligatoria para el login runtime limitado. Para volúmenes existentes seguir el [aprovisionamiento y actualización](docs/database/README.md#arranque-y-actualización) antes de iniciar el backend.
 
 Abrir http://localhost:8088 y comprobar http://localhost:8088/health. Para cambiar el puerto, editar `WEB_PORT` en `.env`.
 
@@ -33,17 +33,17 @@ Domain contiene agregados, reglas y value objects en Java puro. Application coor
 
 ## Estado y decisiones
 
-Consultar el [roadmap de salida](docs/ROADMAP.md) para alcance, esfuerzo y escenarios según horas semanales.
+Consultar el [roadmap](docs/ROADMAP.md) para fases y estado; todavía no hay fecha total nueva comprometida.
 
 Objetivo vigente: producto completo listo para usar por fases, primero local y después servidor. Alcance, decisiones y matriz de pendientes: [contexto maestro](docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md). El plan anterior de demo/50 horas ya no limita la aceptación.
 
 El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Referencias de datos: [nueva especificación](docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable/pendientes](docs/database/implementation-report.md).
 
-Incluye conexión PostgreSQL, Flyway, Actuator y pantalla inicial. El esquema actual tiene 14 tablas de negocio; la nueva base completa está especificada pero aún no implementada. V1–V3 y los casos de uso existentes son el punto de transición; ver [estado de base de datos](docs/database/implementation-report.md).
+Incluye PostgreSQL, Flyway, Actuator y pantalla inicial. Base implementada hasta V11: **121 tablas, 85 con RLS forzado y 208 FK**, conservando V1–V3. [Diccionario, siete diagramas Excalidraw/SVG/PNG e instrucciones](docs/database/README.md); [pruebas y pendientes](docs/database/implementation-report.md). El esquema no equivale a todas las funciones terminadas.
 
-Están implementados los casos de uso de registro/consulta de repositorios, solicitud de análisis e importación persistente de SBOM, con consultas por organización. El parser acotado de CycloneDX JSON 1.6/Maven alimenta una importación atómica con procedencia y catálogo reutilizable. Todavía falta conectarla a carga HTTP e inventario visual. Las solicitudes de análisis quedan `PENDING`; las importaciones manuales crean snapshots `COMPLETED` con origen explícito y sin inventar commit ni scanner. No existen worker, GitHub, scanner, OSV ni las pantallas de inventario y grafo. Las pruebas cubren reglas, parser, arquitectura, seguridad, persistencia, rollback y migraciones hasta V3.
+Están implementados registro/consulta de repositorios, solicitud de análisis e importación persistente de SBOM bajo contexto tenant transaccional. El parser CycloneDX 1.6/Maven acotado alimenta una importación atómica con catálogo normalizado paquete/versión/aparición. Faltan carga HTTP e inventario visual. Las solicitudes quedan `PENDING`; importaciones manuales crean snapshots `COMPLETED` con origen explícito, sin inventar commit ni scanner. No existen worker, GitHub, scanner, OSV ni pantallas de inventario/grafo. Se verificaron migraciones hasta V11, transición con datos, rollback y acceso con login runtime real limitado.
 
-Faltan autenticación y autorización por membresía. La integridad referencial y los filtros de organización no sustituyen esos controles; no hay RLS. Los endpoints de negocio permanecen bloqueados.
+Faltan autenticación y autorización por membresía. RLS y la integridad referencial no sustituyen esos controles. Los endpoints de negocio permanecen bloqueados. Flyway y datasource usan credenciales separadas; el guard de runtime rechaza propietario/BYPASSRLS/DDL.
 
 Solo `/actuator/health` es público en la API; el resto se deniega. OpenAPI está instalado pero deshabilitado hasta configurar acceso. PostgreSQL y backend solo son accesibles desde la red interna de Compose. Nginx publica exclusivamente en `127.0.0.1`.
 

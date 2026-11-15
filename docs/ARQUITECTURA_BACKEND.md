@@ -6,7 +6,7 @@ El objetivo es el producto completo listo para usar por fases, local primero y s
 
 Las decisiones confirmadas incluyen acceso local/Google/GitHub, Maven/npm, equipos/permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto. IA del producto: Gemini; embeddings: Ollama. Codex no se integra ni se agenda como proveedor hasta nueva instrucción del usuario.
 
-Los módulos siguientes describen código existente. La nueva especificación database aún requiere migraciones y adaptación de los casos de uso: paquete/versión/presencia separados, RBAC/equipos, jobs, RLS y módulos posteriores. No se declara implementado por estar descrito en documentos. Ver [estado real](database/implementation-report.md).
+Los módulos siguientes describen código existente. La especificación database se implementa hasta V11: 121 tablas, 85 con RLS forzado y 208 FK. Casos de uso existentes adaptados a paquete/versión/presencia separados; el esquema de RBAC/equipos, jobs y demás módulos no acredita sus servicios funcionales. Ver [estado y pruebas](database/implementation-report.md), [diccionario/diagramas](database/README.md) y [normalización](database/normalization.md).
 
 ### Integraciones que se deben separar
 
@@ -61,7 +61,9 @@ Los contextos de negocio (`repository`, `scan`, `organization`, etc.) se conserv
 
 Los DTO no son entidades JPA. `RepositoryId` y `OrganizationId` evitan intercambiar identificadores por accidente. `Scan` protege las transiciones y la cronología mediante operaciones explícitas e inmutables. Las referencias a otros agregados son identificadores; no hay grafos JPA cruzando contextos.
 
-`UseCaseConfiguration` es la raíz de composición. Allí se inyecta `Clock` y se delimitan las transacciones de escritura con `TransactionTemplate`, sin anotar Application con Spring. Repositorios usan JPA; consultas de existencia y escritura de scans usan JDBC parametrizado con el mismo datasource y gestor transaccional. No se crea una entidad ORM para cada tabla sin un caso de uso que la necesite.
+`UseCaseConfiguration` es la raíz de composición. Allí se inyecta `Clock`; `TenantTransactions` delimita lecturas/escrituras y establece `app.organization_id` local a la transacción, sin anotar Application con Spring. JPA y JDBC parametrizado comparten datasource y gestor. Impide cambiar de tenant dentro de una transacción activa y el contexto se limpia por commit/rollback. No se crea una entidad ORM para cada tabla sin un caso de uso que la necesite.
+
+Flyway usa credenciales distintas al datasource `dependency_app`, miembro del capability NOLOGIN `dependency_runtime`. `RuntimeDatabaseRoleGuard` rechaza privilegios de propietario, DDL, mantenimiento o BYPASSRLS. El aprovisionamiento del login es administrativo e idempotente. Las tablas tenant tienen ENABLE/FORCE RLS y FK compuestas; catálogos públicos de lectura y auditoría INSERT/SELECT para runtime. Identidades globales requieren controles de autenticación propios. Las credenciales runtime permiten establecer contexto tenant: el backend debe obtenerlo de una operación autorizada, no confiar en una URL ni exponer SQL arbitrario. Ver [operación de base](database/README.md).
 
 ## Seguridad y alcance
 
@@ -83,15 +85,15 @@ Las pruebas focalizadas de este bloque son `CycloneDxJsonParserTest` y `Hexagona
 
 `UseCaseConfiguration` envuelve el caso de uso en una transacción. `JdbcSbomImportAdapter` exige esa transacción y guarda snapshot, procedencia, catálogo y ocurrencias mediante JDBC parametrizado. Un error revierte todo el bloque; no deja un snapshot fallido ni componentes parciales. La verificación de organización es de coherencia; la futura entrada HTTP deberá aplicar además los controles de acceso correspondientes.
 
-V3 añade namespace al catálogo, origen del snapshot y tabla `sbom_imports`. Un snapshot de importación se crea `COMPLETED`, con origen `SBOM_IMPORT`, referencia Git y metadatos de scanner ausentes. Sus tiempos representan el instante de importación, no una ejecución medida de scanner. Los análisis normales conservan origen `REPOSITORY_SCAN` y referencia Git obligatoria.
+V3 introdujo namespace, origen y `sbom_imports`; V4–V11 conservan esa información en catálogo normalizado y `sbom_documents`. Una importación crea snapshot `COMPLETED`, origen `SBOM_IMPORT`, trigger `IMPORT`, sin referencia Git ni scanner. Sus tiempos son de importación, no ejecución medida. Los análisis normales conservan origen `REPOSITORY_SCAN` y referencia Git obligatoria; los commits observados tienen entidad propia y FK al repositorio.
 
-El adaptador reutiliza el catálogo por organización/PURL mediante `ON CONFLICT`, conservando namespace, nombre, versión y ecosistema. Si las coordenadas registradas son incompatibles, rechaza la importación en lugar de sobrescribirlas. Cada importación aceptada crea un snapshot nuevo y cada `bom-ref` conserva su propia ocurrencia, clasificada `UNKNOWN`. No crea aristas, hallazgos ni artefactos con rutas ficticias.
+El adaptador reutiliza paquete por organización/ecosistema/namespace/nombre y versión exacta por paquete; los PURL se conservan como identificadores alternativos. Usa `ON CONFLICT` y comprueba coordenadas; rechaza incompatibilidades sin sobrescribirlas. Cada importación crea un snapshot y cada `bom-ref` una aparición distinta `UNKNOWN`. No crea aristas, hallazgos ni artefactos ficticios.
 
-`sbom_imports` conserva formato, versión de especificación, serial cuando existe y SHA-256 del documento. No se conserva el archivo original; el hash permite identificar bytes, no reconstruirlos ni sustituir su almacenamiento. F04 se verifica con `ImportSbomUseCaseTest`, `SbomImportIT`, pruebas afectadas de `ScanTest` y comprobaciones de migración/arquitectura.
+`sbom_documents` conserva formato, versión de especificación, serial cuando existe y SHA-256. El importador aún no retiene el original; el esquema admite asociar un artefacto privado cuando se implemente almacenamiento. El hash no reconstruye el archivo. F04 se verifica con ImportSbomUseCaseTest, SbomImportIT y RuntimeDatabaseIT; transición y reglas del modelo mediante DatabaseIT/NormalizedSchemaIT. Resultado y entorno exactos en el informe.
 
 ### Acceso a la aplicación
 
-Los adaptadores HTTP de repositorios y scans existen bajo `/api/organizations/{organizationId}/repositories`, pero la política actual deniega todos los endpoints de negocio. Solo health es público. Un ID recibido en una ruta **no autoriza** al usuario: antes de habilitar estas rutas deben implementarse identidad, validación de membresía y permisos. Los filtros y claves compuestas protegen la coherencia de relaciones, pero no sustituyen autorización ni implementan RLS.
+Los adaptadores HTTP de repositorios y scans existen bajo `/api/organizations/{organizationId}/repositories`, pero la política deniega negocio. Solo health es público. Un ID en una ruta **no autoriza**: antes de habilitar estas rutas implementar identidad, membresía y permisos. RLS ya protege el tenant seleccionado en la transacción; no sustituye esa autorización funcional.
 
 La solicitud de scan se guarda; todavía no existe worker ni integración con scanner, GitHub u OSV. Los contextos restantes conservan sus puntos de extensión. Ver [diseño de base de datos](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable actual](database/implementation-report.md).
 
@@ -106,4 +108,4 @@ mvn verify -Pdatabase-it
 
 El primer comando ejecuta pruebas unitarias y de seguridad y genera `infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`. El segundo añade pruebas en PostgreSQL real mediante Testcontainers y requiere Docker. Para usar una base desechable propia, definir `TEST_DATABASE_URL`, `TEST_DATABASE_USER` y `TEST_DATABASE_PASSWORD`; las pruebas crean datos y esquemas, por lo que deben apuntar exclusivamente a una base de prueba.
 
-Para ejecutar el artefacto, configurar `POSTGRES_PASSWORD`, `DB_HOST`, `DB_PORT`, `POSTGRES_DB` y `POSTGRES_USER` según `application.yml` y usar `java -jar infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`. Compose conserva el arranque de la aplicación completa desde la raíz.
+Para ejecutar el artefacto, aprovisionar el login y configurar credenciales runtime/migración según [database/README.md](database/README.md); usar `java -jar infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`. Compose conserva el arranque desde la raíz; volúmenes existentes requieren aprovisionamiento explícito del nuevo login.

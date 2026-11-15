@@ -11,7 +11,7 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
-Esta es la referencia vigente de diseño de base de datos. La especificación todavía **no está implementada**: el repositorio conserva V1–V3 y 14 tablas de negocio. Ver `database/implementation-report.md` para distinguir el esquema actual del objetivo.
+Esta es la referencia vigente de diseño de base de datos. **Núcleo implementado hasta V11:** 121 tablas de negocio, 85 con RLS forzado y 208 FK, conservando V1–V3 sin reescritura. Diccionario, normalización y siete diagramas editables: [database/README.md](database/README.md). Ver [informe](database/implementation-report.md) para validaciones y límites: servicios de módulos pendientes y pgvector opcional sin ejecutar hasta fijar modelo/dimensión. Las propuestas y listas posteriores se interpretan junto a este estado; no acreditan funciones terminadas por tener tablas.
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 
@@ -1402,6 +1402,8 @@ Al terminar, entregar:
 ## 15. Criterios de aceptación
 
 El trabajo se considera terminado únicamente cuando:
+
+Estado del bloque 05: la cobertura de esquema, creación/actualización Flyway, separación de conceptos, FK/RLS, normalización, documentación y pruebas se verifican en [implementation-report.md](database/implementation-report.md). Los diagramas tienen validación estructural nativa y exportaciones inspeccionadas; su apertura interactiva en Excalidraw no se ejecutó. Esta lista se conserva como criterio de revisión, no como prueba de servicios o recorridos completos. El vector físico queda opcional según la ADR; no se afirma búsqueda vectorial implementada.
 
 -   [ ] El esquema cubre los módulos de Dependency Intelligence y no
     solo el MVP.

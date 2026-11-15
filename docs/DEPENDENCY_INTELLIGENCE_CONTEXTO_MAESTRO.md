@@ -13,7 +13,7 @@ Las secciones numeradas posteriores conservan el contexto histórico. Las decisi
 ### Decisiones cerradas
 
 - Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.
-- Nueva base: solo definida en la especificación, todavía sin implementar. Se retira la documentación anterior y se conserva el esquema actual como punto de transición, no como diseño final.
+- Nueva base: implementada desde la especificación vigente mediante V4–V11; V1–V3 se conservan. Resultado: 121 tablas, 85 con RLS forzado y 208 FK. La documentación anterior sigue retirada. El esquema no acredita funciones de aplicación terminadas; pgvector queda opcional sin ejecutar.
 - Acceso: correo/contraseña, Google y GitHub, con recuperación/verificación y vinculación segura de identidades. Login GitHub y acceso a repositorios mediante instalación/autorización son funciones distintas.
 - Ecosistemas: Java/Maven y JavaScript/npm.
 - Primer piloto con equipos y permisos por repositorio; pruebas de cambios aisladas y propuesta de PR sujeta a aprobación. Roles personalizados no se consideran confirmados.
@@ -28,13 +28,13 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 
 | Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
 | --- | --- | --- | --- |
-| Identidad, organizaciones y permisos — RF-001–006 | Tablas iniciales y validaciones por organización | Login local/Google/GitHub, recuperación/verificación, sesiones, invitaciones, equipos, acceso por repositorio y aislamiento RLS | Transición de base, configuración de proveedores/correo |
+| Identidad, organizaciones y permisos — RF-001–006 | Esquema normalizado, RBAC/equipos y RLS probados; sin login | Login local/Google/GitHub, recuperación/verificación, sesiones, invitaciones y autorización funcional de equipos/repositorios | Servicios de identidad, configuración de proveedores/correo |
 | GitHub — RF-007–014 | Tabla de conexión y repositorios manuales | Instalar/revocar App, seleccionar repositorios reales, obtener commits/archivos y procesar webhooks idempotentes | Identidad, permisos, credenciales |
 | Repositorios y análisis — RF-015–021 | Registro/consulta internos y solicitud persistida | API/interfaz autorizadas, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
-| SBOM/componentes — RF-022–032 | Parser CycloneDX 1.6/Maven acotado e importación atómica | Carga HTTP, scanner aislado, Maven/npm reales, paquete/versión/presencia normalizados y aristas con evidencia | Nuevo modelo, jobs, artefactos |
-| Vulnerabilidades — RF-033–040 | Esquema inicial sin OSV | Consulta, rangos/aliases/severidades, coincidencia por versión, evidencia y hallazgos normalizados | Catálogo normalizado, snapshots |
+| SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
+| Vulnerabilidades — RF-033–040 | Esquema normalizado de fuentes/rangos/hallazgos; sin OSV funcional | Consulta OSV, coincidencia por versión, ingesta de evidencia y generación de hallazgos | Adaptadores, jobs, snapshots |
 | Inventario — RF-041–046 | Escritura de ocurrencias, sin consulta de inventario ni UI | Búsqueda/filtros/paginación, versiones, repositorios y directa/transitiva solo con evidencia | SBOM/grafo y permisos |
-| Grafo — RF-047–052 | Estructura inicial de relaciones | Importar/consultar aristas por snapshot y navegar rutas/riesgos en UI | Presencias, OSV, grafo completo |
+| Grafo — RF-047–052 | Aristas normalizadas con extremos del mismo snapshot | Importar/consultar aristas y navegar rutas/riesgos en UI | Parser/scanner, OSV, permisos |
 | Historial/comparación — RF-053–059 | Snapshots importados con procedencia | Consulta por commit y comparación añadidos/eliminados/actualizados del mismo repositorio | Nuevo modelo, inventario |
 | Recomendaciones — RF-060–065 | Pendiente | Versiones candidatas/corregidas, cambios documentados, riesgos, evidencia y pruebas sugeridas | OSV, releases/documentos, comparación |
 | Alertas — RF-066–070 | Pendiente | Eventos, deduplicación, suscripción, estado y entrega in-app; correo después | Jobs, hallazgos/cambios |
@@ -42,20 +42,20 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Documentos/IA — RF-075–080 | Pendiente | Originales privados, versiones, asociaciones, extracción/OCR, búsqueda híbrida, Ollama, Gemini y respuestas citadas con permisos | Jobs, almacenamiento, modelos/configuración, pgvector aislado |
 | Impacto — RF-081–085 y RF-091 | Pendiente | ADD/UPDATE/REMOVE/REPLACE con evidencia KNOWN/POTENTIAL/VALIDATED, documentos por revisar, pruebas aisladas y propuesta de PR aprobable | Grafo, versiones, documentos y ejecutor aislado |
 | Reportes — RF-086–090 | Pendiente | Informes técnicos/ejecutivos, PDF/CSV/JSON/SBOM, artefactos trazables y programación posterior | Inventario, hallazgos, permisos, jobs |
-| Auditoría y requisitos no funcionales | Health, restricciones FK y pruebas focalizadas | Auditoría append-only, RLS/roles SQL, logs/métricas, límites, secretos, retención, backup/restauración y operación en servidor | Transversal a cada fase |
+| Auditoría y requisitos no funcionales | Health, FK, RLS/roles SQL y restricciones append-only probadas | Emisión de auditoría por casos de uso, logs/métricas, límites, secretos, ejecución de retención, backup/restauración y servidor | Transversal a cada fase |
 | Interfaz — pantallas del apartado 6 | Estructura Angular y pantalla inicial | Navegación, formularios, tablas, estados de carga/error, accesibilidad y recorridos con datos reales | Contratos y funciones por módulo |
 
 ### Estado de la base y del código existente
 
 - Tres módulos Maven Domain/Application/Infrastructure; Domain y Application sin Spring/JPA.
-- Flyway V1–V3 y 14 tablas de negocio, todavía diferentes del modelo objetivo nuevo. Estado y transición: `database/implementation-report.md`.
+- Flyway V1–V11: 121 tablas de negocio, 85 con RLS forzado, 208 FK. Diccionario de cada tabla, normalización y siete diagramas nativos: `database/README.md`. Informe y pruebas: `database/implementation-report.md`.
 - F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
 - Un perfil local prepara una organización/repositorio sintéticos; Docker/navegador completo sigue pendiente de verificar. Las APIs de negocio continúan denegadas.
-- La base nueva requiere separar paquete/versión/presencia, RBAC/equipos, jobs, RLS y los módulos posteriores. Adaptar casos de uso junto con migraciones sin reescribir V1–V3 ni perder datos.
+- La transición separa paquete/versión/presencia y normaliza todos los módulos. Se adaptaron los casos de uso existentes, con tenant transaccional y credenciales runtime/migración separadas. Se probaron actualización con datos, rollback y acceso con login limitado. Identidad/autorización funcional, workers y servicios nuevos siguen pendientes. Las filas de la matriz que dicen Pendiente pueden tener ya tablas; no tienen todavía recorrido funcional.
 
 ### Orden de implementación propuesto
 
-1. Base y contratos: transición del esquema actual al objetivo por módulos, conservando datos y funciones; documentación/normalización/diagramas derivados del SQL implementado.
+1. Base y contratos: núcleo V11 completado y probado, con documentación/normalización/diagramas derivados del catálogo aplicado. Mantener migraciones incrementales; vector físico pendiente de modelo/dimensión verificados.
 2. Identidad, organizaciones, equipos, permisos y aislamiento; recorrido local autorizado.
 3. GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI.
 4. Comparación, recomendaciones e impacto; pruebas aisladas y propuesta de PR con aprobación para cerrar el primer piloto.
