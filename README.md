@@ -29,6 +29,8 @@ La base persiste en el volumen `postgres_data`. `down` conserva los datos. Las i
 - `infra/`: límites y documentación de infraestructura local y scanner.
 - `docs/`: requisitos, contexto, stack y convenciones de commits.
 
+La paleta visual y los hitos para probar recorridos con el usuario están documentados en [diseño frontend](docs/DISENO_FRONTEND.md).
+
 Domain contiene agregados, reglas y value objects en Java puro. Application coordina casos de uso mediante DTO y puertos de entrada/salida. Infrastructure implementa HTTP, JPA/JDBC, configuración y transacciones. Las dependencias Maven apuntan hacia Domain; las pruebas ArchUnit protegen los límites. Ver [arquitectura del backend](docs/ARQUITECTURA_BACKEND.md).
 
 ## Estado y decisiones

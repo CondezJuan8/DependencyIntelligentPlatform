@@ -5,6 +5,7 @@
 - Mantener `docs/BITACORA_TRABAJO.md` en cada bloque: petición, cambios concretos, herramientas/tecnologías utilizadas, verificaciones ejecutadas con resultado y siguiente paso. Distinguir herramientas usadas de dependencias nuevas implementadas. No inventar horas ni resultados.
 - Mantener Domain y Application independientes de Spring/JPA; los adaptadores y la configuración pertenecen a Infrastructure.
 - Ejecutar únicamente las pruebas necesarias para el cambio. Repetirlas si cambia el comportamiento cubierto, fallan o queda una duda concreta.
+- Usar la paleta oficial de `docs/DISENO_FRONTEND.md` y los tokens de `frontend/src/theme/_tokens.scss`. Avisar al usuario al cerrar hitos de revisión interactiva, con recorridos disponibles, arranque y límites verificados. Priorizar revisión temprana de acceso/colores y después GitHub → análisis → inventario con datos reales.
 - Separar los cambios por funcionalidad, normalmente en bloques de 2–3 commits; cada commit debe ser coherente y llevar emoji obligatorio y formato Conventional Commits con descripción en español.
 - Objetivo vigente: producto completo listo para usar, por fases, local primero y servidor después. El plan anterior de demo en dos semanas/50 horas ya no limita alcance o aceptación. Actualizar estados por evidencia.
 - Acceso confirmado: correo/contraseña, Google y GitHub. Maven y npm. Primer piloto con equipos/permisos por repositorio y pruebas aisladas/propuesta de PR aprobable. Notificaciones in-app; correo de notificaciones después.

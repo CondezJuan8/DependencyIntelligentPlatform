@@ -16,6 +16,8 @@ Las secciones numeradas posteriores conservan el contexto histórico. Las decisi
 - Nueva base implementada mediante V4–V13 con 121 tablas, 85 con RLS forzado y 208 FK. V13 incorpora versión de credenciales e índice de solicitudes de tokens. Las funciones entregadas se registran en la matriz. Pgvector sigue opcional.
 - Acceso: correo/contraseña, Google y GitHub, con recuperación/verificación y vinculación segura de identidades. Login GitHub y acceso a repositorios mediante instalación/autorización son funciones distintas.
 - Ecosistemas: Java/Maven y JavaScript/npm.
+- Paleta visual confirmada, navy #101827, azul #2563EB, cian #06B6D4, slate #1E293B, fondo #F8FAFC, blanco #FFFFFF y semánticos verde/amarillo/naranja/rojo. Enlaces sobre blanco en azul para contraste. Distribución, tokens y variantes legibles en `DISENO_FRONTEND.md`.
+- El usuario quiere probar la plataforma y revisar colores/errores durante el desarrollo. Avisar al cerrar hitos interactivos. Primero acceso y colores al levantar el entorno local, después GitHub → repositorio → análisis → inventario con datos reales. Indicar alcance y comprobaciones pendientes en cada aviso.
 - Primer piloto con equipos y permisos por repositorio; pruebas de cambios aisladas y propuesta de PR sujeta a aprobación. Roles personalizados no se consideran confirmados.
 - IA de la plataforma: Gemini. Embeddings: Ollama. No integrar ni planificar Codex como proveedor del producto hasta nueva instrucción explícita del usuario. Su uso como herramienta de desarrollo no equivale a una integración del producto.
 - Notificaciones iniciales dentro de la aplicación; correo de notificaciones después. El correo de recuperación/verificación de cuentas se trata por separado.

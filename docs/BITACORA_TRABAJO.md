@@ -340,3 +340,23 @@ Build Angular de producción correcto. Cuatro aserciones directas sobre el parse
 Sesiones y cola de recuperación actuales residen en memoria. La entrega SMTP y el commit de PostgreSQL tienen un límite entre sistemas. Si el correo fue aceptado y luego falla el commit, debe pedirse un enlace nuevo. La cola carece de reintentos durables y debe sustituirse o ampliarse para operación en servidor. Las cuentas pueden usar acceso local mientras verifican correo. Google/GitHub, vinculación, invitaciones y gestión de equipos siguen pendientes.
 
 Se detienen PostgreSQL y Mailpit temporales al finalizar. Correos capturados en localhost con datos sintéticos. Siguiente bloque de identidad con Google/GitHub y vinculación segura, seguido de invitaciones y gestión de equipos/permisos. Tres commits con emoji para backend/SMTP, formularios y documentación/contexto/artefactos.
+
+## Bloque 08 — Paleta visual e hitos de revisión interactiva
+
+Fecha, 15 de noviembre de 2026, America/Bogota. Horas reales sin medir. El usuario proporcionó su paleta, pidió priorizarla/documentarla y solicitó aviso cuando pueda probar la plataforma y aportar observaciones.
+
+### Cambios
+
+Paleta centralizada en frontend/src/theme/_tokens.scss con los colores principales y semánticos indicados. Aplicada mediante variables CSS y mat.theme-overrides al fondo, header, tarjetas, controles, botones, formularios de acceso/recuperación y organizaciones. Confirmaciones en verde, errores en rojo y foco de teclado en azul. Token navy/cian preparado para la futura navegación funcional.
+
+Se recomienda azul eléctrico para enlaces sobre blanco y cian para acentos sobre navy. Cian sobre blanco alcanza 2,43:1. Se añaden variantes oscuras para etiquetas semánticas y un contorno visible de controles. Se conservan los colores principales indicados como tokens de producto.
+
+DISENO_FRONTEND.md registra paleta, distribución, variantes, contraste y hitos de revisión. Actualizados maestro, stack, roadmap, README y AGENTS para recordar el aviso al usuario. Primer recorrido revisable de acceso/colores al levantar el entorno. Siguiente hito con datos reales, GitHub → repositorio → análisis → inventario. El arranque mediante Compose y la revisión visual permanecen pendientes.
+
+### Herramientas y verificaciones
+
+PowerShell/rg y Git para revisar cambios, Sass y Angular Material existentes para aplicar el tema, Node 24.22.1/Angular CLI para build de producción y Python estándar para calcular contraste a partir de los tokens reales. Ninguna dependencia nueva del producto.
+
+Build Angular correcto. Quince combinaciones de texto superan 4,5:1 y los contornos de controles superan 3:1 sobre su superficie. Se comprueban tokens/override primario en CSS compilado, enlaces locales y formato de diferencias. Referencias en [WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) y [Angular Material](https://material.angular.dev/guide/theming). La consulta al navegador conectado volvió a devolver host indisponible. Se registra revisión visual pendiente. Las verificaciones se limitaron al frontend y documentación afectados.
+
+Dos commits con emoji para tema del frontend y documentación/hitos. Seguir con Google/GitHub y vinculación segura, conservando los avisos de revisión solicitados.

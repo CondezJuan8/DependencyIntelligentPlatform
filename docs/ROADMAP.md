@@ -15,6 +15,8 @@ El usuario prioriza un producto completo listo para usar, local primero y servid
 
 Las dependencias de cada módulo se concretan en la matriz del contexto maestro; las funciones transversales se incorporan con cada entrega. Correo de notificaciones después de in-app; el correo de verificación/recuperación de cuentas es independiente.
 
+El usuario revisará recorridos interactivos durante el desarrollo. Avisar al tener acceso y colores levantados localmente y al completar GitHub → repositorio → análisis → inventario con datos reales. Registrar qué funciona y qué sigue pendiente en cada entrega. La paleta y los hitos se detallan en [DISENO_FRONTEND](DISENO_FRONTEND.md).
+
 Codex no se integra ni se agenda dentro del producto hasta nueva instrucción del usuario. Modelos/dimensión y límites de proveedores se fijan al implementar, sin prometer gratuidad.
 
 Antes de estimar fecha total, descomponer cada fase en tareas y criterios verificables, incluida la transición de datos. Actualizar la [bitácora](BITACORA_TRABAJO.md) por bloque y ejecutar únicamente comprobaciones relevantes.
