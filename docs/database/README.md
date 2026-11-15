@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente: [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). El esquema aplicado hasta **V11** tiene **121 tablas de negocio, 85 con RLS forzado y 208 claves foráneas**. `flyway_schema_history` se cuenta aparte. Las tablas preparan capacidades; los servicios y pantallas pendientes siguen en el contexto maestro.
+Fuente vigente de diseño en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V12**, con **121 tablas de negocio, 85 con RLS forzado y 208 claves foráneas**. Se cuenta `flyway_schema_history` aparte. V12 permite consultar organizaciones propias bajo contexto de usuario autenticado. Las funciones actuales de acceso se describen en [ACCESO_LOCAL](../ACCESO_LOCAL.md).
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,7 +16,7 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint de PostgreSQL crea `dependency_app`; Flyway usa sus propias credenciales y aplica V1–V11. El datasource de negocio usa ese login limitado, miembro de `dependency_runtime`. No se crean usuarios de la plataforma ni contraseñas de acceso a la aplicación.
+El entrypoint de PostgreSQL crea `dependency_app`. Flyway usa sus propias credenciales y aplica V1–V12. El datasource usa ese login limitado, miembro de `dependency_runtime`. El usuario crea su cuenta desde el formulario de registro.
 
 **Volumen existente:** los scripts initdb solo se ejecutan al inicializarlo. Añadir `POSTGRES_APP_PASSWORD` a `.env`, recrear el servicio de base para recibir la variable y aprovisionar antes del backend:
 
@@ -26,7 +26,7 @@ docker compose exec database sh /docker-entrypoint-initdb.d/10-runtime.sh
 docker compose up --build -d backend frontend
 ```
 
-Conservar el volumen. Respaldar y probar la actualización en una copia antes de usar datos importantes. V1–V3 conservan sus checksums. V4–V11 convierten relaciones e identificadores; inconsistencias históricas no representables hacen fallar la migración para revisión en lugar de descartarse silenciosamente.
+Conservar el volumen. Respaldar y probar la actualización en una copia antes de usar datos importantes. V1–V11 mantienen sus checksums en el bloque de acceso. V12 añade políticas de consulta propia y una función de contexto local. Los detalles de transición del modelo están en el informe.
 
 Sin Docker, ejecutar `infra/database/provision-runtime.sql` con `psql`, administrador autorizado y `POSTGRES_APP_PASSWORD` en el entorno. Es idempotente y permite rotar la contraseña. Para el JAR configurar `DB_HOST`, `DB_PORT`, `POSTGRES_DB`, `DB_RUNTIME_USER`, `POSTGRES_APP_PASSWORD`, `MIGRATION_USER` y `MIGRATION_PASSWORD`. Las dos Últimas admiten `POSTGRES_USER`/`POSTGRES_PASSWORD` como fallback local. La creación inicial de roles requiere administración; en servidor separar aprovisionamiento, migración y runtime.
 
@@ -34,9 +34,9 @@ Sin Docker, ejecutar `infra/database/provision-runtime.sql` con `psql`, administ
 
 ## Aislamiento e integridad
 
-`TenantTransactions` establece `app.organization_id` local a la transacción con la misma conexión/gestor que JPA/JDBC. Impide cambiar de organización dentro de una transacción activa; commit/rollback elimina el contexto del pool. Sin contexto no se ven filas tenant. USING, WITH CHECK y FK compuestas protegen lecturas, escrituras y asociaciones entre organizaciones.
+`TenantTransactions` establece `app.organization_id` local a la transacción JPA/JDBC e impide cambiar de organización dentro de ella. Commit/rollback elimina el contexto. Sin contexto de usuario ni organización se ocultan filas tenant. Durante el listado, `app.user_id` autenticado permite consultar sus membresías/organizaciones activas mediante las políticas SELECT de V12. USING, WITH CHECK y FK compuestas protegen las operaciones tenant.
 
-El tenant debe proceder de una operación autorizada: un UUID de URL no acredita membresía. RLS protege frente a omisiones de filtros; no frente a un backend comprometido que use arbitrariamente credenciales runtime y cambie el contexto. Autenticación/autorización funcional siguen pendientes; las APIs de negocio continúan denegadas. Usuarios/identidades globales son privados del subsistema de autenticación y no tienen RLS por tenant.
+Los contextos proceden de la sesión y una operación autorizada. Los endpoints de repositorios/scans comprueban cuenta, organización y membresía activas, permiso de rol y permiso de equipo aplicable dentro de la transacción tenant. RLS depende de los contextos fijados por el backend. Usuarios/identidades globales son privados del subsistema de autenticación. La configuración y cobertura de acceso están en [ACCESO_LOCAL](../ACCESO_LOCAL.md).
 
 Roles capability NOLOGIN: `dependency_runtime`, `dependency_migrator`, `dependency_catalog_writer`, `dependency_audit_admin`. Catálogos de lectura para runtime; auditoría INSERT/SELECT y UPDATE/DELETE denegados. La administración excepcional requiere otro rol. Superusuarios y BYPASSRLS pueden eludir RLS aun con FORCE: [PostgreSQL](https://www.postgresql.org/docs/17/ddl-rowsecurity.html).
 
@@ -71,4 +71,4 @@ python infra/database/generate-documentation.py docs/database/schema.json docs/d
 
 El export contiene estructura/políticas/flags de roles, nunca filas de negocio ni contraseñas. El generador usa Python estándar; Pillow, si está disponible, añade PNG. No instala bibliotecas ni llama proveedores. Diagramas 2–6: entidades/FK reales con referencias externas compartidas. Diagramas 1/7: flujos lógicos discontinuos. Validación de IDs, bindings y cobertura de 208 FK. `elements`, `appState`, `files`: [estructura nativa documentada](https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/initialdata).
 
-No se ejecutó Docker/Compose ni se abrieron archivos en la interfaz de Excalidraw en este bloque. Se validaron estructura, enlaces y exportaciones locales. No se instaló pgvector ni se configuraron modelos de IA.
+Verificación disponible de Docker, Excalidraw, pgvector y revisión visual del acceso en [implementation-report](implementation-report.md) y [ACCESO_LOCAL](../ACCESO_LOCAL.md).

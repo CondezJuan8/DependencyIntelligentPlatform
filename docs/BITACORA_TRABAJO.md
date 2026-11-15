@@ -259,3 +259,41 @@ No se ejecutó Docker/Compose, pgvector, IA, carga/concurrencia ni apertura de l
 Siguiente bloque: registro/login local y verificación/recuperación/sesiones, autorización por membresía/equipo/repositorio y recorrido HTTP/UI; después identidad Google/GitHub e instalación GitHub. Servicios de workers/scanner/OSV, almacenamiento/documentos/IA, impacto, reportes y alertas se desarrollan según dependencias del maestro.
 
 Cuatro commits separados con emoji: núcleo relacional con aislamiento/runtime y adaptación probada; migración vectorial opcional con ADR; diagramas/diccionario y documentación derivados del catálogo; sincronización de contexto/bitácora. El primer bloque conserva juntas migraciones, configuración y adaptadores dependientes para no dejar versiones incompatibles entre sí. Consultar historial para hashes; no se hace push ni publicación.
+
+## Bloque 06 — Acceso local, organizaciones y autorización
+
+Fecha del trabajo, 15 de noviembre de 2026, America/Bogota. Horas reales sin medir. El usuario pidió continuar con el siguiente bloque tras la base. Se implementó el acceso por correo/contraseña y el control funcional de los endpoints existentes.
+
+### Cambios
+
+- Domain incorpora EmailAddress. Application incorpora DTO, puertos y casos de uso de registro, autenticación, organizaciones y autorización de acciones de repositorio. Conserva independencia de Spring/JPA.
+- Infrastructure guarda usuario/hash atómicamente, normaliza correo y resuelve duplicados con UNIQUE. Contraseñas con PBKDF2-HMAC-SHA256, 600.000 iteraciones y salt aleatorio de 16 bytes mediante Spring Security existente. Política inicial de 15–128 caracteres, validación sin reflejar contraseñas y DTO con representación redactada.
+- Registro/login por JSON, consulta de cuenta activa, logout, sesión en servidor con rotación de ID/CSRF y cookie HttpOnly/SameSite=Lax. Inactividad configurable de 30 minutos. Se comprueba cuenta activa en cada petición. Sesiones en memoria del backend.
+- Límite inicial configurable de 20 operaciones de contraseña por dirección remota/minuto y mapa acotado. Se reinicia con el proceso. Tras proxy puede compartir presupuesto entre usuarios. Se documenta esa limitación para servidor.
+- Organización creada junto con membresía OWNER, rol y evento de auditoría. V12 incorpora políticas SELECT para consultar organizaciones/membresías propias con app.user_id local a transacción. V1–V11 se conservan.
+- Repositorios/scans exigen cuenta, organización y membresía activas, permiso del rol y permiso por equipo para MEMBER/VIEWER. OWNER/ADMIN tienen alcance organizacional. Autorización y operación comparten transacción tenant. Se consulta permiso vigente en cada petición.
+- Angular incorpora formularios de registro/login, restauración/logout y listado/creación de organizaciones, con estados de carga, error y reintento. Proxy local de desarrollo hacia la API. El formulario restablece el nombre con valor vacío después de crear organización.
+- Configuración de timeout, cookie Secure y límite de intentos en entorno/Compose. Acceso y contratos en ACCESO_LOCAL.md. Contexto maestro, arquitectura, stack, roadmap y README actualizados.
+- Exportado catálogo V12 y regenerados diccionario/diagramas. Permanecen 121 tablas, 85 con RLS forzado y 208 FK.
+
+### Herramientas y dependencias
+
+Se utilizaron PowerShell, rg, Git, Maven 3.9.11, JDK local 25 con compilación destino 21, PostgreSQL nativo temporal 18.6/psql, JUnit/ArchUnit/Failsafe, Node 24.22.1 y Angular CLI. npm 11.16.0 se descargó del registro oficial en .tools para instalar package-lock sin cambios. Python estándar y Pillow ya disponible regeneraron los artefactos de base.
+
+Se reutilizaron Spring Security/JDBC y Angular Forms/Material/RxJS existentes. Este bloque incorpora código propio sin añadir bibliotecas al producto. La habilidad computer-use se consultó para revisión visual. El host browser resultó indisponible y el acceso a Chrome agotó la espera de autorización. No se consiguió revisar el recorrido en la UI del navegador.
+
+Referencias consultadas para parámetros y persistencia/CSRF en [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html), [Spring Security sessions](https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/session-management.html) y [Spring Security CSRF](https://docs.spring.io/spring-security/reference/6.5/servlet/exploits/csrf.html).
+
+### Comprobaciones y resultados
+
+18 casos distintos pertinentes comprobados con éxito. Seis de SecurityConfigurationTest/HexagonalArchitectureTest, cinco de LocalAccessIT, cuatro de RuntimeDatabaseIT, dos métodos de DatabaseIT y uno de AuthenticationRateLimitFilterTest. La primera pasada detectó que la función compartida de V12 podía existir al migrar otro esquema de pruebas. Se corrigió antes de entregar y se repitieron los dos métodos de migración y los HTTP afectados en una nueva base desechable. La validación de cuerpos se comprobó con contraseñas fuera de límite, respuesta sin reflejarlas y ausencia de cuentas parciales. Las repeticiones se seleccionaron por cambios concretos.
+
+Cobertura de registro/hash, correo duplicado normalizado, errores de login equivalentes, cambio de ID de sesión, rotación de CSRF, logout, cuenta desactivada, organizaciones propias, membresía suspendida, rol VIEWER, intersección con permisos de equipo y revocación efectiva. Se mantiene aislamiento/guard runtime real y actualización desde V1 con checksum anterior intacto.
+
+Build Angular de producción correcto. API real health UP, frontend HTTP 200 y cookie real HttpOnly/SameSite=Lax comprobados usando procesos y datos sintéticos propios. El acceso visual quedó pendiente por el bloqueo descrito. Docker/Compose y las imágenes configuradas se mantienen sin ejecutar en este entorno. Los procesos temporales y PostgreSQL se detienen al cerrar el bloque. Se revisan enlaces, catálogo y diferencias antes de crear los commits.
+
+### Siguiente paso y commits
+
+Continuar con verificación/recuperación de correo y entrega transaccional local comprobable. Después identidad Google/GitHub, vinculación, invitaciones y gestión HTTP/UI de equipos/permisos. Las cuentas locales actuales tienen correo sin verificar. La UI de repositorios/scans y los servicios de scanner/OSV continúan en sus fases.
+
+Tres commits con emoji para backend de acceso/autorización, interfaz local y documentación/contexto/artefactos. Consultar el historial para hashes.

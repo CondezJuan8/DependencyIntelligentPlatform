@@ -6,14 +6,14 @@
 
 > Este documento consolida el contexto disponible de las conversaciones. Distingue lo que ya se propuso de lo que está decidido. Las propuestas no deben tratarse como decisiones aprobadas si el usuario todavía no las confirmó. Tampoco se deben interpretar ejemplos, datos de mockups o estimaciones como resultados reales.
 
-## Decisiones vigentes y estado de continuidad — 14 de noviembre de 2026
+## Decisiones vigentes y estado de continuidad — 15 de noviembre de 2026
 
 Las secciones numeradas posteriores conservan el contexto histórico. Las decisiones de este apartado, confirmadas por el usuario, prevalecen sobre propuestas pendientes o límites de entregas anteriores. Referencias prioritarias: este contexto, `ARQUITECTURA_BACKEND.md`, `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`.
 
 ### Decisiones cerradas
 
 - Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.
-- Nueva base: implementada desde la especificación vigente mediante V4–V11; V1–V3 se conservan. Resultado: 121 tablas, 85 con RLS forzado y 208 FK. La documentación anterior sigue retirada. El esquema no acredita funciones de aplicación terminadas; pgvector queda opcional sin ejecutar.
+- Nueva base implementada mediante V4–V12 con 121 tablas, 85 con RLS forzado y 208 FK. V12 añade consulta de organizaciones propias del usuario autenticado. Las funciones entregadas se registran por separado en la matriz. Pgvector sigue opcional.
 - Acceso: correo/contraseña, Google y GitHub, con recuperación/verificación y vinculación segura de identidades. Login GitHub y acceso a repositorios mediante instalación/autorización son funciones distintas.
 - Ecosistemas: Java/Maven y JavaScript/npm.
 - Primer piloto con equipos y permisos por repositorio; pruebas de cambios aisladas y propuesta de PR sujeta a aprobación. Roles personalizados no se consideran confirmados.
@@ -28,9 +28,9 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 
 | Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
 | --- | --- | --- | --- |
-| Identidad, organizaciones y permisos — RF-001–006 | Esquema normalizado, RBAC/equipos y RLS probados; sin login | Login local/Google/GitHub, recuperación/verificación, sesiones, invitaciones y autorización funcional de equipos/repositorios | Servicios de identidad, configuración de proveedores/correo |
+| Identidad, organizaciones y permisos — RF-001–006 | Registro/login/logout local, sesión, creación de organización OWNER y consulta de propias organizaciones en HTTP/Angular. Roles y equipos autorizan repositorios/scans | Verificación/recuperación, Google/GitHub, vinculación, invitaciones, gestión HTTP/UI de equipos/permisos y revisión visual pendiente | Correo transaccional, configuración de proveedores, servicios de membresía |
 | GitHub — RF-007–014 | Tabla de conexión y repositorios manuales | Instalar/revocar App, seleccionar repositorios reales, obtener commits/archivos y procesar webhooks idempotentes | Identidad, permisos, credenciales |
-| Repositorios y análisis — RF-015–021 | Registro/consulta internos y solicitud persistida | API/interfaz autorizadas, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
+| Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
 | SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
 | Vulnerabilidades — RF-033–040 | Esquema normalizado de fuentes/rangos/hallazgos; sin OSV funcional | Consulta OSV, coincidencia por versión, ingesta de evidencia y generación de hallazgos | Adaptadores, jobs, snapshots |
 | Inventario — RF-041–046 | Escritura de ocurrencias, sin consulta de inventario ni UI | Búsqueda/filtros/paginación, versiones, repositorios y directa/transitiva solo con evidencia | SBOM/grafo y permisos |
@@ -42,21 +42,21 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Documentos/IA — RF-075–080 | Pendiente | Originales privados, versiones, asociaciones, extracción/OCR, búsqueda híbrida, Ollama, Gemini y respuestas citadas con permisos | Jobs, almacenamiento, modelos/configuración, pgvector aislado |
 | Impacto — RF-081–085 y RF-091 | Pendiente | ADD/UPDATE/REMOVE/REPLACE con evidencia KNOWN/POTENTIAL/VALIDATED, documentos por revisar, pruebas aisladas y propuesta de PR aprobable | Grafo, versiones, documentos y ejecutor aislado |
 | Reportes — RF-086–090 | Pendiente | Informes técnicos/ejecutivos, PDF/CSV/JSON/SBOM, artefactos trazables y programación posterior | Inventario, hallazgos, permisos, jobs |
-| Auditoría y requisitos no funcionales | Health, FK, RLS/roles SQL y restricciones append-only probadas | Emisión de auditoría por casos de uso, logs/métricas, límites, secretos, ejecución de retención, backup/restauración y servidor | Transversal a cada fase |
+| Auditoría y requisitos no funcionales | Health, FK/RLS/roles SQL, append-only, evento al crear organización, CSRF, hash de contraseña y límite local de intentos | Ampliar auditoría a casos de uso, logs/métricas, límites coordinados, retención, backup/restauración y servidor | Transversal a cada fase |
 | Interfaz — pantallas del apartado 6 | Estructura Angular y pantalla inicial | Navegación, formularios, tablas, estados de carga/error, accesibilidad y recorridos con datos reales | Contratos y funciones por módulo |
 
 ### Estado de la base y del código existente
 
 - Tres módulos Maven Domain/Application/Infrastructure; Domain y Application sin Spring/JPA.
-- Flyway V1–V11: 121 tablas de negocio, 85 con RLS forzado, 208 FK. Diccionario de cada tabla, normalización y siete diagramas nativos: `database/README.md`. Informe y pruebas: `database/implementation-report.md`.
+- Flyway V1–V12 con 121 tablas de negocio, 85 con RLS forzado y 208 FK. Diccionario y siete diagramas actualizados desde el catálogo. V12 permite consultar membresías/organizaciones propias bajo contexto autenticado de usuario.
 - F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
-- Un perfil local prepara una organización/repositorio sintéticos; Docker/navegador completo sigue pendiente de verificar. Las APIs de negocio continúan denegadas.
-- La transición separa paquete/versión/presencia y normaliza todos los módulos. Se adaptaron los casos de uso existentes, con tenant transaccional y credenciales runtime/migración separadas. Se probaron actualización con datos, rollback y acceso con login limitado. Identidad/autorización funcional, workers y servicios nuevos siguen pendientes. Las filas de la matriz que dicen Pendiente pueden tener ya tablas; no tienen todavía recorrido funcional.
+- Registro/login/logout, creación/listado de organizaciones y restauración de sesión disponibles en Angular. APIs de repositorios/scans autorizadas con rol y equipo. Las sesiones viven en memoria del backend y vencen por inactividad. Docker y el recorrido visual completo siguen pendientes. Ver `ACCESO_LOCAL.md`.
+- La transición separa paquete/versión/presencia y normaliza los módulos. Casos de uso con tenant transaccional y credenciales runtime/migración separadas. Autorización consulta cuenta, organización, membresía, rol y equipo activos en cada petición. Los workers y servicios restantes se desarrollan por la matriz.
 
 ### Orden de implementación propuesto
 
-1. Base y contratos: núcleo V11 completado y probado, con documentación/normalización/diagramas derivados del catálogo aplicado. Mantener migraciones incrementales; vector físico pendiente de modelo/dimensión verificados.
-2. Identidad, organizaciones, equipos, permisos y aislamiento; recorrido local autorizado.
+1. Base y contratos completados hasta V12, con artefactos derivados del catálogo aplicado. Mantener migraciones incrementales y verificar modelo/dimensión al activar vectores.
+2. Continuar identidad con verificación/recuperación de correo y sesiones, después Google/GitHub, vinculación, invitaciones y gestión de equipos/permisos. Acceso local y controles de repositorios entregados en bloque 06.
 3. GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI.
 4. Comparación, recomendaciones e impacto; pruebas aisladas y propuesta de PR con aprobación para cerrar el primer piloto.
 5. Documentos privados, extracción/búsqueda, embeddings Ollama y asistente Gemini; reportes y alertas in-app según sus dependencias.

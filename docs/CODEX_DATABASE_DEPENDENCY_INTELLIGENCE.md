@@ -11,7 +11,7 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
-Esta es la referencia vigente de diseño de base de datos. **Núcleo implementado hasta V11:** 121 tablas de negocio, 85 con RLS forzado y 208 FK, conservando V1–V3 sin reescritura. Diccionario, normalización y siete diagramas editables: [database/README.md](database/README.md). Ver [informe](database/implementation-report.md) para validaciones y límites: servicios de módulos pendientes y pgvector opcional sin ejecutar hasta fijar modelo/dimensión. Las propuestas y listas posteriores se interpretan junto a este estado; no acreditan funciones terminadas por tener tablas.
+Referencia vigente de diseño. Núcleo implementado hasta V12 con 121 tablas, 85 con RLS forzado y 208 FK. V12 permite descubrir organizaciones propias del usuario autenticado. Acceso local y autorización de repositorios entregados en bloque 06. Estado, diagramas, diccionario y normalización se consultan en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 

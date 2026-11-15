@@ -6,7 +6,7 @@ El objetivo es el producto completo listo para usar por fases, local primero y s
 
 Las decisiones confirmadas incluyen acceso local/Google/GitHub, Maven/npm, equipos/permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto. IA del producto: Gemini; embeddings: Ollama. Codex no se integra ni se agenda como proveedor hasta nueva instrucción del usuario.
 
-Los módulos siguientes describen código existente. La especificación database se implementa hasta V11: 121 tablas, 85 con RLS forzado y 208 FK. Casos de uso existentes adaptados a paquete/versión/presencia separados; el esquema de RBAC/equipos, jobs y demás módulos no acredita sus servicios funcionales. Ver [estado y pruebas](database/implementation-report.md), [diccionario/diagramas](database/README.md) y [normalización](database/normalization.md).
+Los módulos siguientes describen código existente. Database alcanza V12 con 121 tablas, 85 con RLS forzado y 208 FK. Los casos de acceso local, organización y autorización se detallan en [ACCESO_LOCAL](ACCESO_LOCAL.md). El estado y validaciones de la base están en [implementation-report](database/implementation-report.md).
 
 ### Integraciones que se deben separar
 
@@ -93,7 +93,11 @@ El adaptador reutiliza paquete por organización/ecosistema/namespace/nombre y v
 
 ### Acceso a la aplicación
 
-Los adaptadores HTTP de repositorios y scans existen bajo `/api/organizations/{organizationId}/repositories`, pero la política deniega negocio. Solo health es público. Un ID en una ruta **no autoriza**: antes de habilitar estas rutas implementar identidad, membresía y permisos. RLS ya protege el tenant seleccionado en la transacción; no sustituye esa autorización funcional.
+Los adaptadores HTTP de repositorios/scans bajo `/api/organizations/{organizationId}/repositories` exigen sesión y permisos. `AuthorizedRepositoryActions` delimita la transacción tenant y llama al puerto `AuthorizeRepositoryAction` antes del caso de uso. El adaptador JDBC comprueba cuenta/organización/membresía activas, permiso de rol y acceso por equipo. OWNER/ADMIN tienen alcance de organización y MEMBER/VIEWER requieren intersección del permiso del rol con el del equipo para ese repositorio.
+
+`EmailAddress` normaliza el correo en Domain. RegisterAccountUseCase y AuthenticateAccountUseCase dependen de AccountStore/PasswordHashing. JdbcAccountAdapter crea usuario y hash atómicamente. Pbkdf2PasswordAdapter utiliza Spring Security en Infrastructure. AccountController crea el contexto autenticado, rota sesión/CSRF y lo guarda explícitamente en HttpSessionSecurityContextRepository. ActiveAccountFilter consulta la vigencia de la cuenta. AuthenticationRateLimitFilter limita los POST de contraseña por dirección y minuto. Los DTO de credenciales redactan su representación textual y la validación devuelve errores sin valores recibidos.
+
+ManageOrganizationsUseCase crea/lista organizaciones mediante OrganizationStore. Crear incluye membresía OWNER y auditoría en una transacción. Para listar, el adaptador establece `app.user_id` local y V12 permite consultar propias membresías/organizaciones activas. Las sesiones usan cookie HttpOnly/SameSite=Lax con timeout configurable de 30 minutos. Las sesiones se mantienen en memoria del backend. Recuperación/verificación, proveedores externos y gestión de equipos están pendientes. Contratos, configuración y alcance de la comprobación visual se documentan en [ACCESO_LOCAL](ACCESO_LOCAL.md).
 
 La solicitud de scan se guarda; todavía no existe worker ni integración con scanner, GitHub u OSV. Los contextos restantes conservan sus puntos de extensión. Ver [diseño de base de datos](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable actual](database/implementation-report.md).
 

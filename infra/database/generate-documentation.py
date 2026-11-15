@@ -385,7 +385,7 @@ def main():
     draw_native('01-system-data-context','Contexto de datos del sistema',cards,[{'source':a,'target':b,'logical':True,'label':'flujo lógico'} for a,b in logical],destination,
                 'Contexto funcional objetivo; conectores lógicos discontinuos. No representa proveedores ya integrados.')
     cards=[{'name':name,'tenant':tenant,'lines':lines} for name,tenant,lines in [
-        ('Aplicación autorizada',False,['Valida membresía/permisos','La autorización funcional sigue pendiente']),
+        ('Aplicación autorizada',False,['Cuenta y membresía activas','Permiso de rol y equipo por repositorio']),
         ('TenantTransactions',False,['SET LOCAL app.organization_id','Misma conexión y transacción JPA/JDBC']),
         ('dependency_app',False,['LOGIN no propietario','Sin DDL, SUPERUSER ni BYPASSRLS']),
         ('app_private.current_organization_id',False,['Contexto UUID local','Sin contexto: no ve filas tenant']),

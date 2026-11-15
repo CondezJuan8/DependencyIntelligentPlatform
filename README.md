@@ -39,13 +39,13 @@ Objetivo vigente: producto completo listo para usar por fases, primero local y d
 
 El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Referencias de datos: [nueva especificación](docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable/pendientes](docs/database/implementation-report.md).
 
-Incluye PostgreSQL, Flyway, Actuator y pantalla inicial. Base implementada hasta V11: **121 tablas, 85 con RLS forzado y 208 FK**, conservando V1–V3. [Diccionario, siete diagramas Excalidraw/SVG/PNG e instrucciones](docs/database/README.md); [pruebas y pendientes](docs/database/implementation-report.md). El esquema no equivale a todas las funciones terminadas.
+Incluye PostgreSQL/Flyway hasta V12 con 121 tablas, 85 con RLS forzado y 208 FK. Registro/login/logout local, sesión y creación/consulta de organizaciones disponibles en Angular y API. Contratos, configuración y alcance de verificación en [ACCESO_LOCAL](docs/ACCESO_LOCAL.md). Diccionario y siete diagramas en [database](docs/database/README.md).
 
 Están implementados registro/consulta de repositorios, solicitud de análisis e importación persistente de SBOM bajo contexto tenant transaccional. El parser CycloneDX 1.6/Maven acotado alimenta una importación atómica con catálogo normalizado paquete/versión/aparición. Faltan carga HTTP e inventario visual. Las solicitudes quedan `PENDING`; importaciones manuales crean snapshots `COMPLETED` con origen explícito, sin inventar commit ni scanner. No existen worker, GitHub, scanner, OSV ni pantallas de inventario/grafo. Se verificaron migraciones hasta V11, transición con datos, rollback y acceso con login runtime real limitado.
 
-Faltan autenticación y autorización por membresía. RLS y la integridad referencial no sustituyen esos controles. Los endpoints de negocio permanecen bloqueados. Flyway y datasource usan credenciales separadas; el guard de runtime rechaza propietario/BYPASSRLS/DDL.
+Los endpoints de repositorios/scans comprueban sesión, membresía y permisos de rol/equipo. Flyway y datasource usan credenciales separadas. El guard runtime verifica sus privilegios. Continúan verificación/recuperación de correo, Google/GitHub, invitaciones y gestión de equipos. La sesión actual vive en memoria del backend.
 
-Solo `/actuator/health` es público en la API; el resto se deniega. OpenAPI está instalado pero deshabilitado hasta configurar acceso. PostgreSQL y backend solo son accesibles desde la red interna de Compose. Nginx publica exclusivamente en `127.0.0.1`.
+Health y los contratos públicos de registro/login/CSRF permiten iniciar el acceso. Los POST exigen CSRF y las operaciones de organización/repositorio exigen sesión. OpenAPI permanece deshabilitado. PostgreSQL y backend se conectan por la red interna de Compose y Nginx publica en `127.0.0.1`. La revisión visual quedó pendiente por falta de acceso al navegador. Build Angular y pruebas HTTP correctos.
 
 Material es la biblioteca visual inicial. cdxgen será un scanner aislado, no una dependencia de la API. GitHub y OSV podrán usar el cliente HTTP de Spring; no se agregan SDK sin necesidad. El modo local prioriza análisis manual: GitHub no puede enviar webhooks directamente a localhost. No se abre ningún túnel.
 

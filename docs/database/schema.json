@@ -10252,6 +10252,15 @@
             ],
             "policies": [
                 {
+                    "name": "membership_self_discovery",
+                    "check": null,
+                    "roles": [
+                        "dependency_runtime"
+                    ],
+                    "using": "((app_private.current_organization_id() IS NULL) AND (user_id = app_private.current_user_id()) AND (status = 'ACTIVE'::text))",
+                    "command": "SELECT"
+                },
+                {
                     "name": "schema_migration_access",
                     "check": "true",
                     "roles": [
@@ -10565,6 +10574,15 @@
                 }
             ],
             "policies": [
+                {
+                    "name": "organization_self_discovery",
+                    "check": null,
+                    "roles": [
+                        "dependency_runtime"
+                    ],
+                    "using": "((app_private.current_organization_id() IS NULL) AND (status = 'ACTIVE'::text) AND (EXISTS ( SELECT 1\n   FROM (organization_memberships membership\n     JOIN users account ON (((account.id = membership.user_id) AND account.is_active)))\n  WHERE ((membership.organization_id = organizations.id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))",
+                    "command": "SELECT"
+                },
                 {
                     "name": "schema_migration_access",
                     "check": "true",
@@ -18197,5 +18215,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "11"
+    "latest_migration": "12"
 }

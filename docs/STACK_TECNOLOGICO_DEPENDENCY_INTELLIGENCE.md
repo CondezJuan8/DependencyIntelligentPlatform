@@ -23,6 +23,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Actualización del bloque 06, 15 de noviembre de 2026. Acceso local en Spring Security y Angular con registro/login/logout, cookie HttpOnly/SameSite=Lax, CSRF enmascarado y sesión de servidor en memoria. PBKDF2-HMAC-SHA256 con 600.000 iteraciones y salt aleatorio mediante la biblioteca existente. Roles/equipos autorizan repositorios/scans en transacción tenant. V12 añade descubrimiento de organizaciones propias. Detalles operativos y límites de verificación visual en [ACCESO_LOCAL](ACCESO_LOCAL.md). Verificación/recuperación y proveedores externos son el siguiente trabajo.
+
 Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El objetivo vigente es el producto completo listo para usar, por fases, primero local y después servidor. El plan anterior de demo/50 horas deja de limitar el alcance o la aceptación. Decisiones y pendientes: `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; diseño database vigente: `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md`.
 
 - Acceso confirmado: correo/contraseña, Google y GitHub; equipos y permisos por repositorio en el primer piloto. La identidad GitHub no sustituye la autorización/instalación para acceder a repositorios.
@@ -31,7 +33,7 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
 - Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
-- Núcleo de base implementado V1–V11: 121 tablas, 85 con RLS forzado, 208 FK; RBAC/equipos, paquete/versión/presencia, jobs y módulos posteriores modelados. No equivale a servicios implementados. Vector físico opcional sin ejecutar. Diccionario y diagramas: `database/README.md`; resultados: `database/implementation-report.md`.
+- Núcleo de base V1–V12 con 121 tablas, 85 con RLS forzado y 208 FK. Diccionario/diagramas actualizados y descubrimiento autenticado de organizaciones probado. Servicios restantes según matriz del maestro. Vector físico opcional. Resultados en `database/implementation-report.md`.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
 - Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.

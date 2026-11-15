@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V11. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V12. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -2421,6 +2421,7 @@ Referencias entrantes: `assistant_conversations` (organization_id, created_by_me
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `membership_self_discovery`, roles dependency_runtime: USING `((app_private.current_organization_id() IS NULL) AND (user_id = app_private.current_user_id()) AND (status = 'ACTIVE'::text))`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -2490,6 +2491,10 @@ Referencias entrantes: `audit_events` (organization_id), `background_jobs` (orga
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `organization_self_discovery`, roles dependency_runtime: USING `((app_private.current_organization_id() IS NULL) AND (status = 'ACTIVE'::text) AND (EXISTS ( SELECT 1
+   FROM (organization_memberships membership
+     JOIN users account ON (((account.id = membership.user_id) AND account.is_active)))
+  WHERE ((membership.organization_id = organizations.id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(id = app_private.current_organization_id())`; CHECK `(id = app_private.current_organization_id())`.
 

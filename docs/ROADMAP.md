@@ -7,7 +7,7 @@ El usuario prioriza un producto completo listo para usar, local primero y servid
 | Fase propuesta | Resultado verificable | Estado |
 | --- | --- | --- |
 | Transición del modelo | V4–V11, casos de uso compatibles, datos conservados, diccionario y siete diagramas | Núcleo completado y probado; vector opcional pendiente |
-| Acceso y aislamiento | Correo/contraseña, Google/GitHub, equipos, permisos por repositorio y RLS | RLS/roles SQL probados; identidad y autorización funcional pendientes: siguiente fase |
+| Acceso y aislamiento | Correo/contraseña, Google/GitHub, equipos, permisos por repositorio y RLS | Registro/login/logout y organizaciones en HTTP/Angular. Autorización de rol/equipo probada. Siguen verificación/recuperación, externos, invitaciones y gestión de equipos. Revisión visual pendiente |
 | Análisis real | GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI | Parcial: importador acotado existente |
 | Cambios y primer piloto | Comparación/recomendaciones, pruebas aisladas y propuesta de PR aprobable | Pendiente; requisito del primer piloto |
 | Documentación e IA | Originales privados, búsqueda/citas, embeddings Ollama y Gemini en la plataforma | Pendiente |

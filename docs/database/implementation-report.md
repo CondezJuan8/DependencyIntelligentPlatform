@@ -1,5 +1,15 @@
 # Estado real de implementación de la base de datos
 
+## Actualización de acceso V12, bloque 06
+
+15 de noviembre de 2026. V12 añade `app_private.current_user_id()` y políticas SELECT de descubrimiento propio en organizations/organization_memberships. Contexto `app.user_id` local a transacción, obtenido de la sesión. La estructura conserva 121 tablas, 85 con FORCE RLS y 208 FK. Exportación, diccionario y diagramas regenerados desde el catálogo aplicado. V1–V11 conservan sus checksums.
+
+Registro/login/logout y creación/listado de organizaciones disponibles en HTTP/Angular. Roles/equipos autorizan operaciones existentes de repositorios/scans. Se crea auditoría al crear organización. Sesiones de servidor en memoria. Estado funcional, decisiones, contratos y límites de navegador en [ACCESO_LOCAL](../ACCESO_LOCAL.md).
+
+Se verificaron 18 casos distintos pertinentes en este bloque con PostgreSQL nativo 18.6, JDK 25 con destino 21 y Maven 3.9.11. Seis de seguridad/arquitectura, cinco HTTP/sesión/permisos, cuatro runtime/RLS, dos de arranque/migración y uno del límite de intentos. La primera actualización detectó una función compartida existente entre esquemas de prueba. Se corrigió V12 antes de entregar y se repitieron los dos casos de migración y los HTTP afectados en otra base desechable. La validación de cuerpo se comprobó junto con la prueba de límite de intentos. Resultado final correcto. Build Angular de producción correcto con Node 24.22.1/npm 11.16.0. API health UP, frontend HTTP 200 y cookie HttpOnly/SameSite=Lax comprobados.
+
+La revisión visual quedó pendiente por host de navegador indisponible y timeout de autorización de Chrome. Docker, pgvector y proveedores de IA conservan su estado pendiente. Los procesos locales y PostgreSQL temporal se detienen al finalizar. A continuación se conserva el informe del bloque 05 como historial de la transición V11.
+
 Referencia: [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Bloque 05 de la [bitácora](../BITACORA_TRABAJO.md), 14 de noviembre de 2026. Esquema probado en una base temporal; no se actualizó una base externa del usuario ni se declara terminado el producto.
 
 ## Resultado

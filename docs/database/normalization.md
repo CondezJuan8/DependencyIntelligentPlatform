@@ -1,6 +1,6 @@
-# Normalización del esquema aplicado V11
+# Normalización del esquema aplicado V12
 
-Fuente: catálogo real en [schema.json](schema.json), [diccionario](data-dictionary.md) y migraciones V4–V11. Esta revisión distingue integridad técnica de prueba matemática: no declara todas las tablas en 5NF. Claves sustitutas por sí solas no demuestran normalización. Las dependencias funcionales (DF) se justifican por los hechos modelados y las claves declaradas; nuevas reglas de negocio pueden exigir descomposición posterior.
+Fuente en catálogo real, diccionario y migraciones V4–V12. V12 añade políticas SELECT para consultar membresías/organizaciones propias con contexto autenticado de usuario local a la transacción. Las claves, columnas y dependencias del inventario mantienen su estructura. La revisión de 1NF–5NF analiza dependencias declaradas y excepciones técnicas. Las reglas de negocio adicionales requieren revisar las descomposiciones. [Catálogo](schema.json), [diccionario](data-dictionary.md).
 
 ## Criterios y decisiones
 
