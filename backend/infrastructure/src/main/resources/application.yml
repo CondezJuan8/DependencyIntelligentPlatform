@@ -56,6 +56,19 @@ server:
     include-message: never
     include-stacktrace: never
 app:
+  identity:
+    public-base-url: ${PUBLIC_BASE_URL:http://localhost:8088}
+    authorization-lifetime: ${OAUTH_AUTHORIZATION_LIFETIME:PT5M}
+    reauthentication-window: ${OAUTH_REAUTHENTICATION_WINDOW:PT10M}
+    providers:
+      google:
+        enabled: ${GOOGLE_LOGIN_ENABLED:false}
+        client-id: ${GOOGLE_CLIENT_ID:}
+        client-secret: ${GOOGLE_CLIENT_SECRET:}
+      github:
+        enabled: ${GITHUB_LOGIN_ENABLED:false}
+        client-id: ${GITHUB_CLIENT_ID:}
+        client-secret: ${GITHUB_CLIENT_SECRET:}
   security:
     authentication:
       max-attempts-per-minute: ${AUTH_MAX_ATTEMPTS_PER_MINUTE:20}

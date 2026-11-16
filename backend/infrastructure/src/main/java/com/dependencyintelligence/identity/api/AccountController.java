@@ -17,6 +17,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 import com.dependencyintelligence.identity.infrastructure.security.SessionIdentity;
+import java.time.Clock;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,14 +27,16 @@ public class AccountController {
     private final FindActiveAccount currentAccount;
     private final SecurityContextRepository contexts;
     private final SessionAuthenticationStrategy sessions;
+    private final Clock clock;
 
     public AccountController(RegisterAccount registration, AuthenticateAccount authentication, FindActiveAccount currentAccount,
-                             SecurityContextRepository contexts, SessionAuthenticationStrategy sessions) {
+                             SecurityContextRepository contexts, SessionAuthenticationStrategy sessions, Clock clock) {
         this.registration = registration;
         this.authentication = authentication;
         this.currentAccount = currentAccount;
         this.contexts = contexts;
         this.sessions = sessions;
+        this.clock = clock;
     }
 
     @GetMapping("/csrf")
@@ -58,7 +61,7 @@ public class AccountController {
     public AccountResult me(Principal principal) { return currentAccount.execute(UUID.fromString(principal.getName())); }
 
     private void signIn(AuthenticatedAccount account, HttpServletRequest request, HttpServletResponse response) {
-        var identity = new SessionIdentity(account.account().id(), account.credentialVersion());
+        var identity = new SessionIdentity(account.account().id(), account.credentialVersion(), clock.instant());
         var auth = UsernamePasswordAuthenticationToken.authenticated(identity, null, List.of());
         sessions.onAuthentication(auth, request, response);
         var context = SecurityContextHolder.createEmptyContext();

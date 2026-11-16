@@ -23,6 +23,10 @@ public class ActiveAccountFilter extends OncePerRequestFilter {
                 var session = request.getSession(false);
                 if (session != null) session.invalidate();
                 SecurityContextHolder.clearContext();
+                if (request.getRequestURI().startsWith(request.getContextPath() + "/api/auth/oauth2/callback/")) {
+                    chain.doFilter(request, response);
+                    return;
+                }
                 response.setStatus(401);
                 return;
             }

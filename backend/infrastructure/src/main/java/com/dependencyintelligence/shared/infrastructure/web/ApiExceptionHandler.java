@@ -12,6 +12,22 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(ExternalIdentityException.class)
+    public ProblemDetail externalIdentity(ExternalIdentityException exception) {
+        String detail = switch (exception.reason()) {
+            case PROVIDER_UNAVAILABLE -> "Este método de acceso no está disponible actualmente.";
+            case EMAIL_VERIFICATION_REQUIRED -> "Verifica tu correo antes de vincular otro método de acceso.";
+            case SESSION_EXPIRED -> "Vuelve a iniciar sesión para modificar tus métodos de acceso.";
+            case LAST_SIGN_IN_METHOD -> "Conserva al menos un método de acceso disponible.";
+            case ALREADY_AUTHENTICATED -> "Utiliza la opción Vincular de tu cuenta para añadir otro método de acceso.";
+            default -> "No se pudo completar la operación con el proveedor.";
+        };
+        var status = exception.reason() == ExternalIdentityException.Reason.PROVIDER_UNAVAILABLE
+            ? HttpStatus.SERVICE_UNAVAILABLE : HttpStatus.CONFLICT;
+        var problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setProperty("code", exception.reason().name().toLowerCase(java.util.Locale.ROOT));
+        return problem;
+    }
     @ExceptionHandler(InvalidAccountTokenException.class)
     public ProblemDetail invalidToken(InvalidAccountTokenException exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());

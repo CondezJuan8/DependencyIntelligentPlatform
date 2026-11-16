@@ -8,6 +8,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.dependencyintelligence.identity.application.port.in.ValidateAccountSession;
+import com.dependencyintelligence.identity.application.port.in.ManageExternalIdentities;
+import com.dependencyintelligence.identity.infrastructure.oauth.ExternalProviderConfiguration;
+import com.dependencyintelligence.identity.infrastructure.oauth.ExternalApplicationUrls;
+import com.dependencyintelligence.identity.infrastructure.oauth.RecentIdentitySession;
 import java.time.Clock;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +21,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SecurityConfigurationTest.ProbeController.class)
-@Import({SecurityConfiguration.class, SecurityConfigurationTest.ProbeController.class, SecurityConfigurationTest.TestClock.class})
+@Import({SecurityConfiguration.class, ExternalProviderConfiguration.class, ExternalApplicationUrls.class, RecentIdentitySession.class,
+    SecurityConfigurationTest.ProbeController.class, SecurityConfigurationTest.TestClock.class})
 class SecurityConfigurationTest {
     @Autowired MockMvc mvc;
     @MockitoBean ValidateAccountSession accounts;
+    @MockitoBean ManageExternalIdentities identities;
 
     @Test
     void healthIsAccessibleWithoutAuthentication() throws Exception {

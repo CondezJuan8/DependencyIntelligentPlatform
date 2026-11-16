@@ -28,7 +28,8 @@ public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
     }
 
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !"POST".equals(request.getMethod()) || !PASSWORD_PATHS.contains(request.getServletPath());
+        return !"POST".equals(request.getMethod()) || !(PASSWORD_PATHS.contains(request.getServletPath())
+            || request.getServletPath().startsWith("/api/auth/providers/"));
     }
 
     private synchronized boolean allow(String address) {

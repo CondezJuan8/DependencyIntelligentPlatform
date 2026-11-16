@@ -26,6 +26,9 @@ public class IdentityConfiguration {
         return id -> store.findActive(id).orElseThrow(AuthenticationFailedException::new);
     }
     @Bean ValidateAccountSession validateAccountSession(AccountStore store) { return store::sessionCurrent; }
+    @Bean ManageExternalIdentities manageExternalIdentities(ExternalIdentityStore store, Clock clock, PlatformTransactionManager manager) {
+        return new TransactionalExternalIdentities(new ManageExternalIdentitiesUseCase(store, clock), manager);
+    }
     @Bean RecoverAccount recoverAccount(AccountRecoveryStore store, AccountMail mail, AccountTokenCodec tokens,
             PasswordHashing passwords, Clock clock, PlatformTransactionManager manager,
             @Value("${app.security.account-tokens.verification-lifetime}") Duration verificationLifetime,
