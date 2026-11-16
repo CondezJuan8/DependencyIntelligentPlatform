@@ -1,5 +1,31 @@
 # Paleta y criterios de revisión del frontend
 
+## Rediseño basado en referencias del usuario — bloque 13
+
+16 de noviembre de 2026. El usuario entregó tres imágenes de organización, login y dashboard, y delegó el diseño del registro. Se toma su composición visual como referencia, manteniendo español, la paleta oficial y los contratos existentes. La imagen no autoriza planes comerciales, datos de ejemplo presentados como reales ni funciones nuevas de GitHub/IA.
+
+### Pantallas entregadas
+
+- **Acceso y registro:** composición de dos paneles, marca navy con ilustración propia de red/escudo en SVG, formulario claro, pestañas de acceso, iconos y control de visibilidad de contraseña. Registro con nombre, correo, contraseña/confirmación y reglas existentes. No se añade un «recordarme» que prometa persistencia distinta de la sesión actual. Google/GitHub aparecen según la disponibilidad real; si no están habilitados, botones desactivados con explicación.
+- **Espacio de trabajo:** sidebar navy con indicador activo, topbar con búsqueda de secciones, avatar con iniciales reales, opciones de cuenta, cierre de sesión, navegación móvil y enlace de salto al contenido. Navegación `?view=` con lista de páginas permitidas, recarga y atrás/adelante del navegador.
+- **Dashboard:** tarjetas, panel de grafo, evolución y organizaciones siguiendo la distribución de la referencia. El número de organizaciones procede de la API. Repositorios/dependencias/riesgo permanecen sin cifra evaluada; el grafo es una ilustración de estado vacío. No se inventan vulnerabilidades, tendencias, porcentajes, actividad ni respuestas del asistente. Los módulos futuros llevan estado «En preparación».
+- **Organización:** selección de espacio, pestañas Miembros/Invitaciones/Equipos/Permisos, tabla con iniciales, equipos, roles y estados, búsqueda/filtro local, paginación de miembros en bloques de diez y diálogos para las operaciones existentes. Foco atrapado/restaurado con CDK, Escape y confirmaciones; un formulario cancelado de acceso se reinicializa al abrirlo otra vez. La lista de invitaciones conserva el límite de cien del backend.
+- **Configuración:** perfil real y métodos conectados en su sección propia. Las invitaciones recibidas abren Organización para mantener accesible la aceptación tras iniciar sesión.
+
+### Sistema visual
+
+Marca e ilustración vectoriales propias en frontend/public/brand-mark.svg y auth-network.svg; iconos SVG locales mediante DiIcon. No se copiaron archivos personales de Pictures al repositorio ni se descargan fuentes, iconos o imágenes externos. Tipografía del sistema con fallback Inter/Segoe UI/Arial; Angular Material usa Segoe UI y densidad -2. Colores principales reutilizados mediante tokens. Se añaden tokens auxiliares text-subtle (#64748B), text-secondary (#536784), surface-muted (#F1F5F9) y border-soft (#D5E0EF). Bloques reutilizables de tarjetas, diálogos y estados en theme/_workspace.scss.
+
+Componentes separados para AuthFrame, ApplicationShell, Sidebar, Topbar, Dashboard, Metrics y vista previa del asistente. Se conserva carga diferida con @defer y estados de carga/error. Layouts con breakpoints de escritorio/móvil, tablas con desplazamiento horizontal, modales de alto acotado y respeto de prefers-reduced-motion. Son reglas implementadas, pendientes de aceptación visual en dispositivos reales.
+
+### Verificación y revisión disponible
+
+Build de producción correcto: 406,37 kB iniciales, dentro del presupuesto de 500 kB y sin avisos de tamaño por componente. Se dividieron componentes/utilidades para resolver los avisos de estilos, sin ampliar los límites. Siete comprobaciones directas de selección de páginas/lista permitida correctas, formato Prettier correcto y frontend HTTP 200 con backend UP. No se ejecutan pruebas backend porque no cambian APIs, permisos ni datos.
+
+La herramienta de browser indicó host indisponible. La alternativa nativa localizó Chrome, pero detuvo la captura al no poder verificar la URL con suficiente confianza. No se continuó automatizando la ventana ni se declara revisión visual completada. El entorno nativo del bloque 12 permanece activo en http://localhost:8088 para que el usuario revise; correo en http://localhost:8025. Login/registro se ven cerrando sesión desde el avatar. Recoger observaciones antes de iniciar la conexión de repositorios GitHub.
+
+Las secciones siguientes conservan la especificación de color y evidencia del bloque 08.
+
 Decisión del usuario del 15 de noviembre de 2026. Esta paleta es la referencia visual de Dependency Intelligence. Los colores se centralizan en tokens CSS emitidos desde Sass y se conectan con Angular Material. [Tokens](../frontend/src/theme/_tokens.scss), [tema global](../frontend/src/styles.scss).
 
 ## Paleta principal y distribución

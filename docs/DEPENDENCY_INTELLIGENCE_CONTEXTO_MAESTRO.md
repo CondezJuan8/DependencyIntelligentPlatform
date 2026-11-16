@@ -12,6 +12,8 @@ Las secciones numeradas posteriores conservan el contexto histórico. Las decisi
 
 Instrucción posterior al bloque 09: pendientes consolidados en [PENDIENTES.md](PENDIENTES.md), para implementarlos y validarlos juntos cuando el usuario lo indique. El orden propuesto más abajo queda como referencia; no inicia automáticamente el siguiente bloque.
 
+Bloque 13, 16 de noviembre de 2026: antes de GitHub, el usuario priorizó rediseñar frontend y proporcionó imágenes de login, dashboard y organización; registro delegado. Entregados acceso de dos paneles, navegación lateral/topbar, dashboard con estados honestos y organización con tabla, filtros y pestañas. APIs y esquema permanecen iguales. Entorno local activo para revisión, build correcto y validación visual automática bloqueada por herramienta. Detalle y recorrido en [DISENO_FRONTEND](DISENO_FRONTEND.md). Siguiente acción: recoger observaciones del usuario, sin iniciar otra integración.
+
 ### Decisiones cerradas
 
 - Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.
@@ -47,7 +49,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Impacto — RF-081–085 y RF-091 | Pendiente | ADD/UPDATE/REMOVE/REPLACE con evidencia KNOWN/POTENTIAL/VALIDATED, documentos por revisar, pruebas aisladas y propuesta de PR aprobable | Grafo, versiones, documentos y ejecutor aislado |
 | Reportes — RF-086–090 | Pendiente | Informes técnicos/ejecutivos, PDF/CSV/JSON/SBOM, artefactos trazables y programación posterior | Inventario, hallazgos, permisos, jobs |
 | Auditoría y requisitos no funcionales | Health, FK/RLS/roles SQL, append-only, evento al crear organización, CSRF, hash de contraseña y límite local de intentos | Ampliar auditoría a casos de uso, logs/métricas, límites coordinados, retención, backup/restauración y servidor | Transversal a cada fase |
-| Interfaz — pantallas del apartado 6 | Estructura Angular y pantalla inicial | Navegación, formularios, tablas, estados de carga/error, accesibilidad y recorridos con datos reales | Contratos y funciones por módulo |
+| Interfaz — pantallas del apartado 6 | Bloque 13: acceso/registro, navegación lateral/topbar, dashboard con organizaciones reales/estados vacíos y organización con pestañas/tabla/filtros/diálogos | Aceptación visual en escritorio/móvil, correcciones del usuario y pantallas con datos de los módulos aún pendientes | Contratos y funciones por módulo |
 
 ### Estado de la base y del código existente
 

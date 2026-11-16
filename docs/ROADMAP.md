@@ -6,6 +6,8 @@ El usuario prioriza un producto completo listo para usar, local primero y servid
 
 Pendientes consolidados en [PENDIENTES.md](PENDIENTES.md). Por indicación vigente del usuario, los trabajaremos juntos cuando él lo indique; las fases siguientes son referencia de orden y no autorizan su inicio automático.
 
+Prioridad anterior a la integración de repositorios: revisión del rediseño visual del bloque 13, basado en imágenes del usuario. Acceso/registro, dashboard y organización disponibles en el entorno local; build correcto y revisión visual conjunta pendiente. No se adelanta GitHub ni IA.
+
 | Fase propuesta | Resultado verificable | Estado |
 | --- | --- | --- |
 | Transición del modelo | V4–V11, casos de uso compatibles, datos conservados, diccionario y siete diagramas | Núcleo completado y probado; vector opcional pendiente |

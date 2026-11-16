@@ -459,3 +459,30 @@ Herramientas utilizadas: PowerShell/Start-Process con ventanas ocultas, pg_ctl/c
 Verificaciones necesarias: health real del backend UP; frontend http://localhost:8088/ devuelve 200; GET /api/auth/csrf por ese frontend devuelve 200/application/json; bandeja http://localhost:8025/ devuelve 200. Angular compila y queda en watch. No se repiten suites de pruebas ni build de producción para este arranque. No se ejecutó Compose ni se declara completada la revisión visual del usuario.
 
 Se dejan los cuatro servicios activos intencionadamente para que el usuario revise. No detenerlos automáticamente al cerrar este bloque ni reutilizar dependency_preview como base de pruebas automatizadas. Recorrido disponible: crear cuenta → crear organización → Miembros y equipos; usar Mailpit para verificación e invitaciones. Siguiente paso: recoger las observaciones del usuario, sin iniciar otro módulo.
+
+## Bloque 13 — Rediseño de frontend según imágenes del usuario
+
+Fecha: 16 de noviembre de 2026, America/Bogota. Horas reales sin medir. Petición: mejorar el frontend antes de GitHub, con tres referencias de organización, login y dashboard; diseño del registro delegado. Revisados maestro, arquitectura, database, stack, diseño y código vigente. La composición de las imágenes se usa como referencia visual; sus personas, cifras, planes y funciones no son datos del producto.
+
+### Cambios concretos
+
+- AuthFrame de dos paneles, marca navy y red/escudo en SVG propios, login/registro/recuperación sobre superficie clara. Formularios con iconos, errores, visibilidad de contraseña y confirmación de registro, conservando validación/API. Pestañas de acceso operables con teclado. Google/GitHub visibles pero desactivados si la API los declara indisponibles; sin «recordarme» ficticio ni cambios de sesión.
+- ApplicationShell con Sidebar y Topbar separados, navegación activa y móvil, búsqueda de secciones, menú de cuenta/logout y perfil real con iniciales. Lista permitida de páginas en URL ?view= y soporte de recarga/atrás/adelante. La invitación pendiente abre Organización sin aceptarse automáticamente.
+- Dashboard separado en métricas y vista previa del asistente. Número real de organizaciones desde API; el resto de métricas sin cifra evaluada. Paneles de grafo/historial con estados vacíos y navegación de módulos futuros explícitamente En preparación. Sin cifras, riesgos, actividad, planes comerciales ni respuestas IA inventados.
+- Organización con selector, pestañas Miembros/Invitaciones/Equipos/Permisos, tabla, búsqueda/filtro, paginación local de diez miembros, iniciales y estados. Diálogos de invitación, rol/estado, creación y eliminación/revocación; foco contenido/restaurado mediante CDK A11y, Escape y confirmaciones. Formularios cancelados de membresía se reinicializan al abrirlos; página se ajusta si cambia el número filtrado. Se reutilizan las operaciones backend del bloque 11.
+- Layout adaptable, scroll de tablas y modales, enlace de salto y respeto de reducción de movimiento. Paleta oficial reutilizada por tokens y cuatro tokens auxiliares de texto/superficie/contorno; utilidades visuales compartidas con prefijo di-. SVG/typografía locales, sin fuentes/imágenes externas ni copia de archivos de Pictures al repositorio. Código formateado con Prettier.
+- Actualizados diseño, maestro, arquitectura, stack, pendientes, roadmap y recorrido de organización. Backend, permisos y V1–V13 sin cambios; permanecen 121 tablas. No se ejecutan otras funciones de PENDIENTES.
+
+### Herramientas y tecnologías utilizadas
+
+PowerShell/rg/apply_patch/Git para inspección y cambios; Python estándar para escribir/dividir componentes y verificar artefactos; Angular/Material/Forms/CDK A11y/RxJS/Sass existentes; SVG escrito como código; Node 24.22.1, Angular CLI y Prettier existentes para compilación/formato y comprobación directa de navegación. No se añadió ninguna dependencia de producto, SDK, imagen generada ni proveedor.
+
+Se leyó la habilidad computer-use y se intentó revisión local. El host de browser indicó indisponibilidad. La alternativa nativa @oai/sky listó Chrome, pero la captura se detuvo por no poder determinar su URL con suficiente confianza. Se detuvieron las acciones de UI; no se eludió el bloqueo, no se modificó la sesión del usuario ni se completó revisión visual automática.
+
+### Verificación y límites
+
+Build de producción correcto, 406,37 kB iniciales, bajo presupuesto existente de 500 kB y sin avisos finales por estilos. Los avisos intermedios se resolvieron separando Sidebar/Topbar/Metrics/vista previa y reutilizando utilidades de estilo, sin ampliar límites. Compilación de desarrollo/watch correcta tras los cambios. Siete aserciones directas de navegación/lista permitida correctas. Node emite el aviso conocido de detección de módulo al importar TypeScript para esa comprobación; no cambia la configuración del producto. Formato Prettier correcto al comprobar el código afectado.
+
+HTTP real frontend localhost:8088 devuelve 200; backend health UP; consulta de proveedores a través del frontend devuelve Google/GitHub indisponibles, como corresponde a su configuración. No se crean cuentas ni datos de prueba en dependency_preview. No se repiten pruebas Maven ni migraciones al no cambiar comportamiento backend. No se ejecutó Compose ni se afirma comprobación visual de píxeles, accesibilidad completa o recorrido E2E tras este rediseño.
+
+Formato de diferencias correcto; 51 referencias locales comprobadas en ocho documentos y dos SVG bien formados. Comprobación final de Prettier correcta. HTTP de frontend, marca SVG y API CSRF devuelven 200 y la compilación watch envió la actualización al cliente. Entorno nativo y datos del usuario se conservan activos para revisión. Tres commits con emoji para componentes de acceso/tema, espacio de trabajo/organización y documentación. Siguiente paso: el usuario revisa localhost:8088 y propone ajustes de distribución/colores; no iniciar todavía repositorios GitHub.

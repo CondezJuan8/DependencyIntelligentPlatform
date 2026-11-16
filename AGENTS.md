@@ -1,5 +1,7 @@
 # Instrucciones de trabajo
 
+- Prioridad del bloque 13 (16/11/2026): frontend rediseñado según tres referencias del usuario; registro delegado. Revisar `docs/DISENO_FRONTEND.md` y recoger observaciones antes de GitHub. Entorno nativo de revisión sigue activo en localhost:8088; no detener sus servicios ni usar dependency_preview para pruebas automáticas. Dashboard sin estadísticas inventadas; módulos no implementados marcados En preparación. Revisión visual automática no completada por bloqueo de verificación de URL de Chrome.
+
 - Pendientes centralizados en `docs/PENDIENTES.md`. Por indicación del usuario, implementarlos y validarlos juntos cuando él lo indique; no iniciar automáticamente el siguiente bloque. Esta instrucción prevalece sobre propuestas anteriores de continuar con invitaciones/equipos. Mantener la lista al actualizar el estado del proyecto.
 
 - Bloque 11 solicitado y entregado: invitaciones SMTP, aceptación por correo verificado, gestión HTTP/UI de membresías/roles, equipos y permisos por repositorio. Ver `docs/INVITACIONES_EQUIPOS_PERMISOS.md`. Pruebas con PostgreSQL/Mailpit y build correctos; revisión visual conjunta pendiente. Este estado sustituye el siguiente paso histórico de implementar invitaciones. Elegir el bloque posterior con el usuario.

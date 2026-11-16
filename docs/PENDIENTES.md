@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 15 de noviembre de 2026, tras el bloque 12.
+Actualizado: 16 de noviembre de 2026, tras el bloque 13.
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. Registrar una tarea no autoriza iniciarla. No activar integraciones, completar módulos ni ejecutar los pendientes de esta lista hasta esa indicación.
 
@@ -15,6 +15,7 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 - Parser CycloneDX Maven acotado e importación persistente; todavía sin flujo de análisis real completo.
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
 - Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
+- Rediseño según las tres imágenes del usuario: acceso/registro, shell lateral, dashboard con estados vacíos y organización con tabla, filtros, pestañas y diálogos. Build correcto; falta aceptación visual del usuario. [Diseño](DISENO_FRONTEND.md).
 
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
@@ -24,7 +25,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
-- [ ] **Recorrido visual:** levantar el entorno con el usuario y revisar registro/login/logout, recuperación/verificación, organizaciones, métodos conectados, invitaciones, membresías/equipos/permisos, mensajes, foco, pantallas pequeñas y paleta. Registrar y corregir los problemas encontrados.
+- [ ] **Prioridad actual: revisión del rediseño del bloque 13.** Entorno activo en localhost:8088. Revisar login/registro, dashboard, navegación móvil, tabla/filtros, pestañas y diálogos de organización, recuperación/verificación e invitaciones. Confirmar distribución/colores con el usuario y corregir sus observaciones antes de GitHub. Revisión automática detenida por no poder verificarse la URL de Chrome.
 - [ ] **Arranque Compose:** ejecutar construcción/arranque y comprobar frontend, backend, PostgreSQL, Mailpit y conservación de datos al reiniciar. El bloque OAuth no verificó Compose.
 - [ ] **Servidor y correo:** configurar SMTP real cuando corresponda; comprobar entrega y fallos. Mailpit cubre correo local, no entrega externa.
 

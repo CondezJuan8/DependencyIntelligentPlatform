@@ -2,6 +2,8 @@
 
 ## Referencias vigentes y objetivo
 
+Bloque 13 (16/11/2026): rediseño Angular de acceso, shell/dashboard y organización. Reutiliza las APIs existentes; no modifica Domain/Application/Infrastructure del backend ni esquema/migraciones. Estados vacíos para módulos pendientes, sin métricas simuladas. Componentes y revisión en [DISENO_FRONTEND](DISENO_FRONTEND.md).
+
 El objetivo es el producto completo listo para usar por fases, local primero y servidor después. El plan anterior de demo/50 horas deja de limitar la arquitectura o aceptación. Priorizar [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md), este documento, [diseño database](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md).
 
 Las decisiones confirmadas incluyen acceso local/Google/GitHub, Maven/npm, equipos/permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto. IA del producto: Gemini; embeddings: Ollama. Codex no se integra ni se agenda como proveedor hasta nueva instrucción del usuario.

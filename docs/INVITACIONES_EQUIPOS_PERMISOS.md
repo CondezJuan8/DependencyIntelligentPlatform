@@ -4,6 +4,8 @@ Bloque 11, 15 de noviembre de 2026. Implementación solicitada explícitamente p
 
 ## Recorrido local para revisar
 
+Actualización visual del bloque 13: entrar en **Organización** desde la barra lateral, seleccionar el espacio y usar **Miembros**, **Invitaciones**, **Equipos** o **Permisos**. **Invitar miembro** abre el formulario de correo/rol. La tabla de miembros permite buscar, filtrar por estado y editar acceso desde su acción. Son las mismas APIs/reglas descritas abajo; el dashboard y login/registro también se rediseñaron según las imágenes del usuario. [Referencia visual vigente](DISENO_FRONTEND.md).
+
 1. Levantar el entorno siguiendo [README](../README.md). Con Compose, abrir `http://localhost:8088` y Mailpit en `http://localhost:8025`. El correo local termina en Mailpit; no se envía a bandejas externas.
 2. Crear/iniciar una cuenta, crear una organización y pulsar **Miembros y equipos**. La persona creadora tiene OWNER.
 3. Introducir el correo de otra persona y elegir rol. **Enviar invitación** entrega un enlace por SMTP. La lista muestra estado y caducidad; una invitación pendiente puede revocarse. Para reenviar, revocar y crear otra, invalidando el enlace anterior.
