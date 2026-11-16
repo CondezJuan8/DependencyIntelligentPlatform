@@ -398,3 +398,11 @@ Build Angular de producción correcto. Cinco aserciones directas sobre el parser
 Sin credenciales reales Google/GitHub, no se registró ninguna aplicación externa ni se probó su consentimiento. La implementación puede activarse con los pasos documentados; ambos proveedores permanecen apagados. Las pruebas con proveedor local no se presentan como prueba de disponibilidad o configuración de los servicios externos. Compose y revisión visual siguen pendientes. Las sesiones siguen en memoria y se requiere completar operación de servidor.
 
 Recorrido revisable: acceso local/colores y, tras activar credenciales, login y métodos conectados. Aún no se cumple el hito GitHub → repositorio → análisis → inventario con datos reales. Seguir con invitaciones y gestión de equipos/permisos; después instalación GitHub, repositorios y análisis. Tres commits coherentes con emoji para backend/configuración/pruebas, interfaz y documentación. PostgreSQL temporal detenido correctamente mediante pg_ctl; no se modificó una base externa del usuario.
+
+## Bloque 10 — Registro central de pendientes para trabajo conjunto
+
+Fecha: 15 de noviembre de 2026. Horas reales sin medir. Petición: crear un archivo de pendientes de todo lo trabajado y reservar su implementación para cuando el usuario indique que los trabajemos juntos.
+
+Se crea [PENDIENTES.md](PENDIENTES.md), separando lo implementado, configuración/validación pendiente, módulos por desarrollar y operación de servidor. Cada módulo recoge un criterio de cierre, con referencias al maestro y documentación específica. La lista no inicia ninguna implementación ni activa proveedores. Se actualizarán las referencias de continuidad para conservar la instrucción del usuario y evitar retomar automáticamente invitaciones u otros módulos.
+
+Herramientas utilizadas: PowerShell, lectura de los cuatro documentos prioritarios, apply_patch y Git. Ninguna dependencia nueva. Cambio exclusivamente documental; no corresponde ejecutar pruebas de backend ni build frontend. Se comprobará formato de diferencias y enlaces locales antes del cierre. Siguiente paso: esperar la indicación del usuario para elegir y trabajar juntos el bloque pendiente.
