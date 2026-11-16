@@ -23,35 +23,43 @@ public class JdbcAccountAdapter implements AccountStore {
     }
 
     @Override public AccountResult create(String email, String displayName, String passwordHash) {
+        return create(email,displayName,passwordHash,"OWNER","PENDING_REVIEW");
+    }
+    @Override public AccountResult createInvited(String email, String displayName, String passwordHash) {
+        return create(email,displayName,passwordHash,"MEMBER","APPROVED");
+    }
+    private AccountResult create(String email, String displayName, String passwordHash, String type, String admission) {
         try {
             return transactions.execute(status -> {
                 UUID id = UUID.randomUUID();
-                jdbc.update("insert into users(id, email, display_name) values (?, ?, ?)", id, email, displayName);
+                jdbc.update("insert into users(id,email,display_name,account_type,admission_status) values (?,?,?,?,?)", id,email,displayName,type,admission);
                 jdbc.update("insert into user_password_credentials(user_id, password_hash) values (?, ?)", id, passwordHash);
-                return new AccountResult(id, email, displayName, false);
+                return new AccountResult(id,email,displayName,false,type,admission,false);
             });
         } catch (DuplicateKeyException exception) { throw new AccountAlreadyExistsException(); }
     }
 
     @Override public Optional<AccountCredentials> credentials(String email) {
         return jdbc.query("""
-            select u.id, u.email, u.display_name, u.is_active, u.email_verified_at, u.credential_version, c.password_hash
+            select u.*, c.password_hash, exists(select 1 from platform_administrators a where a.user_id=u.id) as platform_admin
             from users u join user_password_credentials c on c.user_id = u.id where u.email_normalized = ?
-            """, (row, index) -> new AccountCredentials(new AccountResult(row.getObject("id", UUID.class),
-                row.getString("email"), row.getString("display_name"), row.getTimestamp("email_verified_at") != null),
+            """, (row, index) -> new AccountCredentials(account(row),
                 row.getString("password_hash"), row.getBoolean("is_active"), row.getLong("credential_version")), email)
             .stream().findFirst();
     }
 
     @Override public Optional<AccountResult> findActive(UUID userId) {
-        return jdbc.query("select id, email, display_name, email_verified_at from users where id = ? and is_active",
-            (row, index) -> new AccountResult(row.getObject("id", UUID.class), row.getString("email"), row.getString("display_name"),
-                row.getTimestamp("email_verified_at") != null), userId)
+        return jdbc.query("select u.*,exists(select 1 from platform_administrators a where a.user_id=u.id) as platform_admin from users u where u.id = ? and u.is_active",
+            (row, index) -> account(row), userId)
             .stream().findFirst();
     }
 
     @Override public boolean sessionCurrent(UUID userId, long version) {
         return Boolean.TRUE.equals(jdbc.queryForObject(
             "select exists(select 1 from users where id = ? and is_active and credential_version = ?)", Boolean.class, userId, version));
+    }
+    private AccountResult account(java.sql.ResultSet row) throws java.sql.SQLException {
+        return new AccountResult(row.getObject("id",UUID.class),row.getString("email"),row.getString("display_name"),
+            row.getTimestamp("email_verified_at")!=null,row.getString("account_type"),row.getString("admission_status"),row.getBoolean("platform_admin"));
     }
 }

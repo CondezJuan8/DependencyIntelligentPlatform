@@ -1,11 +1,12 @@
+import { PreferenceControls } from './preference-controls';
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { finalize } from 'rxjs';
-import { navigation, Page } from '../core/navigation';
+import { navigation, availableNavigation, Page } from '../core/navigation';
 import { SessionApiService, accessError } from '../core/session-api.service';
 import { DiIcon } from './di-icon';
 @Component({
   selector: 'app-workspace-topbar',
-  imports: [DiIcon],
+  imports: [PreferenceControls,DiIcon],
   templateUrl: './workspace-topbar.html',
   styleUrl: './workspace-topbar.scss',
 })
@@ -38,7 +39,7 @@ export class WorkspaceTopbar {
     ).toUpperCase();
   }
   get matches() {
-    return navigation.filter((item) =>
+    return availableNavigation(this.api.account()).filter((item) =>
       item.label.toLocaleLowerCase().includes(this.query().trim().toLocaleLowerCase()),
     );
   }

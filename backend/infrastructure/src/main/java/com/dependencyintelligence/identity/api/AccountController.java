@@ -28,15 +28,18 @@ public class AccountController {
     private final SecurityContextRepository contexts;
     private final SessionAuthenticationStrategy sessions;
     private final Clock clock;
+    private final com.dependencyintelligence.organization.application.port.in.ManageInvitations invitations;
 
     public AccountController(RegisterAccount registration, AuthenticateAccount authentication, FindActiveAccount currentAccount,
-                             SecurityContextRepository contexts, SessionAuthenticationStrategy sessions, Clock clock) {
+                             SecurityContextRepository contexts, SessionAuthenticationStrategy sessions, Clock clock,
+                             com.dependencyintelligence.organization.application.port.in.ManageInvitations invitations) {
         this.registration = registration;
         this.authentication = authentication;
         this.currentAccount = currentAccount;
         this.contexts = contexts;
         this.sessions = sessions;
         this.clock = clock;
+        this.invitations=invitations;
     }
 
     @GetMapping("/csrf")
@@ -55,6 +58,16 @@ public class AccountController {
         var account = authentication.execute(body.email(), body.password());
         signIn(account, request, response);
         return account.account();
+    }
+    @PostMapping("/register-invited") @ResponseStatus(HttpStatus.CREATED)
+    public AccountResult registerInvited(@Valid @RequestBody InvitedRegistrationRequest body,HttpServletRequest request,HttpServletResponse response) {
+        var account=invitations.registerInvited(new InvitedRegistrationCommand(body.organizationId(),body.invitationId(),body.token(),body.displayName(),body.password()));
+        signIn(new AuthenticatedAccount(account,0),request,response);
+        return account;
+    }
+    public record InvitedRegistrationRequest(@NotNull UUID organizationId,@NotNull UUID invitationId,
+            @NotBlank @Pattern(regexp="[A-Za-z0-9_-]{43}") String token,@NotBlank @Size(max=200) String displayName,@NotBlank @Size(max=128) String password) {
+        @Override public String toString(){return "InvitedRegistrationRequest[REDACTED]";}
     }
 
     @GetMapping("/me")

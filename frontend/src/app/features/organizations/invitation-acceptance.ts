@@ -49,7 +49,7 @@ export class InvitationAcceptance {
     this.pending.set(true); this.error.set('');
     this.api.post<void>(`/api/organizations/${link.organization}/invitations/${link.invitation}/accept`, { token: link.token })
       .pipe(finalize(() => this.pending.set(false))).subscribe({
-        next: () => { this.links.invitation.set(null); this.message.set('Invitación aceptada. La organización ya aparece en tu lista.'); this.accepted.emit(); },
+        next: () => { this.links.invitation.set(null); this.message.set('Invitación aceptada. El propietario debe aprobar tu acceso antes de que puedas usar el repositorio.'); this.accepted.emit(); },
         error: error => this.error.set(accessError(error)),
       });
   }

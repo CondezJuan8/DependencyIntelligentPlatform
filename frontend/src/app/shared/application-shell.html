@@ -26,6 +26,8 @@
         <p role="alert">No se pudo cargar el estado de verificación. Recarga la página.</p>
       }
       @switch (page()) {
+@case ('administration') { @defer(on immediate){<app-platform-administration/>}@loading{<p role="status">Cargando administración…</p>} }
+@case ('repositories') { @defer(on immediate){<app-invitation-acceptance/><app-repository-workspace/>}@loading{<p role="status">Cargando repositorios…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
             <app-dashboard (manage)="go('organization')" />
@@ -47,22 +49,11 @@
           }
         }
         @case ('settings') {
+@defer(on immediate){<app-account-settings/>}@loading{<p role="status">Cargando preferencias…</p>}
           <div class="page-heading">
             <h1>Configuración</h1>
             <p>Tu perfil y las formas de acceder a tu espacio.</p>
           </div>
-          <section class="profile-card">
-            <span class="avatar large">{{ initials }}</span>
-            <div>
-              <h2>{{ api.account()?.displayName }}</h2>
-              <p>{{ api.account()?.email }}</p>
-              <span class="account-status">{{
-                api.account()?.emailVerified
-                  ? 'Correo verificado'
-                  : 'Correo pendiente de verificación'
-              }}</span>
-            </div>
-          </section>
           @defer (on immediate) {
             <app-connected-identities />
           } @error {
@@ -86,8 +77,5 @@
         }
       }
     </main>
-    <footer class="workspace-footer">
-      <span>Dependency Intelligence</span><span>Comprende. Anticipa. Protege.</span>
-    </footer>
   </div>
 </div>

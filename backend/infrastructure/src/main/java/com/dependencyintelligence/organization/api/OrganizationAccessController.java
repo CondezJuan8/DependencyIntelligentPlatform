@@ -26,7 +26,7 @@ public class OrganizationAccessController {
     }
     @PostMapping("/invitations") @ResponseStatus(HttpStatus.CREATED)
     public Invitation invite(Principal principal, @PathVariable UUID organizationId, @Valid @RequestBody Invite request) {
-        return invitations.invite(actor(principal), organizationId, request.email(), request.role());
+        return invitations.invite(actor(principal), organizationId, request.email(), request.role(),request.teamId(),request.repositoryId());
     }
     @PostMapping("/invitations/{invitationId}/revoke") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revoke(Principal principal, @PathVariable UUID organizationId, @PathVariable UUID invitationId) { invitations.revoke(actor(principal), organizationId, invitationId); }
@@ -34,6 +34,8 @@ public class OrganizationAccessController {
     public void accept(Principal principal, @PathVariable UUID organizationId, @PathVariable UUID invitationId, @Valid @RequestBody Accept request) {
         invitations.accept(actor(principal), organizationId, invitationId, request.token());
     }
+    @PostMapping("/invitations/{invitationId}/approve") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void approve(Principal principal,@PathVariable UUID organizationId,@PathVariable UUID invitationId) { invitations.approve(actor(principal),organizationId,invitationId); }
     @PostMapping("/teams") @ResponseStatus(HttpStatus.CREATED)
     public Map<String, UUID> createTeam(Principal principal, @PathVariable UUID organizationId, @Valid @RequestBody TeamName request) {
         return Map.of("id", access.createTeam(actor(principal), organizationId, request.name()));
@@ -51,7 +53,7 @@ public class OrganizationAccessController {
         access.setRepositoryPermissions(actor(principal), organizationId, teamId, repositoryId, request.permissions());
     }
     public record ChangeMember(@NotBlank @Size(max = 10) String role, @NotBlank @Size(max = 10) String status) { }
-    public record Invite(@NotBlank @Size(max = 320) String email, @NotBlank @Size(max = 10) String role) { }
+    public record Invite(@NotBlank @Size(max = 320) String email, @NotBlank @Size(max = 10) String role,@NotNull UUID teamId,@NotNull UUID repositoryId) { }
     public record Accept(@NotBlank @Pattern(regexp = "[A-Za-z0-9_-]{43}") String token) {
         @Override public String toString() { return "Accept[REDACTED]"; }
     }

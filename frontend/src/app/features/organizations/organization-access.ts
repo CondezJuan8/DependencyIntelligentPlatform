@@ -28,6 +28,7 @@ interface Team {
   grants: { repositoryId: string; permission: string }[];
 }
 interface Invitation {
+ teamId:string;repositoryId:string;
   id: string;
   email: string;
   status: string;
@@ -72,6 +73,9 @@ export class OrganizationAccess implements OnChanges {
   readonly confirmation = signal<Team | null>(null);
   readonly memberConfirmation = signal<Member | null>(null);
   readonly revokeConfirmation = signal<Invitation | null>(null);
+ readonly approvalConfirmation=signal<Invitation|null>(null);
+ readonly inviteRoles:Role[]=['MEMBER','VIEWER'];
+ invitationTeamId='';invitationRepositoryId='';
   readonly tab = signal<'members' | 'invitations' | 'teams' | 'permissions'>('members');
   readonly dialog = signal<'invite' | 'team' | null>(null);
   readonly search = signal('');
@@ -158,7 +162,7 @@ export class OrganizationAccess implements OnChanges {
     if (!this.invitationEmail.trim()) return;
     this.mutate(
       '/invitations',
-      { email: this.invitationEmail, role: this.invitationRole },
+      { email: this.invitationEmail, role: this.invitationRole,teamId:this.invitationTeamId,repositoryId:this.invitationRepositoryId },
       'Invitación enviada. La persona recibirá un enlace para unirse.',
       () => {
         this.invitationEmail = '';
@@ -245,7 +249,7 @@ export class OrganizationAccess implements OnChanges {
           ACTIVE: 'Activo',
           SUSPENDED: 'Suspendido',
           LEFT: 'Retirado',
-          PENDING: 'Pendiente',
+          PENDING: 'Pendiente',AWAITING_OWNER:'Pendiente de aprobación',
           ACCEPTED: 'Aceptada',
           EXPIRED: 'Caducada',
           REVOKED: 'Revocada',
@@ -257,7 +261,8 @@ export class OrganizationAccess implements OnChanges {
     return (
       (
         {
-          'repository.read': 'Consultar repositorio',
+          'organization.manage':'Gestionar organización y membresías','team.manage':'Gestionar equipos','repository.manage':'Gestionar conexiones de repositorios','audit.read':'Consultar auditoría',
+ 'repository.read': 'Consultar repositorio',
           'scan.read': 'Consultar análisis',
           'scan.create': 'Solicitar análisis',
           'document.read': 'Consultar documentos',
@@ -269,7 +274,7 @@ export class OrganizationAccess implements OnChanges {
           'report.read': 'Consultar reportes',
           'report.export': 'Exportar datos',
         } as Record<string, string>
-      )[code] ?? code
+      )[code] ?? 'Permiso adicional'
     );
   }
   roleLabel(role: Role): string {
@@ -326,7 +331,7 @@ export class OrganizationAccess implements OnChanges {
   }
   openDialog(kind: 'invite' | 'team'): void {
     this.error.set('');
-    this.dialog.set(kind);
+    this.dialog.set(kind);if(kind==='invite')this.selectInvitationTeam(this.invitationTeamId||this.data()?.teams[0]?.id||'');
   }
   editMember(member: Member): void {
     this.error.set('');
@@ -339,8 +344,12 @@ export class OrganizationAccess implements OnChanges {
       this.error.set('');
       this.dialog.set(null);
       this.memberConfirmation.set(null);
-      this.revokeConfirmation.set(null);
+      this.revokeConfirmation.set(null);this.approvalConfirmation.set(null);
       this.confirmation.set(null);
     }
   }
+
+ approve(invitation:Invitation):void{this.mutate(`/invitations/${invitation.id}/approve`,{},'Acceso aprobado para el equipo y repositorio indicados.',()=>this.approvalConfirmation.set(null));}
+ invitationRepositories(){return this.data()?.repositories.filter(repo=>this.data()?.teams.find(team=>team.id===this.invitationTeamId)?.grants.some(grant=>grant.repositoryId===repo.id&&grant.permission==='repository.read'))??[];}
+ selectInvitationTeam(id:string):void{this.invitationTeamId=id;this.invitationRepositoryId=this.invitationRepositories()[0]?.id??'';}
 }

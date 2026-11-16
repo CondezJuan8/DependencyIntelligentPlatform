@@ -61,10 +61,10 @@ public class SecurityConfiguration {
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/csrf", "/api/auth/providers", "/api/auth/oauth2/callback/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/providers/*/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/password-reset/request",
+                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/register-invited", "/api/auth/login", "/api/auth/password-reset/request",
                     "/api/auth/password-reset/confirm", "/api/auth/email-verification/confirm").permitAll()
                 .requestMatchers("/api/auth/me", "/api/auth/email-verification/request", "/api/auth/providers/**",
-                    "/api/organizations", "/api/organizations/**").authenticated()
+                    "/api/organizations", "/api/organizations/**", "/api/platform/**", "/api/account/**").authenticated()
                 .anyRequest().denyAll())
             .exceptionHandling(errors -> errors
                 .authenticationEntryPoint((request, response, exception) -> response.setStatus(401))

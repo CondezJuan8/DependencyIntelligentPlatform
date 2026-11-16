@@ -37,6 +37,7 @@ public final class ManageExternalIdentitiesUseCase implements ManageExternalIden
         String name = proof.displayName() == null ? "" : proof.displayName().strip();
         if (name.isBlank()) name = email.substring(0, email.indexOf('@'));
         if (name.length() > 200) name = name.substring(0, 200);
+        name = new com.dependencyintelligence.identity.domain.PersonalName(name).value();
         var account = store.create(email, name, proof.trustedEmail(), clock.instant());
         store.add(account.account().id(), proof.provider(), proof.subject());
         return account;

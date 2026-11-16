@@ -27,14 +27,14 @@
         Permisos
       </button>
     </div>
-    <button mat-flat-button (click)="openDialog('invite')" [disabled]="pending() || !data()">
+    <button mat-flat-button (click)="openDialog('invite')" [disabled]="pending() || !data()?.owner">
       <app-di-icon name="plus" />Invitar miembro
     </button>
   </div>
   @if (loading()) {
     <div class="loading" role="status">Cargando el espacio de {{ organization.name }}…</div>
   }
-  @if (error() && !dialog() && !memberConfirmation() && !revokeConfirmation() && !confirmation()) {
+  @if (error() && !dialog() && !memberConfirmation() && !revokeConfirmation() && !confirmation() && !approvalConfirmation()) {
     <p class="alert error" role="alert">
       {{ error() }}
       <button mat-button (click)="load()" [disabled]="pending() || loading()">Actualizar</button>
@@ -211,7 +211,8 @@
                 </td>
                 <td>{{ invitation.expiresAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>
-                  @if (invitation.status === 'PENDING') {
+                  @if(invitation.status==='AWAITING_OWNER'){<button mat-flat-button (click)="approvalConfirmation.set(invitation)" [disabled]="pending()">Aprobar acceso</button>}
+@if (invitation.status === 'PENDING' || invitation.status === 'AWAITING_OWNER') {
                     <button
                       class="text-button danger"
                       (click)="revokeConfirmation.set(invitation)"
@@ -395,7 +396,7 @@
                   (change)="togglePermission(permission.code, $event.checked)"
                   [disabled]="pending()"
                   >{{ permissionLabel(permission.code)
-                  }}<small>{{ permission.code }}</small></mat-checkbox
+                  }}</mat-checkbox
                 >
               }
             </div>
@@ -421,7 +422,7 @@
               <h3>{{ roleLabel(role.code) }}</h3>
               <ul>
                 @for (permission of role.permissions; track permission) {
-                  <li>{{ permission }}</li>
+                  <li>{{ permissionLabel(permission) }}</li>
                 }
               </ul>
             </article>
@@ -429,7 +430,7 @@
         </div>
       </details>
     }
-    @if (dialog() || memberConfirmation() || revokeConfirmation() || confirmation()) {
+    @if (dialog() || memberConfirmation() || revokeConfirmation() || confirmation() || approvalConfirmation()) {
       <div class="di-modal-backdrop" (keydown.escape)="closeDialogs()">
         <section
           class="di-modal"
@@ -466,14 +467,17 @@
                   email
                   maxlength="320"
                   [disabled]="pending()" /></mat-form-field
-              ><mat-form-field appearance="outline"
+              ><mat-form-field appearance="outline"><mat-label>Equipo de destino</mat-label><mat-select name="invitationTeam" [ngModel]="invitationTeamId" (ngModelChange)="selectInvitationTeam($event)" required [disabled]="pending()">@for(item of access.teams;track item.id){<mat-option [value]="item.id">{{item.name}}</mat-option>}</mat-select></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Repositorio autorizado</mat-label><mat-select name="invitationRepository" [(ngModel)]="invitationRepositoryId" required [disabled]="pending()">@for(repo of invitationRepositories();track repo.id){<mat-option [value]="repo.id">{{repo.fullName}}</mat-option>}</mat-select></mat-form-field>
+@if(!invitationRepositories().length){<p>Configura primero un equipo con permiso de lectura sobre un repositorio habilitado.</p>}
+<mat-form-field appearance="outline"
                 ><mat-label>Rol de la persona</mat-label
                 ><mat-select
                   name="invitationRole"
                   [(ngModel)]="invitationRole"
                   [disabled]="pending()"
                 >
-                  @for (role of roles(); track role) {
+                  @for (role of inviteRoles; track role) {
                     <mat-option [value]="role">{{ roleLabel(role) }}</mat-option>
                   }
                 </mat-select></mat-form-field
@@ -576,6 +580,7 @@
               </button>
             </div>
           }
+@if(approvalConfirmation();as invitation){<h2 id="dialog-title">Confirmar acceso del miembro</h2><p>{{invitation.email}}</p><p>La persona ya aceptó. Tu aprobación le permitirá acceder al repositorio indicado mediante el equipo seleccionado.</p>@if(error()){<p class="error" role="alert">{{error()}}</p>}<div class="di-modal-actions"><button mat-button (click)="closeDialogs()" [disabled]="pending()">Cancelar</button><button mat-flat-button (click)="approve(invitation)" [disabled]="pending()">Aprobar acceso</button></div>}
           @if (confirmation(); as removal) {
             <h2 id="dialog-title">¿Eliminar {{ removal.name }}?</h2>
             <p>

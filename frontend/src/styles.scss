@@ -1,6 +1,7 @@
 @use '@angular/material' as mat;
 @use './theme/tokens';
 @use './theme/workspace';
+@use './theme/appearance';
 
 html {
   color-scheme: light;
@@ -10,14 +11,14 @@ html {
       color: (
         primary: mat.$azure-palette,
       ),
-      typography: 'Segoe UI',
+      typography: 'IBM Plex Sans',
       density: -2,
     )
   );
   @include mat.theme-overrides(
     (
       primary: var(--di-primary),
-      on-primary: var(--di-white),
+      on-primary: #ffffff,
       primary-container: var(--di-info-background),
       on-primary-container: var(--di-info-text),
       secondary: var(--di-accent-text),
@@ -39,7 +40,7 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-family: var(--di-font-family);
   background: var(--di-background);
   color: var(--di-text);
 }

@@ -1,4 +1,6 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient,withInterceptors } from '@angular/common/http';
+import { localeInterceptor } from './core/locale-interceptor';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
@@ -7,6 +9,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient()
+    provideHttpClient(withInterceptors([localeInterceptor])),
+    {provide:MAT_FORM_FIELD_DEFAULT_OPTIONS,useValue:{appearance:'outline',subscriptSizing:'dynamic'}}
   ]
 };

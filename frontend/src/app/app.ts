@@ -1,3 +1,5 @@
+import { AdmissionPanel } from './features/identity/admission-panel';
+import { PreferencesService } from './core/preferences.service';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { finalize } from 'rxjs';
@@ -12,7 +14,7 @@ import { AuthFrame } from './features/identity/auth-frame';
 import { ApplicationShell } from './shared/application-shell';
 
 @Component({
-  imports: [
+  imports: [AdmissionPanel,
     MatButtonModule,
     AccessForm,
     AccountAction,
@@ -25,6 +27,7 @@ import { ApplicationShell } from './shared/application-shell';
   templateUrl: './app.html',
 })
 export class App implements OnInit {
+  readonly preferences=inject(PreferencesService);
   readonly session = inject(SessionApiService);
   readonly links = inject(AccountLinkService);
   readonly external = inject(ExternalAuthService);

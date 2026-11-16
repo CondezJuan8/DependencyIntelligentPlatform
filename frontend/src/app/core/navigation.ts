@@ -1,4 +1,6 @@
 export const navigation = [
+{id:'administration',label:'Administración',icon:'shield',ready:true,description:'Admisiones y control global de la plataforma.'},
+{id:'repositories',label:'Mis repositorios',icon:'box',ready:true,description:'Los repositorios a los que puedes acceder.'},
   {
     id: 'dashboard',
     label: 'Dashboard',
@@ -73,4 +75,13 @@ export type Page = (typeof navigation)[number]['id'];
 export function readPage(search: string): Page {
   const value = new URLSearchParams(search).get('view');
   return navigation.find((item) => item.id === value)?.id ?? 'dashboard';
+}
+
+export function availableNavigation(account:{platformAdmin:boolean;accountType:string}|null){
+ return navigation.filter(item=>(item.id!=='administration'||!!account?.platformAdmin)&&(!(account?.accountType==='MEMBER')||!['organization','dashboard'].includes(item.id)));
+}
+export function initialPage(search:string,account:{platformAdmin:boolean;accountType:string}|null):Page{
+ const fallback:Page=account?.platformAdmin?'administration':account?.accountType==='MEMBER'?'repositories':'dashboard';
+ const requested=new URLSearchParams(search).get('view');
+ return availableNavigation(account).find(item=>item.id===requested)?.id??fallback;
 }

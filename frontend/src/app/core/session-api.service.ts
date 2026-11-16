@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
-export interface Account { id: string; email: string; displayName: string; emailVerified: boolean; }
+export interface Account { id: string; email: string; displayName: string; emailVerified: boolean; accountType:'OWNER'|'MEMBER'; admissionStatus:'PENDING_REVIEW'|'APPROVED'|'REJECTED'; platformAdmin:boolean; }
 export interface Organization { id: string; name: string; }
 interface CsrfToken { headerName: string; token: string; }
 

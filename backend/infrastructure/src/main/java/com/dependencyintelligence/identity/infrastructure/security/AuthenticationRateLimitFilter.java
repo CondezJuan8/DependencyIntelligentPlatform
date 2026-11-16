@@ -17,7 +17,7 @@ public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
     private final Map<String, Window> windows = new HashMap<>();
     private final Clock clock;
     private final int maximum;
-    private static final Set<String> PASSWORD_PATHS = Set.of("/api/auth/login", "/api/auth/register",
+    private static final Set<String> PASSWORD_PATHS = Set.of("/api/auth/login", "/api/auth/register", "/api/auth/register-invited",
         "/api/auth/password-reset/request", "/api/auth/password-reset/confirm",
         "/api/auth/email-verification/request", "/api/auth/email-verification/confirm");
 

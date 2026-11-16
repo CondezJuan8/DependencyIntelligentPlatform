@@ -28,7 +28,7 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
         // Column comes only from the two constants above, never from HTTP input.
         var rows = jdbc.query("""
             select m.id, r.code from organization_memberships m
-            join users u on u.id = m.user_id and u.is_active
+            join users u on u.id = m.user_id and u.is_active and u.email_verified_at is not null and u.admission_status='APPROVED'
             join membership_roles mr on mr.organization_id = m.organization_id and mr.membership_id = m.id
             join roles r on r.id = mr.role_id
             where m.organization_id = ? and m.status = 'ACTIVE' and
@@ -58,6 +58,9 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
             join roles r on r.id = mr.role_id and r.code = 'OWNER' where m.organization_id = ? and m.status = 'ACTIVE'
             """, Long.class, org);
     }
+    @Override public boolean eligibleResponsible(UUID user) {
+        return Boolean.TRUE.equals(jdbc.queryForObject("select exists(select 1 from users where id=? and is_active and account_type='OWNER' and admission_status='APPROVED' and email_verified_at is not null)",Boolean.class,user));
+    }
     @Override public Overview overview(UUID org, Actor actor) {
         var people = new HashMap<UUID, List<UUID>>();
         jdbc.query("select team_id, membership_id from team_memberships where organization_id = ?",
@@ -67,8 +70,8 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
             select a.team_id, a.repository_id, p.code from repository_team_access a
             join permissions p on p.id = a.permission_id where a.organization_id = ? order by a.repository_id, p.code
             """, (org.springframework.jdbc.core.RowCallbackHandler) row -> grants.computeIfAbsent(row.getObject(1, UUID.class), key -> new ArrayList<>()).add(new Grant(row.getObject(2, UUID.class), row.getString(3))), org);
-        var teams = jdbc.query("select id, name from organization_teams where organization_id = ? order by name, id",
-            (row, index) -> new Team(row.getObject(1, UUID.class), row.getString(2), people.getOrDefault(row.getObject(1, UUID.class), List.of()), grants.getOrDefault(row.getObject(1, UUID.class), List.of())), org);
+        var teams = jdbc.query("select id, name from organization_teams where organization_id = ? and is_enabled order by name, id",
+            (row, index) -> new Team(row.getObject(1, UUID.class), row.getString(2), people.getOrDefault(row.getObject(1, UUID.class), List.of()), grants.getOrDefault(row.getObject(1, UUID.class), List.of()),true), org);
         var repositories = jdbc.query("select id, full_name from repositories where organization_id = ? and is_enabled order by full_name, id",
             (row, index) -> new com.dependencyintelligence.organization.application.dto.AccessModels.Repository(row.getObject(1, UUID.class), row.getString(2)), org);
         var permissions = jdbc.query("select code, description from permissions order by code", (row, index) -> new Permission(row.getString(1), row.getString(2)))
@@ -76,20 +79,23 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
         var definitions = jdbc.query("select code, id from roles order by code", (row, index) -> new RoleDefinition(OrganizationRole.parse(row.getString(1)),
             jdbc.queryForList("select p.code from permissions p join role_permissions rp on rp.permission_id = p.id where rp.role_id = ? order by p.code", String.class, row.getObject(2, UUID.class))));
         var invitations = jdbc.query("""
-            select i.id, i.email_normalized, case when i.status = 'PENDING' and i.expires_at <= current_timestamp then 'EXPIRED' else i.status end,
-              i.expires_at, coalesce(array_agg(r.code order by r.code) filter(where r.code is not null), '{}')
+            select i.id, i.email_normalized, case when i.status in ('PENDING','AWAITING_OWNER') and i.expires_at <= current_timestamp then 'EXPIRED' else i.status end,
+              i.expires_at, coalesce(array_agg(r.code order by r.code) filter(where r.code is not null), '{}'),i.target_team_id,i.repository_id
             from membership_invitations i left join invitation_roles ir on ir.organization_id = i.organization_id and ir.invitation_id = i.id
-            left join roles r on r.id = ir.role_id where i.organization_id = ?
+            left join roles r on r.id = ir.role_id where i.organization_id = ? and i.invited_by_membership_id = ?
             group by i.id, i.email_normalized, i.status, i.expires_at order by i.created_at desc, i.id limit 100
             """, (row, index) -> new Invitation(row.getObject(1, UUID.class), row.getString(2), row.getString(3), row.getTimestamp(4).toInstant(),
-                Arrays.stream((String[]) row.getArray(5).getArray()).map(OrganizationRole::parse).toList()), org);
-        return new Overview(actor.membershipId(), actor.owner(), members(org), teams, repositories, permissions, definitions, invitations);
+                Arrays.stream((String[]) row.getArray(5).getArray()).map(OrganizationRole::parse).toList(),row.getObject(6,UUID.class),row.getObject(7,UUID.class)), org,actor.membershipId());
+        return new Overview(actor.membershipId(), actor.owner(), members(org), teams, repositories, permissions, definitions, actor.owner() ? invitations : List.of());
     }
     @Override public void changeMember(UUID org, UUID id, OrganizationRole role, String status) {
         jdbc.update("delete from membership_roles where organization_id = ? and membership_id = ?", org, id);
         jdbc.update("insert into membership_roles select ?, ?, id from roles where code = ?", org, id, role.name());
         jdbc.update("update organization_memberships set status = ? where organization_id = ? and id = ?", status, org, id);
-        if (status.equals("LEFT")) jdbc.update("delete from team_memberships where organization_id = ? and membership_id = ?", org, id);
+        if (status.equals("LEFT")) {
+            jdbc.update("delete from member_repository_assignments where organization_id=? and membership_id=?",org,id);
+            jdbc.update("delete from team_memberships where organization_id = ? and membership_id = ?", org, id);
+        }
     }
     @Override public UUID createTeam(UUID org, String name) {
         UUID id = UUID.randomUUID();
@@ -109,6 +115,13 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
     }
     @Override public void deleteTeam(UUID org, UUID id) {
         team(org, id);
+        jdbc.update("delete from member_repository_assignments where organization_id=? and team_id=?",org,id);
+        if (Boolean.TRUE.equals(jdbc.queryForObject("select exists(select 1 from membership_invitations where organization_id=? and target_team_id=?)",Boolean.class,org,id))) {
+            jdbc.update("update organization_teams set is_enabled=false where organization_id=? and id=?",org,id);
+            jdbc.update("delete from repository_team_access where organization_id=? and team_id=?",org,id);
+            jdbc.update("delete from team_memberships where organization_id=? and team_id=?",org,id);
+            return;
+        }
         jdbc.update("delete from repository_team_access where organization_id = ? and team_id = ?", org, id);
         jdbc.update("delete from team_memberships where organization_id = ? and team_id = ?", org, id);
         jdbc.update("delete from organization_teams where organization_id = ? and id = ?", org, id);

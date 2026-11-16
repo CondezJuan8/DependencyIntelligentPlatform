@@ -81,3 +81,7 @@ app:
   mail:
     from: ${MAIL_FROM:Dependency Intelligence <no-reply@dependency.local>}
     public-base-url: ${PUBLIC_BASE_URL:http://localhost:8088}
+    preview-enabled: ${MAIL_PREVIEW_ENABLED:false}
+    preview-url: ${MAIL_PREVIEW_URL:http://127.0.0.1:8025}
+    preview-user: ${MAILPIT_UI_USER:}
+    preview-password: ${MAILPIT_UI_PASSWORD:}

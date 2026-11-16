@@ -12,6 +12,7 @@ public interface OrganizationAccessStore {
     Actor actorByMembership(UUID organizationId, UUID membershipId);
     Member member(UUID organizationId, UUID membershipId);
     long activeOwners(UUID organizationId);
+    boolean eligibleResponsible(UUID userId);
     Overview overview(UUID organizationId, Actor actor);
     void changeMember(UUID organizationId, UUID membershipId, OrganizationRole role, String status);
     UUID createTeam(UUID organizationId, String name);

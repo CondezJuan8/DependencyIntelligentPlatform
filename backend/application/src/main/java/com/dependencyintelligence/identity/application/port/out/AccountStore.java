@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AccountStore {
+    AccountResult createInvited(String email, String displayName, String passwordHash);
     AccountResult create(String email, String displayName, String passwordHash);
     Optional<AccountCredentials> credentials(String email);
     Optional<AccountResult> findActive(UUID userId);

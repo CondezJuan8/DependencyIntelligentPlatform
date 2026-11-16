@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { PreferenceControls } from '../../shared/preference-controls';
 @Component({
   selector: 'app-auth-frame',
+  imports:[PreferenceControls],
   template: `<div class="auth-layout">
     <aside class="brand-panel" aria-label="Dependency Intelligence">
       <a class="brand" href="/"
@@ -16,174 +18,17 @@ import { Component } from '@angular/core';
         </p>
       </div>
       <img class="network" src="/auth-network.svg" alt="" aria-hidden="true" />
-      <div class="brand-footer"><span></span>Claridad en cada dependencia.</div>
     </aside>
     <main class="form-panel">
-      <div class="mobile-brand">
-        <img src="/brand-mark.svg" alt="" width="28" height="32" />Dependency Intelligence
-      </div>
+      <div class="auth-tools"><div class="mobile-brand"><img src="/brand-mark.svg" alt="" width="26" height="30"><span>Dependency<br>Intelligence</span></div><app-preference-controls /></div>
       <div class="form-content"><ng-content /></div>
-      <p class="form-footer">Dependency Intelligence · Tu software, con perspectiva.</p>
     </main>
   </div>`,
   styles: `
-    :host {
-      display: block;
-    }
-    .auth-layout {
-      min-height: 100svh;
-      display: grid;
-      grid-template-columns: minmax(360px, 46%) 1fr;
-    }
-    .brand-panel {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(ellipse at 85% 90%, #063d70 0%, transparent 60%),
-        linear-gradient(145deg, #071322, var(--di-navy) 65%, #06213b);
-      padding: clamp(36px, 4.4vw, 72px);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      min-height: 700px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      color: white;
-      text-decoration: none;
-      font-size: 25px;
-      font-weight: 650;
-      line-height: 1.12;
-      letter-spacing: -0.6px;
-      position: relative;
-      z-index: 1;
-    }
-    .brand-copy {
-      position: relative;
-      z-index: 1;
-      margin: clamp(45px, 7vh, 90px) 0 150px;
-      max-width: 460px;
-    }
-    .eyebrow {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 2.5px;
-      color: #8cc9ed;
-    }
-    h1 {
-      font-size: clamp(42px, 4vw, 62px);
-      line-height: 1.07;
-      letter-spacing: -2px;
-      margin: 22px 0;
-      font-weight: 700;
-    }
-    h1 span {
-      color: #63d8f5;
-    }
-    .brand-copy p {
-      font-size: 17px;
-      line-height: 1.75;
-      color: #d0e1f3;
-      max-width: 355px;
-      margin: 0;
-    }
-    .network {
-      position: absolute;
-      width: 115%;
-      max-width: none;
-      bottom: -15px;
-      left: -5%;
-      opacity: 0.85;
-      pointer-events: none;
-    }
-    .brand-footer {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #a6c1da;
-      font-size: 12px;
-      margin-top: auto;
-    }
-    .brand-footer span {
-      background: var(--di-accent);
-      border-radius: 50%;
-      width: 6px;
-      height: 6px;
-      box-shadow: 0 0 12px var(--di-accent);
-    }
-    .form-panel {
-      padding: 42px clamp(28px, 6vw, 100px) 24px;
-      background:
-        radial-gradient(ellipse at 100% 0%, var(--di-info-background) 0%, transparent 55%),
-        var(--di-white);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .form-content {
-      width: 100%;
-      max-width: 455px;
-      margin: auto;
-      padding: 24px 0;
-    }
-    .form-footer {
-      color: var(--di-text-subtle);
-      font-size: 11px;
-      text-align: center;
-      margin-top: 28px;
-    }
-    .mobile-brand {
-      display: none;
-    }
-    @media (min-width: 1450px) {
-      .form-content {
-        max-width: 490px;
-      }
-    }
-    @media (max-width: 950px) {
-      .brand-panel {
-        padding: 40px 32px;
-      }
-      .brand {
-        font-size: 22px;
-      }
-      .brand-copy {
-        margin-top: 80px;
-      }
-      h1 {
-        font-size: 46px;
-      }
-      .form-panel {
-        padding: 32px;
-      }
-    }
-    @media (max-width: 730px) {
-      .auth-layout {
-        display: block;
-      }
-      .brand-panel {
-        display: none;
-      }
-      .form-panel {
-        min-height: 100svh;
-        padding: 28px 24px 18px;
-      }
-      .mobile-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 650;
-        color: var(--di-navy);
-        font-size: 15px;
-      }
-      .form-content {
-        padding: 36px 0;
-      }
-    }
+    :host{display:block}.auth-layout{min-height:100svh}.brand-panel{display:none}.form-panel{min-height:100svh;display:flex;flex-direction:column;padding:16px;background:var(--di-surface)}.auth-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;max-width:440px;margin:0 auto}.mobile-brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;line-height:1.15;color:var(--di-text)}.form-content{width:100%;max-width:440px;margin:auto;padding:8px 0}
+    @media(min-width:600px){.form-panel{padding:24px 36px}.form-content{padding:16px 0}}
+    @media(min-width:960px){.auth-layout{display:grid;grid-template-columns:44% minmax(0,1fr)}.brand-panel{display:flex;flex-direction:column;position:relative;overflow:clip;min-height:100svh;padding:clamp(32px,4vw,64px);background:radial-gradient(ellipse at 85% 90%,#063d70,transparent 65%),linear-gradient(145deg,#071322,#101827 65%,#06213b);color:#fff}.brand{display:flex;gap:16px;align-items:center;font-size:25px;font-weight:600;color:#fff;text-decoration:none;line-height:1.15;z-index:1}.brand-copy{position:relative;z-index:1;margin-top:clamp(36px,7vh,90px);max-width:420px}.eyebrow{color:#a4cae5;font-size:10px;letter-spacing:1.7px}h1{font-size:clamp(38px,4.2vw,60px);line-height:1.08;letter-spacing:-1.3px;margin:20px 0}h1 span{color:#63d8f5}.brand-copy p{font-size:16px;line-height:1.6;color:#d0e1f3;max-width:350px;margin:0}.network{position:absolute;width:115%;left:-5%;bottom:0;pointer-events:none;opacity:.7}.form-panel{padding:22px 46px}.mobile-brand{display:none}.auth-tools{justify-content:flex-end}.form-content{padding:12px 0}}
+    @media(min-width:960px) and (max-height:700px){.brand-panel{padding:28px 40px}.brand-copy{margin-top:26px}h1{font-size:40px;margin:14px 0}.brand-copy p{font-size:14px}.form-panel{padding:16px 36px}}
   `,
 })
 export class AuthFrame {}

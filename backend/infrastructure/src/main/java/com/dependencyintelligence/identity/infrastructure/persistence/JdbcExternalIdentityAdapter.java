@@ -42,7 +42,7 @@ public class JdbcExternalIdentityAdapter implements ExternalIdentityStore {
     @Override public AuthenticatedAccount create(String email, String name, boolean verified, Instant now) {
         UUID id = UUID.randomUUID();
         try {
-            jdbc.update("insert into users(id, email, display_name, email_verified_at) values (?, ?, ?, ?)",
+            jdbc.update("insert into users(id, email, display_name, email_verified_at,admission_status) values (?, ?, ?, ?,'PENDING_REVIEW')",
                 id, email, name, verified ? Timestamp.from(now) : null);
         } catch (DuplicateKeyException exception) { throw new ExternalIdentityException(IDENTITY_CONFLICT); }
         return new AuthenticatedAccount(new AccountResult(id, email, name, verified), 0);

@@ -8,7 +8,7 @@ import { ExternalAuthService, IdentityProvider } from './external-auth.service';
   selector: 'app-external-sign-in',
   imports: [MatButtonModule],
   template: `
-    @if (providers().length) {
+    @if (providers().length && !providers().every(unavailable)) {
       <div class="divider"><span>o continúa con</span></div>
       <div class="providers" aria-label="Otros métodos de acceso">
         @for (provider of providers(); track provider.id) {

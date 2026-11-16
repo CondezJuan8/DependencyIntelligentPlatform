@@ -26,7 +26,7 @@ public class JdbcOrganizationAdapter implements OrganizationStore {
     @Override public OrganizationResult createWithOwner(UUID userId, String name) {
         UUID id = UUID.randomUUID();
         return tenants.execute(id, () -> {
-            var active = jdbc.query("select id from users where id = ? and is_active for share",
+            var active = jdbc.query("select id from users where id = ? and is_active and email_verified_at is not null and admission_status='APPROVED' and account_type='OWNER' for share",
                 (row, index) -> row.getObject("id", UUID.class), userId);
             if (active.isEmpty()) throw new AuthenticationFailedException();
             jdbc.update("insert into organizations(id, name, slug) values (?, ?, ?)", id, name, "org-" + id);

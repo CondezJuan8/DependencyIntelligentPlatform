@@ -19,10 +19,7 @@ public final class RegisterAccountUseCase implements RegisterAccount {
 
     @Override public AccountResult execute(RegisterAccountCommand command) {
         String email = new EmailAddress(command.email()).value();
-        String name = command.displayName() == null ? "" : command.displayName().strip();
-        if (name.isEmpty() || name.length() > 200) {
-            throw new IllegalArgumentException("El nombre debe tener entre 1 y 200 caracteres");
-        }
+        String name = new com.dependencyintelligence.identity.domain.PersonalName(command.displayName()).value();
         String password = command.password();
         PasswordPolicy.validate(password);
         return accounts.create(email, name, passwords.hash(password));

@@ -13,6 +13,8 @@
       <p role="alert">No se pudo cargar la confirmación. Recarga la página.</p>
     }
   </app-auth-frame>
+} @else if (session.account() && (!session.account()?.emailVerified || session.account()?.admissionStatus !== 'APPROVED')) {
+<app-auth-frame>@defer(on immediate){<app-admission-panel/>}@loading{<p role="status">Cargando el estado de tu cuenta…</p>}</app-auth-frame>
 } @else if (session.account()) {
   @if (external.feedback(); as feedback) {
     @if (feedback.message) {

@@ -23,6 +23,7 @@ public final class ManageOrganizationAccessUseCase implements ManageOrganization
         if (!Set.of("ACTIVE", "SUSPENDED", "LEFT").contains(status)) throw new IllegalArgumentException("Estado de membresía no válido");
         assignable(actor, role);
         var target = store.member(org, memberId);
+        if (role.managesAccess() && !store.eligibleResponsible(target.userId())) throw new AccessConflictException("Solo un responsable verificado y aprobado puede recibir un rol de gestión");
         if (!actor.owner() && target.roles().stream().anyMatch(OrganizationRole::managesAccess)) throw new PermissionDeniedException();
         if (target.status().equals("ACTIVE") && target.roles().contains(OrganizationRole.OWNER)
                 && (role != OrganizationRole.OWNER || !status.equals("ACTIVE")) && store.activeOwners(org) <= 1) {

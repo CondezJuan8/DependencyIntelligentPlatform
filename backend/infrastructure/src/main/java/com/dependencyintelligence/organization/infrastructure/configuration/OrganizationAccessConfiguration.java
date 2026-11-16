@@ -40,17 +40,25 @@ public class OrganizationAccessConfiguration {
     }
     @Bean ManageInvitations manageInvitations(OrganizationAccessStore access, InvitationStore store, InvitationDelivery delivery,
             AccountTokenCodec tokens, Clock clock, TenantTransactions transactions,
+            com.dependencyintelligence.identity.application.port.out.AccountStore accounts,
+            com.dependencyintelligence.identity.application.port.out.PasswordHashing passwords,
             @Value("${app.organization.invitation-lifetime:PT72H}") Duration lifetime) {
-        var delegate = new ManageInvitationsUseCase(access, store, delivery, tokens, clock, lifetime);
+        var delegate = new ManageInvitationsUseCase(access, store, delivery, tokens, clock, lifetime,accounts,passwords);
         return new ManageInvitations() {
-            public Invitation invite(UUID actor, UUID org, String email, String role) {
-                return transactions.execute(org, () -> delegate.invite(actor, org, email, role));
+            public Invitation invite(UUID actor, UUID org, String email, String role, UUID team, UUID repository) {
+                return transactions.execute(org, () -> delegate.invite(actor, org, email, role,team,repository));
             }
             public void revoke(UUID actor, UUID org, UUID invitation) {
                 transactions.execute(org, () -> { delegate.revoke(actor, org, invitation); return null; });
             }
             public void accept(UUID actor, UUID org, UUID invitation, String token) {
                 transactions.execute(org, () -> { delegate.accept(actor, org, invitation, token); return null; });
+            }
+            public void approve(UUID actor, UUID org, UUID invitation) {
+                transactions.execute(org, () -> { delegate.approve(actor,org,invitation); return null; });
+            }
+            public com.dependencyintelligence.identity.application.dto.AccountResult registerInvited(com.dependencyintelligence.identity.application.dto.InvitedRegistrationCommand command) {
+                return transactions.execute(command.organizationId(), () -> delegate.registerInvited(command));
             }
         };
     }
