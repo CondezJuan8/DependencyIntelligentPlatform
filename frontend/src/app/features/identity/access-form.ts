@@ -6,10 +6,18 @@ import { MatInputModule } from '@angular/material/input';
 import { finalize } from 'rxjs';
 import { accessError, SessionApiService } from '../../core/session-api.service';
 import { ExternalSignIn } from './external-sign-in';
+import { DiIcon } from '../../shared/di-icon';
 
 @Component({
   selector: 'app-access-form',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, ExternalSignIn],
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ExternalSignIn,
+    DiIcon,
+  ],
   templateUrl: './access-form.html',
   styleUrl: './access-form.scss',
 })
@@ -21,10 +29,26 @@ export class AccessForm {
   readonly pending = signal(false);
   readonly error = signal('');
   readonly message = signal('');
+  readonly showPassword = signal(false);
   email = '';
   displayName = '';
   password = '';
   confirmation = '';
+
+  tabKey(event: KeyboardEvent): void {
+    if (this.pending() || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const mode =
+      event.key === 'Home'
+        ? 'login'
+        : event.key === 'End'
+          ? 'register'
+          : this.registering()
+            ? 'login'
+            : 'register';
+    this.changeMode(mode);
+    document.getElementById(mode === 'login' ? 'login-tab' : 'register-tab')?.focus();
+  }
 
   changeMode(mode: 'login' | 'register' | 'recover'): void {
     this.mode.set(mode);
@@ -32,6 +56,7 @@ export class AccessForm {
     this.message.set('');
     this.password = '';
     this.confirmation = '';
+    this.showPassword.set(false);
   }
 
   submit(form: NgForm): void {
@@ -43,18 +68,31 @@ export class AccessForm {
     this.pending.set(true);
     this.error.set('');
     if (this.recovering()) {
-      this.api.post<void>('/api/auth/password-reset/request', { email: this.email })
-        .pipe(finalize(() => this.pending.set(false))).subscribe({
-          next: () => this.message.set('Si la cuenta admite recuperación, recibirás un enlace para cambiar la contraseña.'),
-          error: error => this.error.set(accessError(error)),
+      this.api
+        .post<void>('/api/auth/password-reset/request', { email: this.email })
+        .pipe(finalize(() => this.pending.set(false)))
+        .subscribe({
+          next: () =>
+            this.message.set(
+              'Si la cuenta admite recuperación, recibirás un enlace para cambiar la contraseña.',
+            ),
+          error: (error) => this.error.set(accessError(error)),
         });
       return;
     }
-    this.api.authenticate(this.registering() ? 'register' : 'login', {
-      email: this.email, password: this.password, displayName: this.displayName,
-    }).pipe(finalize(() => this.pending.set(false))).subscribe({
-      next: () => { this.password = ''; this.confirmation = ''; },
-      error: error => this.error.set(accessError(error)),
-    });
+    this.api
+      .authenticate(this.registering() ? 'register' : 'login', {
+        email: this.email,
+        password: this.password,
+        displayName: this.displayName,
+      })
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: () => {
+          this.password = '';
+          this.confirmation = '';
+        },
+        error: (error) => this.error.set(accessError(error)),
+      });
   }
 }

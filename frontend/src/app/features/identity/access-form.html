@@ -1,40 +1,175 @@
-<section class="access" aria-labelledby="access-title">
-  <h2 id="access-title">{{ recovering() ? 'Recupera tu contraseña' : registering() ? 'Crea tu cuenta' : 'Inicia sesión' }}</h2>
-  <p>{{ recovering() ? 'Introduce el correo de tu cuenta para solicitar un enlace.' : 'Accede a tus organizaciones y repositorios.' }}</p>
-  <form #form="ngForm" (ngSubmit)="submit(form)" [attr.aria-busy]="pending()">
-    @if (registering()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre</mat-label>
-        <input matInput name="displayName" [(ngModel)]="displayName" required maxlength="200" autocomplete="name" [disabled]="pending()">
-      </mat-form-field>
-    }
-    <mat-form-field appearance="outline">
-      <mat-label>Correo electrónico</mat-label>
-      <input matInput type="email" name="email" [(ngModel)]="email" required email maxlength="320" autocomplete="username" [disabled]="pending()">
-    </mat-form-field>
+<section aria-labelledby="access-title">
+  <div class="auth-tabs" (keydown)="tabKey($event)" role="tablist" aria-label="Acceso a tu cuenta">
+    <button
+      id="login-tab"
+      role="tab"
+      [attr.tabindex]="!registering() ? 0 : -1"
+      [attr.aria-selected]="!registering()"
+      aria-controls="access-panel"
+      [class.active]="!registering()"
+      (click)="changeMode('login')"
+      [disabled]="pending()"
+    >
+      Iniciar sesión
+    </button>
+    <button
+      id="register-tab"
+      role="tab"
+      [attr.tabindex]="registering() ? 0 : -1"
+      [attr.aria-selected]="registering()"
+      aria-controls="access-panel"
+      [class.active]="registering()"
+      (click)="changeMode('register')"
+      [disabled]="pending()"
+    >
+      Crear cuenta
+    </button>
+  </div>
+  <div
+    id="access-panel"
+    role="tabpanel"
+    [attr.aria-labelledby]="registering() ? 'register-tab' : 'login-tab'"
+  >
+    <span class="eyebrow">{{
+      recovering()
+        ? 'RECUPERA EL ACCESO'
+        : registering()
+          ? 'TU PRÓXIMO PASO EMPIEZA AQUÍ'
+          : 'TU ESPACIO DE TRABAJO'
+    }}</span>
+    <h2 id="access-title">
+      {{
+        recovering()
+          ? '¿Olvidaste tu contraseña?'
+          : registering()
+            ? 'Construye con confianza.'
+            : 'Qué bueno verte de nuevo.'
+      }}
+    </h2>
+    <p class="intro">
+      {{
+        recovering()
+          ? 'Te enviaremos un enlace para que puedas volver a tu cuenta.'
+          : registering()
+            ? 'Crea tu cuenta y empieza a organizar tu equipo.'
+            : 'Inicia sesión y continúa donde lo dejaste.'
+      }}
+    </p>
+    <form #form="ngForm" (ngSubmit)="submit(form)" [attr.aria-busy]="pending()">
+      @if (registering()) {
+        <mat-form-field appearance="outline"
+          ><mat-label>Nombre completo</mat-label><app-di-icon matPrefix name="person" /><input
+            matInput
+            name="displayName"
+            [(ngModel)]="displayName"
+            required
+            maxlength="200"
+            autocomplete="name"
+            [disabled]="pending()"
+          /><mat-error>Introduce tu nombre.</mat-error></mat-form-field
+        >
+      }
+      <mat-form-field appearance="outline"
+        ><mat-label>Correo electrónico</mat-label><app-di-icon matPrefix name="mail" /><input
+          matInput
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          required
+          email
+          maxlength="320"
+          autocomplete="username"
+          [disabled]="pending()"
+        /><mat-error>Introduce un correo válido.</mat-error></mat-form-field
+      >
+      @if (!recovering()) {
+        <mat-form-field appearance="outline"
+          ><mat-label>Contraseña</mat-label><app-di-icon matPrefix name="lock" /><input
+            matInput
+            [type]="showPassword() ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="password"
+            required
+            [minlength]="registering() ? 15 : 1"
+            maxlength="128"
+            [attr.autocomplete]="registering() ? 'new-password' : 'current-password'"
+            [disabled]="pending()"
+          /><button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="showPassword()"
+          >
+            <app-di-icon name="eye" />
+          </button>
+          @if (registering()) {
+            <mat-hint>Entre 15 y 128 caracteres. Puedes usar una frase.</mat-hint>
+          }
+          <mat-error>{{
+            registering() ? 'Usa entre 15 y 128 caracteres.' : 'Introduce tu contraseña.'
+          }}</mat-error></mat-form-field
+        >
+      }
+      @if (registering()) {
+        <mat-form-field appearance="outline"
+          ><mat-label>Confirma tu contraseña</mat-label><app-di-icon matPrefix name="lock" /><input
+            matInput
+            [type]="showPassword() ? 'text' : 'password'"
+            name="confirmation"
+            [(ngModel)]="confirmation"
+            required
+            maxlength="128"
+            autocomplete="new-password"
+            [disabled]="pending()"
+          /><mat-error>Confirma tu contraseña.</mat-error></mat-form-field
+        >
+      }
+      @if (mode() === 'login') {
+        <div class="form-options">
+          <span><app-di-icon name="shield" /> Acceso a tu equipo</span
+          ><button type="button" (click)="changeMode('recover')" [disabled]="pending()">
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
+      }
+      @if (error()) {
+        <p class="feedback error" role="alert">{{ error() }}</p>
+      }
+      @if (message()) {
+        <p class="feedback success" role="status">{{ message() }}</p>
+      }
+      <button class="submit" mat-flat-button type="submit" [disabled]="pending() || form.invalid">
+        {{
+          pending()
+            ? 'Un momento…'
+            : recovering()
+              ? 'Enviar enlace de recuperación'
+              : registering()
+                ? 'Crear mi cuenta'
+                : 'Iniciar sesión'
+        }}<app-di-icon name="arrow" />
+      </button>
+    </form>
     @if (!recovering()) {
-    <mat-form-field appearance="outline">
-      <mat-label>Contraseña</mat-label>
-      <input matInput type="password" name="password" [(ngModel)]="password" required [minlength]="registering() ? 15 : 1" maxlength="128"
-        [attr.autocomplete]="registering() ? 'new-password' : 'current-password'" [disabled]="pending()">
-      @if (registering()) { <mat-hint>Utiliza entre 15 y 128 caracteres.</mat-hint> }
-    </mat-form-field>
+      <app-external-sign-in />
     }
-    @if (registering()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Repite la contraseña</mat-label>
-        <input matInput type="password" name="confirmation" [(ngModel)]="confirmation" required maxlength="128" autocomplete="new-password" [disabled]="pending()">
-      </mat-form-field>
-    }
-    @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-    @if (message()) { <p role="status">{{ message() }}</p> }
-    <button mat-flat-button type="submit" [disabled]="pending() || form.invalid">{{ pending() ? 'Procesando…' : recovering() ? 'Solicitar enlace' : registering() ? 'Crear cuenta' : 'Entrar' }}</button>
-  </form>
-  @if (!recovering()) { <app-external-sign-in /> }
-  @if (mode() === 'login') {
-    <button class="switch" mat-button type="button" (click)="changeMode('recover')" [disabled]="pending()">Olvidé mi contraseña</button>
-  }
-  <button class="switch" mat-button type="button" (click)="changeMode(mode() === 'login' ? 'register' : 'login')" [disabled]="pending()">
-    {{ mode() === 'login' ? 'Crear una cuenta' : 'Volver a iniciar sesión' }}
-  </button>
+    <p class="switch">
+      {{
+        registering()
+          ? '¿Ya tienes una cuenta?'
+          : recovering()
+            ? '¿Recuerdas tu contraseña?'
+            : '¿Todavía no tienes cuenta?'
+      }}
+      <button
+        type="button"
+        (click)="changeMode(mode() === 'login' ? 'register' : 'login')"
+        [disabled]="pending()"
+      >
+        {{ mode() === 'login' ? 'Crea una aquí' : 'Inicia sesión' }}
+      </button>
+    </p>
+  </div>
 </section>

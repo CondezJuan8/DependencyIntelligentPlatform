@@ -1,10 +1,132 @@
-:host { display: block; }
-.access { max-width: 420px; margin: 5vh auto; padding: 32px; background: var(--di-surface); border: 1px solid var(--di-border); border-radius: 16px; }
-h2 { margin: 0; font-size: 1.65rem; }
-p { color: var(--di-text-muted); line-height: 1.5; }
-form { display: grid; gap: 12px; margin-top: 28px; }
-mat-form-field { width: 100%; }
-.switch { display: block; margin: 20px auto 0; }
-.error { color: var(--di-critical); margin: 0 0 8px; }
-.success { color: var(--di-success-text); }
-@media (max-width: 500px) { .access { padding: 24px 18px; margin-top: 20px; } }
+:host {
+  display: block;
+}
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--di-border);
+  margin-bottom: 42px;
+}
+.auth-tabs button {
+  flex: 1;
+  background: none;
+  border: 0;
+  padding: 14px 6px 17px;
+  font: inherit;
+  font-size: 14px;
+  color: #475569;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.auth-tabs button.active {
+  color: var(--di-primary);
+  border-bottom-color: var(--di-primary);
+  font-weight: 650;
+}
+.eyebrow {
+  display: block;
+  color: var(--di-text-subtle);
+  letter-spacing: 1.7px;
+  font-size: 9px;
+  font-weight: 650;
+  margin-bottom: 12px;
+}
+h2 {
+  font-size: clamp(27px, 2.5vw, 35px);
+  line-height: 1.2;
+  letter-spacing: -1.1px;
+  margin: 0;
+  font-weight: 700;
+}
+.intro {
+  margin: 12px 0 29px;
+  color: var(--di-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+form {
+  display: grid;
+  gap: 10px;
+}
+mat-form-field {
+  width: 100%;
+}
+app-di-icon[matPrefix] {
+  color: var(--di-text-secondary);
+  margin: 0 13px 0 15px;
+  width: 18px;
+  height: 18px;
+}
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: -2px 0 16px;
+  font-size: 12px;
+}
+.form-options span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--di-text-subtle);
+}
+.form-options app-di-icon {
+  width: 15px;
+  height: 15px;
+}
+.form-options button,
+.switch button {
+  border: 0;
+  background: none;
+  color: var(--di-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.submit {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 7px;
+  font-size: 14px;
+  letter-spacing: 0;
+  box-shadow: 0 5px 14px #2563eb20;
+}
+.submit app-di-icon {
+  margin-left: 12px;
+  width: 17px;
+  height: 17px;
+}
+.switch {
+  text-align: center;
+  font-size: 12px;
+  color: var(--di-text-subtle);
+  margin-top: 26px;
+  line-height: 1.7;
+}
+.switch button {
+  margin-left: 4px;
+}
+.feedback {
+  font-size: 13px;
+  line-height: 1.6;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+.error {
+  color: var(--di-critical-text);
+  background: var(--di-critical-background);
+}
+.success {
+  color: var(--di-success-text);
+  background: var(--di-success-background);
+}
+@media (max-width: 730px) {
+  .auth-tabs {
+    margin-bottom: 30px;
+  }
+  h2 {
+    font-size: 29px;
+  }
+}

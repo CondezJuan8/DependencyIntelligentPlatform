@@ -1,0 +1,302 @@
+// Bloques visuales compartidos del espacio de trabajo.
+.di-tag {
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  background: var(--di-surface-muted);
+  border: 1px solid var(--di-border);
+  border-radius: 5px;
+  color: var(--di-text-subtle);
+  padding: 4px 7px;
+  white-space: nowrap;
+}
+.di-icon-button {
+  background: none;
+  border: 0;
+  color: var(--di-text-subtle);
+  cursor: pointer;
+  border-radius: 5px;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+}
+.di-icon-button app-di-icon {
+  width: 16px;
+  height: 16px;
+}
+.di-icon-button:hover {
+  background: var(--di-info-background);
+  color: var(--di-primary);
+}
+.di-empty {
+  text-align: center;
+  padding: 50px 22px;
+  color: var(--di-text-subtle);
+  background: white;
+  border-radius: 10px;
+}
+.di-empty > app-di-icon {
+  width: 29px;
+  height: 29px;
+  color: #7a9bc8;
+  margin-bottom: 10px;
+}
+.di-empty h3 {
+  color: #334155;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+  margin: 9px 0;
+}
+.di-empty p {
+  font-size: 12px;
+  line-height: 1.8;
+  max-width: 420px;
+  margin: 0 auto 18px;
+}
+.di-empty button {
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.di-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #0b182b75;
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+}
+.di-modal {
+  position: relative;
+  width: min(100%, 460px);
+  background: white;
+  border-radius: 14px;
+  border: 1px solid var(--di-border);
+  padding: 32px;
+  max-height: calc(100svh - 48px);
+  overflow-y: auto;
+  box-shadow: 0 24px 90px #10182740;
+}
+.di-modal h2 {
+  margin: 0 25px 10px 0;
+  font-size: 23px;
+  letter-spacing: -0.7px;
+}
+.di-modal > p {
+  font-size: 12px;
+  color: var(--di-text-subtle);
+  line-height: 1.8;
+  margin: 0 0 24px;
+  overflow-wrap: anywhere;
+}
+.di-modal form {
+  display: grid;
+  gap: 5px;
+}
+.di-modal mat-form-field {
+  width: 100%;
+}
+.di-modal-close {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+.di-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+.di-modal-actions button {
+  letter-spacing: 0;
+  font-size: 12px;
+}
+.di-modal .modal-icon {
+  width: 43px;
+  height: 43px;
+  background: var(--di-info-background);
+  color: var(--di-primary);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+}
+.di-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.di-team-card {
+  background: white;
+  text-align: left;
+  padding: 21px;
+  border: 1px solid var(--di-border);
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  color: #334155;
+}
+.di-team-card.selected {
+  border-color: var(--di-primary);
+  box-shadow: 0 0 0 1px var(--di-primary);
+}
+.di-team-card .team-icon {
+  width: 34px;
+  height: 34px;
+  color: var(--di-primary);
+  background: var(--di-info-background);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+}
+.di-team-card strong {
+  font-size: 14px;
+}
+.di-team-card small {
+  font-size: 10px;
+  color: var(--di-text-subtle);
+}
+.di-team-card .team-open {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--di-primary);
+  margin-top: 5px;
+}
+.di-team-card .team-open app-di-icon {
+  width: 13px;
+  height: 13px;
+}
+.di-editor-card {
+  padding: 25px;
+  background: white;
+  border: 1px solid var(--di-border);
+  border-radius: 10px;
+}
+.di-editor-card h3 {
+  font-size: 13px;
+  margin: 20px 0 15px;
+}
+.di-editor-card > button {
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.di-inline-form,
+.di-selectors {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.di-inline-form mat-form-field,
+.di-selectors mat-form-field {
+  flex: 1;
+}
+.di-inline-form button {
+  margin-top: 5px;
+  font-size: 11px;
+}
+.di-check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 15px 0 25px;
+}
+.di-check-grid mat-checkbox {
+  padding: 10px;
+  border: 1px solid #edf2f8;
+  border-radius: 7px;
+}
+.di-check-grid small {
+  display: block;
+  font-size: 10px;
+  color: var(--di-text-subtle);
+}
+.di-member-checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.di-member-checks strong {
+  font-weight: 550;
+  font-size: 12px;
+}
+.di-member-checks small {
+  display: block;
+  font-size: 10px;
+  color: var(--di-text-subtle);
+  overflow-wrap: anywhere;
+}
+.di-role-catalog {
+  margin-top: 25px;
+}
+.di-role-catalog summary {
+  font-size: 12px;
+  color: var(--di-primary);
+  cursor: pointer;
+}
+.di-role-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.di-role-grid article {
+  border: 1px solid var(--di-border);
+  border-radius: 9px;
+  background: white;
+  padding: 18px;
+}
+.di-role-grid h3 {
+  font-size: 12px;
+}
+.di-role-grid ul {
+  padding-left: 14px;
+  font-size: 10px;
+  line-height: 1.9;
+  color: var(--di-text-subtle);
+  overflow-wrap: anywhere;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+@media (max-width: 1050px) {
+  .di-team-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .di-role-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .di-team-grid,
+  .di-check-grid,
+  .di-member-checks,
+  .di-role-grid {
+    grid-template-columns: 1fr;
+  }
+  .di-inline-form,
+  .di-selectors {
+    flex-direction: column;
+  }
+  .di-inline-form mat-form-field,
+  .di-selectors mat-form-field {
+    width: 100%;
+  }
+  .di-modal {
+    padding: 26px;
+  }
+  .di-modal-backdrop {
+    padding: 14px;
+  }
+}
