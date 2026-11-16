@@ -11,6 +11,8 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
+Bloque 11: invitaciones, aceptación, membresías/roles, equipos y permisos por repositorio implementados sobre tablas de V5 y grants/RLS existentes. Cambios y auditoría atómicos; protección del último propietario por bloqueo de organización. Sin migración nueva ni modificaciones de catálogo/diagramas: 121 tablas hasta V13. [Contratos y evidencia](INVITACIONES_EQUIPOS_PERMISOS.md).
+
 Bloque 09: acceso Google/GitHub y vínculos explícitos implementados sobre `users`, `user_identities` y versión de credenciales existentes. No requiere migración nueva: V1–V13, 121 tablas. Los tokens externos se descartan, sin persistir secretos ni instalaciones ficticias. No cambia el catálogo ni sus diagramas. Configuración real de clientes pendiente. [Detalle de identidad](IDENTIDAD_GOOGLE_GITHUB.md).
 
 Referencia vigente de diseño. Núcleo hasta V13 con 121 tablas, 85 con RLS forzado y 208 FK. V12 permite consultar organizaciones propias y V13 incorpora versión de credenciales e índice de solicitudes de tokens. Verificación/recuperación operativas en bloque 07. Estado, diagramas, diccionario y normalización en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).

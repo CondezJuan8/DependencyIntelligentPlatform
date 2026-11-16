@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 15 de noviembre de 2026, tras el bloque 09.
+Actualizado: 15 de noviembre de 2026, tras el bloque 11.
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. Registrar una tarea no autoriza iniciarla. No activar integraciones, completar módulos ni ejecutar los pendientes de esta lista hasta esa indicación.
 
@@ -14,6 +14,7 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 - Google/GitHub y vinculación/desvinculación segura en backend y Angular, comprobados con proveedor HTTP local de prueba. Faltan credenciales y consentimiento reales.
 - Parser CycloneDX Maven acotado e importación persistente; todavía sin flujo de análisis real completo.
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
+- Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
 
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
@@ -21,7 +22,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
-- [ ] **Recorrido visual:** levantar el entorno con el usuario y revisar registro/login/logout, recuperación/verificación, organizaciones y métodos conectados, mensajes, foco, pantallas pequeñas y paleta. Registrar y corregir los problemas encontrados.
+- [ ] **Recorrido visual:** levantar el entorno con el usuario y revisar registro/login/logout, recuperación/verificación, organizaciones, métodos conectados, invitaciones, membresías/equipos/permisos, mensajes, foco, pantallas pequeñas y paleta. Registrar y corregir los problemas encontrados.
 - [ ] **Arranque Compose:** ejecutar construcción/arranque y comprobar frontend, backend, PostgreSQL, Mailpit y conservación de datos al reiniciar. El bloque OAuth no verificó Compose.
 - [ ] **Servidor y correo:** configurar SMTP real cuando corresponda; comprobar entrega y fallos. Mailpit cubre correo local, no entrega externa.
 
@@ -33,7 +34,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 
 | Área | Pendiente | Criterio de cierre |
 | --- | --- | --- |
-| Identidad y organización | Invitaciones, aceptación y gestión de membresías/equipos/permisos mediante API y UI | Invitar y gestionar acceso real, con autorización efectiva y revocación verificable |
+| Identidad y organización | Backend/UI de invitaciones y gestión entregados en bloque 11; pendiente revisión conjunta y paginación de historiales de invitaciones grandes | Completar aceptación visual/operativa sin considerar pendiente el código ya probado |
 | Integración de repositorios GitHub | Instalación/revocación de App, selección de repositorios, lectura de commits/archivos y eventos idempotentes | Acceder solo a repositorios autorizados y gestionar revocaciones; análisis manual local sin depender de webhooks entrantes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
 | SBOM y ecosistemas | Carga HTTP, scanner aislado Maven/npm, cobertura del parser y relaciones con evidencia | Procesar proyectos reales de ambos ecosistemas y guardar componentes/aristas sin inferencias falsas |
@@ -51,7 +52,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 ## Operación y requisitos transversales
 
 - [ ] Definir y completar persistencia/recuperación de sesiones para el despliegue; actualmente viven en memoria.
-- [ ] Entrega durable y reintentos de recuperación/verificación; resolver el límite entre aceptación SMTP y commit de base. La cola actual vive en memoria.
+- [ ] Entrega durable y reintentos de recuperación/verificación/invitaciones; resolver el límite entre aceptación SMTP y commit de base. Recuperación usa cola en memoria e invitaciones envío síncrono transaccional.
 - [ ] Ampliar auditoría a los nuevos casos de uso y completar logs/métricas útiles, sin secretos.
 - [ ] Concretar límites coordinados y proxy de confianza; el límite de intentos actual es por proceso.
 - [ ] Configurar HTTPS, cookies seguras, origen público y callbacks exactos al pasar a servidor.

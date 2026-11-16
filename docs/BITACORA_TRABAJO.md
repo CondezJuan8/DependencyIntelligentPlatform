@@ -406,3 +406,44 @@ Fecha: 15 de noviembre de 2026. Horas reales sin medir. Petición: crear un arch
 Se crea [PENDIENTES.md](PENDIENTES.md), separando lo implementado, configuración/validación pendiente, módulos por desarrollar y operación de servidor. Cada módulo recoge un criterio de cierre, con referencias al maestro y documentación específica. La lista no inicia ninguna implementación ni activa proveedores. Actualizados AGENTS, contexto maestro y roadmap para conservar la instrucción del usuario y evitar retomar automáticamente invitaciones u otros módulos.
 
 Herramientas utilizadas: PowerShell, lectura de los cuatro documentos prioritarios, apply_patch, Git y Python estándar para comprobar enlaces. Ninguna dependencia nueva. Cambio exclusivamente documental; no corresponde ejecutar pruebas de backend ni build frontend. Veinte referencias locales correctas en cuatro documentos y comprobación de formato de diferencias correcta. Dos commits con emoji para inventario de pendientes y referencias de continuidad. Siguiente paso: esperar la indicación del usuario para elegir y trabajar juntos el bloque pendiente.
+
+## Bloque 11 — Invitaciones, membresías, equipos y permisos
+
+Fecha: 15 de noviembre de 2026, America/Bogota. Horas reales sin medir. Petición explícita: implementar invitaciones y gestión de equipos/permisos. Autoriza este bloque de PENDIENTES; los demás siguen esperando indicación del usuario. Se revisaron los cuatro documentos prioritarios, esquema V5 y contratos de identidad/autorización existentes.
+
+### Cambios concretos
+
+- Domain incorpora OrganizationRole. Application define ManageInvitations/ManageOrganizationAccess, DTO y puertos de persistencia/entrega. Reglas Java puro para actores OWNER/ADMIN, asignaciones de rol y estados, último propietario, miembros activos de equipos y catálogo de permisos por repositorio. ADMIN no asigna ni modifica OWNER/ADMIN. No hay roles personalizados.
+- Infrastructure configura transacciones tenant y adaptadores JDBC para tablas existentes. Bloqueo de organización serializa aceptación, membresías y equipos, protegiendo el último OWNER frente a demociones concurrentes. Recursos ajenos al tenant no se modifican. Cambios y auditoría se confirman juntos.
+- Invitaciones con token aleatorio de 32 bytes/hash SHA-256, caducidad configurable PT72H inicial, una pendiente por correo/organización, revocación y aceptación explícita. Exige cuenta activa y correo coincidente verificado, revalida autoridad del invitador y consume una sola vez. Reactivar por invitación sustituye rol y limpia equipos antiguos.
+- Envío SMTP síncrono mediante JavaMailSender existente y adaptador propio de organización, con enlace por fragmento y sin token en respuestas de API. Un error de envío revierte la emisión; el límite SMTP/commit y la entrega durable siguen pendientes. El presupuesto de intentos existente cubre rutas de invitaciones.
+- API/UI para roles/estado de membresías, crear/renombrar/eliminar equipos, añadir/quitar personas y sustituir permisos por repositorio. El último propietario no puede perder su rol activo. Suspender conserva equipos sin acceso; retirar los elimina. Permisos efectivos intersectan rol y equipo en los endpoints existentes. Los scopes de módulos futuros no se presentan como módulos implementados.
+- Angular añade aceptación con validación/retirada del fragmento, inicio de sesión/verificación y actualización de organizaciones; formularios de invitación y administración con confirmaciones, estados de carga/error y paleta oficial. Tokens de invitación solo en memoria. Paneles divididos con @defer para mantener el presupuesto inicial, sin nuevas dependencias.
+- Añadido INVITACIONES_EQUIPOS_PERMISOS.md con política, contratos y recorrido de revisión. Actualizados PENDIENTES, maestro, arquitectura, stack, especificación database, informe, acceso local, identidad externa, roadmap, README y AGENTS. Sin cambios de esquema/migraciones/diagramas: V1–V13, 121 tablas, 85 con FORCE RLS y 208 FK.
+
+### Herramientas y tecnologías utilizadas
+
+| Herramienta o tecnología | Uso | Incorporación |
+| --- | --- | --- |
+| Java, Clock, MessageDigest y SecureRandom vía AccountTokenCodec | Reglas, caducidad y tokens/hash | Bibliotecas/puerto existentes; sin dependencia nueva |
+| Spring JDBC, TenantTransactions y PostgreSQL | Persistencia, bloqueo, aislamiento y auditoría | Dependencias existentes |
+| JavaMailSender y Mailpit 1.33.1 | Invitaciones SMTP y bandeja local de pruebas | Dependencia y herramienta existentes |
+| Angular Forms/Material, RxJS, Sass/CSS y @defer | Formularios y carga de pantallas | Dependencias existentes |
+| PowerShell, rg, apply_patch, Git, Maven 3.9.11 y JDK 25 destino 21 | Inspección, cambios y verificación focalizada | Herramientas existentes |
+| PostgreSQL nativo 18.6, Node 24.22.1 y Angular CLI | Base temporal con login runtime limitado, build y parser | Herramientas existentes |
+
+Referencias oficiales consultadas: [bloqueos PostgreSQL](https://www.postgresql.org/docs/18/explicit-locking.html) y [@defer Angular](https://angular.dev/guide/templates/defer). No se incorporan SDK, colas ni servicios externos nuevos.
+
+### Verificaciones ejecutadas y resultados
+
+21 casos distintos pertinentes correctos: ocho de OrganizationAccessIT, cinco de LocalAccessIT y ocho de seguridad/arquitectura/límite. SMTP real a Mailpit, enlace recibido y hash contrastado en PostgreSQL. Cubiertos destinatario/verificación, expiración/revocación/replay/duplicados, roles/último propietario, concurrencia, aislamiento tenant/CSRF, permisos efectivos y retirada real de acceso, vuelta a membresía sin equipos antiguos y rollback ante fallo SMTP simulado.
+
+La primera ejecución de integración no pudo arrancar la base temporal porque Windows denegó bind del puerto 55439; las ocho pruebas unitarias pasaron y las trece de integración fallaron antes de cargar la aplicación por falta de conexión. Se levantó el mismo cluster temporal en 127.0.0.1:15439, se creó una base desechable nueva y se repitieron solo las trece afectadas: correctas. Después de desacoplar la URL de invitación del adaptador OAuth y fijar su propiedad de correo, se repitieron solo las ocho de OrganizationAccessIT: correctas. No se modificó una base externa del usuario.
+
+Build Angular inicial correcto con aviso de presupuesto, 647,63 kB. Separar panel de gestión redujo a 513,79 kB; separar espacio autenticado a 507,43 kB. Al cargar formularios y espacio según el recorrido con @defer, build final correcto y sin aviso: 381,28 kB inicial frente a presupuesto de 500 kB, sin aumentar el límite. Cinco aserciones directas del parser TypeScript correctas, incluido rechazo de duplicados, UUID inválidos y token mal formado. Node emite el aviso conocido de detección de módulo al importar TypeScript para esta comprobación; no cambia la configuración del producto.
+
+Formato de diferencias correcto y 74 referencias locales comprobadas en doce documentos. Consulta final de catálogo en la base temporal: 121 tablas, 85 con FORCE RLS y 208 FK. PostgreSQL temporal y el proceso propio de Mailpit detenidos correctamente al terminar las verificaciones. Revisión visual, Compose y SMTP externo no ejecutados en este bloque.
+
+### Siguiente paso
+
+Revisión conjunta del recorrido desde Mis organizaciones → Miembros y equipos, invitación recibida en Mailpit y segunda sesión con el correo verificado. El bloque queda implementado y probado por API/build; la aceptación visual sigue en PENDIENTES junto con entrega durable y paginación de historiales grandes. No se empieza automáticamente instalación GitHub ni otro módulo. Tres commits con emoji para backend/pruebas/configuración, frontend y documentación/contexto.

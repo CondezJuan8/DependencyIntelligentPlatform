@@ -1,5 +1,9 @@
 # Estado real de implementación de la base de datos
 
+## Invitaciones y equipos sin cambio de esquema, bloque 11
+
+15 de noviembre de 2026. Servicios HTTP/UI implementados para membership_invitations/invitation_roles, organization_memberships/membership_roles, organization_teams/team_memberships y repository_team_access, con auditoría transaccional. Se reutilizan V5 y permisos runtime; sin migración nueva ni cambios de catálogo/diagramas. V1–V13, 121 tablas, 85 con FORCE RLS y 208 FK. Ocho pruebas de gestión y cinco de acceso local correctas con PostgreSQL nativo temporal y runtime limitado; SMTP real mediante Mailpit. Aceptación y democión concurrentes comprobadas. No se actualizó una base externa del usuario. [Recorrido, contratos y límites](../INVITACIONES_EQUIPOS_PERMISOS.md).
+
 ## Identidad externa sin cambio de esquema, bloque 09
 
 15 de noviembre de 2026. Google/GitHub y vinculación explícita utilizan las tablas existentes, restricciones únicas de user_identities y users.credential_version. No se añade migración: V1–V13, 121 tablas, 85 con FORCE RLS y 208 FK. Los diagramas y el catálogo conservan vigencia. Diez pruebas de identidad externa y cinco de acceso local correctas con PostgreSQL nativo temporal y rol runtime limitado; el intercambio OAuth usa proveedores HTTP locales de prueba. No se configuraron clientes reales ni instalaciones de repositorios. [Configuración y límites](../IDENTIDAD_GOOGLE_GITHUB.md).

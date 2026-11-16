@@ -23,6 +23,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Bloque 11, 15 de noviembre de 2026. Invitaciones, membresías/roles, equipos y permisos por repositorio con puertos/casos de uso Java puro y adaptadores Spring JDBC/JavaMailSender existentes. Ninguna dependencia nueva. SMTP Mailpit real y PostgreSQL temporal con rol runtime limitado: 21 casos distintos pertinentes correctos. Angular usa Forms/Material/RxJS existentes y @defer para separar pantallas; build inicial 381,28 kB, bajo presupuesto de 500 kB. No cambia el esquema V1–V13. Configuración/contratos y límites de servidor en [INVITACIONES_EQUIPOS_PERMISOS](INVITACIONES_EQUIPOS_PERMISOS.md).
+
 Bloque 09, 15 de noviembre de 2026. Nueva dependencia `spring-boot-starter-oauth2-client`, versión gestionada por el BOM existente, solo en Infrastructure. Google OIDC/GitHub OAuth con PKCE S256 y reglas de vinculación en Application Java puro. Angular Material/RxJS existentes para acceso y métodos conectados. Proveedor HTTP/JWT local de pruebas con HttpServer del JDK y Nimbus transitivo, sin SDK externo nuevo. Configuración real de clientes pendiente; ambos deshabilitados por defecto. [Identidad externa](IDENTIDAD_GOOGLE_GITHUB.md).
 
 Bloque 08, 15 de noviembre de 2026. Paleta del usuario centralizada mediante tokens CSS/Sass y overrides oficiales de Angular Material. Aplicada a pantallas actuales con variantes de contraste para texto y estados. Se documentan hitos de revisión interactiva con el usuario. [Diseño frontend](DISENO_FRONTEND.md).

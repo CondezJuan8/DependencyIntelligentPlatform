@@ -9,7 +9,7 @@ Pendientes consolidados en [PENDIENTES.md](PENDIENTES.md). Por indicación vigen
 | Fase propuesta | Resultado verificable | Estado |
 | --- | --- | --- |
 | Transición del modelo | V4–V11, casos de uso compatibles, datos conservados, diccionario y siete diagramas | Núcleo completado y probado; vector opcional pendiente |
-| Acceso y aislamiento | Correo/contraseña, Google/GitHub, equipos, permisos por repositorio y RLS | Acceso local, autorización y correo entregados. Google/GitHub y vínculos probados con proveedor local; falta activación/consentimiento reales. Siguen invitaciones, gestión de equipos, entrega durable y revisión visual |
+| Acceso y aislamiento | Correo/contraseña, Google/GitHub, equipos, permisos por repositorio y RLS | Acceso, correo, invitaciones y gestión HTTP/UI de membresías/equipos/permisos entregados. Google/GitHub probados con fixture; falta consentimiento real. Siguen entrega durable, paginación de historiales grandes y revisión visual conjunta |
 | Análisis real | GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI | Parcial: importador acotado existente |
 | Cambios y primer piloto | Comparación/recomendaciones, pruebas aisladas y propuesta de PR aprobable | Pendiente; requisito del primer piloto |
 | Documentación e IA | Originales privados, búsqueda/citas, embeddings Ollama y Gemini en la plataforma | Pendiente |

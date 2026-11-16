@@ -97,7 +97,13 @@ Los adaptadores HTTP de repositorios/scans bajo `/api/organizations/{organizatio
 
 `EmailAddress` normaliza el correo en Domain. RegisterAccountUseCase y AuthenticateAccountUseCase dependen de AccountStore/PasswordHashing. JdbcAccountAdapter crea usuario y hash atómicamente. Pbkdf2PasswordAdapter utiliza Spring Security en Infrastructure. AccountController crea el contexto autenticado, rota sesión/CSRF y lo guarda explícitamente en HttpSessionSecurityContextRepository. ActiveAccountFilter consulta la vigencia de la cuenta. AuthenticationRateLimitFilter limita los POST de contraseña por dirección y minuto. Los DTO de credenciales redactan su representación textual y la validación devuelve errores sin valores recibidos.
 
-ManageOrganizationsUseCase crea/lista organizaciones mediante OrganizationStore. Crear incluye membresía OWNER y auditoría en una transacción. Para listar, el adaptador establece `app.user_id` local y V12 permite consultar propias membresías/organizaciones activas. Las sesiones usan cookie HttpOnly/SameSite=Lax con timeout configurable de 30 minutos y se mantienen en memoria. Invitaciones y gestión de equipos siguen pendientes. Contratos en [ACCESO_LOCAL](ACCESO_LOCAL.md).
+ManageOrganizationsUseCase crea/lista organizaciones mediante OrganizationStore. Crear incluye membresía OWNER y auditoría en una transacción. Para listar, el adaptador establece `app.user_id` local y V12 permite consultar propias membresías/organizaciones activas. Las sesiones usan cookie HttpOnly/SameSite=Lax con timeout configurable de 30 minutos y se mantienen en memoria. Contratos en [ACCESO_LOCAL](ACCESO_LOCAL.md).
+
+### Invitaciones y gestión de acceso — bloque 11
+
+ManageInvitationsUseCase y ManageOrganizationAccessUseCase son Java puro, detrás de puertos de entrada, OrganizationAccessStore, InvitationStore e InvitationDelivery. OrganizationRole define los roles válidos en Domain; reglas de aplicación limitan ADMIN ante OWNER/ADMIN y preservan un propietario activo. Infrastructure configura decoradores transaccionales tenant y adaptadores JDBC/SMTP. Se bloquea la organización antes de comprobar actor/estado y modificar membresías, invitaciones, equipos o permisos; las operaciones concurrentes comparten ese orden. Auditoría y cambios de acceso se confirman juntos.
+
+Invitaciones con token aleatorio/hash reutilizan AccountTokenCodec. Aceptar exige cuenta activa con correo coincidente verificado, estado pendiente, caducidad, token y autoridad vigente del invitador. La aceptación crea/reactiva membresía con el nuevo rol y sin heredar equipos, en una transacción de uso único. El adaptador SMTP propio de organización no depende del adaptador OAuth. Emisión síncrona con rollback ante fallo de envío; quedan límites SMTP/commit y entrega durable para servidor. No se modifica V1–V13. Contratos, política y recorrido en [INVITACIONES_EQUIPOS_PERMISOS](INVITACIONES_EQUIPOS_PERMISOS.md).
 
 ### Identidades externas — bloque 09
 
