@@ -10,6 +10,8 @@
 
 Las secciones numeradas posteriores conservan el contexto histórico. Las decisiones de este apartado, confirmadas por el usuario, prevalecen sobre propuestas pendientes o límites de entregas anteriores. Referencias prioritarias: este contexto, `ARQUITECTURA_BACKEND.md`, `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`.
 
+Instrucción posterior al bloque 09: pendientes consolidados en [PENDIENTES.md](PENDIENTES.md), para implementarlos y validarlos juntos cuando el usuario lo indique. El orden propuesto más abajo queda como referencia; no inicia automáticamente el siguiente bloque.
+
 ### Decisiones cerradas
 
 - Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.

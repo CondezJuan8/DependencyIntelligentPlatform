@@ -4,6 +4,8 @@ La fuente de alcance vigente es el [contexto maestro](DEPENDENCY_INTELLIGENCE_CO
 
 El usuario prioriza un producto completo listo para usar, local primero y servidor después. El plan anterior de demo/50 horas y sus estimaciones dejan de ser criterios de aceptación. La disponibilidad declarada sigue siendo 25 horas semanales; no hay fecha total nueva comprometida.
 
+Pendientes consolidados en [PENDIENTES.md](PENDIENTES.md). Por indicación vigente del usuario, los trabajaremos juntos cuando él lo indique; las fases siguientes son referencia de orden y no autorizan su inicio automático.
+
 | Fase propuesta | Resultado verificable | Estado |
 | --- | --- | --- |
 | Transición del modelo | V4–V11, casos de uso compatibles, datos conservados, diccionario y siete diagramas | Núcleo completado y probado; vector opcional pendiente |

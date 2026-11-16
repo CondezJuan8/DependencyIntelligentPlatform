@@ -1,5 +1,7 @@
 # Instrucciones de trabajo
 
+- Pendientes centralizados en `docs/PENDIENTES.md`. Por indicación del usuario, implementarlos y validarlos juntos cuando él lo indique; no iniciar automáticamente el siguiente bloque. Esta instrucción prevalece sobre propuestas anteriores de continuar con invitaciones/equipos. Mantener la lista al actualizar el estado del proyecto.
+
 - Antes de implementar, revisar `docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`, `docs/ARQUITECTURA_BACKEND.md`, `docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `docs/STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`. Priorizar decisiones vigentes del usuario. Núcleo database V1–V13, 121 tablas; acceso local, autorización, recuperación SMTP y Google/GitHub con vinculación explícita implementados. Proveedores externos probados con servidor HTTP local; activación/consentimiento reales pendientes de credenciales. Ver `docs/database/implementation-report.md`, `docs/ACCESO_LOCAL.md`, `docs/VERIFICACION_Y_RECUPERACION.md` y `docs/IDENTIDAD_GOOGLE_GITHUB.md`. Continuar con invitaciones/equipos según el maestro; login GitHub no completa instalación/acceso a repositorios.
 
 - Mantener `docs/BITACORA_TRABAJO.md` en cada bloque: petición, cambios concretos, herramientas/tecnologías utilizadas, verificaciones ejecutadas con resultado y siguiente paso. Distinguir herramientas usadas de dependencias nuevas implementadas. No inventar horas ni resultados.
