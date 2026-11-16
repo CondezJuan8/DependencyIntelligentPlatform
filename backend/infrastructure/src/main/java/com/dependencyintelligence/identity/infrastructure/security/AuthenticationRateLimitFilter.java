@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/** Bounded, per-process fixed window for expensive anonymous password operations. */
+/** Bounded, per-process fixed window for authentication and invitation delivery/acceptance. */
 public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
     private record Window(long minute, int count) { }
     private final Map<String, Window> windows = new HashMap<>();
@@ -29,7 +29,8 @@ public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
 
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
         return !"POST".equals(request.getMethod()) || !(PASSWORD_PATHS.contains(request.getServletPath())
-            || request.getServletPath().startsWith("/api/auth/providers/"));
+            || request.getServletPath().startsWith("/api/auth/providers/")
+            || request.getServletPath().matches("/api/organizations/[^/]+/invitations(?:/.*)?"));
     }
 
     private synchronized boolean allow(String address) {

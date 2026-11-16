@@ -10,6 +10,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AuthenticationRateLimitFilterTest {
+    @Test void limitsInvitationDeliveryAndAcceptanceInTheSharedBudget() throws Exception {
+        var filter = new AuthenticationRateLimitFilter(Clock.systemUTC(), 1);
+        for (var path : java.util.List.of("/api/organizations/example/invitations", "/api/organizations/example/invitations/id/accept")) {
+            var request = new MockHttpServletRequest("POST", path);
+            request.setServletPath(path);
+            request.setRemoteAddr("127.0.0.3");
+            var response = new MockHttpServletResponse();
+            filter.doFilter(request, response, (ignoredRequest, ignoredResponse) -> {});
+            assertEquals(path.endsWith("accept") ? 429 : 200, response.getStatus());
+        }
+    }
     @Test void limitsPasswordRequestsPerAddressAndReleasesTheNextWindow() throws Exception {
         Clock clock = mock(Clock.class);
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(120));

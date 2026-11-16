@@ -12,6 +12,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.dependencyintelligence.organization.application.exception.AccessConflictException.class)
+    public ProblemDetail accessConflict(RuntimeException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+    }
     @ExceptionHandler(ExternalIdentityException.class)
     public ProblemDetail externalIdentity(ExternalIdentityException exception) {
         String detail = switch (exception.reason()) {

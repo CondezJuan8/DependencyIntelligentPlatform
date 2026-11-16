@@ -56,6 +56,8 @@ server:
     include-message: never
     include-stacktrace: never
 app:
+  organization:
+    invitation-lifetime: ${INVITATION_LIFETIME:PT72H}
   identity:
     public-base-url: ${PUBLIC_BASE_URL:http://localhost:8088}
     authorization-lifetime: ${OAUTH_AUTHORIZATION_LIFETIME:PT5M}
