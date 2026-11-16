@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 15 de noviembre de 2026, tras el bloque 11.
+Actualizado: 15 de noviembre de 2026, tras el bloque 12.
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. Registrar una tarea no autoriza iniciarla. No activar integraciones, completar módulos ni ejecutar los pendientes de esta lista hasta esa indicación.
 
@@ -19,6 +19,8 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
 ## Configurar y validar juntos lo entregado
+
+- [x] **Arranque nativo para revisión:** frontend http://localhost:8088/, API con health UP y proxy operativo, Mailpit http://localhost:8025/. Base separada dependency_preview y servicios activos al cerrar el bloque 12. Esto no completa revisión visual ni verificación de Compose.
 
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.

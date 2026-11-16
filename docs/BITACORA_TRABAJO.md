@@ -447,3 +447,15 @@ Formato de diferencias correcto y 74 referencias locales comprobadas en doce doc
 ### Siguiente paso
 
 Revisión conjunta del recorrido desde Mis organizaciones → Miembros y equipos, invitación recibida en Mailpit y segunda sesión con el correo verificado. El bloque queda implementado y probado por API/build; la aceptación visual sigue en PENDIENTES junto con entrega durable y paginación de historiales grandes. No se empieza automáticamente instalación GitHub ni otro módulo. Tres commits con emoji para backend/pruebas/configuración, frontend y documentación/contexto.
+
+## Bloque 12 — Entorno local encendido para revisión del usuario
+
+Fecha: 15 de noviembre de 2026, America/Bogota. Horas reales sin medir. Petición: ejecutar la plataforma para ver su apariencia. Docker no está disponible mediante el comando del entorno; se utiliza el arranque nativo documentado, sin modificar código funcional.
+
+Se inicia PostgreSQL nativo en 127.0.0.1:15439 y se crea una base separada dependency_preview, sin los fixtures de integración. Flyway aplica V1–V13 y el backend arranca con usuario runtime limitado y credenciales de migración separadas. Se ejecuta el JAR del bloque 11 en 127.0.0.1:8080. Mailpit queda en 127.0.0.1:8025 con SMTP 1025. Angular CLI sirve el frontend en 127.0.0.1:8088 con proxy API hacia el backend y recarga de desarrollo. Google/GitHub permanecen deshabilitados, sin credenciales reales. No se crean cuentas ni organizaciones por el usuario; puede registrarse desde la interfaz.
+
+Herramientas utilizadas: PowerShell/Start-Process con ventanas ocultas, pg_ctl/createdb/psql de PostgreSQL 18.6, JDK 25 ejecutando el JAR con destino 21, Node/Angular CLI existentes, Mailpit existente y Git. Ninguna dependencia nueva. Logs e identificadores de procesos locales en .tools/preview-*, ignorados por Git; no se guardan secretos en documentos.
+
+Verificaciones necesarias: health real del backend UP; frontend http://localhost:8088/ devuelve 200; GET /api/auth/csrf por ese frontend devuelve 200/application/json; bandeja http://localhost:8025/ devuelve 200. Angular compila y queda en watch. No se repiten suites de pruebas ni build de producción para este arranque. No se ejecutó Compose ni se declara completada la revisión visual del usuario.
+
+Se dejan los cuatro servicios activos intencionadamente para que el usuario revise. No detenerlos automáticamente al cerrar este bloque ni reutilizar dependency_preview como base de pruebas automatizadas. Recorrido disponible: crear cuenta → crear organización → Miembros y equipos; usar Mailpit para verificación e invitaciones. Siguiente paso: recoger las observaciones del usuario, sin iniciar otro módulo.
