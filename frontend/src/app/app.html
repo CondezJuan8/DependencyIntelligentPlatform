@@ -1,33 +1,63 @@
-<main>
-  <header>
-    <div>
-      <h1>Dependency Intelligence</h1>
-      <p>Inventario y trazabilidad de dependencias</p>
-    </div>
-    @if (session.account(); as account) {
-      <div class="account">
-        <span>{{ account.displayName }}</span>
-        <button mat-stroked-button type="button" (click)="logout()" [disabled]="pending()">Cerrar sesión</button>
-      </div>
-    }
-  </header>
-  @if (external.feedback(); as feedback) {
-    @if (feedback.message) { <p class="external-feedback" [class.error]="feedback.error" [attr.role]="feedback.error ? 'alert' : 'status'">{{ feedback.message }}</p> }
-  }
-  @if (error()) {
-    <div class="error" role="alert">{{ error() }} <button mat-button (click)="restore()">Reintentar</button></div>
-  }
-  @if (loading()) { <p role="status">Comprobando sesión…</p> }
-  @else if (links.action()) {
-    @defer (on immediate) { <app-account-action /> } @loading { <p role="status">Abriendo confirmación de cuenta…</p> } @error { <p role="alert">No se pudo cargar la confirmación. Recarga la página para reintentar.</p> }
-  }
-  @else if (session.account()) {
+@if (loading()) {
+  <div class="startup" role="status">
+    <img src="/brand-mark.svg" alt="" width="46" height="52" />
+    <p>Preparando tu espacio de trabajo…</p>
+  </div>
+} @else if (links.action()) {
+  <app-auth-frame>
     @defer (on immediate) {
-      <app-email-verification /><app-invitation-acceptance (accepted)="workspace.reload()" /><app-organization-workspace #workspace /><app-connected-identities />
-    } @loading { <p role="status">Abriendo tu espacio de trabajo…</p> } @error { <p role="alert">No se pudo abrir tu espacio. Recarga la página para reintentar.</p> }
+      <app-account-action />
+    } @loading {
+      <p role="status">Abriendo confirmación de cuenta…</p>
+    } @error {
+      <p role="alert">No se pudo cargar la confirmación. Recarga la página.</p>
+    }
+  </app-auth-frame>
+} @else if (session.account()) {
+  @if (external.feedback(); as feedback) {
+    @if (feedback.message) {
+      <p
+        class="floating-feedback"
+        [class.error]="feedback.error"
+        [attr.role]="feedback.error ? 'alert' : 'status'"
+      >
+        {{ feedback.message }}
+        <button aria-label="Cerrar aviso" (click)="external.feedback.set(null)">×</button>
+      </p>
+    }
   }
-  @else if (!error()) {
+  @defer (on immediate) {
+    <app-application-shell />
+  } @loading {
+    <div class="startup" role="status">Abriendo tu espacio de trabajo…</div>
+  } @error {
+    <p role="alert">No se pudo abrir tu espacio. Recarga la página.</p>
+  }
+} @else {
+  <app-auth-frame>
+    @if (external.feedback(); as feedback) {
+      @if (feedback.message) {
+        <p
+          class="feedback"
+          [class.error]="feedback.error"
+          [attr.role]="feedback.error ? 'alert' : 'status'"
+        >
+          {{ feedback.message }}
+        </p>
+      }
+    }
+    @if (error()) {
+      <p class="feedback error" role="alert">
+        {{ error() }} <button mat-button (click)="restore()">Reintentar</button>
+      </p>
+    }
     <app-invitation-acceptance />
-    @defer (on immediate) { <app-access-form /> } @loading { <p role="status">Abriendo formulario de acceso…</p> } @error { <p role="alert">No se pudo cargar el formulario. Recarga la página para reintentar.</p> }
-  }
-</main>
+    @defer (on immediate) {
+      <app-access-form />
+    } @loading {
+      <p role="status">Abriendo formulario de acceso…</p>
+    } @error {
+      <p role="alert">No se pudo cargar el formulario. Recarga la página.</p>
+    }
+  </app-auth-frame>
+}

@@ -1,0 +1,45 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.assistant-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d4e4ff;
+  border-radius: 10px;
+  padding: 20px;
+  background: linear-gradient(145deg, var(--di-info-background), #e3edff);
+}
+.assistant-card h2 {
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
+  margin: 17px 0 10px;
+}
+.assistant-card p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--di-text-secondary);
+  position: relative;
+  z-index: 1;
+}
+.assistant-card small {
+  font-size: 9px;
+  color: var(--di-text-secondary);
+  position: relative;
+  z-index: 1;
+}
+.assistant-mark {
+  position: absolute;
+  right: -10px;
+  bottom: -15px;
+  color: #bad4ff;
+  transform: rotate(-15deg);
+}
+.assistant-mark app-di-icon {
+  width: 100px;
+  height: 100px;
+}
+.assistant-card {
+  height: 100%;
+}

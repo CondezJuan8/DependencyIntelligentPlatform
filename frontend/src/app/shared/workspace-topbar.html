@@ -1,0 +1,79 @@
+<header class="topbar" (keydown.escape)="profile.set(false); notices.set(false); query.set('')">
+  <button
+    class="icon-button menu-toggle"
+    (click)="toggleMenu.emit()"
+    aria-label="Abrir navegación"
+    [attr.aria-expanded]="menuOpen()"
+  >
+    <app-di-icon name="menu" />
+  </button>
+  <div class="search-box">
+    <app-di-icon name="search" /><input
+      type="search"
+      placeholder="Buscar una sección…"
+      aria-label="Buscar una sección de la plataforma"
+      maxlength="80"
+      [value]="query()"
+      (input)="search($event)"
+    />
+    @if (query().trim()) {
+      <div class="search-results" aria-label="Secciones encontradas">
+        @for (item of matches; track item.id) {
+          <button (click)="go(item.id)">
+            <app-di-icon [name]="item.icon" />{{ item.label }}
+            @if (!item.ready) {
+              <small>En preparación</small>
+            }
+          </button>
+        } @empty {
+          <p>No encontramos esa sección.</p>
+        }
+      </div>
+    }
+  </div>
+  <div class="topbar-end">
+    <div class="popover-anchor">
+      <button
+        class="icon-button"
+        (click)="notices.set(!notices()); profile.set(false)"
+        aria-label="Información de notificaciones"
+        [attr.aria-expanded]="notices()"
+      >
+        <app-di-icon name="bell" />
+      </button>
+      @if (notices()) {
+        <div class="popover">
+          <strong>Notificaciones</strong>
+          <p>Las notificaciones dentro de la aplicación estarán disponibles en una próxima fase.</p>
+          <button (click)="notices.set(false)">Entendido</button>
+        </div>
+      }
+    </div>
+    <div class="profile-anchor">
+      <button
+        class="profile-button"
+        (click)="profile.set(!profile()); notices.set(false)"
+        [attr.aria-expanded]="profile()"
+        aria-label="Abrir opciones de tu cuenta"
+      >
+        <span class="avatar">{{ initials }}</span><span class="profile-name">{{
+          api.account()?.displayName
+        }}</span
+        ><app-di-icon name="chevron" />
+      </button>
+      @if (profile()) {
+        <div class="popover profile-menu">
+          <small>{{ api.account()?.email }}</small>
+          @if (error()) {
+            <p role="alert">{{ error() }}</p>
+          }
+          <button (click)="go('settings')">
+            <app-di-icon name="settings" />Configurar mi cuenta</button
+          ><button (click)="logout()" [disabled]="pending()">
+            <app-di-icon name="logout" />Cerrar sesión
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

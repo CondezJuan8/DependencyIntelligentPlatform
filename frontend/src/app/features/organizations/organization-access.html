@@ -1,65 +1,599 @@
-<section aria-labelledby="access-title" [attr.aria-busy]="pending() || loading()">
-  <h2 id="access-title">Acceso a {{ organization.name }}</h2>
-  @if (loading()) { <p role="status">Cargando miembros y equipos…</p> }
-  @if (error()) { <p class="error" role="alert">{{ error() }}</p><button mat-button (click)="load()" [disabled]="pending() || loading()">Actualizar</button> }
-  @if (message()) { <p class="success" role="status">{{ message() }}</p> }
-  @if (forbidden()) { <p>La gestión de miembros, equipos y permisos está reservada a propietarios y administradores activos.</p> }
+<section [attr.aria-busy]="pending() || loading()">
+  <div class="access-nav">
+    <div class="tabs" role="group" aria-label="Secciones de organización">
+      <button
+        [class.active]="tab() === 'members'"
+        [attr.aria-pressed]="tab() === 'members'"
+        (click)="tab.set('members')"
+      >
+        Miembros</button
+      ><button
+        [class.active]="tab() === 'invitations'"
+        [attr.aria-pressed]="tab() === 'invitations'"
+        (click)="tab.set('invitations')"
+      >
+        Invitaciones</button
+      ><button
+        [class.active]="tab() === 'teams'"
+        [attr.aria-pressed]="tab() === 'teams'"
+        (click)="tab.set('teams')"
+      >
+        Equipos</button
+      ><button
+        [class.active]="tab() === 'permissions'"
+        [attr.aria-pressed]="tab() === 'permissions'"
+        (click)="tab.set('permissions')"
+      >
+        Permisos
+      </button>
+    </div>
+    <button mat-flat-button (click)="openDialog('invite')" [disabled]="pending() || !data()">
+      <app-di-icon name="plus" />Invitar miembro
+    </button>
+  </div>
+  @if (loading()) {
+    <div class="loading" role="status">Cargando el espacio de {{ organization.name }}…</div>
+  }
+  @if (error() && !dialog() && !memberConfirmation() && !revokeConfirmation() && !confirmation()) {
+    <p class="alert error" role="alert">
+      {{ error() }}
+      <button mat-button (click)="load()" [disabled]="pending() || loading()">Actualizar</button>
+    </p>
+  }
+  @if (message()) {
+    <p class="alert success" role="status"><app-di-icon name="check" />{{ message() }}</p>
+  }
+  @if (forbidden()) {
+    <div class="di-empty">
+      <app-di-icon name="shield" />
+      <h3>Tu espacio, con el acceso adecuado</h3>
+      <p>
+        Solo propietarios y administradores activos pueden gestionar miembros, equipos y permisos.
+      </p>
+    </div>
+  }
   @if (data(); as access) {
-    <h3>Invitar a una persona</h3>
-    <p>La persona debe aceptar con ese mismo correo verificado. El enlace caduca y solo se utiliza una vez.</p>
-    <form #inviteForm="ngForm" (ngSubmit)="invite()">
-      <mat-form-field appearance="outline"><mat-label>Correo invitado</mat-label><input matInput type="email" name="invitationEmail" [(ngModel)]="invitationEmail" required email maxlength="320" [disabled]="pending()"></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>Rol de la invitación</mat-label><mat-select name="invitationRole" [(ngModel)]="invitationRole" [disabled]="pending()">@for (role of roles(); track role) { <mat-option [value]="role">{{ role }}</mat-option> }</mat-select></mat-form-field>
-      <button mat-flat-button type="submit" [disabled]="pending() || inviteForm.invalid">Enviar invitación</button>
-    </form>
-    <ul class="invitations">
-      @for (invitation of access.invitations; track invitation.id) {
-        <li><span>{{ invitation.email }} · {{ invitation.roles.join(', ') }} · {{ statusLabel(invitation.status) }}<small>Caduca: {{ invitation.expiresAt | date:'short' }}</small></span>
-          @if (invitation.status === 'PENDING') { <button mat-stroked-button (click)="revoke(invitation)" [disabled]="pending() || (!access.owner && (invitation.roles.includes('OWNER') || invitation.roles.includes('ADMIN')))">Revocar invitación</button> }
-        </li>
-      } @empty { <li>No hay invitaciones.</li> }
-    </ul>
-    <p>Se muestran las últimas 100 invitaciones. Para reenviar, revoca la pendiente y crea otra; el enlace anterior dejará de servir.</p>
-
-    <h3>Miembros y roles</h3>
-    <p>Debe quedar al menos un propietario activo. Los administradores gestionan MEMBER y VIEWER; los cambios de OWNER/ADMIN corresponden a propietarios.</p>
-    @for (member of access.members; track member.id) {
-      <div class="member">
-        <div><strong>{{ member.displayName }}</strong><small>{{ member.email }} · {{ member.roles.join(', ') }} · {{ statusLabel(member.status) }}</small></div>
-        @if (editable(member)) {
-          <mat-form-field appearance="outline"><mat-label>Rol de {{ member.displayName }}</mat-label><mat-select [(ngModel)]="memberRoles[member.id]" [disabled]="pending()">@for (role of roles(); track role) { <mat-option [value]="role">{{ role }}</mat-option> }</mat-select></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>Estado de {{ member.displayName }}</mat-label><mat-select [(ngModel)]="memberStatuses[member.id]" [disabled]="pending()"><mat-option value="ACTIVE">Activo</mat-option><mat-option value="SUSPENDED">Suspendido</mat-option><mat-option value="LEFT">Retirado</mat-option></mat-select></mat-form-field>
-          <button mat-stroked-button (click)="memberConfirmation.set(member)" [disabled]="pending()">Revisar cambio</button>
+    @if (tab() === 'members') {
+      <div class="toolbar">
+        <h2>
+          Miembros <span>({{ access.members.length }})</span>
+        </h2>
+        <div class="tools">
+          <label class="search"
+            ><app-di-icon name="search" /><input
+              type="search"
+              placeholder="Buscar miembros…"
+              aria-label="Buscar por nombre, correo o equipo"
+              [ngModel]="search()"
+              (ngModelChange)="setSearch($event)" /></label
+          ><select
+            aria-label="Filtrar miembros por estado"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="setStatus($event)"
+          >
+            <option value="ALL">Todos los estados</option>
+            <option value="ACTIVE">Activos</option>
+            <option value="SUSPENDED">Suspendidos</option>
+            <option value="LEFT">Retirados</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">
+            Miembros de
+            {{
+              organization.name
+            }}
+          </caption>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo electrónico</th>
+              <th>Equipo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th class="actions">Acceso</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of visibleMembers(); track member.id) {
+              <tr>
+                <td>
+                  <span class="person"
+                    ><span class="person-avatar">{{ initials(member.displayName) }}</span
+                    ><strong>{{ member.displayName }}</strong></span
+                  >
+                </td>
+                <td>{{ member.email }}</td>
+                <td>{{ teamsFor(member) }}</td>
+                <td>
+                  @for (role of member.roles; track role) {
+                    <span class="role-label">{{ roleLabel(role) }}</span>
+                  }
+                </td>
+                <td>
+                  <span
+                    class="status"
+                    [class.active-status]="member.status === 'ACTIVE'"
+                    [class.warning-status]="member.status === 'SUSPENDED'"
+                    >{{ statusLabel(member.status) }}</span
+                  >
+                </td>
+                <td class="actions">
+                  @if (editable(member)) {
+                    <button
+                      class="di-icon-button"
+                      (click)="editMember(member)"
+                      [disabled]="pending()"
+                      [attr.aria-label]="'Editar acceso de ' + member.displayName"
+                    >
+                      <app-di-icon name="edit" />
+                    </button>
+                  } @else {
+                    <span class="muted">Restringido</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">
+                  <div class="di-empty">
+                    <app-di-icon name="search" />
+                    <h3>No encontramos miembros</h3>
+                    <p>Prueba otro nombre, correo o filtro de estado.</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span>{{ filteredMembers().length }} resultados · {{ organization.name }}</span>
+        <div>
+          <button (click)="page.set(page() - 1)" [disabled]="page() === 0">Anterior</button
+          ><span>Página {{ page() + 1 }}</span
+          ><button
+            (click)="page.set(page() + 1)"
+            [disabled]="(page() + 1) * 10 >= filteredMembers().length"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    }
+    @if (tab() === 'invitations') {
+      <div class="toolbar">
+        <h2>
+          Invitaciones <span>({{ access.invitations.length }})</span>
+        </h2>
+        <span class="muted">Últimas 100 invitaciones</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">
+            Invitaciones de
+            {{
+              organization.name
+            }}
+          </caption>
+          <thead>
+            <tr>
+              <th>Correo invitado</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Caducidad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (invitation of access.invitations; track invitation.id) {
+              <tr>
+                <td>
+                  <span class="person"
+                    ><span class="person-avatar"><app-di-icon name="mail" /></span
+                    >{{ invitation.email }}</span
+                  >
+                </td>
+                <td>
+                  @for (role of invitation.roles; track role) {
+                    {{ roleLabel(role) }}
+                  }
+                </td>
+                <td>
+                  <span
+                    class="status"
+                    [class.active-status]="invitation.status === 'ACCEPTED'"
+                    [class.warning-status]="invitation.status === 'PENDING'"
+                    >{{ statusLabel(invitation.status) }}</span
+                  >
+                </td>
+                <td>{{ invitation.expiresAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  @if (invitation.status === 'PENDING') {
+                    <button
+                      class="text-button danger"
+                      (click)="revokeConfirmation.set(invitation)"
+                      [disabled]="
+                        pending() ||
+                        (!access.owner &&
+                          (invitation.roles.includes('OWNER') ||
+                            invitation.roles.includes('ADMIN')))
+                      "
+                    >
+                      Revocar
+                    </button>
+                  } @else {
+                    <span class="muted">—</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="di-empty">
+                    <app-di-icon name="mail" />
+                    <h3>Tu próximo compañero empieza aquí</h3>
+                    <p>Invita a una persona para que forme parte de esta organización.</p>
+                    <button mat-stroked-button (click)="openDialog('invite')">
+                      Enviar primera invitación
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="helper">
+        Para reenviar una invitación, revoca la pendiente y crea una nueva. La persona aceptará con
+        su correo verificado.
+      </p>
+    }
+    @if (tab() === 'teams') {
+      <div class="toolbar">
+        <div>
+          <h2>
+            Equipos <span>({{ access.teams.length }})</span>
+          </h2>
+          <p>Agrupa a las personas según su forma de trabajar.</p>
+        </div>
+        <button mat-stroked-button (click)="openDialog('team')" [disabled]="pending()">
+          <app-di-icon name="plus" />Crear equipo
+        </button>
+      </div>
+      <div class="di-team-grid">
+        @for (item of access.teams; track item.id) {
+          <button
+            class="di-team-card"
+            [class.selected]="team()?.id === item.id"
+            [attr.aria-pressed]="team()?.id === item.id"
+            (click)="selectTeam(item)"
+            [disabled]="pending()"
+          >
+            <span class="team-icon"><app-di-icon name="users" /></span
+            ><strong>{{ item.name }}</strong
+            ><small
+              >{{ item.membershipIds.length }} personas · {{ repositoriesFor(item) }} repositorios
+              con permisos</small
+            ><span class="team-open">Gestionar equipo <app-di-icon name="arrow" /></span>
+          </button>
         }
       </div>
+      @if (!access.teams.length) {
+        <div class="di-empty">
+          <app-di-icon name="users" />
+          <h3>Un equipo para cada forma de trabajar</h3>
+          <p>Crea tu primer equipo y reúne a sus miembros.</p>
+          <button mat-flat-button (click)="openDialog('team')">Crear primer equipo</button>
+        </div>
+      }
+      @if (team(); as selected) {
+        <div class="di-editor-card">
+          <div class="toolbar">
+            <h2>{{ selected.name }}</h2>
+            <button
+              class="text-button danger"
+              (click)="confirmation.set(selected)"
+              [disabled]="pending()"
+            >
+              Eliminar equipo
+            </button>
+          </div>
+          <form #renameForm="ngForm" (ngSubmit)="rename()" class="di-inline-form">
+            <mat-form-field appearance="outline"
+              ><mat-label>Nombre del equipo</mat-label
+              ><input
+                matInput
+                name="renamedTeam"
+                [(ngModel)]="renamedTeam"
+                required
+                maxlength="200"
+                [disabled]="pending()" /></mat-form-field
+            ><button
+              mat-stroked-button
+              type="submit"
+              [disabled]="pending() || renameForm.invalid || !renamedTeam.trim()"
+            >
+              Guardar nombre
+            </button>
+          </form>
+          <h3>Miembros del equipo</h3>
+          <div class="di-member-checks">
+            @for (member of access.members; track member.id) {
+              <mat-checkbox
+                [checked]="selected.membershipIds.includes(member.id)"
+                [disabled]="
+                  pending() ||
+                  (member.status !== 'ACTIVE' && !selected.membershipIds.includes(member.id))
+                "
+                (change)="setMember(member, $event.checked)"
+                ><strong>{{ member.displayName }}</strong
+                ><small>{{ member.email }} · {{ statusLabel(member.status) }}</small></mat-checkbox
+              >
+            }
+          </div>
+        </div>
+      }
     }
-    @if (memberConfirmation(); as member) {
-      <div class="confirmation" role="group" aria-label="Confirmar cambio de membresía">
-        <p>Cambiar {{ member.email }} a {{ memberRoles[member.id] }} / {{ statusLabel(memberStatuses[member.id]) }}. El acceso se comprobará de nuevo en sus próximas operaciones. Retirar elimina sus asociaciones a equipos; suspender las conserva para una posible reactivación.</p>
-        <button mat-flat-button (click)="changeMember()" [disabled]="pending()">Confirmar cambio</button><button mat-button (click)="memberConfirmation.set(null)" [disabled]="pending()">Cancelar</button>
+    @if (tab() === 'permissions') {
+      <div class="toolbar">
+        <div>
+          <h2>Permisos por repositorio</h2>
+          <p>El acceso del equipo respeta los límites del rol de cada persona.</p>
+        </div>
+      </div>
+      @if (!access.teams.length) {
+        <div class="di-empty">
+          <app-di-icon name="shield" />
+          <h3>Primero, crea un equipo</h3>
+          <p>Los permisos de repositorio se asignan a equipos de tu organización.</p>
+          <button mat-stroked-button (click)="tab.set('teams')">Ir a equipos</button>
+        </div>
+      } @else {
+        <div class="di-editor-card">
+          <div class="di-selectors">
+            <mat-form-field appearance="outline"
+              ><mat-label>Equipo</mat-label
+              ><mat-select
+                [value]="team()?.id"
+                (selectionChange)="selectTeamById($event.value)"
+                [disabled]="pending()"
+              >
+                @for (item of access.teams; track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select></mat-form-field
+            ><mat-form-field appearance="outline"
+              ><mat-label>Repositorio</mat-label
+              ><mat-select
+                [value]="repository()"
+                (selectionChange)="selectRepository($event.value)"
+                [disabled]="pending()"
+              >
+                @for (repo of access.repositories; track repo.id) {
+                  <mat-option [value]="repo.id">{{ repo.fullName }}</mat-option>
+                }
+              </mat-select></mat-form-field
+            >
+          </div>
+          @if (!access.repositories.length) {
+            <div class="di-empty">
+              <app-di-icon name="box" />
+              <h3>Aún no hay repositorios disponibles</h3>
+              <p>
+                La conexión de repositorios será el siguiente paso del producto. Puedes preparar tus
+                equipos mientras tanto.
+              </p>
+            </div>
+          } @else if (repository()) {
+            <div class="di-check-grid">
+              @for (permission of access.permissions; track permission.code) {
+                <mat-checkbox
+                  [checked]="selectedPermissions().includes(permission.code)"
+                  (change)="togglePermission(permission.code, $event.checked)"
+                  [disabled]="pending()"
+                  >{{ permissionLabel(permission.code)
+                  }}<small>{{ permission.code }}</small></mat-checkbox
+                >
+              }
+            </div>
+            <p class="helper">
+              Guardar sin permisos retira el acceso de este equipo. Un rol de lector sigue sin poder
+              solicitar análisis, aunque se seleccione ese permiso.
+            </p>
+            <button mat-flat-button (click)="savePermissions()" [disabled]="pending()">
+              Guardar permisos
+            </button>
+          }
+        </div>
+      }
+      <details class="di-role-catalog">
+        <summary>Ver permisos de los roles predefinidos</summary>
+        <p class="helper">
+          El catálogo describe el alcance de cada rol. Las funciones en preparación estarán
+          disponibles en sus próximas fases.
+        </p>
+        <div class="di-role-grid">
+          @for (role of access.roles; track role.code) {
+            <article>
+              <h3>{{ roleLabel(role.code) }}</h3>
+              <ul>
+                @for (permission of role.permissions; track permission) {
+                  <li>{{ permission }}</li>
+                }
+              </ul>
+            </article>
+          }
+        </div>
+      </details>
+    }
+    @if (dialog() || memberConfirmation() || revokeConfirmation() || confirmation()) {
+      <div class="di-modal-backdrop" (keydown.escape)="closeDialogs()">
+        <section
+          class="di-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title"
+          [cdkTrapFocus]="true"
+          [cdkTrapFocusAutoCapture]="true"
+        >
+          <button
+            class="di-modal-close di-icon-button"
+            aria-label="Cerrar diálogo"
+            (click)="closeDialogs()"
+            [disabled]="pending()"
+          >
+            <app-di-icon name="close" />
+          </button>
+          @if (dialog() === 'invite') {
+            <span class="modal-icon"><app-di-icon name="mail" /></span>
+            <h2 id="dialog-title">Invita a tu equipo</h2>
+            <p>
+              Envía un enlace para unirse a {{ organization.name }}. La persona necesitará verificar
+              su correo.
+            </p>
+            <form #inviteForm="ngForm" (ngSubmit)="invite()">
+              <mat-form-field appearance="outline"
+                ><mat-label>Correo electrónico</mat-label
+                ><input
+                  matInput
+                  type="email"
+                  name="invitationEmail"
+                  [(ngModel)]="invitationEmail"
+                  required
+                  email
+                  maxlength="320"
+                  [disabled]="pending()" /></mat-form-field
+              ><mat-form-field appearance="outline"
+                ><mat-label>Rol de la persona</mat-label
+                ><mat-select
+                  name="invitationRole"
+                  [(ngModel)]="invitationRole"
+                  [disabled]="pending()"
+                >
+                  @for (role of roles(); track role) {
+                    <mat-option [value]="role">{{ roleLabel(role) }}</mat-option>
+                  }
+                </mat-select></mat-form-field
+              >
+              @if (error()) {
+                <p class="error" role="alert">{{ error() }}</p>
+              }
+              <div class="di-modal-actions">
+                <button mat-button type="button" (click)="closeDialogs()" [disabled]="pending()">
+                  Cancelar</button
+                ><button mat-flat-button type="submit" [disabled]="pending() || inviteForm.invalid">
+                  {{ pending() ? 'Enviando…' : 'Enviar invitación' }}
+                </button>
+              </div>
+            </form>
+          }
+          @if (dialog() === 'team') {
+            <span class="modal-icon"><app-di-icon name="users" /></span>
+            <h2 id="dialog-title">Crea un equipo</h2>
+            <p>Un espacio para las personas que trabajan juntas.</p>
+            <form #teamForm="ngForm" (ngSubmit)="createTeam()">
+              <mat-form-field appearance="outline"
+                ><mat-label>Nombre del equipo</mat-label
+                ><input
+                  matInput
+                  name="teamName"
+                  [(ngModel)]="teamName"
+                  required
+                  maxlength="200"
+                  [disabled]="pending()"
+              /></mat-form-field>
+              @if (error()) {
+                <p class="error" role="alert">{{ error() }}</p>
+              }
+              <div class="di-modal-actions">
+                <button mat-button type="button" (click)="closeDialogs()" [disabled]="pending()">
+                  Cancelar</button
+                ><button
+                  mat-flat-button
+                  type="submit"
+                  [disabled]="pending() || teamForm.invalid || !teamName.trim()"
+                >
+                  Crear equipo
+                </button>
+              </div>
+            </form>
+          }
+          @if (memberConfirmation(); as member) {
+            <h2 id="dialog-title">Editar acceso</h2>
+            <p>{{ member.displayName }}<br />{{ member.email }}</p>
+            <form (ngSubmit)="changeMember()">
+              <mat-form-field appearance="outline"
+                ><mat-label>Rol</mat-label
+                ><mat-select
+                  name="memberRole"
+                  [(ngModel)]="memberRoles[member.id]"
+                  [disabled]="pending()"
+                >
+                  @for (role of roles(); track role) {
+                    <mat-option [value]="role">{{ roleLabel(role) }}</mat-option>
+                  }
+                </mat-select></mat-form-field
+              ><mat-form-field appearance="outline"
+                ><mat-label>Estado</mat-label
+                ><mat-select
+                  name="memberStatus"
+                  [(ngModel)]="memberStatuses[member.id]"
+                  [disabled]="pending()"
+                  ><mat-option value="ACTIVE">Activo</mat-option
+                  ><mat-option value="SUSPENDED">Suspendido</mat-option
+                  ><mat-option value="LEFT">Retirado</mat-option></mat-select
+                ></mat-form-field
+              >
+              <p class="helper">
+                Debe quedar un propietario activo. Suspender conserva los equipos; retirar elimina
+                sus asociaciones.
+              </p>
+              @if (error()) {
+                <p class="error" role="alert">{{ error() }}</p>
+              }
+              <div class="di-modal-actions">
+                <button mat-button type="button" (click)="closeDialogs()" [disabled]="pending()">
+                  Cancelar</button
+                ><button mat-flat-button type="submit" [disabled]="pending()">
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          }
+          @if (revokeConfirmation(); as invitation) {
+            <h2 id="dialog-title">¿Revocar esta invitación?</h2>
+            <p>El enlace enviado a {{ invitation.email }} dejará de funcionar.</p>
+            @if (error()) {
+              <p class="error" role="alert">{{ error() }}</p>
+            }
+            <div class="di-modal-actions">
+              <button mat-button (click)="closeDialogs()" [disabled]="pending()">Cancelar</button
+              ><button mat-flat-button (click)="revoke(invitation)" [disabled]="pending()">
+                Revocar invitación
+              </button>
+            </div>
+          }
+          @if (confirmation(); as removal) {
+            <h2 id="dialog-title">¿Eliminar {{ removal.name }}?</h2>
+            <p>
+              Se retirarán las asociaciones y los permisos del equipo. Las personas conservarán su
+              membresía en la organización.
+            </p>
+            @if (error()) {
+              <p class="error" role="alert">{{ error() }}</p>
+            }
+            <div class="di-modal-actions">
+              <button mat-button (click)="closeDialogs()" [disabled]="pending()">Cancelar</button
+              ><button mat-flat-button (click)="deleteTeam()" [disabled]="pending()">
+                Eliminar equipo
+              </button>
+            </div>
+          }
+        </section>
       </div>
     }
-
-    <h3>Equipos</h3>
-    <form #teamForm="ngForm" (ngSubmit)="createTeam()"><mat-form-field appearance="outline"><mat-label>Nombre del equipo nuevo</mat-label><input matInput name="teamName" [(ngModel)]="teamName" required maxlength="200" [disabled]="pending()"></mat-form-field><button mat-flat-button type="submit" [disabled]="pending() || teamForm.invalid || !teamName.trim()">Crear equipo</button></form>
-    <div class="team-options">@for (item of access.teams; track item.id) { <button mat-stroked-button (click)="selectTeam(item)" [disabled]="pending()" [attr.aria-pressed]="team()?.id === item.id">{{ item.name }}</button> } @empty { <p>Todavía no hay equipos.</p> }</div>
-    @if (team(); as selected) {
-      <h4>{{ selected.name }}</h4>
-      <form #renameForm="ngForm" (ngSubmit)="rename()"><mat-form-field appearance="outline"><mat-label>Nombre del equipo seleccionado</mat-label><input matInput name="renamedTeam" [(ngModel)]="renamedTeam" required maxlength="200" [disabled]="pending()"></mat-form-field><button mat-stroked-button type="submit" [disabled]="pending() || renameForm.invalid || !renamedTeam.trim()">Renombrar</button><button mat-button type="button" (click)="confirmation.set(selected)" [disabled]="pending()">Eliminar equipo</button></form>
-      @if (confirmation(); as removal) {
-        <div class="confirmation" role="group" aria-label="Confirmar eliminación del equipo"><p>¿Eliminar {{ removal.name }} y todos sus permisos y asociaciones? Los usuarios conservarán su membresía en la organización.</p><button mat-flat-button (click)="deleteTeam()" [disabled]="pending()">Confirmar eliminación</button><button mat-button (click)="confirmation.set(null)" [disabled]="pending()">Cancelar</button></div>
-      }
-      <h4>Personas del equipo</h4>
-      <div class="checks">@for (member of access.members; track member.id) { <mat-checkbox [checked]="selected.membershipIds.includes(member.id)" [disabled]="pending() || (member.status !== 'ACTIVE' && !selected.membershipIds.includes(member.id))" (change)="setMember(member, $event.checked)">{{ member.displayName }} · {{ member.email }} · {{ statusLabel(member.status) }}</mat-checkbox> }</div>
-      <h4>Permisos por repositorio</h4>
-      <p>El acceso efectivo es la intersección del rol y los permisos del equipo. Conceder scan.create a un VIEWER no le permite analizar. OWNER/ADMIN tienen alcance de organización. Guardar sin permisos retira el acceso de este equipo al repositorio.</p>
-      <mat-form-field appearance="outline"><mat-label>Repositorio del equipo</mat-label><mat-select [value]="repository()" (selectionChange)="selectRepository($event.value)" [disabled]="pending()">@for (repo of access.repositories; track repo.id) { <mat-option [value]="repo.id">{{ repo.fullName }}</mat-option> }</mat-select></mat-form-field>
-      @if (access.repositories.length === 0) { <p>No hay repositorios habilitados. Todavía falta la pantalla de conexión/registro de repositorios.</p> }
-      @if (repository()) {
-        <div class="checks">@for (permission of access.permissions; track permission.code) { <mat-checkbox [checked]="selectedPermissions().includes(permission.code)" (change)="togglePermission(permission.code, $event.checked)" [disabled]="pending()">{{ permissionLabel(permission.code) }} <small>{{ permission.code }}</small></mat-checkbox> }</div>
-        <button mat-flat-button (click)="savePermissions()" [disabled]="pending()">Guardar permisos del repositorio</button>
-      }
-    }
-    <details><summary>Permisos de los roles predefinidos</summary><p>Los roles se asignan por membresía. Su catálogo no se edita en esta entrega.</p>@for (role of access.roles; track role.code) { <p><strong>{{ role.code }}:</strong> {{ role.permissions.join(', ') }}</p> }</details>
   }
 </section>

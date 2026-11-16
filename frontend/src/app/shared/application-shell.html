@@ -1,0 +1,93 @@
+<a class="skip-link" href="#workspace-main">Saltar al contenido</a>
+<div class="app-layout">
+  @if (sidebar()) {
+    <button
+      class="mobile-scrim"
+      aria-label="Cerrar navegación"
+      (click)="sidebar.set(false)"
+    ></button>
+  }
+  <app-workspace-sidebar [page]="page()" [opened]="sidebar()" (navigate)="go($event)" />
+  <div class="workspace">
+    <app-workspace-topbar
+      [page]="page()"
+      [menuOpen]="sidebar()"
+      (navigate)="go($event)"
+      (toggleMenu)="sidebar.set(!sidebar())"
+    />
+    <main id="workspace-main" tabindex="-1" (keydown.escape)="sidebar.set(false)">
+      <div class="breadcrumb">
+        Espacio de trabajo <span>/</span> {{ current.label
+        }}<span class="workspace-status"><i></i>Sesión activa</span>
+      </div>
+      @defer (on immediate) {
+        <app-email-verification />
+      } @error {
+        <p role="alert">No se pudo cargar el estado de verificación. Recarga la página.</p>
+      }
+      @switch (page()) {
+        @case ('dashboard') {
+          @defer (on immediate) {
+            <app-dashboard (manage)="go('organization')" />
+          } @loading {
+            <p role="status">Cargando tu dashboard…</p>
+          } @error {
+            <p role="alert">No se pudo cargar el dashboard. Recarga la página.</p>
+          }
+        }
+        @case ('organization') {
+          @defer (on immediate) {
+            <app-invitation-acceptance (accepted)="workspace.reload()" /><app-organization-workspace
+              #workspace
+            />
+          } @loading {
+            <p role="status">Cargando organización…</p>
+          } @error {
+            <p role="alert">No se pudo cargar organización. Recarga la página.</p>
+          }
+        }
+        @case ('settings') {
+          <div class="page-heading">
+            <h1>Configuración</h1>
+            <p>Tu perfil y las formas de acceder a tu espacio.</p>
+          </div>
+          <section class="profile-card">
+            <span class="avatar large">{{ initials }}</span>
+            <div>
+              <h2>{{ api.account()?.displayName }}</h2>
+              <p>{{ api.account()?.email }}</p>
+              <span class="account-status">{{
+                api.account()?.emailVerified
+                  ? 'Correo verificado'
+                  : 'Correo pendiente de verificación'
+              }}</span>
+            </div>
+          </section>
+          @defer (on immediate) {
+            <app-connected-identities />
+          } @error {
+            <p role="alert">No se pudieron cargar tus métodos de acceso. Recarga la página.</p>
+          }
+        }
+        @default {
+          <div class="page-heading">
+            <h1>{{ current.label }}</h1>
+            <p>Una vista más completa de tu software, paso a paso.</p>
+          </div>
+          <section class="coming-soon">
+            <span class="coming-icon"><app-di-icon [name]="current.icon" /></span
+            ><span class="coming-tag">EN PREPARACIÓN</span>
+            <h2>Estamos construyendo esta parte de tu espacio.</h2>
+            <p>{{ current.description }}</p>
+            <button mat-stroked-button (click)="go('dashboard')">
+              Volver al dashboard <app-di-icon name="arrow" />
+            </button>
+          </section>
+        }
+      }
+    </main>
+    <footer class="workspace-footer">
+      <span>Dependency Intelligence</span><span>Comprende. Anticipa. Protege.</span>
+    </footer>
+  </div>
+</div>

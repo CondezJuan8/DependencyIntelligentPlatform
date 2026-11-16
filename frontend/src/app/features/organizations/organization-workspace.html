@@ -1,25 +1,71 @@
-<section aria-labelledby="organizations-title">
-  <h2 id="organizations-title">Mis organizaciones</h2>
-  @if (error()) {
-    <div role="alert"><p class="error">{{ error() }}</p><button mat-button (click)="reload()" [disabled]="loading()">Reintentar</button></div>
-  }
-  @if (loading()) { <p role="status">Cargando organizaciones…</p> }
-  @else if (!error() && organizations().length === 0) { <p>Crea una organización para empezar a trabajar con tu equipo.</p> }
-  <ul>
-    @for (organization of organizations(); track organization.id) { <li>{{ organization.name }} <button mat-stroked-button (click)="selected.set(organization)" [attr.aria-pressed]="selected()?.id === organization.id">Miembros y equipos</button></li> }
-  </ul>
-</section>
+<div class="heading">
+  <div>
+    <h1>Organización</h1>
+    <p>Un equipo conectado. El acceso adecuado para cada persona.</p>
+  </div>
+  <div class="heading-actions">
+    @if (organizations().length) {
+      <select
+        aria-label="Organización activa"
+        [value]="selected()?.id"
+        (change)="choose($event)"
+        [disabled]="pending()"
+      >
+        @for (item of organizations(); track item.id) {
+          <option [value]="item.id">{{ item.name }}</option>
+        }
+      </select>
+    }
+    <button mat-stroked-button (click)="creating.set(!creating())" [disabled]="pending()">
+      <app-di-icon name="plus" />Nueva organización
+    </button>
+  </div>
+</div>
+@if (error()) {
+  <p role="alert" class="error">
+    {{ error() }} <button mat-button (click)="reload()">Reintentar</button>
+  </p>
+}
+@if (loading()) {
+  <p role="status">Cargando tus organizaciones…</p>
+}
+@if (!loading() && !error() && (creating() || organizations().length === 0)) {
+  <section class="create">
+    <span class="create-icon"><app-di-icon name="users" /></span>
+    <h2>
+      {{ organizations().length ? 'Un nuevo espacio para tu equipo' : 'Tu equipo empieza aquí' }}
+    </h2>
+    <p>
+      Crea una organización para invitar personas y organizar sus permisos. Tú serás su propietario.
+    </p>
+    <form #form="ngForm" (ngSubmit)="create(form)">
+      <mat-form-field appearance="outline"
+        ><mat-label>Nombre de la organización</mat-label
+        ><input
+          matInput
+          name="name"
+          [(ngModel)]="name"
+          required
+          maxlength="200"
+          autocomplete="organization"
+          [disabled]="pending()" /></mat-form-field
+      ><button mat-flat-button type="submit" [disabled]="pending() || form.invalid || !name.trim()">
+        {{ pending() ? 'Creando…' : 'Crear organización' }}
+      </button>
+      @if (organizations().length) {
+        <button mat-button type="button" (click)="creating.set(false)" [disabled]="pending()">
+          Cancelar
+        </button>
+      }
+    </form>
+  </section>
+}
 @defer (when selected()) {
-  @for (organization of selected() ? [selected()!] : []; track organization.id) { <app-organization-access [organization]="organization" /> }
-} @loading { <p role="status">Abriendo gestión de la organización…</p> } @error { <p role="alert">No se pudo cargar la gestión. Recarga la página para reintentar.</p> }
-<section class="create" aria-labelledby="create-title">
-  <h2 id="create-title">Crear organización</h2>
-  <p>Tu cuenta tendrá el rol de propietario en la nueva organización.</p>
-  <form #form="ngForm" (ngSubmit)="create(form)" [attr.aria-busy]="pending()">
-    <mat-form-field appearance="outline">
-      <mat-label>Nombre de la organización</mat-label>
-      <input matInput name="name" [(ngModel)]="name" required maxlength="200" autocomplete="organization" [disabled]="pending()">
-    </mat-form-field>
-    <button mat-flat-button type="submit" [disabled]="pending() || loading() || form.invalid || !name.trim()">{{ pending() ? 'Creando…' : 'Crear organización' }}</button>
-  </form>
-</section>
+  @for (organization of selected() ? [selected()!] : []; track organization.id) {
+    <app-organization-access [organization]="organization" />
+  }
+} @loading {
+  <p role="status">Abriendo el espacio de tu organización…</p>
+} @error {
+  <p role="alert">No se pudo cargar la organización. Recarga la página.</p>
+}

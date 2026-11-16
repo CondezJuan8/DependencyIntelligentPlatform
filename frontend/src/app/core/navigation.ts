@@ -1,0 +1,76 @@
+export const navigation = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: 'dashboard',
+    ready: true,
+    description: 'Tu espacio de trabajo y los próximos pasos.',
+  },
+  {
+    id: 'inventory',
+    label: 'Inventario',
+    icon: 'box',
+    ready: false,
+    description:
+      'Consulta y filtra las dependencias de tus repositorios. Disponible cuando conectemos el flujo de análisis.',
+  },
+  {
+    id: 'vulnerabilities',
+    label: 'Vulnerabilidades',
+    icon: 'shield',
+    ready: false,
+    description:
+      'Explora hallazgos de seguridad con su versión afectada y evidencia. Pendiente de la integración con OSV.',
+  },
+  {
+    id: 'dependencies',
+    label: 'Dependencias',
+    icon: 'graph',
+    ready: false,
+    description:
+      'Explora las relaciones entre componentes y el alcance de sus cambios. Pendiente de datos del scanner.',
+  },
+  {
+    id: 'analysis',
+    label: 'Análisis',
+    icon: 'analysis',
+    ready: false,
+    description:
+      'Ejecuta análisis sobre commits reales. Primero conectaremos repositorios y el procesamiento de Maven y npm.',
+  },
+  {
+    id: 'documentation',
+    label: 'Documentación',
+    icon: 'document',
+    ready: false,
+    description:
+      'Organiza documentación técnica y consulta respuestas con evidencia. La búsqueda y el asistente llegarán en su fase.',
+  },
+  {
+    id: 'reports',
+    label: 'Reportes',
+    icon: 'report',
+    ready: false,
+    description:
+      'Comparte informes trazables sobre dependencias y riesgos. Pendiente de inventario y hallazgos reales.',
+  },
+  {
+    id: 'organization',
+    label: 'Organización',
+    icon: 'users',
+    ready: true,
+    description: 'Administra tu organización, sus miembros y permisos.',
+  },
+  {
+    id: 'settings',
+    label: 'Configuración',
+    icon: 'settings',
+    ready: true,
+    description: 'Tu cuenta y métodos de acceso.',
+  },
+] as const;
+export type Page = (typeof navigation)[number]['id'];
+export function readPage(search: string): Page {
+  const value = new URLSearchParams(search).get('view');
+  return navigation.find((item) => item.id === value)?.id ?? 'dashboard';
+}

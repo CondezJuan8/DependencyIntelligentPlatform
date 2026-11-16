@@ -1,0 +1,32 @@
+<div class="metrics" aria-label="Resumen del espacio de trabajo">
+  <article>
+    <div>
+      <p>Organizaciones</p>
+      <strong>{{ loading() ? '…' : failed() ? '—' : count() }}</strong><small
+        >Espacios a los que perteneces</small
+      >
+    </div>
+    <span class="metric-icon blue"><app-di-icon name="users" /></span>
+  </article>
+  <article>
+    <div>
+      <p>Repositorios</p>
+      <strong>—</strong><small>Pendiente de conexión</small>
+    </div>
+    <span class="metric-icon cyan"><app-di-icon name="box" /></span>
+  </article>
+  <article>
+    <div>
+      <p>Dependencias</p>
+      <strong>—</strong><small>Sin análisis disponibles</small>
+    </div>
+    <span class="metric-icon purple"><app-di-icon name="graph" /></span>
+  </article>
+  <article>
+    <div>
+      <p>Nivel de riesgo</p>
+      <strong class="risk">Sin evaluar</strong><small>Requiere un análisis real</small>
+    </div>
+    <span class="metric-icon gray"><app-di-icon name="shield" /></span>
+  </article>
+</div>
