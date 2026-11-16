@@ -23,6 +23,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Bloque 09, 15 de noviembre de 2026. Nueva dependencia `spring-boot-starter-oauth2-client`, versión gestionada por el BOM existente, solo en Infrastructure. Google OIDC/GitHub OAuth con PKCE S256 y reglas de vinculación en Application Java puro. Angular Material/RxJS existentes para acceso y métodos conectados. Proveedor HTTP/JWT local de pruebas con HttpServer del JDK y Nimbus transitivo, sin SDK externo nuevo. Configuración real de clientes pendiente; ambos deshabilitados por defecto. [Identidad externa](IDENTIDAD_GOOGLE_GITHUB.md).
+
 Bloque 08, 15 de noviembre de 2026. Paleta del usuario centralizada mediante tokens CSS/Sass y overrides oficiales de Angular Material. Aplicada a pantallas actuales con variantes de contraste para texto y estados. Se documentan hitos de revisión interactiva con el usuario. [Diseño frontend](DISENO_FRONTEND.md).
 
 Bloque 07, 15 de noviembre de 2026. Incorporado `spring-boot-starter-mail` en Infrastructure con versión gestionada por Spring Boot. Mailpit v1.33.1 como bandeja SMTP local, verificada mediante binario oficial temporal y configurada en Compose. Tokens con SecureRandom/SHA-256 de Java estándar. V13 añade versión de credenciales e índice de solicitudes. Angular permite solicitar y confirmar enlaces. La cola de recuperación y las sesiones actuales residen en memoria. Resultados y límites en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md).
@@ -37,7 +39,7 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
 - Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
-- Núcleo de base V1–V12 con 121 tablas, 85 con RLS forzado y 208 FK. Diccionario/diagramas actualizados y descubrimiento autenticado de organizaciones probado. Servicios restantes según matriz del maestro. Vector físico opcional. Resultados en `database/implementation-report.md`.
+- Núcleo de base V1–V13 con 121 tablas, 85 con RLS forzado y 208 FK. Diccionario/diagramas actualizados, descubrimiento autenticado de organizaciones y versión de credenciales probados. Identidad externa reutiliza el esquema. Servicios restantes según matriz del maestro. Vector físico opcional. Resultados en `database/implementation-report.md`.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
 - Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.
@@ -45,8 +47,8 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 - F04 usa JDBC parametrizado y `TenantTransactions` con el gestor existente para importar snapshot, procedencia y ocurrencias atómicamente bajo contexto tenant local. V4–V11 separan paquete/versión/identificadores y renombran la procedencia a `sbom_documents`; V1–V3 permanecen intactas. SHA-256 usa Java estándar; el importador aún no almacena el original. No se añadió una biblioteca nueva.
 
 - Flyway tiene credenciales de migración separadas del datasource `dependency_app`, no propietario. Roles capability, grants mínimos, FORCE RLS y guard de privilegios en Infrastructure. Verificados con PostgreSQL nativo temporal 18.6, Maven 3.9.11 y JDK local 25 con destino 21: 31 pruebas distintas pertinentes. Docker/PostgreSQL 17.7 no ejecutados en este bloque. Python estándar genera diccionario/Excalidraw/SVG desde catálogo; Pillow existente genera PNG, sin dependencia de runtime del producto.
-- No se han incorporado microservicios, RabbitMQ, pgvector, RAG ni proveedores nuevos.
-- cdxgen, GitHub y OSV siguen pendientes y fuera de la demo inicial. El parser implementado no demuestra cobertura del scanner ni consulta de vulnerabilidades. El soporte de Maven para este ejemplo no aprueba por sí solo la cobertura de todos los ecosistemas del piloto.
+- No se han incorporado microservicios, RabbitMQ, pgvector, RAG ni proveedores de IA.
+- cdxgen, instalación/acceso a repositorios GitHub y OSV siguen pendientes. El login GitHub no completa esas funciones. El parser implementado no demuestra cobertura del scanner ni consulta de vulnerabilidades. El soporte de Maven para este ejemplo no aprueba por sí solo la cobertura de todos los ecosistemas del piloto.
 
 El detalle vigente de responsabilidades está en `ARQUITECTURA_BACKEND.md`; los resultados y límites de cada bloque están en `BITACORA_TRABAJO.md`.
 

@@ -360,3 +360,41 @@ PowerShell/rg y Git para revisar cambios, Sass y Angular Material existentes par
 Build Angular correcto. Quince combinaciones de texto superan 4,5:1 y los contornos de controles superan 3:1 sobre su superficie. Se comprueban tokens/override primario en CSS compilado, enlaces locales y formato de diferencias. Referencias en [WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) y [Angular Material](https://material.angular.dev/guide/theming). La consulta al navegador conectado volvió a devolver host indisponible. Se registra revisión visual pendiente. Las verificaciones se limitaron al frontend y documentación afectados.
 
 Dos commits con emoji para tema del frontend y documentación/hitos. Seguir con Google/GitHub y vinculación segura, conservando los avisos de revisión solicitados.
+
+## Bloque 09 — Google, GitHub y vinculación de identidades
+
+Fecha: 15 de noviembre de 2026, America/Bogota. Horas reales sin medir. Petición: implementar la integración Google/GitHub y avanzar hasta completar lo posible durante la ausencia del usuario, sin pedir confirmaciones. Se revisaron los cuatro documentos prioritarios y el esquema existente. Las variables de clientes estaban sin configurar; se comprobó su presencia sin imprimir valores.
+
+### Cambios concretos
+
+- Domain incorpora IdentityProvider; Application añade ManageExternalIdentities y puertos/DTO propios, independientes de Spring. Acceso por sujeto estable, creación de cuenta externa sin contraseña ficticia y prohibición de fusión por correo. Una colisión exige iniciar sesión en la cuenta existente y vincular explícitamente.
+- Infrastructure adapta Google OIDC y GitHub OAuth, con clientes habilitados por configuración, PKCE S256, state de un uso, nonce, caducidad y callback fijo. Inicio por POST con CSRF. Vínculo ligado al usuario original, versión y sesión reciente; requiere correo verificado. JWT Google validado mediante Spring Security y correo GitHub principal verificado consultado por API.
+- Adaptador JDBC y transacciones con bloqueo de usuario, restricciones únicas y nueva comprobación del vínculo tras adquirir bloqueo. Vincular revoca otras sesiones; desvincular incrementa versión e invalida la actual. Se impide quitar el último método utilizable. SessionIdentity conserva hora de autenticación. Un callback fallido preserva una sesión local que siga vigente.
+- Tokens externos descartados después del uso, sin persistencia de authorized clients ni exposición a Angular. No se solicitan permisos de repositorio. Proveedores deshabilitados por defecto y fallo de arranque si se habilitan sin credenciales. No hay migraciones nuevas: el esquema V1–V13 conserva 121 tablas, 85 con FORCE RLS y 208 FK; no se regeneran diagramas sin cambios de catálogo.
+- Angular incorpora botones de acceso, panel de métodos conectados, vinculación explícita, confirmación de retirada, protección del último método y mensajes de retorno permitidos. Se usan los tokens de la paleta existente. Nginx conserva el puerto del Host al reenviar API, omite access logs del callback y aplica no-referrer.
+- Añadido IDENTIDAD_GOOGLE_GITHUB.md con callbacks, registro/configuración de clientes, contratos, límites y pasos de activación. Actualizados maestro, arquitectura, stack, especificación database, informe de implementación, acceso local, roadmap, README y AGENTS. Login GitHub se distingue de instalación/acceso a repositorios.
+
+### Herramientas y tecnologías utilizadas
+
+| Herramienta/tecnología | Uso | Incorporación |
+| --- | --- | --- |
+| spring-boot-starter-oauth2-client | OAuth/OIDC, clientes, PKCE y verificación JWT | Nueva dependencia solo en Infrastructure; BOM existente |
+| Spring Security, JDBC, transacciones, Clock y sesiones | Adaptadores, controles y persistencia | Dependencias existentes |
+| Angular Material, RxJS y tokens Sass/CSS | Acceso y gestión de vínculos | Dependencias existentes |
+| HttpServer del JDK y Nimbus transitivo | Proveedor HTTP local, códigos, PKCE y JWT RSA en pruebas | Fixture de pruebas; sin SDK nuevo del producto |
+| PowerShell, rg, Git, Maven 3.9.11, JDK 25 destino 21 | Inspección, compilación y verificaciones focalizadas | Herramientas existentes |
+| PostgreSQL nativo 18.6, Node 24.22.1 y Angular CLI | Base temporal con runtime limitado, build y parser | Herramientas existentes |
+
+Se consultaron fuentes oficiales de Spring Security, Google OIDC y GitHub OAuth/API; referencias enlazadas en IDENTIDAD_GOOGLE_GITHUB.md. No se incorporaron SDK de proveedor, almacenamiento de tokens ni IA nueva.
+
+### Verificaciones y resultados
+
+22 casos distintos pertinentes correctos: siete de seguridad/arquitectura/límite de intentos, diez de ExternalIdentityIT y cinco de LocalAccessIT. Base PostgreSQL temporal propia, Flyway existente y rol runtime limitado. El fixture realiza intercambio HTTP de código y verifica code_verifier/PKCE; firma tokens RSA y publica JWKS. Se comprobaron firma/issuer/audience/expiración/nonce inválidos, state y proveedor erróneos, plazo, cambio de sesión durante vínculo, CSRF, correo coincidente, ID estable tras cambiar correo, creación concurrente, vinculación, revocación y último método. Los controles de acceso local y autorización existentes conservaron sus resultados.
+
+Build Angular de producción correcto. Cinco aserciones directas sobre el parser de retorno real correctas, incluidos código desconocido/prototipo y parámetros duplicados. La comprobación produce solo el aviso de Node sobre detección de módulo del archivo TypeScript; no se cambia la configuración del producto para silenciarlo. Tras ajustar el rechazo de nombres de proveedor inválidos se repitieron las clases focalizadas, sin ampliar la suite: 22 casos correctos. git diff --check correcto y 50 referencias locales comprobadas en nueve documentos.
+
+### Límites y siguiente paso
+
+Sin credenciales reales Google/GitHub, no se registró ninguna aplicación externa ni se probó su consentimiento. La implementación puede activarse con los pasos documentados; ambos proveedores permanecen apagados. Las pruebas con proveedor local no se presentan como prueba de disponibilidad o configuración de los servicios externos. Compose y revisión visual siguen pendientes. Las sesiones siguen en memoria y se requiere completar operación de servidor.
+
+Recorrido revisable: acceso local/colores y, tras activar credenciales, login y métodos conectados. Aún no se cumple el hito GitHub → repositorio → análisis → inventario con datos reales. Seguir con invitaciones y gestión de equipos/permisos; después instalación GitHub, repositorios y análisis. Tres commits coherentes con emoji para backend/configuración/pruebas, interfaz y documentación. PostgreSQL temporal detenido correctamente mediante pg_ctl; no se modificó una base externa del usuario.

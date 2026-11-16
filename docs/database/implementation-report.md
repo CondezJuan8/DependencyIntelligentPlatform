@@ -1,5 +1,9 @@
 # Estado real de implementación de la base de datos
 
+## Identidad externa sin cambio de esquema, bloque 09
+
+15 de noviembre de 2026. Google/GitHub y vinculación explícita utilizan las tablas existentes, restricciones únicas de user_identities y users.credential_version. No se añade migración: V1–V13, 121 tablas, 85 con FORCE RLS y 208 FK. Los diagramas y el catálogo conservan vigencia. Diez pruebas de identidad externa y cinco de acceso local correctas con PostgreSQL nativo temporal y rol runtime limitado; el intercambio OAuth usa proveedores HTTP locales de prueba. No se configuraron clientes reales ni instalaciones de repositorios. [Configuración y límites](../IDENTIDAD_GOOGLE_GITHUB.md).
+
 ## Actualización de recuperación V13, bloque 07
 
 15 de noviembre de 2026. V13 añade users.credential_version con default cero y un índice por usuario/propósito/creación en user_access_tokens. Permanecen 121 tablas, 85 con FORCE RLS y 208 FK. Catálogo, diccionario y diagramas regenerados. V1–V12 conservan sus checksums.

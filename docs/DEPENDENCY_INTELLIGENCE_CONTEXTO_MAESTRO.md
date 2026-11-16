@@ -30,7 +30,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 
 | Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
 | --- | --- | --- | --- |
-| Identidad, organizaciones y permisos — RF-001–006 | Registro/login/logout, organización OWNER, permisos por rol/equipo, verificación de correo y recuperación con SMTP/Angular. Cambiar contraseña revoca sesiones previas | Google/GitHub, vinculación segura, invitaciones, gestión HTTP/UI de equipos/permisos, entrega durable y revisión visual | Configuración de proveedores, servicios de membresía y operación de correo |
+| Identidad, organizaciones y permisos — RF-001–006 | Acceso local, organización OWNER, autorización por rol/equipo y recuperación/verificación SMTP. Google/GitHub y vinculación/desvinculación en backend/Angular, probados con proveedor HTTP local | Configurar clientes y probar consentimiento real Google/GitHub; invitaciones, gestión HTTP/UI de equipos/permisos, entrega durable y revisión visual | Credenciales externas, servicios de membresía y operación de correo |
 | GitHub — RF-007–014 | Tabla de conexión y repositorios manuales | Instalar/revocar App, seleccionar repositorios reales, obtener commits/archivos y procesar webhooks idempotentes | Identidad, permisos, credenciales |
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
 | SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
@@ -54,12 +54,13 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 - F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
 - Registro/login/logout, creación/listado de organizaciones y restauración de sesión disponibles en Angular. APIs de repositorios/scans autorizadas con rol y equipo. Las sesiones viven en memoria del backend y vencen por inactividad. Docker y el recorrido visual completo siguen pendientes. Ver `ACCESO_LOCAL.md`.
 - Verificación y recuperación operativas con tokens aleatorios, hash, caducidad y uso único. Mailpit 1.33.1 recibe los correos locales. Cola de recuperación acotada en memoria, con reenvío manual ante fallo/reinicio. SMTP y PostgreSQL requieren reenvío si una aceptación de correo precede a un commit fallido. Configuración y pruebas en `VERIFICACION_Y_RECUPERACION.md`.
+- Bloque 09: Google OIDC y GitHub OAuth con PKCE, state/nonce, sesión propia y vínculo explícito. No se fusionan correos coincidentes; se protege el último método disponible y se revocan otras sesiones al vincular. Sin secretos configurados, ambos proveedores están deshabilitados. Contratos, activación y límites en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md). No implica acceso a repositorios GitHub.
 - La transición separa paquete/versión/presencia y normaliza los módulos. Casos de uso con tenant transaccional y credenciales runtime/migración separadas. Autorización consulta cuenta, organización, membresía, rol y equipo activos en cada petición. Los workers y servicios restantes se desarrollan por la matriz.
 
 ### Orden de implementación propuesto
 
 1. Base y contratos hasta V13, con artefactos derivados del catálogo aplicado. Mantener migraciones incrementales y verificar modelo/dimensión al activar vectores.
-2. Continuar Google/GitHub y vinculación segura, invitaciones y gestión de equipos/permisos. Acceso local en bloque 06 y verificación/recuperación en bloque 07. Completar entrega durable y aceptación de operación para servidor.
+2. Continuar con invitaciones y gestión de equipos/permisos. Acceso local en bloque 06, verificación/recuperación en bloque 07 y proveedores/vinculación en bloque 09. Configurar clientes reales Google/GitHub y verificar consentimiento cuando estén disponibles; completar entrega durable y operación para servidor.
 3. GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI.
 4. Comparación, recomendaciones e impacto; pruebas aisladas y propuesta de PR con aprobación para cerrar el primer piloto.
 5. Documentos privados, extracción/búsqueda, embeddings Ollama y asistente Gemini; reportes y alertas in-app según sus dependencias.

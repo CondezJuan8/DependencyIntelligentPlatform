@@ -11,6 +11,8 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
+Bloque 09: acceso Google/GitHub y vínculos explícitos implementados sobre `users`, `user_identities` y versión de credenciales existentes. No requiere migración nueva: V1–V13, 121 tablas. Los tokens externos se descartan, sin persistir secretos ni instalaciones ficticias. No cambia el catálogo ni sus diagramas. Configuración real de clientes pendiente. [Detalle de identidad](IDENTIDAD_GOOGLE_GITHUB.md).
+
 Referencia vigente de diseño. Núcleo hasta V13 con 121 tablas, 85 con RLS forzado y 208 FK. V12 permite consultar organizaciones propias y V13 incorpora versión de credenciales e índice de solicitudes de tokens. Verificación/recuperación operativas en bloque 07. Estado, diagramas, diccionario y normalización en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
