@@ -6,9 +6,12 @@
   @if (loading()) { <p role="status">Cargando organizaciones…</p> }
   @else if (!error() && organizations().length === 0) { <p>Crea una organización para empezar a trabajar con tu equipo.</p> }
   <ul>
-    @for (organization of organizations(); track organization.id) { <li>{{ organization.name }}</li> }
+    @for (organization of organizations(); track organization.id) { <li>{{ organization.name }} <button mat-stroked-button (click)="selected.set(organization)" [attr.aria-pressed]="selected()?.id === organization.id">Miembros y equipos</button></li> }
   </ul>
 </section>
+@defer (when selected()) {
+  @for (organization of selected() ? [selected()!] : []; track organization.id) { <app-organization-access [organization]="organization" /> }
+} @loading { <p role="status">Abriendo gestión de la organización…</p> } @error { <p role="alert">No se pudo cargar la gestión. Recarga la página para reintentar.</p> }
 <section class="create" aria-labelledby="create-title">
   <h2 id="create-title">Crear organización</h2>
   <p>Tu cuenta tendrá el rol de propietario en la nueva organización.</p>

@@ -18,7 +18,16 @@
     <div class="error" role="alert">{{ error() }} <button mat-button (click)="restore()">Reintentar</button></div>
   }
   @if (loading()) { <p role="status">Comprobando sesión…</p> }
-  @else if (links.action()) { <app-account-action /> }
-  @else if (session.account()) { <app-email-verification /><app-organization-workspace /><app-connected-identities /> }
-  @else if (!error()) { <app-access-form /> }
+  @else if (links.action()) {
+    @defer (on immediate) { <app-account-action /> } @loading { <p role="status">Abriendo confirmación de cuenta…</p> } @error { <p role="alert">No se pudo cargar la confirmación. Recarga la página para reintentar.</p> }
+  }
+  @else if (session.account()) {
+    @defer (on immediate) {
+      <app-email-verification /><app-invitation-acceptance (accepted)="workspace.reload()" /><app-organization-workspace #workspace /><app-connected-identities />
+    } @loading { <p role="status">Abriendo tu espacio de trabajo…</p> } @error { <p role="alert">No se pudo abrir tu espacio. Recarga la página para reintentar.</p> }
+  }
+  @else if (!error()) {
+    <app-invitation-acceptance />
+    @defer (on immediate) { <app-access-form /> } @loading { <p role="status">Abriendo formulario de acceso…</p> } @error { <p role="alert">No se pudo cargar el formulario. Recarga la página para reintentar.</p> }
+  }
 </main>

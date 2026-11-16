@@ -1,0 +1,19 @@
+:host { display: block; }
+section { margin-top: 24px; padding: 24px; border: 1px solid var(--di-border); border-radius: 14px; background: var(--di-surface); color: var(--di-text); }
+h2 { margin-top: 0; } h3 { margin-top: 32px; }
+p { line-height: 1.6; color: var(--di-text-muted); }
+form, .member { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0; }
+mat-form-field { min-width: 200px; max-width: 100%; flex: 1; }
+.member { border-bottom: 1px solid var(--di-border); padding: 14px 0; }
+.member > div { flex: 2; min-width: 200px; overflow-wrap: anywhere; }
+small { display: block; margin-top: 4px; color: var(--di-text-muted); }
+.invitations { list-style: none; padding: 0; }
+.invitations li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--di-border); overflow-wrap: anywhere; }
+.checks { display: grid; gap: 8px; margin: 12px 0 20px; }
+.team-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.team-options [aria-pressed="true"] { background: var(--di-info-background); color: var(--di-info-text); }
+.confirmation { background: var(--di-warning-background); border: 1px solid var(--di-warning-text); border-radius: 10px; padding: 16px; }
+.confirmation p { color: var(--di-warning-text); }.confirmation button { margin: 4px; }
+.error { color: var(--di-critical-text); }.success { color: var(--di-success-text); }
+details { margin-top: 24px; overflow-wrap: anywhere; } summary { cursor: pointer; color: var(--di-link); }
+@media (max-width: 600px) { section { padding: 16px; } form, .member { align-items: stretch; flex-direction: column; } mat-form-field { width: 100%; } }

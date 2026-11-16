@@ -5,10 +5,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { finalize } from 'rxjs';
 import { accessError, Organization, SessionApiService } from '../../core/session-api.service';
+import { OrganizationAccess } from './organization-access';
 
 @Component({
   selector: 'app-organization-workspace',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, OrganizationAccess],
   templateUrl: './organization-workspace.html',
   styleUrl: './organization-workspace.scss',
 })
@@ -18,6 +19,7 @@ export class OrganizationWorkspace implements OnInit {
   readonly loading = signal(true);
   readonly pending = signal(false);
   readonly error = signal('');
+  readonly selected = signal<Organization | null>(null);
   name = '';
 
   ngOnInit(): void { this.reload(); }
@@ -26,7 +28,7 @@ export class OrganizationWorkspace implements OnInit {
     this.loading.set(true);
     this.error.set('');
     this.api.get<Organization[]>('/api/organizations').pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: organizations => this.organizations.set(organizations),
+      next: organizations => { this.organizations.set(organizations); if (!organizations.some(item => item.id === this.selected()?.id)) this.selected.set(null); },
       error: error => this.error.set(accessError(error)),
     });
   }
