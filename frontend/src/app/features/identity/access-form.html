@@ -30,6 +30,7 @@
     @if (message()) { <p role="status">{{ message() }}</p> }
     <button mat-flat-button type="submit" [disabled]="pending() || form.invalid">{{ pending() ? 'Procesando…' : recovering() ? 'Solicitar enlace' : registering() ? 'Crear cuenta' : 'Entrar' }}</button>
   </form>
+  @if (!recovering()) { <app-external-sign-in /> }
   @if (mode() === 'login') {
     <button class="switch" mat-button type="button" (click)="changeMode('recover')" [disabled]="pending()">Olvidé mi contraseña</button>
   }

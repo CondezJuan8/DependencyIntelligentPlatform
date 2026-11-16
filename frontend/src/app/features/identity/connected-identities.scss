@@ -1,0 +1,9 @@
+section { margin-top: 28px; padding: 28px; border: 1px solid var(--di-border); border-radius: 14px; background: var(--di-surface); }
+h2 { margin-top: 0; font-size: 1.4rem; }
+p, small, span { color: var(--di-text-muted); line-height: 1.5; }
+ul { padding: 0; margin: 0; list-style: none; }
+li { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--di-border); }
+span, small { display: block; margin-top: 6px; }
+.error { color: var(--di-critical); }
+.confirmation { padding-top: 16px; }
+@media (max-width: 600px) { section { padding: 20px; } li { flex-wrap: wrap; } }

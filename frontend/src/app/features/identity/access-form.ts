@@ -5,10 +5,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { finalize } from 'rxjs';
 import { accessError, SessionApiService } from '../../core/session-api.service';
+import { ExternalSignIn } from './external-sign-in';
 
 @Component({
   selector: 'app-access-form',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, ExternalSignIn],
   templateUrl: './access-form.html',
   styleUrl: './access-form.scss',
 })

@@ -1,0 +1,36 @@
+@if (visibleProviders().length || error()) {
+  <section aria-labelledby="identities-title">
+    <h2 id="identities-title">Métodos de acceso</h2>
+    @if (loading()) { <p role="status">Cargando métodos de acceso…</p> }
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+      <button mat-button type="button" (click)="load()" [disabled]="pending() || loading()">Reintentar</button>
+    }
+    @if (connections(); as status) {
+      @if (!status.recentAuthentication) { <p>Vuelve a iniciar sesión para modificar tus métodos de acceso.</p> }
+      @if (!api.account()?.emailVerified) { <p>Verifica tu correo antes de vincular otro método de acceso.</p> }
+      <ul>
+        @for (provider of visibleProviders(); track provider.id) {
+          <li>
+            <div><strong>{{ provider.name }}</strong><span>{{ linked(provider) ? 'Vinculada' : 'Disponible' }}</span></div>
+            @if (linked(provider)) {
+              <div>
+                <button mat-stroked-button type="button" (click)="confirmation.set(provider)" [disabled]="pending() || !status.recentAuthentication || !removable(provider)">Desvincular</button>
+                @if (!removable(provider)) { <small>Conserva al menos un método de acceso disponible.</small> }
+              </div>
+            } @else {
+              <button mat-stroked-button type="button" (click)="link(provider)" [disabled]="pending() || !status.recentAuthentication || !api.account()?.emailVerified">Vincular</button>
+            }
+          </li>
+        }
+      </ul>
+    }
+    @if (confirmation(); as provider) {
+      <div class="confirmation" role="group" aria-label="Confirmar desvinculación">
+        <p>¿Desvincular {{ provider.name }}? Volverás a iniciar sesión con otro método disponible.</p>
+        <button mat-stroked-button type="button" (click)="unlink()" [disabled]="pending()">Confirmar desvinculación</button>
+        <button mat-button type="button" (click)="confirmation.set(null)" [disabled]="pending()">Cancelar</button>
+      </div>
+    }
+  </section>
+}

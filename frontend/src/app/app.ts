@@ -7,9 +7,11 @@ import { OrganizationWorkspace } from './features/organizations/organization-wor
 import { AccountLinkService } from './features/identity/account-link.service';
 import { AccountAction } from './features/identity/account-action';
 import { EmailVerification } from './features/identity/email-verification';
+import { ConnectedIdentities } from './features/identity/connected-identities';
+import { ExternalAuthService } from './features/identity/external-auth.service';
 
 @Component({
-  imports: [MatButtonModule, AccessForm, OrganizationWorkspace, AccountAction, EmailVerification],
+  imports: [MatButtonModule, AccessForm, OrganizationWorkspace, AccountAction, EmailVerification, ConnectedIdentities],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
@@ -17,6 +19,7 @@ import { EmailVerification } from './features/identity/email-verification';
 export class App implements OnInit {
   readonly session = inject(SessionApiService);
   readonly links = inject(AccountLinkService);
+  readonly external = inject(ExternalAuthService);
   readonly loading = signal(true);
   readonly pending = signal(false);
   readonly error = signal('');

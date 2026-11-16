@@ -11,11 +11,14 @@
       </div>
     }
   </header>
+  @if (external.feedback(); as feedback) {
+    @if (feedback.message) { <p class="external-feedback" [class.error]="feedback.error" [attr.role]="feedback.error ? 'alert' : 'status'">{{ feedback.message }}</p> }
+  }
   @if (error()) {
     <div class="error" role="alert">{{ error() }} <button mat-button (click)="restore()">Reintentar</button></div>
   }
   @if (loading()) { <p role="status">Comprobando sesión…</p> }
   @else if (links.action()) { <app-account-action /> }
-  @else if (session.account()) { <app-email-verification /><app-organization-workspace /> }
+  @else if (session.account()) { <app-email-verification /><app-organization-workspace /><app-connected-identities /> }
   @else if (!error()) { <app-access-form /> }
 </main>
