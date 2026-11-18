@@ -55,7 +55,7 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
             registry.add("spring.mail.host", mailpit::getHost);
             registry.add("spring.mail.port", () -> mailpit.getMappedPort(1025));
         } else {
-            registry.add("spring.mail.host", () -> "127.0.0.1");
+            registry.add("spring.mail.host", () -> System.getenv().getOrDefault("TEST_SMTP_HOST", "127.0.0.1"));
             registry.add("spring.mail.port", () -> Integer.parseInt(System.getenv("TEST_SMTP_PORT")));
         }
         registry.add("app.mail.public-base-url", () -> "http://localhost:8088");
@@ -76,7 +76,7 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         String email = "team-" + UUID.randomUUID() + "@example.test";
         var session = new MockHttpSession();
         UUID id = UUID.fromString(ok(201, postJson("/api/auth/register", session, Map.of("email", email, "displayName", "Team fixture", "password", PASSWORD))).path("id").asText());
-        if (verified) jdbc.update("update users set email_verified_at = current_timestamp where id = ?", id);
+        if (verified) jdbc.update("update users set email_verified_at = current_timestamp, admission_status = 'APPROVED' where id = ?", id);
         return new Person(id, email, session);
     }
     private UUID organization(Person owner) throws Exception { return UUID.fromString(ok(201, postJson("/api/organizations", owner.session(), Map.of("name", "Organization access fixture"))).path("id").asText()); }
@@ -93,7 +93,15 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         assertEquals(200, response.statusCode()); return json.readTree(response.body());
     }
     private Invitation invite(Person owner, UUID org, Person target, String role) throws Exception {
-        var response = postJson(path(org)+"/invitations", owner.session(), Map.of("email", target.email().toUpperCase(Locale.ROOT), "role", role));
+        UUID repository = UUID.fromString(ok(201, postJson(path(org)+"/repositories", owner.session(), Map.of(
+            "provider", "demo", "externalId", UUID.randomUUID().toString(), "fullName", "fixture/invitation-" + UUID.randomUUID(), "defaultBranch", "main"))).path("id").asText());
+        JsonNode teamResponse = ok(201, postJson(path(org)+"/teams", owner.session(), Map.of("name", "Invite " + UUID.randomUUID())));
+        UUID team = UUID.fromString(teamResponse.path("id").asText());
+        return invite(owner, org, target, role, team, repository);
+    }
+    private Invitation invite(Person owner, UUID org, Person target, String role, UUID team, UUID repository) throws Exception {
+        ok(204, postJson(path(org)+"/teams/"+team+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read"))));
+        var response = postJson(path(org)+"/invitations", owner.session(), Map.of("email", target.email().toUpperCase(Locale.ROOT), "role", role, "teamId", team, "repositoryId", repository));
         var result = ok(201, response);
         assertFalse(response.getResponse().getContentAsString().contains("token"));
         UUID id = UUID.fromString(result.path("id").asText());
@@ -110,7 +118,19 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         throw new AssertionError("Invitation not delivered by SMTP");
     }
     private MvcResult accept(Person person, UUID org, Invitation invitation) throws Exception { return postJson(path(org)+"/invitations/"+invitation.id()+"/accept", person.session(), Map.of("token", invitation.token())); }
-    private UUID join(Person owner, UUID org, Person target, String role) throws Exception { var invitation = invite(owner, org, target, role); ok(204, accept(target, org, invitation)); return membership(owner, org, target); }
+    private UUID join(Person owner, UUID org, Person target, String role) throws Exception {
+        var invitation = invite(owner, org, target, role);
+        return join(owner, org, target, invitation);
+    }
+    private UUID join(Person owner, UUID org, Person target, String role, UUID team, UUID repository) throws Exception {
+        var invitation = invite(owner, org, target, role, team, repository);
+        return join(owner, org, target, invitation);
+    }
+    private UUID join(Person owner, UUID org, Person target, Invitation invitation) throws Exception {
+        ok(204, accept(target, org, invitation));
+        ok(204, postJson(path(org)+"/invitations/"+invitation.id()+"/approve", owner.session(), Map.of()));
+        return membership(owner, org, target);
+    }
     private MvcResult change(Person actor, UUID org, UUID member, String role, String status) throws Exception { return postJson(path(org)+"/members/"+member, actor.session(), Map.of("role", role, "status", status)); }
 
     @Test void smtpInvitationRequiresMatchingVerifiedAccountAndIsConsumedOnce() throws Exception {
@@ -120,7 +140,7 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         assertEquals(tokens.fingerprint(invitation.token()), hash); assertNotEquals(invitation.token(), hash);
         assertFalse(overview(owner, org).toString().contains(hash));
         ok(409, accept(wrong, org, invitation)); ok(409, accept(target, org, invitation));
-        jdbc.update("update users set email_verified_at = current_timestamp where id = ?", target.id());
+        jdbc.update("update users set email_verified_at = current_timestamp, admission_status = 'APPROVED' where id = ?", target.id());
         ok(204, accept(target, org, invitation)); ok(409, accept(target, org, invitation));
         assertEquals(1, ok(200, mvc.perform(get("/api/organizations").session(target.session())).andReturn()).size());
         for (var member : overview(owner, org).path("members")) if (member.path("userId").asText().equals(target.id().toString())) assertEquals("MEMBER", member.path("roles").get(0).asText());
@@ -153,9 +173,9 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
     }
     @Test void teamPermissionsAreIntersectedWithRolesAndRevocationsApplyToRealRequests() throws Exception {
         var owner = person(true); var member = person(true); var org = organization(owner);
-        UUID membership = join(owner, org, member, "VIEWER");
         UUID repository = UUID.fromString(ok(201, postJson(path(org)+"/repositories", owner.session(), Map.of("provider", "demo", "externalId", UUID.randomUUID().toString(), "fullName", "fixture/permissions", "defaultBranch", "main"))).path("id").asText());
         UUID team = UUID.fromString(ok(201, postJson(path(org)+"/teams", owner.session(), Map.of("name", "Readers"))).path("id").asText());
+        UUID membership = join(owner, org, member, "VIEWER", team, repository);
         String teamPath = path(org)+"/teams/"+team, repositoryPath = path(org)+"/repositories/"+repository;
         ok(204, postJson(teamPath+"/members/"+membership, owner.session(), Map.of("included", true)));
         ok(204, postJson(teamPath+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read", "scan.read", "scan.create", "repository.manage"))));
@@ -177,7 +197,7 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isOk());
         ok(204, postJson(path(org)+"/members/"+membership+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of())));
         mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isForbidden());
-        assertEquals(0, overview(owner, org).path("teams").size());
+        assertTrue(overview(owner, org).path("teams").findValuesAsText("name").stream().noneMatch("Renamed readers"::equals));
     }
     @Test void tenantBoundariesCsrfAndAuthenticationProtectAllManagementEntryPoints() throws Exception {
         var owner = person(true); var other = person(true); var org = organization(owner); var foreignOrg = organization(other);
