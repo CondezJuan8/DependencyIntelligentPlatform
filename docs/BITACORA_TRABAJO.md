@@ -594,3 +594,27 @@ Fecha: 18 de noviembre de 2026, America/Bogota. Petición: corregir el botón de
 ### Siguiente paso
 
 Entrar como administrador en `http://localhost:8089`, revisar la solicitud en Administración de plataforma y elegir «Confirmar y aprobar responsable». El estado se conserva si la persona sale; puede volver a iniciar sesión y usar «Comprobar aprobación». Se requiere primero que exista un administrador de plataforma en esa instancia.
+
+## Bloque 19 — Aviso por correo al administrador de plataforma
+
+Fecha: 18 de noviembre de 2026, America/Bogota. El usuario confirmó que el alta directa debe enviar un aviso al administrador de plataforma. Pidió conservar la pantalla persistente «Esperando confirmación».
+
+### Hallazgo y cambios
+
+- En la comprobación previa, Mailpit mostraba únicamente un correo de recuperación; el endpoint de registro no enviaba correos. La configuración SMTP local envía a Mailpit y no entrega a Gmail.
+- Añadido el puerto de salida `PendingAdmissionNotifier`, independiente de Spring/JDBC. Tras persistir exitosamente una cuenta OWNER/PENDING_REVIEW, el caso de uso avisa a los correos de administradores activos y verificados.
+- El aviso incluye nombre/correo de la persona y el enlace a la plataforma; no incluye contraseña, token ni enlace de aprobación. La decisión se termina dentro de Administración de plataforma.
+- Si falla el envío, el registro ya guardado no se revierte ni se expone el detalle SMTP al usuario; queda disponible la solicitud en la lista administrativa.
+- La pantalla «Esperando confirmación», su comprobación manual y el estado persistente no se modificaron.
+- Actualizados el instructivo de correo, contexto/pendientes para diferenciar Mailpit local de entrega SMTP externa.
+
+### Verificación y herramientas
+
+- Añadidas dos pruebas focalizadas: el caso de uso emite el aviso después de crear la cuenta pendiente; el adaptador restringe destinatarios a administradores y no manda correo para cuentas distintas.
+- Ejecutadas las tres pruebas focalizadas del caso de uso/adaptador: 3/3 correctas. La reconstrucción Docker del backend ejecutó `mvn verify` correctamente (suite de build: Domain 5, Application 8, Infrastructure 18 pruebas, todas sin fallos).
+- Smoke test local de registro HTTP: cuenta sintética creada, aviso recibido en Mailpit con el único destinatario administrador activo, contenido con el correo registrado; cuenta temporal eliminada al terminar. No se probó SMTP externo ni entrega a Gmail.
+- Herramientas/código: `apply_patch`, Java, Spring JDBC/Mail, JUnit y Mockito ya disponibles; no se agregan dependencias.
+
+### Siguiente paso
+
+La persona usuaria puede registrar una cuenta; el administrador encontrará el aviso local en Mailpit (`http://localhost:8026`) y la solicitud en Administración de plataforma. La cuenta de prueba temporal se eliminó. Configurar SMTP externo antes de esperar correo en Gmail.

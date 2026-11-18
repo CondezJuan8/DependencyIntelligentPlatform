@@ -6,14 +6,14 @@ Bloque 07, 15 de noviembre de 2026. Backend y formularios Angular para solicitar
 
 Con el entorno del README configurado, ejecutar `docker compose up --build -d`. La aplicación abre en `http://localhost:8088` y Mailpit en `http://localhost:8025`. El puerto SMTP local es 1025. Las tres direcciones admiten los puertos definidos en `.env`.
 
-1. Crear cuenta e iniciar sesión. El aviso de correo pendiente permite enviar el enlace de verificación.
-2. Abrir el correo en Mailpit, seguir su enlace y pulsar **Confirmar mi correo**. Continuar actualiza el estado mostrado por la aplicación.
+1. Crear una cuenta de responsable. La aplicación conserva la solicitud y muestra **Esperando confirmación del propietario**; se puede cerrar la página y volver a iniciar sesión para consultar el estado.
+2. El administrador de plataforma recibe en el correo configurado un aviso de solicitud nueva. En local, abrir Mailpit, iniciar sesión en la plataforma y elegir **Confirmar y aprobar responsable**. Esta acción confirma el correo y habilita el acceso; el nuevo responsable no necesita abrir un enlace de verificación.
 3. Desde el formulario de login, elegir **Olvidé mi contraseña** e introducir el correo de una cuenta local.
 4. Abrir el correo de recuperación en Mailpit y guardar una contraseña nueva de entre 15 y 128 caracteres. Las sesiones anteriores dejan de autorizar peticiones. Volver a iniciar sesión con la contraseña nueva.
 
 Los enlaces se abren en Angular mediante fragmento de URL. Angular retira ese fragmento de la barra de direcciones y mantiene el token en memoria hasta confirmar o salir. Recargar antes de confirmar requiere reabrir el enlace desde el correo. Abrir el enlace solicita una confirmación explícita mediante POST con CSRF.
 
-Mailpit captura correo de desarrollo. Para usar SMTP externo, configurar el servidor, credenciales y TLS del entorno autorizado. La publicación en servidor requiere fijar `PUBLIC_BASE_URL` con la dirección HTTPS de la aplicación, configurar SMTP y validar ese despliegue.
+Mailpit captura correo de desarrollo y no entrega mensajes a Gmail ni a otros buzones externos. En Compose, abrir `http://localhost:8026` (o el puerto definido en `.env`) para revisar localmente el aviso al administrador. Para recibir ese aviso en un buzón real, configurar el servidor SMTP externo, credenciales y TLS del entorno autorizado. La publicación en servidor requiere fijar `PUBLIC_BASE_URL` con la dirección HTTPS de la aplicación, configurar SMTP y validar ese despliegue.
 
 En desarrollo con `npm start`, configurar `PUBLIC_BASE_URL=http://localhost:4200` en el entorno del backend y `SMTP_HOST=localhost` para utilizar el SMTP publicado por Mailpit. El proxy Angular conecta la API en 8080. Al ejecutar solo el JAR, comprobar que PUBLIC_BASE_URL apunte al frontend que realmente se esté sirviendo.
 

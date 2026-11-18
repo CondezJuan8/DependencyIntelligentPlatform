@@ -14,6 +14,8 @@ Instrucción posterior al bloque 09: pendientes consolidados en [PENDIENTES.md](
 
 Decisión vigente del flujo de admisión (18 de noviembre de 2026): las cuentas de responsable creadas por registro quedan guardadas y pueden volver a iniciar sesión mientras esperan revisión. El administrador de plataforma confirma el correo y aprueba la cuenta en una sola acción; hasta entonces el usuario permanece fuera del espacio de trabajo. Salir/cerrar la página no descarta la solicitud. La espera debe poder consultarse tras volver a iniciar sesión.
 
+Bloque 19 (18 de noviembre de 2026): un alta directa pendiente envía un correo de aviso únicamente a los administradores activos con correo confirmado. El aviso incluye nombre/correo del solicitante y la URL de la plataforma, sin contraseña ni enlace de aprobación. La interfaz conserva «Esperando confirmación». En desarrollo, Mailpit recibe el mensaje; correo externo requiere SMTP configurado.
+
 Bloque 13, 16 de noviembre de 2026: antes de GitHub, el usuario priorizó rediseñar frontend y proporcionó imágenes de login, dashboard y organización; registro delegado. Entregados acceso de dos paneles, navegación lateral/topbar, dashboard con estados honestos y organización con tabla, filtros y pestañas. APIs y esquema permanecen iguales. Entorno local activo para revisión, build correcto y validación visual automática bloqueada por herramienta. Detalle y recorrido en [DISENO_FRONTEND](DISENO_FRONTEND.md). Siguiente acción: recoger observaciones del usuario, sin iniciar otra integración.
 
 ### Decisiones cerradas
