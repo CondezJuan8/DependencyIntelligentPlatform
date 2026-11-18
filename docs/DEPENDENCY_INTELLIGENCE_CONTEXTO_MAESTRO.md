@@ -8,6 +8,10 @@
 
 ## Decisiones vigentes y estado de continuidad — 15 de noviembre de 2026
 
+### Actualización de integración GitHub
+
+El usuario autorizó iniciar la integración de repositorios GitHub. El bloque actual entrega instalación de GitHub App, verificación OAuth/PKCE de que la identidad autenticada tiene acceso a la instalación, selección/importación de metadatos y vista responsive móvil/escritorio. Configuración/aceptación real con `CondezJuan8`, checkout de código, escaneo y despliegue accesible desde otros dispositivos siguen pendientes. Guía: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
+
 Las secciones numeradas posteriores conservan el contexto histórico. Las decisiones de este apartado, confirmadas por el usuario, prevalecen sobre propuestas pendientes o límites de entregas anteriores. Referencias prioritarias: este contexto, `ARQUITECTURA_BACKEND.md`, `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`.
 
 Instrucción posterior al bloque 09: pendientes consolidados en [PENDIENTES.md](PENDIENTES.md), para implementarlos y validarlos juntos cuando el usuario lo indique. El orden propuesto más abajo queda como referencia; no inicia automáticamente el siguiente bloque.
@@ -39,7 +43,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
 | --- | --- | --- | --- |
 | Identidad, organizaciones y permisos — RF-001–006 | Acceso local, organización, autorización, recuperación/verificación SMTP y proveedores externos con fixture. Bloque 11 entrega invitaciones SMTP, aceptación y gestión HTTP/UI de membresías, roles, equipos y permisos por repositorio | Configurar clientes y probar consentimiento real Google/GitHub; entrega durable, paginación de historiales grandes y revisión visual conjunta | Credenciales externas y operación de correo/sesiones |
-| GitHub — RF-007–014 | Tabla de conexión y repositorios manuales | Instalar/revocar App, seleccionar repositorios reales, obtener commits/archivos y procesar webhooks idempotentes | Identidad, permisos, credenciales |
+| GitHub — RF-007–014 | GitHub App: instalación, prueba de pertenencia vía OAuth/PKCE, selección/importación de metadatos y vista responsive. Sin confirmación real con `CondezJuan8` todavía | Configurar credenciales/URLs reales, comprobar recorrido en dispositivos, revocar instalación, descargar commit/archivos y procesar webhooks idempotentes | GitHub App del usuario, credenciales, jobs y scanner |
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
 | SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
 | Vulnerabilidades — RF-033–040 | Esquema normalizado de fuentes/rangos/hallazgos; sin OSV funcional | Consulta OSV, coincidencia por versión, ingesta de evidencia y generación de hallazgos | Adaptadores, jobs, snapshots |

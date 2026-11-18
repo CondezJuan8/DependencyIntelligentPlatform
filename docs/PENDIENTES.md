@@ -2,7 +2,7 @@
 
 Actualizado: 18 de noviembre de 2026, tras la decisión de admisión por correo.
 
-**Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. Registrar una tarea no autoriza iniciarla. No activar integraciones, completar módulos ni ejecutar los pendientes de esta lista hasta esa indicación.
+**Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
 
 Este archivo reúne configuración pendiente, validaciones de lo entregado y funciones por implementar. El alcance y las decisiones técnicas se mantienen en el [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md), la [arquitectura](ARQUITECTURA_BACKEND.md), la [especificación database](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y el [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md). No hay fecha total nueva comprometida.
 
@@ -17,6 +17,7 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
 - Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
 - Rediseño según las tres imágenes del usuario: acceso/registro, shell lateral, dashboard con estados vacíos y organización con tabla, filtros, pestañas y diálogos. Build correcto; falta aceptación visual del usuario. [Diseño](DISENO_FRONTEND.md).
+- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. Falta configurar credenciales de la GitHub App del usuario y hacer el recorrido real.
 
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
@@ -26,7 +27,8 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
-- [ ] **Prioridad actual: revisión del rediseño del bloque 13.** Entorno activo en localhost:8088. Revisar login/registro, dashboard, navegación móvil, tabla/filtros, pestañas y diálogos de organización, recuperación/verificación e invitaciones. Confirmar distribución/colores con el usuario y corregir sus observaciones antes de GitHub. Revisión automática detenida por no poder verificarse la URL de Chrome.
+- [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
+- [ ] **GitHub App real:** configurar la app propiedad de `CondezJuan8`, sus callbacks/permisos y secretos locales según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md); completar instalación/importación real y comprobar el acceso desde móvil y escritorio.
 - [ ] **Arranque Compose:** compilación y arranque comprobados el 18/11: backend health UP, frontend HTTP 200, PostgreSQL y Mailpit saludables; V15 aplicada al volumen existente. Falta reiniciar Compose y comprobar explícitamente que los datos de negocio sobreviven el reinicio.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
@@ -40,7 +42,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 | --- | --- | --- |
 | Arranque local Docker | La instancia actual tiene administrador de plataforma; falta documentar/probar el bootstrap repetible para instalaciones nuevas | Crear el primer administrador una sola vez mediante un mecanismo local controlado, con secretos fuera de Git y sin habilitar auto-administración pública |
 | Identidad y organización | Backend/UI de invitaciones y gestión entregados en bloque 11; pendiente revisión conjunta y paginación de historiales de invitaciones grandes | Completar aceptación visual/operativa sin considerar pendiente el código ya probado |
-| Integración de repositorios GitHub | Instalación/revocación de App, selección de repositorios, lectura de commits/archivos y eventos idempotentes | Acceder solo a repositorios autorizados y gestionar revocaciones; análisis manual local sin depender de webhooks entrantes |
+| Integración de repositorios GitHub | Instalación de App, verificación OAuth/PKCE, listado e importación de metadatos | Configurar y verificar instalación real, revocar/desconectar, leer commits/archivos y procesar eventos idempotentes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
 | SBOM y ecosistemas | Carga HTTP, scanner aislado Maven/npm, cobertura del parser y relaciones con evidencia | Procesar proyectos reales de ambos ecosistemas y guardar componentes/aristas sin inferencias falsas |
 | Vulnerabilidades | Adaptador OSV, coincidencia por versión, evidencia y hallazgos | Mostrar vulnerabilidades reproducibles del snapshot analizado |

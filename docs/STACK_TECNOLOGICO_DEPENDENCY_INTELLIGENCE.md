@@ -25,6 +25,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Bloque GitHub App, 18 de noviembre de 2026. Integración de repositorios con Spring `RestClient`, JCA para JWT/RSA y PKCE, Angular/RxJS existentes, JDBC y estado efímero en memoria. No se añade dependencia ni migración. Permisos de repositorio Contents/Metadata read-only. Instalación/listado/importación de metadatos implementados; faltan credenciales/consentimiento real, descarga de archivos/commits, escáner, webhooks y revisión física en dispositivos. [Guía operativa](GITHUB_REPOSITORIOS.md).
+
 Bloque 13, 16 de noviembre de 2026. Rediseño con Angular/Material/Forms/CDK A11y/RxJS existentes, SVG nativo, Sass/tokens y @defer. Sin nueva dependencia ni fuente/imagen externa. AuthFrame, shell, sidebar/topbar, dashboard y métricas separados; tabla/pestañas/diálogos de organización. Siete comprobaciones directas de navegación y build de producción correctos, 406,37 kB iniciales sin ampliar presupuesto. Revisión visual conjunta pendiente; [criterios de diseño](DISENO_FRONTEND.md).
 
 Bloque 11, 15 de noviembre de 2026. Invitaciones, membresías/roles, equipos y permisos por repositorio con puertos/casos de uso Java puro y adaptadores Spring JDBC/JavaMailSender existentes. Ninguna dependencia nueva. SMTP Mailpit real y PostgreSQL temporal con rol runtime limitado: 21 casos distintos pertinentes correctos. Angular usa Forms/Material/RxJS existentes y @defer para separar pantallas; build inicial 381,28 kB, bajo presupuesto de 500 kB. No cambia el esquema V1–V13. Configuración/contratos y límites de servidor en [INVITACIONES_EQUIPOS_PERMISOS](INVITACIONES_EQUIPOS_PERMISOS.md).

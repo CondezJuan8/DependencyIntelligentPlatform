@@ -4,6 +4,12 @@
 
 Bloque 20: Application contiene el caso de uso `DecidePlatformAdmission` y sus puertos; Infrastructure adapta SMTP, HTTP y persistencia JDBC. Cada token está dirigido a un administrador y a una cuenta pendiente. La ruta procesa la decisión inmediata sin sesión, con consumo único y trazabilidad de auditoría. La pantalla persistente de espera pertenece al flujo de acceso y permanece independiente del token. Configuración y limitaciones en [Verificación y recuperación](VERIFICACION_Y_RECUPERACION.md).
 
+## GitHub App para repositorios
+
+Application declara `ManageGitHubInstallation`, `GitHubAppGateway`, `GitHubInstallationStore` y `GitHubInstallationStateStore`; el caso de uso puro valida sesión/organización, expiración, consumo único de `state`, PKCE, pertenencia del usuario GitHub a la instalación y límites de la selección. Infrastructure implementa la REST API, JWT de aplicación, intercambio del código, almacenamiento temporal de estado y adaptadores JDBC. HTTP/controller valida/authz; Angular únicamente dirige el flujo y presenta repositorios. Los tokens de usuario e instalación no se guardan en Domain/Application ni en la base.
+
+El callback autenticado valida la instalación contra un token GitHub de usuario de corta vida y luego confirma el App ID con JWT de la App; el token de usuario se descarta. Esto sigue la advertencia de GitHub de no confiar solo en `installation_id` devuelto por Setup URL. Estado atado a usuario/sesión/organización vence a los diez minutos; el almacenamiento del estado es en memoria, así que reiniciar backend invalida un flujo en curso. Solo se persisten instalaciones y metadatos de repositorio seleccionados. Sin esquema/migración nuevo. Configuración, permisos read-only y callbacks en [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
+
 ## Referencias vigentes y objetivo
 
 Bloque 13 (16/11/2026): rediseño Angular de acceso, shell/dashboard y organización. Reutiliza las APIs existentes; no modifica Domain/Application/Infrastructure del backend ni esquema/migraciones. Estados vacíos para módulos pendientes, sin métricas simuladas. Componentes y revisión en [DISENO_FRONTEND](DISENO_FRONTEND.md).

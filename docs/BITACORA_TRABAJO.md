@@ -661,3 +661,26 @@ Fecha: 18 de noviembre de 2026, America/Bogota. El usuario confirmó que el alta
 ### Siguiente paso
 
 La persona usuaria puede registrar una cuenta; el administrador encontrará el aviso local en Mailpit (`http://localhost:8026`) y la solicitud en Administración de plataforma. La cuenta de prueba temporal se eliminó. Configurar SMTP externo antes de esperar correo en Gmail.
+
+## Bloque 21 — Instalación e importación inicial desde GitHub
+
+Fecha: 18 de noviembre de 2026, America/Bogota. El usuario pidió iniciar la siguiente función tras corregir el alta/aprobación. Confirmó la cuenta GitHub `CondezJuan8`; preguntó si la configuración `.env` es solo para pruebas. Indicó trabajar de forma que se pueda usar desde cualquier dispositivo.
+
+### Cambios
+
+- Implementado flujo de instalación GitHub App separado del login OAuth GitHub: owner selecciona organización, instala App y autoriza identidad de GitHub con PKCE.
+- Backend verifica que la identidad autorizada pertenece a la instalación y verifica el App ID antes de persistir. El `state` es aleatorio, un uso, ligado a usuario/sesión/organización y vence en 10 minutos; tokens de usuario e instalación no se persisten.
+- Implementados listado y selección/importación de hasta 500 repositorios por solicitud (hasta 2.000 por instalación), guardando metadatos existentes. No descarga fuentes/commits ni lanza análisis.
+- Nueva vista de repositorios adapta encabezado, controles y filas a móvil; en pantallas anchas vuelve a distribuir acciones horizontalmente. Reutiliza tokens oficiales; no se afirma prueba visual física.
+- Sin tabla/migración o dependencia nueva. Configuración agregada con valores apagados por defecto; secretos solo en `.env` local ignorado por Git. La configuración real de `CondezJuan8` requiere que el usuario cree la GitHub App.
+- Guía nueva: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md), con callbacks locales, permisos mínimos, configuración y límites.
+
+### Herramientas y verificaciones
+
+Herramientas utilizadas: PowerShell, `apply_patch`, Maven 3.9.11/JDK 21 locales, Angular CLI 22/Node 24 locales, Git y GitHub REST API como destino aún no configurado. Backend: `ManageGitHubInstallationUseCaseTest`, 2/2 correctas; Domain, Application e Infrastructure compilaron. Frontend: build de producción correcto, 553,09 kB iniciales; avisos de presupuesto (500 kB inicial y SCSS de organización 4,96 kB frente a 4 kB). Se ejecutaron primero intentos bloqueados por permisos/argumentos; solo cuentan las ejecuciones posteriores correctas. No se ejecutaron pruebas de integración con PostgreSQL ni llamada real a GitHub. Docker no está disponible en esta sesión: no se levantaron servicios ni se probó el flujo HTTP en vivo. Git quedó habilitado después mediante el entorno autorizado y se registraron los commits listados abajo. La cuenta real de GitHub no se conectó; no se exponen credenciales.
+
+Commits: `5c3434b` 🔌 feat: conecta instalaciones y repositorios de GitHub; `f83847e` 📱 feat: gestiona repositorios GitHub en cualquier pantalla; `4183061` 📝 docs: documenta conexión segura de repositorios GitHub.
+
+### Siguiente paso
+
+Configurar la App de `CondezJuan8` con Setup URL y callback indicados en la guía, introducir secretos en `.env`, reconstruir/reiniciar el servicio sin tocar el volumen de base, y probar instalación/selección en escritorio y móvil. Después implementar lectura segura de archivos/commit y encolar el análisis Maven/npm.
