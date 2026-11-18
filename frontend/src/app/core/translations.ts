@@ -1,6 +1,10 @@
 // UI copy is translated by exact phrase. User supplied names, emails and repository
 // identifiers stay untouched because they are not translation keys.
 export const english: Record<string, string> = {
+  'Permisos directos por repositorio': 'Direct permissions by repository',
+  'Estos permisos se asignan a esta persona y no dependen de pertenecer a un equipo. Siguen limitados por el rol de la cuenta.': 'These permissions are assigned to this person and do not depend on team membership. They remain limited by the account role.',
+  'Primero agrega un repositorio habilitado a la organizaciÃ³n.': 'Add an enabled repository to the organization first.',
+  'Guardar permisos directos': 'Save direct permissions',
   'CONOCE LO QUE CONSTRUYES': 'KNOW WHAT YOU BUILD',
   'Comprende.': 'Understand.',
   'Anticipa.': 'Anticipate.',

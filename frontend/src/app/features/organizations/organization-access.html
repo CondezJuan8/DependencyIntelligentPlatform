@@ -556,6 +556,13 @@
                 Debe quedar un propietario activo. Suspender conserva los equipos; retirar elimina
                 sus asociaciones.
               </p>
+              <h3>Permisos directos por repositorio</h3>
+              <p class="helper">Estos permisos se asignan a esta persona y no dependen de pertenecer a un equipo. Siguen limitados por el rol de la cuenta.</p>
+              @if (access.repositories.length) {
+                <mat-form-field appearance="outline"><mat-label>Repositorio</mat-label><mat-select [value]="selectedMemberRepository()" (selectionChange)="selectMemberRepository(member, $event.value)" [disabled]="pending()">@for(repo of access.repositories;track repo.id){<mat-option [value]="repo.id"><span data-no-translate>{{repo.fullName}}</span></mat-option>}</mat-select></mat-form-field>
+                <div class="di-check-grid">@for(permission of access.permissions;track permission.code){<mat-checkbox [checked]="selectedMemberPermissions().includes(permission.code)" [disabled]="pending() || member.status !== 'ACTIVE'" (change)="toggleMemberPermission(permission.code,$event.checked)">{{permissionLabel(permission.code)}}</mat-checkbox>}</div>
+                <button mat-stroked-button type="button" (click)="saveMemberPermissions(member)" [disabled]="pending() || member.status !== 'ACTIVE'">Guardar permisos directos</button>
+              } @else { <p class="helper">Primero agrega un repositorio habilitado a la organizaciÃ³n.</p> }
               @if (error()) {
                 <p class="error" role="alert">{{ error() }}</p>
               }

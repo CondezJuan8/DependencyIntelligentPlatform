@@ -20,6 +20,7 @@ interface Member {
   displayName: string;
   status: string;
   roles: Role[];
+  directGrants: { repositoryId: string; permission: string }[];
 }
 interface Team {
   id: string;
@@ -84,6 +85,8 @@ export class OrganizationAccess implements OnChanges {
   readonly team = signal<Team | null>(null);
   readonly repository = signal('');
   readonly selectedPermissions = signal<string[]>([]);
+  readonly selectedMemberRepository = signal('');
+  readonly selectedMemberPermissions = signal<string[]>([]);
   readonly memberRoles: Record<string, Role> = {};
   readonly memberStatuses: Record<string, string> = {};
   invitationEmail = '';
@@ -338,7 +341,22 @@ export class OrganizationAccess implements OnChanges {
     this.error.set('');
     this.memberRoles[member.id] = member.roles[0] ?? 'VIEWER';
     this.memberStatuses[member.id] = member.status;
+    const repository = this.data()?.repositories[0]?.id ?? '';
+    this.selectedMemberRepository.set(repository);
+    this.selectedMemberPermissions.set(member.directGrants.filter(grant => grant.repositoryId === repository).map(grant => grant.permission));
     this.memberConfirmation.set(member);
+  }
+  selectMemberRepository(member: Member, repositoryId: string): void {
+    this.selectedMemberRepository.set(repositoryId);
+    this.selectedMemberPermissions.set(member.directGrants.filter(grant => grant.repositoryId === repositoryId).map(grant => grant.permission));
+  }
+  toggleMemberPermission(code: string, checked: boolean): void {
+    this.selectedMemberPermissions.update(items => checked ? [...items, code] : items.filter(item => item !== code));
+  }
+  saveMemberPermissions(member: Member): void {
+    const repository = this.selectedMemberRepository();
+    if (!repository || this.pending()) return;
+    this.mutate(`/members/${member.id}/repositories/${repository}/permissions`, { permissions: this.selectedMemberPermissions() }, 'Permisos directos del miembro actualizados.');
   }
   closeDialogs(): void {
     if (!this.pending()) {
