@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class OrganizationAccessRules {
-    public static final Set<String> REPOSITORY_PERMISSIONS = Set.of("repository.read", "scan.read", "scan.create",
+    public static final Set<String> REPOSITORY_PERMISSIONS = Set.of("repository.read", "repository.manage", "scan.read", "scan.create",
         "document.read", "document.manage", "assistant.query", "impact.create", "change.simulate", "change.propose", "report.read", "report.export");
     private OrganizationAccessRules() { }
 

@@ -158,8 +158,9 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         UUID team = UUID.fromString(ok(201, postJson(path(org)+"/teams", owner.session(), Map.of("name", "Readers"))).path("id").asText());
         String teamPath = path(org)+"/teams/"+team, repositoryPath = path(org)+"/repositories/"+repository;
         ok(204, postJson(teamPath+"/members/"+membership, owner.session(), Map.of("included", true)));
-        ok(204, postJson(teamPath+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read", "scan.read", "scan.create"))));
+        ok(204, postJson(teamPath+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read", "scan.read", "scan.create", "repository.manage"))));
         mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isOk());
+        ok(403, postJson(path(org)+"/github/installations", member.session(), Map.of()));
         ok(403, postJson(repositoryPath+"/scans", member.session(), Map.of("gitReference", "main")));
         ok(204, change(owner, org, membership, "MEMBER", "ACTIVE")); ok(202, postJson(repositoryPath+"/scans", member.session(), Map.of("gitReference", "main")));
         ok(400, postJson(teamPath+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("organization.manage"))));
