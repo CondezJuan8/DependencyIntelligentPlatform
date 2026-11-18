@@ -197,6 +197,7 @@ export class OrganizationAccess implements OnChanges {
     this.team.set(team);
     this.renamedTeam = team?.name ?? '';
     this.selectRepository(this.repository() || this.data()?.repositories[0]?.id || '');
+    if (team) requestAnimationFrame(() => document.getElementById('team-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
   rename(): void {
     const team = this.team();

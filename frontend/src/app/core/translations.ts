@@ -1,6 +1,10 @@
 // UI copy is translated by exact phrase. User supplied names, emails and repository
 // identifiers stay untouched because they are not translation keys.
 export const english: Record<string, string> = {
+  'CONOCE LO QUE CONSTRUYES': 'KNOW WHAT YOU BUILD',
+  'Comprende.': 'Understand.',
+  'Anticipa.': 'Anticipate.',
+  'Protege.': 'Protect.',
   'Abriendo confirmación de cuenta…': 'Opening account confirmation…',
   'Abriendo el espacio de tu organización…': 'Opening your organization workspace…',
   'Abriendo formulario de acceso…': 'Opening sign-in form…',

@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { finalize } from 'rxjs';
+import { finalize, timer } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SessionApiService, accessError } from '../../core/session-api.service';
 import { DiIcon } from '../../shared/di-icon';
 
@@ -40,24 +41,37 @@ import { DiIcon } from '../../shared/di-icon';
     [role=alert]{color:var(--di-critical-text)}
   `,
 })
-export class AdmissionPanel {
+export class AdmissionPanel implements OnInit {
   readonly api = inject(SessionApiService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly pending = signal(false);
   readonly error = signal('');
   readonly message = signal('');
 
-  refresh(): void {
+  ngOnInit(): void {
+    timer(15_000, 15_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.api.account()?.admissionStatus === 'PENDING_REVIEW') this.refresh(false);
+    });
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    this.destroyRef.onDestroy(() => document.removeEventListener('visibilitychange', this.onVisibilityChange));
+  }
+
+  private readonly onVisibilityChange = (): void => {
+    if (!document.hidden && this.api.account()?.admissionStatus === 'PENDING_REVIEW') this.refresh(false);
+  };
+
+  refresh(showFeedback = true): void {
     if (this.pending()) return;
     this.pending.set(true);
-    this.error.set('');
-    this.message.set('');
+    if (showFeedback) { this.error.set(''); this.message.set(''); }
     this.api.restore().pipe(finalize(() => this.pending.set(false))).subscribe({
       next: (account) => {
+        if (!showFeedback) return;
         this.message.set(account?.admissionStatus === 'APPROVED'
           ? 'Tu cuenta ya fue aprobada; abriendo el espacio de trabajo.'
           : 'La solicitud sigue pendiente. Vuelve a comprobarla después de la revisión administrativa.');
       },
-      error: (error) => this.error.set(accessError(error)),
+      error: (error) => { if (showFeedback) this.error.set(accessError(error)); },
     });
   }
 

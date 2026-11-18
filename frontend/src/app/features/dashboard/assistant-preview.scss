@@ -5,10 +5,10 @@
 .assistant-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid #d4e4ff;
+  border: 1px solid var(--di-border);
   border-radius: 10px;
   padding: 20px;
-  background: linear-gradient(145deg, var(--di-info-background), #e3edff);
+  background: linear-gradient(145deg, var(--di-info-background), var(--di-surface-muted));
 }
 .assistant-card h2 {
   font-size: 21px;
@@ -33,7 +33,7 @@
   position: absolute;
   right: -10px;
   bottom: -15px;
-  color: #bad4ff;
+  color: var(--di-text-subtle);
   transform: rotate(-15deg);
 }
 .assistant-mark app-di-icon {
