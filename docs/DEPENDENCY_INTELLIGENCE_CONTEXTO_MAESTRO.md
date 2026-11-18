@@ -12,6 +12,8 @@ Las secciones numeradas posteriores conservan el contexto histórico. Las decisi
 
 Instrucción posterior al bloque 09: pendientes consolidados en [PENDIENTES.md](PENDIENTES.md), para implementarlos y validarlos juntos cuando el usuario lo indique. El orden propuesto más abajo queda como referencia; no inicia automáticamente el siguiente bloque.
 
+Decisión vigente del flujo de admisión (18 de noviembre de 2026): las cuentas de responsable creadas por registro quedan guardadas y pueden volver a iniciar sesión mientras esperan revisión. El administrador de plataforma confirma el correo y aprueba la cuenta en una sola acción; hasta entonces el usuario permanece fuera del espacio de trabajo. Salir/cerrar la página no descarta la solicitud. La espera debe poder consultarse tras volver a iniciar sesión.
+
 Bloque 13, 16 de noviembre de 2026: antes de GitHub, el usuario priorizó rediseñar frontend y proporcionó imágenes de login, dashboard y organización; registro delegado. Entregados acceso de dos paneles, navegación lateral/topbar, dashboard con estados honestos y organización con tabla, filtros y pestañas. APIs y esquema permanecen iguales. Entorno local activo para revisión, build correcto y validación visual automática bloqueada por herramienta. Detalle y recorrido en [DISENO_FRONTEND](DISENO_FRONTEND.md). Siguiente acción: recoger observaciones del usuario, sin iniciar otra integración.
 
 ### Decisiones cerradas

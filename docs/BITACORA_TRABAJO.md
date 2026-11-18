@@ -573,3 +573,24 @@ Herramientas: PowerShell, `apply_patch`, Docker CLI/Compose, Mailpit local y Pos
 ### Siguiente paso
 
 Revisar el flujo en `http://localhost:8089`. La cuenta permanecerá en revisión hasta que un administrador de plataforma la apruebe. En la base Docker todavía no existe un administrador inicial; el bootstrap seguro sigue anotado en PENDIENTES y no se creó una cuenta privilegiada automáticamente.
+
+## Bloque 18 — Aprobación administrativa y espera persistente
+
+Fecha: 18 de noviembre de 2026, America/Bogota. Petición: corregir el botón de actualización de estado, permitir que la persona registrada vuelva después mientras espera, y retirar la ventana/paso de confirmación de correo para ese flujo.
+
+### Cambios
+
+- El registro de responsable queda guardado como pendiente. Puede cerrar la página e iniciar sesión después; mientras la solicitud no se apruebe, se conserva el panel de admisión y no se habilita el espacio de trabajo.
+- Se eliminó del panel de admisión la acción de confirmar correo para el usuario. La aprobación por un administrador de plataforma confirma el correo pendiente y aprueba la cuenta en una sola operación autorizada.
+- La acción administrativa acepta responsables pendientes aunque el correo no se haya confirmado antes por el flujo antiguo. La actualización de estado vuelve a consultar `/api/auth/me`, que lee el estado persistido actual.
+- La lista administrativa permite aprobar también las solicitudes cuyo correo no estaba confirmado y muestra la acción como «Confirmar y aprobar responsable».
+
+### Verificación y herramientas
+
+- El build Docker de backend/frontend se ejecutó al reconstruir los servicios y terminó correctamente; Maven `verify` y build Angular corrieron dentro de ese proceso. No se añadieron suites extra.
+- En la sesión de documentación actual no fue posible volver a consultar contenedores, base de datos ni estado Git: los ejecutables `docker` y `git` no están disponibles en el PATH de este entorno. Por ello no se afirma una prueba UI end-to-end, que el administrador bootstrap esté creado o que haya commits nuevos.
+- Herramientas/código: PowerShell, `apply_patch`, Angular/TypeScript y RxJS existentes, Spring/JDBC existentes. No se añadieron dependencias.
+
+### Siguiente paso
+
+Entrar como administrador en `http://localhost:8089`, revisar la solicitud en Administración de plataforma y elegir «Confirmar y aprobar responsable». El estado se conserva si la persona sale; puede volver a iniciar sesión y usar «Comprobar aprobación». Se requiere primero que exista un administrador de plataforma en esa instancia.

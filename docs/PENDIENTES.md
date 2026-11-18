@@ -37,7 +37,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 
 | Área | Pendiente | Criterio de cierre |
 | --- | --- | --- |
-| Arranque local Docker | El stack Compose inicia con una base vacía y aún no tiene flujo seguro para aprovisionar el primer administrador de plataforma; definir y validar bootstrap inicial antes de probar registro y aprobación | Crear el primer administrador una sola vez mediante un mecanismo local controlado, con secretos fuera de Git y sin habilitar auto-administración pública |
+| Arranque local Docker | Verificar/provisionar el primer administrador de plataforma en la instancia Docker; el alta de responsables espera la aprobación de ese administrador | Crear el primer administrador una sola vez mediante un mecanismo local controlado, con secretos fuera de Git y sin habilitar auto-administración pública |
 | Identidad y organización | Backend/UI de invitaciones y gestión entregados en bloque 11; pendiente revisión conjunta y paginación de historiales de invitaciones grandes | Completar aceptación visual/operativa sin considerar pendiente el código ya probado |
 | Integración de repositorios GitHub | Instalación/revocación de App, selección de repositorios, lectura de commits/archivos y eventos idempotentes | Acceder solo a repositorios autorizados y gestionar revocaciones; análisis manual local sin depender de webhooks entrantes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
