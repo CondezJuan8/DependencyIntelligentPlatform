@@ -18,5 +18,5 @@ public class PlatformController {
     public void action(Principal user,@Valid @RequestBody Request request){platform.execute(UUID.fromString(user.getName()),new Action(request.resource(),request.id(),request.operation(),request.reason()));}
     @PostMapping("/api/account/profile") public AccountResult profile(Principal user,@Valid @RequestBody Profile request){UUID id=UUID.fromString(user.getName());platform.updateName(id,request.displayName());return accounts.execute(id);}
     public record Request(@NotNull Resource resource,@NotNull UUID id,@NotNull Operation operation,@NotBlank @Size(min=3,max=500) String reason){}
-    public record Profile(@NotBlank @Size(max=200) String displayName){}
+    public record Profile(@NotBlank @Size(min=2,max=200) @Pattern(regexp="[\\p{L}\\p{M}]+(?:[ '’\\-][\\p{L}\\p{M}]+)*") String displayName){}
 }
