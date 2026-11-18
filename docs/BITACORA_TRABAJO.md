@@ -684,3 +684,26 @@ Commits: `5c3434b` 🔌 feat: conecta instalaciones y repositorios de GitHub; `f
 ### Siguiente paso
 
 Configurar la App de `CondezJuan8` con Setup URL y callback indicados en la guía, introducir secretos en `.env`, reconstruir/reiniciar el servicio sin tocar el volumen de base, y probar instalación/selección en escritorio y móvil. Después implementar lectura segura de archivos/commit y encolar el análisis Maven/npm.
+
+## Bloque 22 — Correcciones de revisión de interfaz y admisión
+
+Fecha: 18 de noviembre de 2026. Petición del usuario: corregir cobertura incompleta del inglés, colores incoherentes con modo claro/oscuro, espera de aprobación que no se actualiza sola, validación del nombre, configuración, dashboard, organización, equipos/permisos y falta de origen de repositorios locales.
+
+### Cambios entregados en este bloque
+
+- La pantalla de admisión vuelve a consultar `/api/auth/me` cada 15 segundos mientras está pendiente y al recuperar el foco de la pestaña. El estado de cuenta actualizado gobierna el cambio al espacio de trabajo, sin refresco manual.
+- Añadidos textos ingleses para panel de acceso/espera, dashboard y nuevas vistas; retiradas claves duplicadas que impedían compilar TypeScript.
+- Ampliados los tokens para superficies/ilustraciones y sustituidos colores fijos de tarjetas, modales, panel de equipos y dashboard. El tablero de dependencias y el panel «En preparación» usan colores derivados del tema.
+- «Gestionar equipo» ahora lleva la vista al editor del equipo seleccionado y lo hace enfocable.
+- Perfil del backend exige nombre de al menos dos caracteres con letras y separadores admitidos; el correo de perfil ya se mostraba de solo lectura.
+- Se anotaron explícitamente los pendientes de tema compartido por organización, rol de administrador con alcance por repositorio, asignación directa de permisos por miembro y carga/análisis local. Requieren backend/modelo y políticas adicionales; no se simulan como completados.
+
+### Verificación y límites
+
+Build Angular producción correcto tras corregir traducciones duplicadas. Bundle inicial 553,59 kB (presupuesto 500 kB); avisos de estilo Organización 4,97 kB/4 kB y Dashboard 4,13 kB/4 kB. No se hizo prueba visual automatizada ni móvil físico, llamada HTTP de aprobación/Mailpit, ni flujo local de carga. La carga de carpeta/escáner, configuración organizacional persistente, administración scoped y CRUD de permisos directos siguen pendientes. La validación del perfil Java requiere recompilar backend antes de usarla.
+
+Herramientas: `apply_patch`, PowerShell, Angular CLI 22/Node 24. Sin dependencia frontend nueva ni migración de base de datos. El backend aún requiere la verificación de compilación focalizada correspondiente a la nueva validación.
+
+### Siguiente paso
+
+Revisar visualmente modo claro/oscuro e inglés en acceso, Dashboard, Organización y perfil; luego completar de forma independiente tema compartido, administración por repositorio, carga local aislada y asignaciones de permisos con autorización y pruebas de persistencia.

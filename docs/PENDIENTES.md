@@ -36,6 +36,11 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 
 ## Funciones por implementar
 
+- [ ] Configuración compartida de organización: tema del espacio, idioma y más parámetros deben persistirse en el backend con autorización y controles adaptables; las preferencias actuales de apariencia/idioma son locales al navegador.
+- [ ] Rol de administración limitado por repositorio: `ADMIN` actual tiene alcance de organización. Definir e implementar una concesión scoped por repositorio antes de ofrecer ese rol en invitaciones; no atribuir a un `ADMIN` limitado privilegios globales.
+- [ ] Importación desde carpeta del equipo: selector/upload seguro, límites de tamaño/tipo, almacenamiento temporal y análisis aislado Maven/npm con progreso/errores. El navegador no puede guardar una ruta local del usuario en el servidor.
+- [ ] Asignación directa de permisos por miembro/repositorio además de equipos; conservar el alcance del rol y auditoría en API/UI.
+
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
 
 | Área | Pendiente | Criterio de cierre |
