@@ -17,7 +17,7 @@ public final class ManagePlatformUseCase implements ManagePlatform {
         store.lockAdministration(); authorize(actor);
         if(action.resource()==Resource.USER){
             var target=store.user(action.id());
-            if(action.operation()==Operation.APPROVE && (!target.emailVerified() || !target.accountType().equals("OWNER"))) throw new AccessConflictException("Solo se aprueban responsables con correo verificado");
+            if(action.operation()==Operation.APPROVE && (!target.accountType().equals("OWNER") || !target.admissionStatus().equals("PENDING_REVIEW"))) throw new AccessConflictException("Solo se aprueban responsables pendientes de revisión");
             if(action.operation()==Operation.ENABLE && (!target.emailVerified() || !target.admissionStatus().equals("APPROVED"))) throw new AccessConflictException("La cuenta debe estar verificada y aprobada");
             if(Set.of(Operation.DISABLE,Operation.REMOVE,Operation.REJECT).contains(action.operation())){
                 if(actor.equals(action.id())) throw new AccessConflictException("No puedes deshabilitar tu propia cuenta de administración");

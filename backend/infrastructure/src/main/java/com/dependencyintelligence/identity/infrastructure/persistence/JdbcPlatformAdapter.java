@@ -36,7 +36,7 @@ public class JdbcPlatformAdapter implements PlatformStore {
         switch(action.resource()){
             case USER -> {
                 sql=switch(action.operation()){
-                    case APPROVE -> "update users set admission_status='APPROVED',reviewed_by_user_id=?,reviewed_at=clock_timestamp(),updated_at=clock_timestamp() where id=?";
+                    case APPROVE -> "update users set email_verified_at=coalesce(email_verified_at,clock_timestamp()),admission_status='APPROVED',reviewed_by_user_id=?,reviewed_at=clock_timestamp(),updated_at=clock_timestamp() where id=?";
                     case REJECT -> "update users set admission_status='REJECTED',credential_version=credential_version+1,reviewed_by_user_id=?,reviewed_at=clock_timestamp(),updated_at=clock_timestamp() where id=?";
                     case ENABLE,DISABLE,REMOVE -> "update users set is_active=?,credential_version=credential_version+1,updated_at=clock_timestamp() where id=?";
                 };
