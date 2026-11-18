@@ -73,7 +73,7 @@ import { TranslatePipe } from '../../core/translate.pipe';
 
     <section class="settings-card">
       <h2>{{ 'Apariencia e idioma personales' | t }}</h2>
-      <p>{{ 'Se usan en acceso y registro. Dentro de una organización activa prevalece la configuración compartida de ese espacio.' | t }}</p>
+      <p>{{ 'Las preferencias del espacio se aplican inicialmente. Puedes cambiarlas desde el encabezado.' | t }}</p>
       <div class="preferences">
         <label>{{ 'Apariencia personal' | t }}
           <select [value]="preferences.personalThemeValue()" (change)="theme($event)">
