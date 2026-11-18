@@ -2,9 +2,10 @@ import { SessionApiService } from '../core/session-api.service';
 import { Component, inject, input, output } from '@angular/core';
 import { navigation, availableNavigation, Page } from '../core/navigation';
 import { DiIcon } from './di-icon';
+import { TranslatePipe } from '../core/translate.pipe';
 @Component({
   selector: 'app-workspace-sidebar',
-  imports: [DiIcon],
+  imports: [DiIcon, TranslatePipe],
   templateUrl: './workspace-sidebar.html',
   styleUrl: './workspace-sidebar.scss',
 })

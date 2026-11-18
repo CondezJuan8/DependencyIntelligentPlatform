@@ -3,15 +3,18 @@ import { Component, effect, inject, input, output, signal } from '@angular/core'
 import { finalize } from 'rxjs';
 import { navigation, availableNavigation, Page } from '../core/navigation';
 import { SessionApiService, accessError } from '../core/session-api.service';
+import { PreferencesService } from '../core/preferences.service';
+import { TranslatePipe } from '../core/translate.pipe';
 import { DiIcon } from './di-icon';
 @Component({
   selector: 'app-workspace-topbar',
-  imports: [PreferenceControls,DiIcon],
+  imports: [PreferenceControls,DiIcon,TranslatePipe],
   templateUrl: './workspace-topbar.html',
   styleUrl: './workspace-topbar.scss',
 })
 export class WorkspaceTopbar {
   readonly api = inject(SessionApiService);
+  private readonly preferences = inject(PreferencesService);
   readonly page = input.required<Page>();
   readonly menuOpen = input(false);
   readonly navigate = output<Page>();
@@ -39,8 +42,10 @@ export class WorkspaceTopbar {
     ).toUpperCase();
   }
   get matches() {
+    const query = this.query().trim().toLocaleLowerCase();
     return availableNavigation(this.api.account()).filter((item) =>
-      item.label.toLocaleLowerCase().includes(this.query().trim().toLocaleLowerCase()),
+      this.preferences.text(item.label).toLocaleLowerCase().includes(query) ||
+      item.label.toLocaleLowerCase().includes(query),
     );
   }
   search(event: Event): void {

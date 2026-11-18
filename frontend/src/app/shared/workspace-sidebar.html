@@ -1,4 +1,4 @@
-<aside class="sidebar" [class.open]="opened()" aria-label="Navegación principal">
+<aside class="sidebar" [class.open]="opened()" [attr.aria-label]="'Navegación principal' | t">
   <button class="brand" (click)="go('dashboard')">
     <img src="/brand-mark.svg" alt="" width="33" height="37" /><span
       >Dependency<br />Intelligence</span
@@ -10,11 +10,11 @@
         (click)="go(item.id)"
         [class.active]="page() === item.id"
         [attr.aria-current]="page() === item.id ? 'page' : null"
-        [attr.title]="item.ready ? item.label : item.label + ': en preparación'"
+        [attr.title]="item.label | t"
       >
-        <app-di-icon [name]="item.icon" /><span>{{ item.label }}</span>
+        <app-di-icon [name]="item.icon" /><span>{{ item.label | t }}</span>
         @if (!item.ready) {
-          <i aria-hidden="true"></i><span class="sr-only">En preparación</span>
+          <i aria-hidden="true"></i><span class="sr-only">{{ 'En preparación' | t }}</span>
         }
       </button>
     }

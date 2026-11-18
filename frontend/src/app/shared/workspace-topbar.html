@@ -2,7 +2,7 @@
   <button
     class="icon-button menu-toggle"
     (click)="toggleMenu.emit()"
-    aria-label="Abrir navegación"
+    [attr.aria-label]="'Abrir navegación' | t"
     [attr.aria-expanded]="menuOpen()"
   >
     <app-di-icon name="menu" />
@@ -10,23 +10,23 @@
   <div class="search-box">
     <app-di-icon name="search" /><input
       type="search"
-      placeholder="Buscar una sección…"
-      aria-label="Buscar una sección de la plataforma"
+      [placeholder]="'Buscar una sección…' | t"
+      [attr.aria-label]="'Buscar una sección de la plataforma' | t"
       maxlength="80"
       [value]="query()"
       (input)="search($event)"
     />
     @if (query().trim()) {
-      <div class="search-results" aria-label="Secciones encontradas">
+      <div class="search-results" [attr.aria-label]="'Secciones encontradas' | t">
         @for (item of matches; track item.id) {
           <button (click)="go(item.id)">
-            <app-di-icon [name]="item.icon" />{{ item.label }}
+            <app-di-icon [name]="item.icon" />{{ item.label | t }}
             @if (!item.ready) {
-              <small>En preparación</small>
+              <small>{{ 'En preparación' | t }}</small>
             }
           </button>
         } @empty {
-          <p>No encontramos esa sección.</p>
+          <p>{{ 'No encontramos esa sección.' | t }}</p>
         }
       </div>
     }
