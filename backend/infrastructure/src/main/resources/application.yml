@@ -56,6 +56,16 @@ server:
     include-message: never
     include-stacktrace: never
 app:
+  github:
+    app:
+      enabled: ${GITHUB_APP_ENABLED:false}
+      slug: ${GITHUB_APP_SLUG:}
+      id: ${GITHUB_APP_ID:}
+      client-id: ${GITHUB_APP_CLIENT_ID:}
+      client-secret: ${GITHUB_APP_CLIENT_SECRET:}
+      private-key-base64: ${GITHUB_APP_PRIVATE_KEY_BASE64:}
+      callback-url: ${GITHUB_APP_CALLBACK_URL:${PUBLIC_BASE_URL:http://localhost:8088}/api/integrations/github/app-callback}
+      api-base-url: ${GITHUB_APP_API_BASE_URL:https://api.github.com}
   organization:
     invitation-lifetime: ${INVITATION_LIFETIME:PT72H}
   identity:

@@ -64,7 +64,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/register-invited", "/api/auth/login", "/api/auth/password-reset/request",
                     "/api/auth/password-reset/confirm", "/api/auth/email-verification/confirm", "/api/platform/admission-decisions").permitAll()
                 .requestMatchers("/api/auth/me", "/api/auth/email-verification/request", "/api/auth/providers/**",
-                    "/api/organizations", "/api/organizations/**", "/api/platform/**", "/api/account/**").authenticated()
+                    "/api/organizations", "/api/organizations/**", "/api/platform/**", "/api/account/**",
+                    "/api/integrations/github/app-callback").authenticated()
                 .anyRequest().denyAll())
             .exceptionHandling(errors -> errors
                 .authenticationEntryPoint((request, response, exception) -> response.setStatus(401))
