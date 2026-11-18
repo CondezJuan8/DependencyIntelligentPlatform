@@ -2,80 +2,81 @@
 <rect x="-20" y="-20" width="100%" height="100%" fill="white"/>
 <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#64748b"/></marker></defs>
 <polyline points="440,298.0 460,298.0 460,501.0 2700,501.0 2700,215.0 755.0,215.0 755.0,240.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,285.3333333333333 1005,285.3333333333333 1005,513.0 2712,513.0 2712,3262.0 2360.0,3262.0 2360.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,310.6666666666667 1015,310.6666666666667 1015,525.0 2724,525.0 2724,2959.0 1825.0,2959.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,298.6666666666667 2630,298.6666666666667 2630,537.0 2736,537.0 2736,2947.0 1290.0,2947.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,337.3333333333333 2640,337.3333333333333 2640,549.0 2748,549.0 2748,558.0 755.0,558.0 755.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,676.3333333333334 460,676.3333333333334 460,992.0 2760,992.0 2760,1579.0 220.0,1579.0 220.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,701.6666666666666 470,701.6666666666666 470,1004.0 2772,1004.0 2772,534.0 2360.0,534.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,686.2 1015,686.2 1015,1016.0 2784,1016.0 2784,2608.0 1290.0,2608.0 1290.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,721.4 1025,721.4 1025,932.0 2796,932.0 2796,606.0 1825.0,606.0 1825.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,756.6 1035,756.6 1035,944.0 2808,944.0 2808,2971.0 1290.0,2971.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,791.8 995,791.8 995,956.0 2820,956.0 2820,2959.0 755.0,2959.0 755.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,284.5 1540,284.5 1540,537.0 2832,537.0 2832,2656.0 755.0,2656.0 755.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,309.0 1550,309.0 1550,549.0 2700,549.0 2700,2644.0 2360.0,2644.0 2360.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,333.5 1560,333.5 1560,561.0 2712,561.0 2712,2923.0 220.0,2923.0 220.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,358.0 1570,358.0 1570,573.0 2724,573.0 2724,2269.0 220.0,2269.0 220.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,382.5 1530,382.5 1530,585.0 2736,585.0 2736,2899.0 1290.0,2899.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,407.0 1540,407.0 1540,501.0 2748,501.0 2748,3274.0 1290.0,3274.0 1290.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,431.5 1550,431.5 1550,513.0 2760,513.0 2760,2971.0 755.0,2971.0 755.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,298.0 2095,298.0 2095,525.0 2772,525.0 2772,2959.0 1825.0,2959.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,689.6666666666666 1570,689.6666666666666 1570,968.0 2784,968.0 2784,2656.0 2360.0,2656.0 2360.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,728.3333333333334 1530,728.3333333333334 1530,980.0 2796,980.0 2796,1260.0 220.0,1260.0 220.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,698.2 2075,698.2 2075,992.0 2808,992.0 2808,2632.0 1825.0,2632.0 1825.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,745.4 2085,745.4 2085,1004.0 2820,1004.0 2820,3202.0 1290.0,3202.0 1290.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,792.6 2095,792.6 2095,1016.0 2832,1016.0 2832,2899.0 1290.0,2899.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,839.8 2105,839.8 2105,932.0 2700,932.0 2700,2983.0 755.0,2983.0 755.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,689.0 2600,689.0 2600,944.0 2712,944.0 2712,594.0 1825.0,594.0 1825.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,1107.3333333333333 470,1107.3333333333333 470,1227.0 2724,1227.0 2724,2668.0 1825.0,2668.0 1825.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,1132.6666666666667 480,1132.6666666666667 480,1239.0 2736,1239.0 2736,1272.0 220.0,1272.0 220.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,1107.3333333333333 1025,1107.3333333333333 1025,1251.0 2748,1251.0 2748,2644.0 2360.0,2644.0 2360.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,1132.6666666666667 1035,1132.6666666666667 1035,1263.0 2760,1263.0 2760,1248.0 220.0,1248.0 220.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1107.3333333333333 1530,1107.3333333333333 1530,1275.0 2772,1275.0 2772,534.0 2360.0,534.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1132.6666666666667 1540,1132.6666666666667 1540,1287.0 2784,1287.0 2784,1224.0 220.0,1224.0 220.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,1107.3333333333333 2085,1107.3333333333333 2085,1203.0 2796,1203.0 2796,1308.0 220.0,1308.0 220.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,1132.6666666666667 2095,1132.6666666666667 2095,1215.0 2808,1215.0 2808,2971.0 2360.0,2971.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,1107.3333333333333 2640,1107.3333333333333 2640,1227.0 2820,1227.0 2820,1284.0 220.0,1284.0 220.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,1132.6666666666667 2600,1132.6666666666667 2600,1239.0 2832,1239.0 2832,3529.0 220.0,3529.0 220.0,3590.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,1387.0 470,1387.0 470,1582.0 2700,1582.0 2700,558.0 1825.0,558.0 1825.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,1421.0 480,1421.0 480,1594.0 2712,1594.0 2712,1248.0 2360.0,1248.0 2360.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,1455.0 490,1455.0 490,1606.0 2724,1606.0 2724,3202.0 1825.0,3202.0 1825.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,1378.3333333333333 1035,1378.3333333333333 1035,1618.0 2736,1618.0 2736,1224.0 1290.0,1224.0 1290.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,1403.6666666666667 995,1403.6666666666667 995,1534.0 2748,1534.0 2748,606.0 2360.0,606.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1391.0 1540,1391.0 1540,1546.0 2760,1546.0 2760,594.0 1825.0,594.0 1825.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,1391.0 2085,1391.0 2085,1558.0 2772,1558.0 2772,582.0 1825.0,582.0 1825.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1718.0 1560,1718.0 1560,1901.0 2784,1901.0 2784,1603.0 755.0,1603.0 755.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1752.0 1570,1752.0 1570,1913.0 2796,1913.0 2796,2935.0 1290.0,2935.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1786.0 1530,1786.0 1530,1925.0 2808,1925.0 2808,1910.0 755.0,1910.0 755.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,1742.0 2075,1742.0 2075,1937.0 2820,1937.0 2820,1567.0 1290.0,1567.0 1290.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,1722.0 2620,1722.0 2620,1949.0 2832,1949.0 2832,2899.0 1825.0,2899.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2039.0 490,2039.0 490,2236.0 2700,2236.0 2700,1639.0 755.0,1639.0 755.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2063.0 500,2063.0 500,2248.0 2712,2248.0 2712,2971.0 1290.0,2971.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2087.0 460,2087.0 460,2260.0 2724,2260.0 2724,1615.0 2360.0,1615.0 2360.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2044.3333333333333 1005,2044.3333333333333 1005,2272.0 2736,2272.0 2736,3238.0 220.0,3238.0 220.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2073.6666666666665 1015,2073.6666666666665 1015,2284.0 2748,2284.0 2748,3226.0 755.0,3226.0 755.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2103.0 1025,2103.0 1025,2296.0 2760,2296.0 2760,2923.0 1825.0,2923.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2132.3333333333335 1035,2132.3333333333335 1035,2308.0 2772,2308.0 2772,1567.0 2360.0,1567.0 2360.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2161.6666666666665 995,2161.6666666666665 995,2320.0 2784,2320.0 2784,3190.0 1290.0,3190.0 1290.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,2063.0 1540,2063.0 1540,2236.0 2796,2236.0 2796,2341.0 220.0,2341.0 220.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,2063.0 2085,2063.0 2085,2248.0 2808,2248.0 2808,2680.0 220.0,2680.0 220.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2412.0 490,2412.0 490,2611.0 2820,2611.0 2820,1946.0 1825.0,1946.0 1825.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2438.0 500,2438.0 500,2623.0 2832,2623.0 2832,1934.0 2360.0,1934.0 2360.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2464.0 460,2464.0 460,2635.0 2700,2635.0 2700,2644.0 1290.0,2644.0 1290.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2490.0 470,2490.0 470,2647.0 2712,2647.0 2712,2923.0 1290.0,2923.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,2516.0 480,2516.0 480,2659.0 2724,2659.0 2724,2911.0 755.0,2911.0 755.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2411.3333333333335 1025,2411.3333333333335 1025,2671.0 2736,2671.0 2736,2257.0 220.0,2257.0 220.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="975,2436.6666666666665 1035,2436.6666666666665 1035,2587.0 2748,2587.0 2748,2983.0 2360.0,2983.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,2411.3333333333335 1530,2411.3333333333335 1530,2599.0 2760,2599.0 2760,2329.0 220.0,2329.0 220.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,2436.6666666666665 1540,2436.6666666666665 1540,2611.0 2772,2611.0 2772,3250.0 1290.0,3250.0 1290.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,2424.6666666666665 2085,2424.6666666666665 2085,2623.0 2784,2623.0 2784,2947.0 1290.0,2947.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2045,2463.3333333333335 2095,2463.3333333333335 2095,2635.0 2796,2635.0 2796,2293.0 2360.0,2293.0 2360.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,2410.0 2640,2410.0 2640,2647.0 2808,2647.0 2808,1910.0 1825.0,1910.0 1825.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,2434.0 2600,2434.0 2600,2659.0 2820,2659.0 2820,1898.0 2360.0,1898.0 2360.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,2458.0 2610,2458.0 2610,2671.0 2832,2671.0 2832,2899.0 1825.0,2899.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,1385.0 2620,1385.0 2620,1534.0 2700,1534.0 2700,606.0 755.0,606.0 755.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="2580,1417.0 2630,1417.0 2630,1546.0 2712,1546.0 2712,2971.0 755.0,2971.0 755.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="440,1722.0 500,1722.0 500,1889.0 2724,1889.0 2724,2668.0 1825.0,2668.0 1825.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,285.3333333333333 1005,285.3333333333333 1005,513.0 2712,513.0 2712,3553.0 220.0,3553.0 220.0,3590.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,310.6666666666667 1015,310.6666666666667 1015,525.0 2724,525.0 2724,2959.0 2360.0,2959.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,689.6666666666666 490,689.6666666666666 490,968.0 2736,968.0 2736,2947.0 1825.0,2947.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,728.3333333333334 500,728.3333333333334 500,980.0 2748,980.0 2748,558.0 1290.0,558.0 1290.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,676.3333333333334 995,676.3333333333334 995,992.0 2760,992.0 2760,1579.0 755.0,1579.0 755.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,701.6666666666666 1005,701.6666666666666 1005,1004.0 2772,1004.0 2772,965.0 220.0,965.0 220.0,1062.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,686.2 1550,686.2 1550,1016.0 2784,1016.0 2784,2608.0 1825.0,2608.0 1825.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,721.4 1560,721.4 1560,932.0 2796,932.0 2796,606.0 2360.0,606.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,756.6 1570,756.6 1570,944.0 2808,944.0 2808,2971.0 1825.0,2971.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,791.8 1530,791.8 1530,956.0 2820,956.0 2820,2959.0 1290.0,2959.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,284.5 1540,284.5 1540,537.0 2832,537.0 2832,2656.0 1290.0,2656.0 1290.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,309.0 1550,309.0 1550,549.0 2700,549.0 2700,2935.0 220.0,2935.0 220.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,333.5 1560,333.5 1560,561.0 2712,561.0 2712,2923.0 755.0,2923.0 755.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,358.0 1570,358.0 1570,573.0 2724,573.0 2724,2269.0 755.0,2269.0 755.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,382.5 1530,382.5 1530,585.0 2736,585.0 2736,2899.0 1825.0,2899.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,407.0 1540,407.0 1540,501.0 2748,501.0 2748,3274.0 1825.0,3274.0 1825.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,431.5 1550,431.5 1550,513.0 2760,513.0 2760,2971.0 1290.0,2971.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,298.0 2095,298.0 2095,525.0 2772,525.0 2772,2959.0 2360.0,2959.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,689.6666666666666 2105,689.6666666666666 2105,968.0 2784,968.0 2784,2947.0 220.0,2947.0 220.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,728.3333333333334 2065,728.3333333333334 2065,980.0 2796,980.0 2796,1260.0 755.0,1260.0 755.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,698.2 2610,698.2 2610,992.0 2808,992.0 2808,2632.0 2360.0,2632.0 2360.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,745.4 2620,745.4 2620,1004.0 2820,1004.0 2820,3202.0 1825.0,3202.0 1825.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,792.6 2630,792.6 2630,1016.0 2832,1016.0 2832,2899.0 1825.0,2899.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,839.8 2640,839.8 2640,932.0 2700,932.0 2700,2983.0 1290.0,2983.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,1120.0 460,1120.0 460,1215.0 2712,1215.0 2712,594.0 2360.0,594.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,1107.3333333333333 1005,1107.3333333333333 1005,1227.0 2724,1227.0 2724,2668.0 2360.0,2668.0 2360.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,1132.6666666666667 1015,1132.6666666666667 1015,1239.0 2736,1239.0 2736,1272.0 755.0,1272.0 755.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,1107.3333333333333 1560,1107.3333333333333 1560,1251.0 2748,1251.0 2748,2935.0 220.0,2935.0 220.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,1132.6666666666667 1570,1132.6666666666667 1570,1263.0 2760,1263.0 2760,1248.0 755.0,1248.0 755.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,1107.3333333333333 2065,1107.3333333333333 2065,1275.0 2772,1275.0 2772,965.0 220.0,965.0 220.0,1062.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,1132.6666666666667 2075,1132.6666666666667 2075,1287.0 2784,1287.0 2784,1224.0 755.0,1224.0 755.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,1107.3333333333333 2620,1107.3333333333333 2620,1203.0 2796,1203.0 2796,1308.0 755.0,1308.0 755.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,1132.6666666666667 2630,1132.6666666666667 2630,1215.0 2808,1215.0 2808,3262.0 220.0,3262.0 220.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,1378.3333333333333 500,1378.3333333333333 500,1558.0 2820,1558.0 2820,1284.0 755.0,1284.0 755.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,1403.6666666666667 460,1403.6666666666667 460,1570.0 2832,1570.0 2832,3529.0 755.0,3529.0 755.0,3590.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,1387.0 1005,1387.0 1005,1582.0 2700,1582.0 2700,558.0 2360.0,558.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,1421.0 1015,1421.0 1015,1594.0 2712,1594.0 2712,1579.0 220.0,1579.0 220.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,1455.0 1025,1455.0 1025,1606.0 2724,1606.0 2724,3202.0 2360.0,3202.0 2360.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,1378.3333333333333 1570,1378.3333333333333 1570,1618.0 2736,1618.0 2736,1224.0 1825.0,1224.0 1825.0,1333.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,1403.6666666666667 1530,1403.6666666666667 1530,1534.0 2748,1534.0 2748,1037.0 220.0,1037.0 220.0,1062.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,1391.0 2075,1391.0 2075,1546.0 2760,1546.0 2760,594.0 2360.0,594.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,1391.0 2620,1391.0 2620,1558.0 2772,1558.0 2772,582.0 2360.0,582.0 2360.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,1718.0 2095,1718.0 2095,1901.0 2784,1901.0 2784,1603.0 1290.0,1603.0 1290.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,1752.0 2105,1752.0 2105,1913.0 2796,1913.0 2796,2935.0 1825.0,2935.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,1786.0 2065,1786.0 2065,1925.0 2808,1925.0 2808,1910.0 1290.0,1910.0 1290.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,1742.0 2610,1742.0 2610,1937.0 2820,1937.0 2820,1567.0 1825.0,1567.0 1825.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,2053.0 480,2053.0 480,2320.0 2832,2320.0 2832,2899.0 2360.0,2899.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2039.0 1025,2039.0 1025,2236.0 2700,2236.0 2700,1639.0 1290.0,1639.0 1290.0,1664.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2063.0 1035,2063.0 1035,2248.0 2712,2248.0 2712,2971.0 1825.0,2971.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2087.0 995,2087.0 995,2260.0 2724,2260.0 2724,1946.0 220.0,1946.0 220.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2044.3333333333333 1540,2044.3333333333333 1540,2272.0 2736,2272.0 2736,3238.0 755.0,3238.0 755.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2073.6666666666665 1550,2073.6666666666665 1550,2284.0 2748,2284.0 2748,3226.0 1290.0,3226.0 1290.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2103.0 1560,2103.0 1560,2296.0 2760,2296.0 2760,2923.0 2360.0,2923.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2132.3333333333335 1570,2132.3333333333335 1570,2308.0 2772,2308.0 2772,1898.0 220.0,1898.0 220.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2161.6666666666665 1530,2161.6666666666665 1530,2320.0 2784,2320.0 2784,3190.0 1825.0,3190.0 1825.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,295.0 2610,295.0 2610,501.0 2796,501.0 2796,3565.0 220.0,3565.0 220.0,3590.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,2063.0 2085,2063.0 2085,2248.0 2808,2248.0 2808,2329.0 755.0,2329.0 755.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,2063.0 2630,2063.0 2630,2260.0 2820,2260.0 2820,2668.0 755.0,2668.0 755.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2412.0 1035,2412.0 1035,2623.0 2832,2623.0 2832,1934.0 2360.0,1934.0 2360.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2438.0 995,2438.0 995,2635.0 2700,2635.0 2700,2293.0 220.0,2293.0 220.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2464.0 1005,2464.0 1005,2647.0 2712,2647.0 2712,2632.0 1825.0,2632.0 1825.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2490.0 1015,2490.0 1015,2659.0 2724,2659.0 2724,2911.0 1825.0,2911.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,2516.0 1025,2516.0 1025,2671.0 2736,2671.0 2736,2899.0 1290.0,2899.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2411.3333333333335 1570,2411.3333333333335 1570,2587.0 2748,2587.0 2748,2341.0 755.0,2341.0 755.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="1510,2436.6666666666665 1530,2436.6666666666665 1530,2599.0 2760,2599.0 2760,3262.0 220.0,3262.0 220.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,2411.3333333333335 2075,2411.3333333333335 2075,2611.0 2772,2611.0 2772,2317.0 755.0,2317.0 755.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2045,2436.6666666666665 2085,2436.6666666666665 2085,2623.0 2784,2623.0 2784,3238.0 1825.0,3238.0 1825.0,3299.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,2424.6666666666665 2630,2424.6666666666665 2630,2635.0 2796,2635.0 2796,2935.0 1825.0,2935.0 1825.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="2580,2463.3333333333335 2640,2463.3333333333335 2640,2647.0 2808,2647.0 2808,2632.0 220.0,2632.0 220.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,2761.0 460,2761.0 460,2950.0 2820,2950.0 2820,1898.0 2360.0,1898.0 2360.0,1995.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,2785.0 470,2785.0 470,2962.0 2832,2962.0 2832,2257.0 220.0,2257.0 220.0,2366.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,2809.0 480,2809.0 480,2878.0 2700,2878.0 2700,2983.0 2360.0,2983.0 2360.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,1716.0 490,1716.0 490,1877.0 2712,1877.0 2712,594.0 1290.0,594.0 1290.0,631.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="440,1748.0 500,1748.0 500,1889.0 2724,1889.0 2724,2959.0 1290.0,2959.0 1290.0,3008.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
+<polyline points="975,1722.0 995,1722.0 995,1901.0 2736,1901.0 2736,2656.0 2360.0,2656.0 2360.0,2717.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <text x="0" y="24.0" font-family="monospace" font-size="24" fill="#1e293b">Impacto, reportes, notificaciones y retención</text>
 <text x="0" y="56.0" font-family="monospace" font-size="14" fill="#1e293b">Entidades y FK exportadas del SQL aplicado; los catálogos no prueban funcionalidades de aplicación.</text>
 <text x="0" y="86.0" font-family="monospace" font-size="14" fill="#1e293b">PK / U = participa en clave (puede ser compuesta); FK = referencia; ? = nullable</text>
@@ -106,297 +107,302 @@
 <text x="1617" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="1617" y="310.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
 <text x="1617" y="328.0" font-family="monospace" font-size="14" fill="#1e293b">U resource_type: text</text>
-<rect x="2140" y="240" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="2152" y="266.0" font-family="monospace" font-size="16" fill="#1e293b">change_pull_request_proposals</text>
-<text x="2152" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="2152" y="310.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="328.0" font-family="monospace" font-size="14" fill="#1e293b">FK simulation_id: uuid</text>
-<text x="2152" y="345.5" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
-<text x="2152" y="363.0" font-family="monospace" font-size="14" fill="#1e293b">FK approved_by_membership_id?: uuid</text>
-<rect x="0" y="631" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="12" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">change_record_evidences</text>
-<text x="12" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
-<text x="12" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK change_record_id: uuid</text>
-<text x="12" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK evidence_id: uuid</text>
-<rect x="535" y="631" width="440" height="216" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="547" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">change_simulations</text>
-<text x="547" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="547" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="547" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK repository_id: uuid</text>
-<text x="547" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
-<text x="547" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">FK base_commit_id: uuid</text>
-<text x="547" y="771.5" font-family="monospace" font-size="14" fill="#1e293b">FK background_job_id?: uuid</text>
-<text x="547" y="789.0" font-family="monospace" font-size="14" fill="#1e293b">FK requested_by_membership_id?: uuid</text>
-<text x="547" y="806.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
-<rect x="1070" y="631" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">document_review_flags</text>
-<text x="1082" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<rect x="2140" y="240" width="440" height="110" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="2152" y="266.0" font-family="monospace" font-size="16" fill="#1e293b">platform_audit_events</text>
+<text x="2152" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<text x="2152" y="310.5" font-family="monospace" font-size="14" fill="#1e293b">FK actor_id: uuid</text>
+<rect x="0" y="631" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="12" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">change_pull_request_proposals</text>
+<text x="12" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="12" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="12" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK simulation_id: uuid</text>
+<text x="12" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
+<text x="12" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">FK approved_by_membership_id?: uuid</text>
+<rect x="535" y="631" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">change_record_evidences</text>
+<text x="547" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
+<text x="547" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK change_record_id: uuid</text>
+<text x="547" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK evidence_id: uuid</text>
+<rect x="1070" y="631" width="440" height="216" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="1082" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">change_simulations</text>
+<text x="1082" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="1082" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1082" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U document_id: uuid</text>
-<text x="1082" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U impact_finding_id: uuid</text>
-<text x="1082" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
-<rect x="1605" y="631" width="440" height="276" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1617" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">impact_analyses</text>
-<text x="1617" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="1082" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK repository_id: uuid</text>
+<text x="1082" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
+<text x="1082" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">FK base_commit_id: uuid</text>
+<text x="1082" y="771.5" font-family="monospace" font-size="14" fill="#1e293b">FK background_job_id?: uuid</text>
+<text x="1082" y="789.0" font-family="monospace" font-size="14" fill="#1e293b">FK requested_by_membership_id?: uuid</text>
+<text x="1082" y="806.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
+<rect x="1605" y="631" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="1617" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">document_review_flags</text>
+<text x="1617" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
 <text x="1617" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1617" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U repository_id: uuid</text>
-<text x="1617" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">FK base_scan_id: uuid</text>
-<text x="1617" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U base_commit_id?: uuid</text>
-<text x="1617" y="771.5" font-family="monospace" font-size="14" fill="#1e293b">FK component_id: uuid</text>
-<text x="1617" y="789.0" font-family="monospace" font-size="14" fill="#1e293b">FK current_version_id?: uuid</text>
-<text x="1617" y="806.5" font-family="monospace" font-size="14" fill="#1e293b">FK target_version_id?: uuid</text>
-<text x="1617" y="824.0" font-family="monospace" font-size="14" fill="#1e293b">FK replacement_version_id?: uuid</text>
-<text x="1617" y="841.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
-<text x="1617" y="859.0" font-family="monospace" font-size="14" fill="#1e293b">FK requested_by_membership_id?: uuid</text>
-<rect x="2140" y="631" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="2152" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">impact_evidences</text>
+<text x="1617" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U document_id: uuid</text>
+<text x="1617" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U impact_finding_id: uuid</text>
+<text x="1617" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
+<rect x="2140" y="631" width="440" height="276" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="2152" y="657.0" font-family="monospace" font-size="16" fill="#1e293b">impact_analyses</text>
 <text x="2152" y="684.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="2152" y="701.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
+<text x="2152" y="719.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U repository_id: uuid</text>
+<text x="2152" y="736.5" font-family="monospace" font-size="14" fill="#1e293b">FK base_scan_id: uuid</text>
+<text x="2152" y="754.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U base_commit_id?: uuid</text>
+<text x="2152" y="771.5" font-family="monospace" font-size="14" fill="#1e293b">FK component_id: uuid</text>
+<text x="2152" y="789.0" font-family="monospace" font-size="14" fill="#1e293b">FK current_version_id?: uuid</text>
+<text x="2152" y="806.5" font-family="monospace" font-size="14" fill="#1e293b">FK target_version_id?: uuid</text>
+<text x="2152" y="824.0" font-family="monospace" font-size="14" fill="#1e293b">FK replacement_version_id?: uuid</text>
+<text x="2152" y="841.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
+<text x="2152" y="859.0" font-family="monospace" font-size="14" fill="#1e293b">FK requested_by_membership_id?: uuid</text>
 <rect x="0" y="1062" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="12" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_component_versions</text>
-<text x="12" y="1115.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
-<text x="12" y="1132.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK finding_id: uuid</text>
-<text x="12" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK component_version_id: uuid</text>
+<text x="12" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_evidences</text>
+<text x="12" y="1115.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="12" y="1132.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="12" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
 <rect x="535" y="1062" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="547" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_documents</text>
+<text x="547" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_component_versions</text>
 <text x="547" y="1115.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
 <text x="547" y="1132.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK finding_id: uuid</text>
-<text x="547" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK document_id: uuid</text>
+<text x="547" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK component_version_id: uuid</text>
 <rect x="1070" y="1062" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_evidences</text>
+<text x="1082" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_documents</text>
 <text x="1082" y="1115.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
 <text x="1082" y="1132.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK finding_id: uuid</text>
-<text x="1082" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK evidence_id: uuid</text>
+<text x="1082" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK document_id: uuid</text>
 <rect x="1605" y="1062" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1617" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_repositories</text>
+<text x="1617" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_evidences</text>
 <text x="1617" y="1115.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
 <text x="1617" y="1132.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK finding_id: uuid</text>
-<text x="1617" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK repository_id: uuid</text>
+<text x="1617" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK evidence_id: uuid</text>
 <rect x="2140" y="1062" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="2152" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_vulnerabilities</text>
+<text x="2152" y="1088.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_repositories</text>
 <text x="2152" y="1115.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
 <text x="2152" y="1132.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK finding_id: uuid</text>
-<text x="2152" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK vulnerability_id: uuid</text>
-<rect x="0" y="1333" width="440" height="176" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="12" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_findings</text>
-<text x="12" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="12" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="12" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
-<text x="12" y="1438.5" font-family="monospace" font-size="14" fill="#1e293b">classification: text</text>
-<text x="12" y="1456.0" font-family="monospace" font-size="14" fill="#1e293b">FK severity_code?: text</text>
-<text x="12" y="1473.5" font-family="monospace" font-size="14" fill="#1e293b">FK validation_test_run_id?: uuid</text>
-<rect x="535" y="1333" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="547" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_recommendation_evidences</text>
-<text x="547" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
-<text x="547" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK recommendation_id: uuid</text>
-<text x="547" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK evidence_id: uuid</text>
+<text x="2152" y="1150.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK repository_id: uuid</text>
+<rect x="0" y="1333" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="12" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_finding_vulnerabilities</text>
+<text x="12" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
+<text x="12" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK finding_id: uuid</text>
+<text x="12" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK vulnerability_id: uuid</text>
+<rect x="535" y="1333" width="440" height="176" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_findings</text>
+<text x="547" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="547" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="547" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
+<text x="547" y="1438.5" font-family="monospace" font-size="14" fill="#1e293b">classification: text</text>
+<text x="547" y="1456.0" font-family="monospace" font-size="14" fill="#1e293b">FK severity_code?: text</text>
+<text x="547" y="1473.5" font-family="monospace" font-size="14" fill="#1e293b">FK validation_test_run_id?: uuid</text>
 <rect x="1070" y="1333" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_recommendations</text>
-<text x="1082" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="1082" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1082" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
+<text x="1082" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_recommendation_evidences</text>
+<text x="1082" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
+<text x="1082" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK recommendation_id: uuid</text>
+<text x="1082" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK evidence_id: uuid</text>
 <rect x="1605" y="1333" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1617" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_test_suggestions</text>
-<text x="1617" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="1617" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK organization_id: uuid</text>
+<text x="1617" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_recommendations</text>
+<text x="1617" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="1617" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
 <text x="1617" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
-<rect x="2140" y="1333" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="2152" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">simulation_test_runs</text>
-<text x="2152" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="2152" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK simulation_id: uuid</text>
-<text x="2152" y="1438.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
-<rect x="0" y="1664" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="12" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">version_change_records</text>
+<rect x="2140" y="1333" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="2152" y="1359.0" font-family="monospace" font-size="16" fill="#1e293b">impact_test_suggestions</text>
+<text x="2152" y="1386.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<text x="2152" y="1403.5" font-family="monospace" font-size="14" fill="#1e293b">FK organization_id: uuid</text>
+<text x="2152" y="1421.0" font-family="monospace" font-size="14" fill="#1e293b">FK impact_analysis_id: uuid</text>
+<rect x="0" y="1664" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="12" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">simulation_test_runs</text>
 <text x="12" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="12" y="1734.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="12" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK component_version_id: uuid</text>
-<rect x="535" y="1664" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
-<text x="547" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_channels</text>
-<text x="547" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
-<rect x="1070" y="1664" width="440" height="176" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_deliveries</text>
-<text x="1082" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="1082" y="1734.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1082" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U notification_id: uuid</text>
-<text x="1082" y="1769.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U membership_id: uuid</text>
-<text x="1082" y="1787.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U channel: text</text>
-<text x="1082" y="1804.5" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
-<rect x="1605" y="1664" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1617" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_delivery_attempts</text>
-<text x="1617" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<text x="12" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK simulation_id: uuid</text>
+<text x="12" y="1769.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
+<rect x="535" y="1664" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">version_change_records</text>
+<text x="547" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="547" y="1734.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="547" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK component_version_id: uuid</text>
+<rect x="1070" y="1664" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="1082" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_channels</text>
+<text x="1082" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
+<rect x="1605" y="1664" width="440" height="176" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="1617" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_deliveries</text>
+<text x="1617" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="1617" y="1734.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1617" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U delivery_id: uuid</text>
-<text x="1617" y="1769.5" font-family="monospace" font-size="14" fill="#1e293b">U attempt_number: integer</text>
-<text x="1617" y="1787.0" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
-<rect x="2140" y="1664" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="2152" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_rules</text>
-<text x="2152" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="1617" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U notification_id: uuid</text>
+<text x="1617" y="1769.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U membership_id: uuid</text>
+<text x="1617" y="1787.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U channel: text</text>
+<text x="1617" y="1804.5" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
+<rect x="2140" y="1664" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="2152" y="1690.0" font-family="monospace" font-size="16" fill="#1e293b">notification_delivery_attempts</text>
+<text x="2152" y="1717.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
 <text x="2152" y="1734.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">U name: text</text>
-<rect x="0" y="1995" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="12" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">notification_subscriptions</text>
-<text x="12" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
-<text x="12" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK rule_id: uuid</text>
-<text x="12" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK membership_id: uuid</text>
-<text x="12" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK channel: text</text>
-<rect x="535" y="1995" width="440" height="216" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="547" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">notifications</text>
-<text x="547" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="547" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="547" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK rule_id?: uuid</text>
-<text x="547" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">U event_type: text</text>
-<text x="547" y="2118.0" font-family="monospace" font-size="14" fill="#1e293b">U deduplication_key: text</text>
-<text x="547" y="2135.5" font-family="monospace" font-size="14" fill="#1e293b">FK scan_id?: uuid</text>
-<text x="547" y="2153.0" font-family="monospace" font-size="14" fill="#1e293b">FK finding_id?: uuid</text>
-<text x="547" y="2170.5" font-family="monospace" font-size="14" fill="#1e293b">FK comparison_id?: uuid</text>
-<rect x="1070" y="1995" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">report_artifacts</text>
+<text x="2152" y="1752.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U delivery_id: uuid</text>
+<text x="2152" y="1769.5" font-family="monospace" font-size="14" fill="#1e293b">U attempt_number: integer</text>
+<text x="2152" y="1787.0" font-family="monospace" font-size="14" fill="#1e293b">status: text</text>
+<rect x="0" y="1995" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="12" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">notification_rules</text>
+<text x="12" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="12" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="12" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">U name: text</text>
+<rect x="535" y="1995" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">notification_subscriptions</text>
+<text x="547" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
+<text x="547" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK rule_id: uuid</text>
+<text x="547" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK membership_id: uuid</text>
+<text x="547" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK channel: text</text>
+<rect x="1070" y="1995" width="440" height="216" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="1082" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">notifications</text>
 <text x="1082" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="1082" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1082" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK report_job_id: uuid</text>
-<text x="1082" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">sha256: text</text>
-<rect x="1605" y="1995" width="440" height="136" rx="4" fill="#f1f5f9" stroke="#334155"/>
-<text x="1617" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">report_definitions</text>
-<text x="1617" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="1617" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">U code: text</text>
-<text x="1617" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK report_type: text</text>
-<text x="1617" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">name: text</text>
-<rect x="2140" y="1995" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
-<text x="2152" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">report_formats</text>
-<text x="2152" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
-<rect x="0" y="2366" width="440" height="196" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="12" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_jobs</text>
-<text x="12" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="12" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="12" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK definition_id: uuid</text>
-<text x="12" y="2471.5" font-family="monospace" font-size="14" fill="#1e293b">FK format: text</text>
-<text x="12" y="2489.0" font-family="monospace" font-size="14" fill="#1e293b">FK requested_by_membership_id?: uuid</text>
-<text x="12" y="2506.5" font-family="monospace" font-size="14" fill="#1e293b">FK background_job_id?: uuid</text>
-<text x="12" y="2524.0" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
-<rect x="535" y="2366" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="547" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_repositories</text>
-<text x="547" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
-<text x="547" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK report_job_id: uuid</text>
-<text x="547" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK repository_id: uuid</text>
+<text x="1082" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK rule_id?: uuid</text>
+<text x="1082" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">U event_type: text</text>
+<text x="1082" y="2118.0" font-family="monospace" font-size="14" fill="#1e293b">U deduplication_key: text</text>
+<text x="1082" y="2135.5" font-family="monospace" font-size="14" fill="#1e293b">FK scan_id?: uuid</text>
+<text x="1082" y="2153.0" font-family="monospace" font-size="14" fill="#1e293b">FK finding_id?: uuid</text>
+<text x="1082" y="2170.5" font-family="monospace" font-size="14" fill="#1e293b">FK comparison_id?: uuid</text>
+<rect x="1605" y="1995" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="1617" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">report_artifacts</text>
+<text x="1617" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="1617" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="1617" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK report_job_id: uuid</text>
+<text x="1617" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">sha256: text</text>
+<rect x="2140" y="1995" width="440" height="136" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="2152" y="2021.0" font-family="monospace" font-size="16" fill="#1e293b">report_definitions</text>
+<text x="2152" y="2048.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<text x="2152" y="2065.5" font-family="monospace" font-size="14" fill="#1e293b">U code: text</text>
+<text x="2152" y="2083.0" font-family="monospace" font-size="14" fill="#1e293b">FK report_type: text</text>
+<text x="2152" y="2100.5" font-family="monospace" font-size="14" fill="#1e293b">name: text</text>
+<rect x="0" y="2366" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="12" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_formats</text>
+<text x="12" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
+<rect x="535" y="2366" width="440" height="196" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="547" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_jobs</text>
+<text x="547" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="547" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="547" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK definition_id: uuid</text>
+<text x="547" y="2471.5" font-family="monospace" font-size="14" fill="#1e293b">FK format: text</text>
+<text x="547" y="2489.0" font-family="monospace" font-size="14" fill="#1e293b">FK requested_by_membership_id?: uuid</text>
+<text x="547" y="2506.5" font-family="monospace" font-size="14" fill="#1e293b">FK background_job_id?: uuid</text>
+<text x="547" y="2524.0" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
 <rect x="1070" y="2366" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_scans</text>
+<text x="1082" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_repositories</text>
 <text x="1082" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
 <text x="1082" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK report_job_id: uuid</text>
-<text x="1082" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK scan_id: uuid</text>
-<rect x="1605" y="2366" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1617" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_schedule_recipients</text>
-<text x="1617" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="1617" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1617" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U schedule_id: uuid</text>
-<text x="1617" y="2471.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U membership_id?: uuid</text>
-<text x="1617" y="2489.0" font-family="monospace" font-size="14" fill="#1e293b">U external_email?: text</text>
-<rect x="2140" y="2366" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="2152" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_schedules</text>
-<text x="2152" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="1082" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK repository_id: uuid</text>
+<rect x="1605" y="2366" width="440" height="116" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="1617" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_scans</text>
+<text x="1617" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK organization_id: uuid</text>
+<text x="1617" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK report_job_id: uuid</text>
+<text x="1617" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK scan_id: uuid</text>
+<rect x="2140" y="2366" width="440" height="156" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="2152" y="2392.0" font-family="monospace" font-size="16" fill="#1e293b">report_schedule_recipients</text>
+<text x="2152" y="2419.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
 <text x="2152" y="2436.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK definition_id: uuid</text>
-<text x="2152" y="2471.5" font-family="monospace" font-size="14" fill="#1e293b">FK format: text</text>
-<rect x="0" y="2717" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
-<text x="12" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">report_types</text>
-<text x="12" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
-<rect x="535" y="2717" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="547" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">assistant_conversations</text>
-<text x="547" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="547" y="2787.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="547" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK created_by_membership_id: uuid</text>
-<text x="547" y="2822.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<text x="2152" y="2454.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U schedule_id: uuid</text>
+<text x="2152" y="2471.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U membership_id?: uuid</text>
+<text x="2152" y="2489.0" font-family="monospace" font-size="14" fill="#1e293b">U external_email?: text</text>
+<rect x="0" y="2717" width="440" height="136" rx="4" fill="#e7f2ff" stroke="#334155"/>
+<text x="12" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">report_schedules</text>
+<text x="12" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="12" y="2787.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="12" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK definition_id: uuid</text>
+<text x="12" y="2822.5" font-family="monospace" font-size="14" fill="#1e293b">FK format: text</text>
+<rect x="535" y="2717" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
+<text x="547" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">report_types</text>
+<text x="547" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
 <rect x="1070" y="2717" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="1082" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">background_jobs</text>
+<text x="1082" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">assistant_conversations</text>
 <text x="1082" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="1082" y="2787.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1082" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK job_type: text</text>
+<text x="1082" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK created_by_membership_id: uuid</text>
 <text x="1082" y="2822.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="1605" y="2717" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="1617" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">component_versions</text>
+<text x="1617" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">background_jobs</text>
 <text x="1617" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="1617" y="2787.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1617" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U component_id: uuid</text>
+<text x="1617" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK job_type: text</text>
 <text x="1617" y="2822.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="2140" y="2717" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="2152" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">documents</text>
+<text x="2152" y="2743.0" font-family="monospace" font-size="16" fill="#1e293b">component_versions</text>
 <text x="2152" y="2770.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="2152" y="2787.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK document_type: text</text>
+<text x="2152" y="2805.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U component_id: uuid</text>
 <text x="2152" y="2822.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="0" y="3008" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="12" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">integrations</text>
+<text x="12" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">documents</text>
 <text x="12" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="12" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="12" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U provider: character varying(40)</text>
+<text x="12" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">FK document_type: text</text>
 <text x="12" y="3113.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
-<rect x="535" y="3008" width="440" height="110" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="547" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">job_statuses</text>
-<text x="547" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
-<text x="547" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
-<rect x="1070" y="3008" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="1082" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">organization_memberships</text>
-<text x="1082" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK/U organization_id: uuid</text>
-<text x="1082" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK user_id: uuid</text>
-<text x="1082" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">U id: uuid</text>
-<text x="1082" y="3113.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
-<rect x="1605" y="3008" width="440" height="116" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="1617" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">organizations</text>
-<text x="1617" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="1617" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">U slug: character varying(100)</text>
-<text x="1617" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
-<rect x="2140" y="3008" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="2152" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">repositories</text>
-<text x="2152" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="2152" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="2152" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">FK integration_id?: uuid</text>
-<text x="2152" y="3113.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<rect x="535" y="3008" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
+<text x="547" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">integrations</text>
+<text x="547" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="547" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="547" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U provider: character varying(40)</text>
+<text x="547" y="3113.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<rect x="1070" y="3008" width="440" height="110" rx="4" fill="#ffffff" stroke="#334155"/>
+<text x="1082" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">job_statuses</text>
+<text x="1082" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
+<text x="1082" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<rect x="1605" y="3008" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
+<text x="1617" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">organization_memberships</text>
+<text x="1617" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">FK/PK/U organization_id: uuid</text>
+<text x="1617" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">FK/PK user_id: uuid</text>
+<text x="1617" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">U id: uuid</text>
+<text x="1617" y="3113.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<rect x="2140" y="3008" width="440" height="116" rx="4" fill="#ffffff" stroke="#334155"/>
+<text x="2152" y="3034.0" font-family="monospace" font-size="16" fill="#1e293b">organizations</text>
+<text x="2152" y="3061.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<text x="2152" y="3078.5" font-family="monospace" font-size="14" fill="#1e293b">U slug: character varying(100)</text>
+<text x="2152" y="3096.0" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="0" y="3299" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="12" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">scan_comparisons</text>
+<text x="12" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">repositories</text>
 <text x="12" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
 <text x="12" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="12" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK repository_id: uuid</text>
+<text x="12" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK integration_id?: uuid</text>
 <text x="12" y="3404.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="535" y="3299" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="547" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">scan_vulnerability_findings</text>
-<text x="547" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="547" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">FK scan_id: uuid</text>
-<text x="547" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U vulnerability_id: uuid</text>
+<text x="547" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">scan_comparisons</text>
+<text x="547" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="547" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="547" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK repository_id: uuid</text>
 <text x="547" y="3404.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="1070" y="3299" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="1082" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">scans</text>
-<text x="1082" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
-<text x="1082" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
-<text x="1082" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U repository_id: uuid</text>
+<text x="1082" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">scan_vulnerability_findings</text>
+<text x="1082" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="1082" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">FK scan_id: uuid</text>
+<text x="1082" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U vulnerability_id: uuid</text>
 <text x="1082" y="3404.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
-<rect x="1605" y="3299" width="440" height="116" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="1617" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">severity_levels</text>
-<text x="1617" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
-<text x="1617" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">U sort_order: integer</text>
-<text x="1617" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<rect x="1605" y="3299" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
+<text x="1617" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">scans</text>
+<text x="1617" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK/U id: uuid</text>
+<text x="1617" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
+<text x="1617" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U repository_id: uuid</text>
+<text x="1617" y="3404.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="2140" y="3299" width="440" height="116" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="2152" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">users</text>
-<text x="2152" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="2152" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">U email_normalized?: text</text>
+<text x="2152" y="3325.0" font-family="monospace" font-size="16" fill="#1e293b">severity_levels</text>
+<text x="2152" y="3352.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>
+<text x="2152" y="3369.5" font-family="monospace" font-size="14" fill="#1e293b">U sort_order: integer</text>
 <text x="2152" y="3387.0" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <rect x="0" y="3590" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
-<text x="12" y="3616.0" font-family="monospace" font-size="16" fill="#1e293b">vulnerabilities</text>
+<text x="12" y="3616.0" font-family="monospace" font-size="16" fill="#1e293b">users</text>
 <text x="12" y="3643.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="12" y="3660.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U source: character varying(40)</text>
-<text x="12" y="3678.0" font-family="monospace" font-size="14" fill="#1e293b">U external_id: character varying(255)</text>
+<text x="12" y="3660.5" font-family="monospace" font-size="14" fill="#1e293b">U email_normalized?: text</text>
+<text x="12" y="3678.0" font-family="monospace" font-size="14" fill="#1e293b">FK reviewed_by_user_id?: uuid</text>
 <text x="12" y="3695.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
+<rect x="535" y="3590" width="440" height="136" rx="4" fill="#ffffff" stroke="#334155"/>
+<text x="547" y="3616.0" font-family="monospace" font-size="16" fill="#1e293b">vulnerabilities</text>
+<text x="547" y="3643.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
+<text x="547" y="3660.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U source: character varying(40)</text>
+<text x="547" y="3678.0" font-family="monospace" font-size="14" fill="#1e293b">U external_id: character varying(255)</text>
+<text x="547" y="3695.5" font-family="monospace" font-size="14" fill="#1e293b">Referencia; detalle en su módulo</text>
 <text x="445" y="291.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="980" y="278.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
 <text x="980" y="303.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="291.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="2585" y="330.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="669.3333333333334" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="694.6666666666666" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="679.2" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="980" y="714.4" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="749.6" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="980" y="784.8" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="682.6666666666666" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="445" y="721.3333333333334" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="669.3333333333334" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="694.6666666666666" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="1515" y="679.2" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="1515" y="714.4" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="1515" y="749.6" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="1515" y="784.8" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="1515" y="277.5" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
 <text x="1515" y="302.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
 <text x="1515" y="326.5" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
@@ -405,15 +411,13 @@
 <text x="1515" y="400.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
 <text x="1515" y="424.5" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="2050" y="291.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="1515" y="682.6666666666666" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="1515" y="721.3333333333334" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2050" y="691.2" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="2050" y="738.4" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2050" y="785.6" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="2050" y="832.8" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="682.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="1100.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="1125.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="682.6666666666666" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="721.3333333333334" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2585" y="691.2" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="2585" y="738.4" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2585" y="785.6" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="2585" y="832.8" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="1113.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="980" y="1100.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="980" y="1125.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="1515" y="1100.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
@@ -422,43 +426,46 @@
 <text x="2050" y="1125.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="2585" y="1100.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="2585" y="1125.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="1380.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="1414.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="445" y="1448.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="980" y="1371.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="1396.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="1515" y="1384.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="1371.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="1396.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="1380.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="1414.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="980" y="1448.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="1515" y="1371.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="1515" y="1396.6666666666667" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="2050" y="1384.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="1515" y="1711.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="1515" y="1745.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="1515" y="1779.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2050" y="1735.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="1715.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="2032.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="2056.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="2080.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="2037.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="980" y="2066.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="980" y="2096.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="2125.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="980" y="2154.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="1515" y="2056.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2585" y="1384.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="1711.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="1745.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="1779.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2585" y="1735.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="2046.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="2032.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="2056.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="2080.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="1515" y="2037.3333333333333" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="1515" y="2066.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="1515" y="2096.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="1515" y="2125.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="1515" y="2154.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="2585" y="288.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="2050" y="2056.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="2405.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="2431.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="2457.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="445" y="2483.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="445" y="2509.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="2404.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="980" y="2429.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2585" y="2056.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="2405.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="2431.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="2457.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="980" y="2483.0" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="980" y="2509.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="1515" y="2404.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 <text x="1515" y="2429.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2050" y="2417.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
-<text x="2050" y="2456.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="2403.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="2427.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="2451.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="1378.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="2585" y="1410.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
-<text x="445" y="1715.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="2404.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2050" y="2429.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="2585" y="2417.6666666666665" font-family="monospace" font-size="11" fill="#475569">0..N → 0..1</text>
+<text x="2585" y="2456.3333333333335" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="2754.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="2778.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="2802.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="1709.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="445" y="1741.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
+<text x="980" y="1715.0" font-family="monospace" font-size="11" fill="#475569">0..N → 1</text>
 </svg>

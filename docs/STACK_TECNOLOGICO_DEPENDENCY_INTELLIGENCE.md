@@ -1,6 +1,8 @@
 # Dependency Intelligence — Stack tecnológico oficial propuesto
 
 **Versión:** 1.0  
+
+Actualización del bloque 20 (18/11/2026): la aprobación/rechazo inmediato reutiliza Java/Application, Spring MVC/Security/TransactionTemplate, JDBC/PostgreSQL/Flyway V15, Angular/HttpClient y SMTP/Mailpit. No se añadió dependencia de producto. Ver [bitácora](BITACORA_TRABAJO.md) y [flujo de correo](VERIFICACION_Y_RECUPERACION.md).
 **Fecha:** 13 de noviembre de 2026  
 **Estado:** Propuesta consolidada para aprobación del equipo  
 **Base documental:** `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md` y `Requerimientos.md`

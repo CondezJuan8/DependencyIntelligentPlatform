@@ -2,6 +2,14 @@
 
 Bloque 07, 15 de noviembre de 2026. Backend y formularios Angular para solicitar enlaces de verificación y recuperación, confirmarlos y revocar sesiones tras cambiar la contraseña. Se reutiliza `user_access_tokens` y V13 añade `users.credential_version` e índice de solicitudes.
 
+## Decisión de admisión de responsables (bloque 20)
+
+Al registrarse un responsable, cada administrador de plataforma activo con correo verificado recibe un correo individual con **Aprobar** y **Rechazar**. El primer clic aplica la acción inmediatamente desde un enlace, sin iniciar sesión ni confirmar por segunda vez. Aprobar confirma el correo y habilita la cuenta; rechazar deja la cuenta sin acceso. El solicitante conserva la pantalla «Esperando confirmación» y puede cerrar la página o volver a iniciar sesión para consultar el estado.
+
+Los tokens son opacos, se guardan como hash, están dirigidos al administrador destinatario y a la solicitud, se usan una vez y vencen en `PLATFORM_ADMISSION_DECISION_LIFETIME` (24 horas por defecto). Al decidir una opción se consumen las otras de la misma solicitud. El enlace se procesa en Angular desde el fragmento y envía POST; GET no decide. Dado que el primer POST aplica la decisión —como pidió el usuario—, un escáner de correo que ejecute JavaScript y realice POST podría consumir el enlace; considerar este comportamiento al elegir el proveedor SMTP.
+
+En local, abrir Mailpit en `http://localhost:8026` (o el puerto de `.env`) y pulsar una acción del correo dirigido al administrador. El backend puede responder sin sesión de usuario; la ruta se mantiene protegida por CSRF a través del cliente de la aplicación.
+
 ## Uso local
 
 Con el entorno del README configurado, ejecutar `docker compose up --build -d`. La aplicación abre en `http://localhost:8088` y Mailpit en `http://localhost:8025`. El puerto SMTP local es 1025. Las tres direcciones admiten los puertos definidos en `.env`.
@@ -31,6 +39,7 @@ En desarrollo con `npm start`, configurar `PUBLIC_BASE_URL=http://localhost:4200
 | `EMAIL_VERIFICATION_LIFETIME` | `PT24H` | Caducidad de verificación |
 | `PASSWORD_RESET_LIFETIME` | `PT30M` | Caducidad de recuperación |
 | `ACCOUNT_MAIL_COOLDOWN` | `PT60S` | Espera entre envíos de cada propósito para la misma cuenta |
+| `PLATFORM_ADMISSION_DECISION_LIFETIME` | `PT24H` | Caducidad de enlaces de aprobación/rechazo |
 | `MAILPIT_WEB_PORT` / `MAILPIT_SMTP_PORT` | `8025` / `1025` | Puertos de desarrollo publicados en 127.0.0.1 |
 
 Los tiempos usan duraciones ISO-8601 y se validan al arrancar. El cliente SMTP tiene límites de conexión, lectura y escritura de tres segundos. El límite existente de peticiones de contraseña incluye los endpoints de ambos flujos.
@@ -45,6 +54,7 @@ Se incorporó `spring-boot-starter-mail` en Infrastructure, gestionado por el BO
 | POST `/api/auth/email-verification/confirm` | `token` | CSRF y prueba del enlace, HTTP 204 |
 | POST `/api/auth/password-reset/request` | `email` | CSRF, HTTP 202 uniforme para correos existentes y desconocidos |
 | POST `/api/auth/password-reset/confirm` | `token`, `password` | CSRF y prueba del enlace, HTTP 204 |
+| POST `/api/platform/admission-decisions` | `token` | Anónimo, decisión de admisión de un solo uso, aplicada inmediatamente |
 
 `GET /api/auth/me` incorpora `emailVerified`. Los tokens inválidos, usados, caducados o de otro propósito devuelven 400 con detalle genérico. El envío de verificación puede devolver 503 si SMTP falla y el límite de peticiones puede devolver 429.
 

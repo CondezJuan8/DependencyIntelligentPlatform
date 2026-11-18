@@ -2,6 +2,49 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 20 — Aprobación y rechazo inmediatos desde el correo
+
+Fecha: 18 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y decisión confirmada
+
+Tras fallos previos del flujo, se acordaron dos acciones en el correo: aprobar y rechazar. El usuario eligió que el primer clic ejecute inmediatamente sin login ni paso final. Se conserva la pantalla «Esperando confirmación» para quien se registró.
+
+### Cambios realizados
+
+- Token aleatorio persistido como hash, individual por administrador y decisión, con uso único, vencimiento configurable (24 horas por defecto) e invalidación de las otras acciones de la solicitud.
+- Correo individual a administradores activos con correo verificado; aprobación confirma el correo y habilita la cuenta, rechazo la deja sin acceso.
+- Caso de uso de Application y adaptadores Infrastructure para correo, HTTP anónimo, transacción JDBC y migración V15; la auditoría atribuye la acción al administrador destinatario.
+- Angular quita el token de la URL y aplica la decisión automáticamente mediante POST. GET no decide. La pantalla persistente no cambia.
+- Corregido el enlace JDBC de `Instant` a `Timestamp`.
+
+### Herramientas utilizadas e implementadas
+
+| Herramienta / tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Java y puertos/casos de uso | Decisión de admisión en Application | No |
+| Spring MVC/Security/TransactionTemplate, JDBC | Adaptadores y transacción | No |
+| PostgreSQL/Flyway | Persistencia y migración V15 | No; una migración |
+| Angular/HttpClient | Consumir enlace y mostrar resultado | No |
+| SMTP/Mailpit | Enviar y revisar el correo | No; integración existente |
+| Maven/JUnit y Docker Compose | Pruebas y smoke aislado reportados | Herramientas de verificación |
+
+### Verificación y límites
+
+- `mvn verify`: correcto; Domain 5, Application 10 e Infrastructure 18 pruebas reportadas.
+- Build de frontend Docker correcto, con advertencias de presupuesto de bundle y SCSS.
+- Smoke HTTP en base desechable: aprobar/rechazar sin sesión, destinatario correcto, estado y confirmación de correo, token repetido rechazado; se retiraron base y contenedores temporales.
+- UI visual no comprobada porque CUA no conectó. Después del primer reporte de herramientas inaccesibles, Docker volvió a estar disponible con autorización: V15 se aplicó sobre el volumen persistente sin borrarlo; frontend respondió HTTP 200. Export de catálogo real y regeneración validados: 124 tablas, 87 RLS forzadas, 218 FK y siete diagramas. No se modificaron cuentas existentes.
+- Riesgo aceptado por la decisión de primer clic: un escáner que ejecute JavaScript y envíe POST puede consumir el enlace. Los lectores que solo hagan GET no activan la decisión.
+
+### Siguiente paso
+
+Revisar el correo de prueba en Mailpit; al disponer de Docker/Git, confirmar V15 en la instalación local y guardar los dos commits coherentes de implementación y documentación.
+
+### Commits
+
+Se guardan en dos commits: implementación y migración por separado de documentación/catálogo, con emoji obligatorio y formato Conventional Commits en español.
+
 ## Bloque 01 — Escenario local de demo y registro de continuidad
 
 Fecha: 14 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.

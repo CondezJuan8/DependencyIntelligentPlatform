@@ -8632,6 +8632,15 @@
             ],
             "policies": [
                 {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
                     "name": "schema_migration_access",
                     "check": "true",
                     "roles": [
@@ -8863,6 +8872,135 @@
         },
         {
             "rls": true,
+            "name": "member_repository_assignments",
+            "columns": [
+                {
+                    "name": "organization_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "membership_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "team_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "repository_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "name": "member_repository_assignments_pkey",
+                    "definition": "CREATE UNIQUE INDEX member_repository_assignments_pkey ON public.member_repository_assignments USING btree (organization_id, membership_id, team_id, repository_id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
+                    "name": "tenant_isolation",
+                    "check": "(organization_id = app_private.current_organization_id())",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "(organization_id = app_private.current_organization_id())",
+                    "command": "ALL"
+                }
+            ],
+            "triggers": [
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "f",
+                    "name": "member_repository_assignments_organization_id_membership_i_fkey",
+                    "columns": [
+                        "organization_id",
+                        "membership_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "organization_memberships",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "member_repository_assignments_organization_id_repository_i_fkey",
+                    "columns": [
+                        "organization_id",
+                        "repository_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "repositories",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "member_repository_assignments_organization_id_team_id_fkey",
+                    "columns": [
+                        "organization_id",
+                        "team_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, team_id) REFERENCES organization_teams(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "organization_teams",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "p",
+                    "name": "member_repository_assignments_pkey",
+                    "columns": [
+                        "organization_id",
+                        "membership_id",
+                        "team_id",
+                        "repository_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (organization_id, membership_id, team_id, repository_id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                }
+            ]
+        },
+        {
+            "rls": true,
             "name": "membership_invitations",
             "columns": [
                 {
@@ -8927,6 +9065,41 @@
                     "default": null,
                     "nullable": false,
                     "generated": false
+                },
+                {
+                    "name": "target_team_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "repository_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "accepted_at",
+                    "type": "timestamp with time zone",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "approved_at",
+                    "type": "timestamp with time zone",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "approved_by_user_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -8953,10 +9126,19 @@
                 },
                 {
                     "name": "uq_pending_invitation",
-                    "definition": "CREATE UNIQUE INDEX uq_pending_invitation ON public.membership_invitations USING btree (organization_id, email_normalized) WHERE (status = 'PENDING'::text)"
+                    "definition": "CREATE UNIQUE INDEX uq_pending_invitation ON public.membership_invitations USING btree (organization_id, email_normalized) WHERE (status = ANY (ARRAY['PENDING'::text, 'AWAITING_OWNER'::text]))"
                 }
             ],
             "policies": [
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
                 {
                     "name": "schema_migration_access",
                     "check": "true",
@@ -8982,6 +9164,38 @@
             "constraints": [
                 {
                     "kind": "f",
+                    "name": "fk_invitation_repository",
+                    "columns": [
+                        "organization_id",
+                        "repository_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "repositories",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "fk_invitation_target_team",
+                    "columns": [
+                        "organization_id",
+                        "target_team_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, target_team_id) REFERENCES organization_teams(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "organization_teams",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
                     "name": "membership_invitations_accepted_by_user_id_fkey",
                     "columns": [
                         "accepted_by_user_id"
@@ -8989,6 +9203,20 @@
                     "on_delete": "RESTRICT",
                     "validated": true,
                     "definition": "FOREIGN KEY (accepted_by_user_id) REFERENCES users(id) ON DELETE RESTRICT",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "membership_invitations_approved_by_user_id_fkey",
+                    "columns": [
+                        "approved_by_user_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (approved_by_user_id) REFERENCES users(id) ON DELETE RESTRICT",
                     "referenced_table": "users",
                     "referenced_columns": [
                         "id"
@@ -9082,7 +9310,7 @@
                     ],
                     "on_delete": null,
                     "validated": true,
-                    "definition": "CHECK ((status = ANY (ARRAY['PENDING'::text, 'ACCEPTED'::text, 'EXPIRED'::text, 'REVOKED'::text])))",
+                    "definition": "CHECK ((status = ANY (ARRAY['PENDING'::text, 'AWAITING_OWNER'::text, 'ACCEPTED'::text, 'EXPIRED'::text, 'REVOKED'::text])))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -9150,6 +9378,15 @@
                 }
             ],
             "policies": [
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
                 {
                     "name": "schema_migration_access",
                     "check": "true",
@@ -10225,6 +10462,13 @@
                     "default": null,
                     "nullable": true,
                     "generated": false
+                },
+                {
+                    "name": "repository_scope",
+                    "type": "text",
+                    "default": "'TEAM'::text",
+                    "nullable": false,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -10259,6 +10503,24 @@
                     ],
                     "using": "((app_private.current_organization_id() IS NULL) AND (user_id = app_private.current_user_id()) AND (status = 'ACTIVE'::text))",
                     "command": "SELECT"
+                },
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
+                    "name": "platform_administrator_update",
+                    "check": "app_private.is_platform_administrator()",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "UPDATE"
                 },
                 {
                     "name": "schema_migration_access",
@@ -10340,6 +10602,18 @@
                 },
                 {
                     "kind": "c",
+                    "name": "organization_memberships_repository_scope_check",
+                    "columns": [
+                        "repository_scope"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((repository_scope = ANY (ARRAY['TEAM'::text, 'ASSIGNED'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
                     "name": "organization_memberships_status_check",
                     "columns": [
                         "status"
@@ -10401,6 +10675,13 @@
                     "default": null,
                     "nullable": false,
                     "generated": false
+                },
+                {
+                    "name": "is_enabled",
+                    "type": "boolean",
+                    "default": "true",
+                    "nullable": false,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -10419,6 +10700,24 @@
                 }
             ],
             "policies": [
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
+                    "name": "platform_administrator_update",
+                    "check": "app_private.is_platform_administrator()",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "UPDATE"
+                },
                 {
                     "name": "schema_migration_access",
                     "check": "true",
@@ -10581,6 +10880,15 @@
                         "dependency_runtime"
                     ],
                     "using": "((app_private.current_organization_id() IS NULL) AND (status = 'ACTIVE'::text) AND (EXISTS ( SELECT 1\n   FROM (organization_memberships membership\n     JOIN users account ON (((account.id = membership.user_id) AND account.is_active)))\n  WHERE ((membership.organization_id = organizations.id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))",
+                    "command": "SELECT"
+                },
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
                     "command": "SELECT"
                 },
                 {
@@ -10825,6 +11133,183 @@
                     "on_delete": null,
                     "validated": true,
                     "definition": "PRIMARY KEY (id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                }
+            ]
+        },
+        {
+            "rls": false,
+            "name": "platform_administrators",
+            "columns": [
+                {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "default": "CURRENT_TIMESTAMP",
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "name": "platform_administrators_pkey",
+                    "definition": "CREATE UNIQUE INDEX platform_administrators_pkey ON public.platform_administrators USING btree (user_id)"
+                }
+            ],
+            "policies": [
+            ],
+            "triggers": [
+            ],
+            "force_rls": false,
+            "constraints": [
+                {
+                    "kind": "p",
+                    "name": "platform_administrators_pkey",
+                    "columns": [
+                        "user_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (user_id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "platform_administrators_user_id_fkey",
+                    "columns": [
+                        "user_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        {
+            "rls": true,
+            "name": "platform_audit_events",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "default": "gen_random_uuid()",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "actor_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "action",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "resource_type",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "resource_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "reason",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "default": "CURRENT_TIMESTAMP",
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "name": "platform_audit_events_pkey",
+                    "definition": "CREATE UNIQUE INDEX platform_audit_events_pkey ON public.platform_audit_events USING btree (id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "administrator_access",
+                    "check": "(app_private.is_platform_administrator() AND (actor_id = app_private.current_user_id()))",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "ALL"
+                }
+            ],
+            "triggers": [
+                "CREATE TRIGGER platform_audit_append_only BEFORE DELETE OR UPDATE ON public.platform_audit_events FOR EACH ROW EXECUTE FUNCTION app_private.reject_audit_mutation()"
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "f",
+                    "name": "platform_audit_events_actor_id_fkey",
+                    "columns": [
+                        "actor_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE RESTRICT",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "p",
+                    "name": "platform_audit_events_pkey",
+                    "columns": [
+                        "id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "platform_audit_events_reason_check",
+                    "columns": [
+                        "reason"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((length(btrim(reason)) >= 3) AND (length(btrim(reason)) <= 500)))",
                     "referenced_table": null,
                     "referenced_columns": null
                 }
@@ -12078,6 +12563,24 @@
             ],
             "policies": [
                 {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
+                    "name": "platform_administrator_update",
+                    "check": "app_private.is_platform_administrator()",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "UPDATE"
+                },
+                {
                     "name": "schema_migration_access",
                     "check": "true",
                     "roles": [
@@ -12735,6 +13238,15 @@
                 }
             ],
             "policies": [
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
                 {
                     "name": "schema_migration_access",
                     "check": "true",
@@ -16030,6 +16542,15 @@
             ],
             "policies": [
                 {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
                     "name": "schema_migration_access",
                     "check": "true",
                     "roles": [
@@ -16152,6 +16673,20 @@
                     "default": null,
                     "nullable": true,
                     "generated": false
+                },
+                {
+                    "name": "target_user_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "admission_decision",
+                    "type": "text",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -16159,6 +16694,10 @@
                 {
                     "name": "ix_account_token_requests",
                     "definition": "CREATE INDEX ix_account_token_requests ON public.user_access_tokens USING btree (user_id, purpose, created_at DESC)"
+                },
+                {
+                    "name": "ix_admission_decision_tokens_pending",
+                    "definition": "CREATE INDEX ix_admission_decision_tokens_pending ON public.user_access_tokens USING btree (target_user_id, created_at DESC) WHERE ((purpose = 'PLATFORM_ADMISSION_DECISION'::text) AND (consumed_at IS NULL))"
                 },
                 {
                     "name": "ix_user_access_tokens_user",
@@ -16179,6 +16718,20 @@
             ],
             "force_rls": false,
             "constraints": [
+                {
+                    "kind": "c",
+                    "name": "user_access_tokens_admission_scope_check",
+                    "columns": [
+                        "purpose",
+                        "target_user_id",
+                        "admission_decision"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((((purpose = 'PLATFORM_ADMISSION_DECISION'::text) AND (target_user_id IS NOT NULL) AND (admission_decision IS NOT NULL) AND (admission_decision = ANY (ARRAY['APPROVE'::text, 'REJECT'::text]))) OR ((purpose <> 'PLATFORM_ADMISSION_DECISION'::text) AND (target_user_id IS NULL) AND (admission_decision IS NULL))))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
                 {
                     "kind": "c",
                     "name": "user_access_tokens_check",
@@ -16225,9 +16778,23 @@
                     ],
                     "on_delete": null,
                     "validated": true,
-                    "definition": "CHECK ((purpose = ANY (ARRAY['VERIFY_EMAIL'::text, 'RESET_PASSWORD'::text, 'REFRESH_SESSION'::text])))",
+                    "definition": "CHECK ((purpose = ANY (ARRAY['VERIFY_EMAIL'::text, 'RESET_PASSWORD'::text, 'REFRESH_SESSION'::text, 'PLATFORM_ADMISSION_DECISION'::text])))",
                     "referenced_table": null,
                     "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "user_access_tokens_target_user_id_fkey",
+                    "columns": [
+                        "target_user_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE RESTRICT",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
                 },
                 {
                     "kind": "c",
@@ -16564,6 +17131,34 @@
                     "default": "0",
                     "nullable": false,
                     "generated": false
+                },
+                {
+                    "name": "account_type",
+                    "type": "text",
+                    "default": "'OWNER'::text",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "admission_status",
+                    "type": "text",
+                    "default": "'APPROVED'::text",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "reviewed_by_user_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "reviewed_at",
+                    "type": "timestamp with time zone",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -16592,6 +17187,30 @@
                     "on_delete": null,
                     "validated": true,
                     "definition": "UNIQUE (email_normalized)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "users_account_type_check",
+                    "columns": [
+                        "account_type"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((account_type = ANY (ARRAY['OWNER'::text, 'MEMBER'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "users_admission_status_check",
+                    "columns": [
+                        "admission_status"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((admission_status = ANY (ARRAY['PENDING_REVIEW'::text, 'APPROVED'::text, 'REJECTED'::text])))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -16642,6 +17261,20 @@
                     "definition": "PRIMARY KEY (id)",
                     "referenced_table": null,
                     "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "users_reviewed_by_user_id_fkey",
+                    "columns": [
+                        "reviewed_by_user_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id) ON DELETE RESTRICT",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
                 }
             ]
         },
@@ -18238,5 +18871,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "13"
+    "latest_migration": "15"
 }

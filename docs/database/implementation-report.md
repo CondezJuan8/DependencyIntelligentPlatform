@@ -1,5 +1,9 @@
 # Estado real de implementación de la base de datos
 
+## Decisión de admisión V15, bloque 20
+
+18 de noviembre de 2026. V14 agregó `member_repository_assignments`, `platform_administrators` y `platform_audit_events`. V15 amplía `user_access_tokens` con administrador destinatario, cuenta objetivo y acción Aprobar/Rechazar, restricciones de coherencia e índice parcial de decisiones pendientes; no agrega tablas. Tras aplicar V15 al PostgreSQL local y regenerar artefactos desde catálogo, hay 124 tablas de negocio, 87 con FORCE RLS y 218 FK. Catálogo validado con 7 diagramas nativos, IDs/bindings únicos y las FK cubiertas. Pruebas y flujo HTTP documentados en [verificación y recuperación](../VERIFICACION_Y_RECUPERACION.md).
+
 ## Invitaciones y equipos sin cambio de esquema, bloque 11
 
 15 de noviembre de 2026. Servicios HTTP/UI implementados para membership_invitations/invitation_roles, organization_memberships/membership_roles, organization_teams/team_memberships y repository_team_access, con auditoría transaccional. Se reutilizan V5 y permisos runtime; sin migración nueva ni cambios de catálogo/diagramas. V1–V13, 121 tablas, 85 con FORCE RLS y 208 FK. Ocho pruebas de gestión y cinco de acceso local correctas con PostgreSQL nativo temporal y runtime limitado; SMTP real mediante Mailpit. Aceptación y democión concurrentes comprobadas. No se actualizó una base externa del usuario. [Recorrido, contratos y límites](../INVITACIONES_EQUIPOS_PERMISOS.md).

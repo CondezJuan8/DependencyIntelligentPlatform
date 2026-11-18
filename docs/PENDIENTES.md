@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 16 de noviembre de 2026, tras el bloque 13.
+Actualizado: 18 de noviembre de 2026, tras la decisión de admisión por correo.
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. Registrar una tarea no autoriza iniciarla. No activar integraciones, completar módulos ni ejecutar los pendientes de esta lista hasta esa indicación.
 
@@ -8,9 +8,10 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 
 ## Lo que ya está implementado
 
-- Backend separado en Domain, Application e Infrastructure; núcleo database V1–V13 con 121 tablas, 85 con RLS forzado y 208 FK. Diccionario y diagramas disponibles.
+- Backend separado en Domain, Application e Infrastructure; database V1–V15 con 124 tablas, 87 con RLS forzado y 218 FK, catalogados y diagramados desde la base local.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
+- Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
 - Google/GitHub y vinculación/desvinculación segura en backend y Angular, comprobados con proveedor HTTP local de prueba. Faltan credenciales y consentimiento reales.
 - Parser CycloneDX Maven acotado e importación persistente; todavía sin flujo de análisis real completo.
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
@@ -26,8 +27,8 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] **Prioridad actual: revisión del rediseño del bloque 13.** Entorno activo en localhost:8088. Revisar login/registro, dashboard, navegación móvil, tabla/filtros, pestañas y diálogos de organización, recuperación/verificación e invitaciones. Confirmar distribución/colores con el usuario y corregir sus observaciones antes de GitHub. Revisión automática detenida por no poder verificarse la URL de Chrome.
-- [ ] **Arranque Compose:** ejecutar construcción/arranque y comprobar frontend, backend, PostgreSQL, Mailpit y conservación de datos al reiniciar. El bloque OAuth no verificó Compose.
-- [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso a la bandeja del administrador; comprobar entrega y fallos. Mailpit cubre el aviso local, no entrega externa.
+- [ ] **Arranque Compose:** compilación y arranque comprobados el 18/11: backend health UP, frontend HTTP 200, PostgreSQL y Mailpit saludables; V15 aplicada al volumen existente. Falta reiniciar Compose y comprobar explícitamente que los datos de negocio sobreviven el reinicio.
+- [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
 Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acceso en [ACCESO_LOCAL](ACCESO_LOCAL.md), correo en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md) y revisión de colores en [DISENO_FRONTEND](DISENO_FRONTEND.md). Nunca escribir secretos en este archivo ni enviarlos por chat.
 

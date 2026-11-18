@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V13**, con **121 tablas de negocio, 85 con RLS forzado y 208 FK**. Se cuenta Flyway aparte. V13 añade versión de credenciales e índice de solicitudes sobre el modelo de cuentas existente. Funciones de acceso en [ACCESO_LOCAL](../ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](../VERIFICACION_Y_RECUPERACION.md).
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V15**, con **124 tablas de negocio, 87 con RLS forzado y 218 FK**. Flyway se excluye del conteo. V14 agregó tablas de administración y asignaciones directas de repositorio; V15 soporta decisiones de admisión por correo. Catálogo, diccionario y diagramas se exportan del PostgreSQL local migrado. Funciones de acceso en [ACCESO_LOCAL](../ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](../VERIFICACION_Y_RECUPERACION.md).
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).

@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V13. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V15. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -2010,6 +2010,7 @@ Referencias entrantes: ninguna.
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -2088,6 +2089,37 @@ Referencias entrantes: `component_licenses` (license_id), `scan_component_licens
 Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valores todavía utilizados.
 
 
+## member_repository_assignments
+
+Permisos directos de una membresía en un repositorio, delimitados por organización.
+
+Módulo: **identity**. Ámbito: **tenant**. RLS: True; FORCE: True.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `organization_id` | `uuid` | No | — | FK, PK |
+| `membership_id` | `uuid` | No | — | FK, PK |
+| `team_id` | `uuid` | No | — | FK, PK |
+| `repository_id` | `uuid` | No | — | FK, PK |
+
+Restricciones:
+
+- `member_repository_assignments_organization_id_membership_i_fkey`: `FOREIGN KEY (organization_id, membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `member_repository_assignments_organization_id_repository_i_fkey`: `FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `member_repository_assignments_organization_id_team_id_fkey`: `FOREIGN KEY (organization_id, team_id) REFERENCES organization_teams(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `member_repository_assignments_pkey`: `PRIMARY KEY (organization_id, membership_id, team_id, repository_id)`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE UNIQUE INDEX member_repository_assignments_pkey ON public.member_repository_assignments USING btree (organization_id, membership_id, team_id, repository_id)`
+
+Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
+
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
+- Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
+
 ## membership_invitations
 
 Invitación con token hash, estado y expiración.
@@ -2105,17 +2137,25 @@ Módulo: **identity**. Ámbito: **tenant**. RLS: True; FORCE: True.
 | `status` | `text` | No | 'PENDING'::text |  |
 | `created_at` | `timestamp with time zone` | No | CURRENT_TIMESTAMP |  |
 | `expires_at` | `timestamp with time zone` | No | — |  |
+| `target_team_id` | `uuid` | Sí | — | FK |
+| `repository_id` | `uuid` | Sí | — | FK |
+| `accepted_at` | `timestamp with time zone` | Sí | — |  |
+| `approved_at` | `timestamp with time zone` | Sí | — |  |
+| `approved_by_user_id` | `uuid` | Sí | — | FK |
 
 Restricciones:
 
+- `fk_invitation_repository`: `FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `fk_invitation_target_team`: `FOREIGN KEY (organization_id, target_team_id) REFERENCES organization_teams(organization_id, id) ON DELETE RESTRICT`. Validada: True.
 - `membership_invitations_accepted_by_user_id_fkey`: `FOREIGN KEY (accepted_by_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
+- `membership_invitations_approved_by_user_id_fkey`: `FOREIGN KEY (approved_by_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
 - `membership_invitations_check`: `CHECK ((expires_at > created_at))`. Validada: True.
 - `membership_invitations_email_normalized_check`: `CHECK (((email_normalized = lower(btrim(email_normalized))) AND (email_normalized <> ''::text)))`. Validada: True.
 - `membership_invitations_organization_id_fkey`: `FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT`. Validada: True.
 - `membership_invitations_organization_id_id_key`: `UNIQUE (organization_id, id)`. Validada: True.
 - `membership_invitations_organization_id_invited_by_membersh_fkey`: `FOREIGN KEY (organization_id, invited_by_membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT`. Validada: True.
 - `membership_invitations_pkey`: `PRIMARY KEY (id)`. Validada: True.
-- `membership_invitations_status_check`: `CHECK ((status = ANY (ARRAY['PENDING'::text, 'ACCEPTED'::text, 'EXPIRED'::text, 'REVOKED'::text])))`. Validada: True.
+- `membership_invitations_status_check`: `CHECK ((status = ANY (ARRAY['PENDING'::text, 'AWAITING_OWNER'::text, 'ACCEPTED'::text, 'EXPIRED'::text, 'REVOKED'::text])))`. Validada: True.
 - `membership_invitations_token_hash_check`: `CHECK ((token_hash ~ '^[a-f0-9]{64}$'::text))`. Validada: True.
 - `membership_invitations_token_hash_key`: `UNIQUE (token_hash)`. Validada: True.
 
@@ -2128,10 +2168,11 @@ Referencias entrantes: `invitation_roles` (organization_id, invitation_id).
 - `CREATE UNIQUE INDEX membership_invitations_organization_id_id_key ON public.membership_invitations USING btree (organization_id, id)`
 - `CREATE UNIQUE INDEX membership_invitations_pkey ON public.membership_invitations USING btree (id)`
 - `CREATE UNIQUE INDEX membership_invitations_token_hash_key ON public.membership_invitations USING btree (token_hash)`
-- `CREATE UNIQUE INDEX uq_pending_invitation ON public.membership_invitations USING btree (organization_id, email_normalized) WHERE (status = 'PENDING'::text)`
+- `CREATE UNIQUE INDEX uq_pending_invitation ON public.membership_invitations USING btree (organization_id, email_normalized) WHERE (status = ANY (ARRAY['PENDING'::text, 'AWAITING_OWNER'::text]))`
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -2162,6 +2203,7 @@ Referencias entrantes: ninguna.
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -2398,6 +2440,7 @@ Módulo: **identity**. Ámbito: **tenant**. RLS: True; FORCE: True.
 | `id` | `uuid` | No | gen_random_uuid() | U |
 | `status` | `text` | No | 'ACTIVE'::text |  |
 | `invited_by_user_id` | `uuid` | Sí | — | FK |
+| `repository_scope` | `text` | No | 'TEAM'::text |  |
 
 Restricciones:
 
@@ -2405,11 +2448,12 @@ Restricciones:
 - `memberships_pkey`: `PRIMARY KEY (organization_id, user_id)`. Validada: True.
 - `memberships_user_id_fkey`: `FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
 - `organization_memberships_invited_by_user_id_fkey`: `FOREIGN KEY (invited_by_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
+- `organization_memberships_repository_scope_check`: `CHECK ((repository_scope = ANY (ARRAY['TEAM'::text, 'ASSIGNED'::text])))`. Validada: True.
 - `organization_memberships_status_check`: `CHECK ((status = ANY (ARRAY['ACTIVE'::text, 'SUSPENDED'::text, 'LEFT'::text])))`. Validada: True.
 - `uq_membership_id`: `UNIQUE (id)`. Validada: True.
 - `uq_membership_tenant_id`: `UNIQUE (organization_id, id)`. Validada: True.
 
-Referencias entrantes: `assistant_conversations` (organization_id, created_by_membership_id), `change_pull_request_proposals` (organization_id, approved_by_membership_id), `change_simulations` (organization_id, requested_by_membership_id), `data_deletion_requests` (organization_id, requested_by_membership_id), `documents` (organization_id, uploaded_by_membership_id), `impact_analyses` (organization_id, requested_by_membership_id), `membership_invitations` (organization_id, invited_by_membership_id), `membership_roles` (organization_id, membership_id), `notification_deliveries` (organization_id, membership_id), `notification_subscriptions` (organization_id, membership_id), `report_jobs` (organization_id, requested_by_membership_id), `report_schedule_recipients` (organization_id, membership_id), `scans` (organization_id, requested_by_membership_id), `team_memberships` (organization_id, membership_id).
+Referencias entrantes: `assistant_conversations` (organization_id, created_by_membership_id), `change_pull_request_proposals` (organization_id, approved_by_membership_id), `change_simulations` (organization_id, requested_by_membership_id), `data_deletion_requests` (organization_id, requested_by_membership_id), `documents` (organization_id, uploaded_by_membership_id), `impact_analyses` (organization_id, requested_by_membership_id), `member_repository_assignments` (organization_id, membership_id), `membership_invitations` (organization_id, invited_by_membership_id), `membership_roles` (organization_id, membership_id), `notification_deliveries` (organization_id, membership_id), `notification_subscriptions` (organization_id, membership_id), `report_jobs` (organization_id, requested_by_membership_id), `report_schedule_recipients` (organization_id, membership_id), `scans` (organization_id, requested_by_membership_id), `team_memberships` (organization_id, membership_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -2422,6 +2466,8 @@ Referencias entrantes: `assistant_conversations` (organization_id, created_by_me
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
 - Política `membership_self_discovery`, roles dependency_runtime: USING `((app_private.current_organization_id() IS NULL) AND (user_id = app_private.current_user_id()) AND (status = 'ACTIVE'::text))`; CHECK `None`.
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
+- Política `platform_administrator_update`, roles public: USING `app_private.is_platform_administrator()`; CHECK `app_private.is_platform_administrator()`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -2436,6 +2482,7 @@ Módulo: **identity**. Ámbito: **tenant**. RLS: True; FORCE: True.
 | `id` | `uuid` | No | gen_random_uuid() | PK, U |
 | `organization_id` | `uuid` | No | — | FK, U |
 | `name` | `text` | No | — | U |
+| `is_enabled` | `boolean` | No | true |  |
 
 Restricciones:
 
@@ -2445,7 +2492,7 @@ Restricciones:
 - `organization_teams_organization_id_name_key`: `UNIQUE (organization_id, name)`. Validada: True.
 - `organization_teams_pkey`: `PRIMARY KEY (id)`. Validada: True.
 
-Referencias entrantes: `repository_team_access` (organization_id, team_id), `team_memberships` (organization_id, team_id).
+Referencias entrantes: `member_repository_assignments` (organization_id, team_id), `membership_invitations` (organization_id, target_team_id), `repository_team_access` (organization_id, team_id), `team_memberships` (organization_id, team_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -2455,6 +2502,8 @@ Referencias entrantes: `repository_team_access` (organization_id, team_id), `tea
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
+- Política `platform_administrator_update`, roles public: USING `app_private.is_platform_administrator()`; CHECK `app_private.is_platform_administrator()`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -2495,6 +2544,7 @@ Retención/borrado: sin borrado automático; aplicar políticas del tenant y res
    FROM (organization_memberships membership
      JOIN users account ON (((account.id = membership.user_id) AND account.is_active)))
   WHERE ((membership.organization_id = organizations.id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))`; CHECK `None`.
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(id = app_private.current_organization_id())`; CHECK `(id = app_private.current_organization_id())`.
 
@@ -2553,6 +2603,64 @@ Referencias entrantes: `repository_team_access` (permission_id), `role_permissio
 
 Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valores todavía utilizados.
 
+
+## platform_administrators
+
+Asignación explícita de cuentas con privilegios administrativos globales de plataforma.
+
+Módulo: **identity**. Ámbito: **global**. RLS: False; FORCE: False.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `user_id` | `uuid` | No | — | FK, PK |
+| `created_at` | `timestamp with time zone` | No | CURRENT_TIMESTAMP |  |
+
+Restricciones:
+
+- `platform_administrators_pkey`: `PRIMARY KEY (user_id)`. Validada: True.
+- `platform_administrators_user_id_fkey`: `FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE UNIQUE INDEX platform_administrators_pkey ON public.platform_administrators USING btree (user_id)`
+
+Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valores todavía utilizados.
+
+
+## platform_audit_events
+
+Registro append-only de acciones administrativas globales con actor y objetivo.
+
+Módulo: **audit**. Ámbito: **tenant**. RLS: True; FORCE: True.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `id` | `uuid` | No | gen_random_uuid() | PK |
+| `actor_id` | `uuid` | No | — | FK |
+| `action` | `text` | No | — |  |
+| `resource_type` | `text` | No | — |  |
+| `resource_id` | `uuid` | No | — |  |
+| `reason` | `text` | No | — |  |
+| `created_at` | `timestamp with time zone` | No | CURRENT_TIMESTAMP |  |
+
+Restricciones:
+
+- `platform_audit_events_actor_id_fkey`: `FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
+- `platform_audit_events_pkey`: `PRIMARY KEY (id)`. Validada: True.
+- `platform_audit_events_reason_check`: `CHECK (((length(btrim(reason)) >= 3) AND (length(btrim(reason)) <= 500)))`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE UNIQUE INDEX platform_audit_events_pkey ON public.platform_audit_events USING btree (id)`
+
+Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
+
+- Política `administrator_access`, roles public: USING `app_private.is_platform_administrator()`; CHECK `(app_private.is_platform_administrator() AND (actor_id = app_private.current_user_id()))`.
+- Trigger: `CREATE TRIGGER platform_audit_append_only BEFORE DELETE OR UPDATE ON public.platform_audit_events FOR EACH ROW EXECUTE FUNCTION app_private.reject_audit_mutation()`.
 
 ## report_artifacts
 
@@ -2885,7 +2993,7 @@ Restricciones:
 - `repositories_visibility_check`: `CHECK ((visibility = ANY (ARRAY['PUBLIC'::text, 'PRIVATE'::text, 'INTERNAL'::text, 'UNKNOWN'::text])))`. Validada: True.
 - `uq_repository_provider_identity`: `UNIQUE (organization_id, provider, external_id)`. Validada: True.
 
-Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
+Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -2899,6 +3007,8 @@ Referencias entrantes: `document_repositories` (organization_id, repository_id),
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
+- Política `platform_administrator_update`, roles public: USING `app_private.is_platform_administrator()`; CHECK `app_private.is_platform_administrator()`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -3034,6 +3144,7 @@ Referencias entrantes: ninguna.
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
@@ -3773,12 +3884,13 @@ Referencias entrantes: ninguna.
 
 Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
 
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
 ## user_access_tokens
 
-Hashes de tokens de verificación, recuperación o sesión, con expiración y consumo.
+Hashes de tokens de verificación, recuperación, sesión y decisiones de admisión, de un solo uso y con expiración.
 
 Módulo: **identity**. Ámbito: **global**. RLS: False; FORCE: False.
 
@@ -3791,13 +3903,17 @@ Módulo: **identity**. Ámbito: **global**. RLS: False; FORCE: False.
 | `created_at` | `timestamp with time zone` | No | CURRENT_TIMESTAMP |  |
 | `expires_at` | `timestamp with time zone` | No | — |  |
 | `consumed_at` | `timestamp with time zone` | Sí | — |  |
+| `target_user_id` | `uuid` | Sí | — | FK |
+| `admission_decision` | `text` | Sí | — |  |
 
 Restricciones:
 
+- `user_access_tokens_admission_scope_check`: `CHECK ((((purpose = 'PLATFORM_ADMISSION_DECISION'::text) AND (target_user_id IS NOT NULL) AND (admission_decision IS NOT NULL) AND (admission_decision = ANY (ARRAY['APPROVE'::text, 'REJECT'::text]))) OR ((purpose <> 'PLATFORM_ADMISSION_DECISION'::text) AND (target_user_id IS NULL) AND (admission_decision IS NULL))))`. Validada: True.
 - `user_access_tokens_check`: `CHECK ((expires_at > created_at))`. Validada: True.
 - `user_access_tokens_check1`: `CHECK (((consumed_at IS NULL) OR (consumed_at >= created_at)))`. Validada: True.
 - `user_access_tokens_pkey`: `PRIMARY KEY (id)`. Validada: True.
-- `user_access_tokens_purpose_check`: `CHECK ((purpose = ANY (ARRAY['VERIFY_EMAIL'::text, 'RESET_PASSWORD'::text, 'REFRESH_SESSION'::text])))`. Validada: True.
+- `user_access_tokens_purpose_check`: `CHECK ((purpose = ANY (ARRAY['VERIFY_EMAIL'::text, 'RESET_PASSWORD'::text, 'REFRESH_SESSION'::text, 'PLATFORM_ADMISSION_DECISION'::text])))`. Validada: True.
+- `user_access_tokens_target_user_id_fkey`: `FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
 - `user_access_tokens_token_hash_check`: `CHECK ((token_hash ~ '^[a-f0-9]{64}$'::text))`. Validada: True.
 - `user_access_tokens_token_hash_key`: `UNIQUE (token_hash)`. Validada: True.
 - `user_access_tokens_user_id_fkey`: `FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
@@ -3807,6 +3923,7 @@ Referencias entrantes: ninguna.
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
 - `CREATE INDEX ix_account_token_requests ON public.user_access_tokens USING btree (user_id, purpose, created_at DESC)`
+- `CREATE INDEX ix_admission_decision_tokens_pending ON public.user_access_tokens USING btree (target_user_id, created_at DESC) WHERE ((purpose = 'PLATFORM_ADMISSION_DECISION'::text) AND (consumed_at IS NULL))`
 - `CREATE INDEX ix_user_access_tokens_user ON public.user_access_tokens USING btree (user_id, purpose)`
 - `CREATE UNIQUE INDEX user_access_tokens_pkey ON public.user_access_tokens USING btree (id)`
 - `CREATE UNIQUE INDEX user_access_tokens_token_hash_key ON public.user_access_tokens USING btree (token_hash)`
@@ -3894,16 +4011,23 @@ Módulo: **identity**. Ámbito: **global**. RLS: False; FORCE: False.
 | `is_active` | `boolean` | No | true |  |
 | `updated_at` | `timestamp with time zone` | Sí | — |  |
 | `credential_version` | `bigint` | No | 0 |  |
+| `account_type` | `text` | No | 'OWNER'::text |  |
+| `admission_status` | `text` | No | 'APPROVED'::text |  |
+| `reviewed_by_user_id` | `uuid` | Sí | — | FK |
+| `reviewed_at` | `timestamp with time zone` | Sí | — |  |
 
 Restricciones:
 
 - `uq_user_email_normalized`: `UNIQUE (email_normalized)`. Validada: True.
+- `users_account_type_check`: `CHECK ((account_type = ANY (ARRAY['OWNER'::text, 'MEMBER'::text])))`. Validada: True.
+- `users_admission_status_check`: `CHECK ((admission_status = ANY (ARRAY['PENDING_REVIEW'::text, 'APPROVED'::text, 'REJECTED'::text])))`. Validada: True.
 - `users_credential_version_check`: `CHECK ((credential_version >= 0))`. Validada: True.
 - `users_display_name_check`: `CHECK ((btrim((display_name)::text) <> ''::text))`. Validada: True.
 - `users_email_check`: `CHECK ((btrim((email)::text) <> ''::text))`. Validada: True.
 - `users_pkey`: `PRIMARY KEY (id)`. Validada: True.
+- `users_reviewed_by_user_id_fkey`: `FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
 
-Referencias entrantes: `audit_events` (actor_id), `membership_invitations` (accepted_by_user_id), `organization_memberships` (user_id), `organization_memberships` (invited_by_user_id), `user_access_tokens` (user_id), `user_identities` (user_id), `user_password_credentials` (user_id).
+Referencias entrantes: `audit_events` (actor_id), `membership_invitations` (accepted_by_user_id), `membership_invitations` (approved_by_user_id), `organization_memberships` (user_id), `organization_memberships` (invited_by_user_id), `platform_administrators` (user_id), `platform_audit_events` (actor_id), `user_access_tokens` (target_user_id), `user_access_tokens` (user_id), `user_identities` (user_id), `user_password_credentials` (user_id), `users` (reviewed_by_user_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
