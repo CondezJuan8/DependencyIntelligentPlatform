@@ -486,3 +486,69 @@ Build de producción correcto, 406,37 kB iniciales, bajo presupuesto existente d
 HTTP real frontend localhost:8088 devuelve 200; backend health UP; consulta de proveedores a través del frontend devuelve Google/GitHub indisponibles, como corresponde a su configuración. No se crean cuentas ni datos de prueba en dependency_preview. No se repiten pruebas Maven ni migraciones al no cambiar comportamiento backend. No se ejecutó Compose ni se afirma comprobación visual de píxeles, accesibilidad completa o recorrido E2E tras este rediseño.
 
 Formato de diferencias correcto; 51 referencias locales comprobadas en ocho documentos y dos SVG bien formados. Comprobación final de Prettier correcta. HTTP de frontend, marca SVG y API CSRF devuelven 200 y la compilación watch envió la actualización al cliente. Entorno nativo y datos del usuario se conservan activos para revisión. Tres commits con emoji para componentes de acceso/tema, espacio de trabajo/organización y documentación. Siguiente paso: el usuario revisa localhost:8088 y propone ajustes de distribución/colores; no iniciar todavía repositorios GitHub.
+## Bloque 14 — Arranque local sin Docker
+
+Fecha: 16 de noviembre de 2026, America/Bogota. Petición: dejar la plataforma ejecutándose en el equipo para que el usuario pueda verla y probarla sin Docker.
+
+### Cambios y herramientas
+
+- Reutilizado PostgreSQL 18 local y su directorio de datos existente; clúster escuchando solo en 127.0.0.1:15439. Conservadas las tres cuentas y la organización que ya existían.
+- Preparados runtimes portables Node 24.15.0 y Eclipse Temurin JDK 21.0.13 bajo .tools (ignorado por Git), con checksums oficiales validados. No se añadieron dependencias al producto.
+- Aprovisionada contraseña aleatoria para dependency_app y guardada fuera de Git. Flyway aplicó V14 a dependency_preview; no se eliminó ni reinició el volumen.
+- Build del frontend Angular de desarrollo y del JAR con Maven. Iniciados Spring Boot en 8080, Mailpit 1.33.1 (SMTP 1025, HTTP 8025 protegido por Basic Auth) y ng serve en 8088 con proxy /api.
+- Bootstrap local auditado de administrador@example.test y alta verificada/aprobada de propietario@example.test. Contraseñas aleatorias en .tools/local-preview-accounts.json. No se creó miembro: no existe un repositorio real para asignarle acceso; hacerlo ahora contradiría el flujo de invitación con scope confirmado por el usuario.
+
+### Verificación
+
+Build Angular de desarrollo correcto; build Maven `-DskipTests package` correcto (no se ejecutaron pruebas automáticas). HTTP 200 en frontend, endpoint de proveedores mediante el proxy y health del backend. Flyway confirma V14. La sesión de administrador fue reconocida por `/api/auth/me` y aprobó la cuenta propietaria mediante la API. Mailpit responde con autenticación y no expone su bandeja sin credenciales.
+
+Chrome ya tenía una pestaña con una URL local previa. La automatización visual se detuvo porque el control de Windows no pudo validar la URL activa con suficiente confianza; no se eludió la barrera ni se declara revisión visual hecha. Abrir manualmente http://localhost:8088.
+
+### Siguiente paso
+
+El usuario revisa login, registro, aprobación de propietario, panel administrador, idiomas, tema claro/oscuro y responsive. Usar las credenciales del archivo local indicado. Crear/invitar al miembro cuando se conecte un repositorio real desde GitHub.
+## Bloque 15 — Ajustes de interfaz previos a la revisión
+
+Fecha: 17 de noviembre de 2026, America/Bogota. Petición: continuar con los problemas de interfaz reportados antes de la revisión de la app, priorizando móvil, tipografía, traducción, tema y que Organización no requiera scroll horizontal.
+
+### Cambios concretos
+
+- Ajustado el acceso responsive con layout de altura de viewport, panel móvil compacto y espacios reducidos en pantallas bajas; el contenido no se oculta cuando la altura o el zoom requieren más espacio.
+- Convertidas las tablas de miembros e invitaciones en tarjetas móviles con rótulos por campo y sin scroll horizontal. Valores dinámicos de miembros/equipos se excluyen de traducción automática.
+- Acomodada la búsqueda superior en anchos pequeños y conectado data-label al servicio ES/EN. Se conserva IBM Plex Sans local y el tema oscuro por tokens.
+- Traductor global trabaja sobre textos de interfaz y atributos accesibles. Se eliminó una clave duplicada del diccionario detectada durante la compilación.
+- Actualizados DISENO_FRONTEND.md y esta bitácora.
+
+### Herramientas y tecnologías
+
+PowerShell y rg para inspección; apply_patch para edición; Node 24.15.0 y Angular CLI para build. Angular, TypeScript y Sass existentes. No se agregaron dependencias. Git no está disponible en PATH ni en la ruta local que se había documentado; no se crearon commits en este bloque.
+
+### Verificación y límites
+
+Primera compilación detectó una clave duplicada en traducciones, corregida. Build Angular de desarrollo completado correctamente tras ejecutarlo fuera del sandbox por el bloqueo del compilador al leer archivos del workspace. No se ejecutaron pruebas adicionales ni se afirma revisión visual automatizada; el servicio local ya activo debe conservarse.
+
+### Siguiente paso
+
+Revisión manual del usuario en http://localhost:8088, especialmente login/register en móvil, ES/EN, claro/oscuro y Organización. Registrar correcciones visuales antes de abrir el bloque de GitHub.
+
+Estado de revisión actualizado: al comprobar el entorno, los procesos de PostgreSQL/frontend/backend/Mailpit ya no estaban ejecutándose. Se reactivó el clúster local existente (sin borrar datos), backend con usuario runtime dependency_app y usuario de migración codex_test, Mailpit con su interfaz autenticada y frontend Angular en localhost:8088. Confirmaciones HTTP: interfaz 200, proxy de proveedores 200 y health backend 200. Se conservan los PID y logs locales bajo .tools. El código y la base de datos del usuario se mantienen; no se reiniciaron volúmenes ni se crearon cuentas nuevas.
+
+## Bloque 16 — Docker Desktop y Compose local
+
+Fecha: 18 de noviembre de 2026, America/Bogota. Petición: instalar Docker y ejecutar la plataforma. Se atendió la advertencia del usuario sobre conservar sus archivos modificados: los cambios del frontend se separaron en commits antes de integrar esta parte.
+
+### Cambios y herramientas
+
+- Descargado el instalador desde el dominio oficial de Docker y validada la firma Authenticode como `Valid`, firmante Docker Inc. Instalado Docker Desktop en el perfil de usuario, sin aceptar términos de servicio en nombre del usuario.
+- Inicializado Docker Desktop con WSL 2 y verificado el daemon: Docker client/server 29.9.3 y Compose 5.7.0.
+- Creado `.env` local ignorado por Git con contraseñas aleatorias, sin credenciales OAuth. No se modificó `compose.yaml`.
+- Ejecutado `docker compose up -d --build`. PostgreSQL 17.7 aplica las migraciones V1–V14; Mailpit queda saludable y los servicios Docker arrancan en `127.0.0.1:8089` (frontend), `:8026` (Mailpit web) y `:1026` (SMTP). Se usan puertos alternos para conservar la instancia local preexistente en 8088/8025/1025. El volumen Docker es nuevo y separado; no se importaron ni borraron datos previos.
+- Actualizada la lista de pendientes: la base Docker está vacía y aún debe definirse un aprovisionamiento seguro del primer administrador de plataforma; no se crean cuentas de demostración sin ese flujo.
+
+### Verificación y límites
+
+`docker compose config --quiet` correcto; contenedores arriba y PostgreSQL saludable; frontend HTTP 200, endpoint de proveedores mediante proxy HTTP 200 y backend inicia correctamente con migración V14. Los proveedores Google/GitHub están desactivados por falta de credenciales. El build Docker mostró avisos de presupuesto Angular: bundle inicial 544.18 KB frente a 500 KB y estilos de Organización 4.96 KB frente a 4 KB; no impidieron generar las imágenes. La base Docker nueva tiene 0 usuarios, organizaciones y repositorios; por eso el sitio está visible pero el flujo de acceso aprobado requiere resolver primero el bootstrap de administrador.
+
+### Siguiente paso
+
+El usuario puede revisar la interfaz Docker en `http://localhost:8089`. Después, cuando indique trabajar el siguiente bloque, definir el bootstrap inicial del administrador; no confundir las cuentas de la instancia anterior con las del volumen nuevo. La instancia nativa no se detuvo.

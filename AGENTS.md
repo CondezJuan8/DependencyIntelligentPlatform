@@ -16,3 +16,7 @@
 - Objetivo vigente: producto completo listo para usar, por fases, local primero y servidor después. El plan anterior de demo en dos semanas/50 horas ya no limita alcance o aceptación. Actualizar estados por evidencia.
 - Acceso confirmado: correo/contraseña, Google y GitHub. Maven y npm. Primer piloto con equipos/permisos por repositorio y pruebas aisladas/propuesta de PR aprobable. Notificaciones in-app; correo de notificaciones después.
 - IA del producto: Gemini; embeddings: Ollama. No integrar ni agendar Codex dentro del producto hasta que el usuario lo pida explícitamente. No inventar modelos, dimensiones, cuotas ni gratuidad.
+
+## Estado operativo vigente — bloque 16
+
+Docker Desktop quedó instalado por usuario y Compose está activo en `http://localhost:8089`, con Mailpit en `http://localhost:8026` y SMTP en `1026`. El volumen `dependency-intelligence_postgres_data` es independiente; base migrada a V14 y vacía (sin cuentas/organizaciones/repositorios). `.env` local está ignorado por Git, con credenciales aleatorias y OAuth desactivado. La instancia nativa se conserva. No detener ninguno de los dos entornos. Pendiente: diseñar el bootstrap inicial seguro del administrador antes de intentar registrar cuentas que necesitan aprobación. Build Docker compiló, con avisos de presupuesto Angular 544.18 KB/500 KB y organización 4.96 KB/4 KB. Commits del frontend: `1ccdce0`, `3bb676d`; faltaba el commit de idioma/documentación al guardar esta nota.

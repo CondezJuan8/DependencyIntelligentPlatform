@@ -80,3 +80,9 @@ El usuario quiere probar recorridos interactivos y dar observaciones de diseño 
 | Revisión del primer piloto | Equipos/permisos, grafo, vulnerabilidades e impacto con pruebas aisladas y propuesta de PR aprobable | Pendiente según el contexto maestro |
 
 La primera revisión puede comenzar por acceso y apariencia al levantar el entorno. La revisión con dependencias reales llegará al completar el segundo recorrido. Antes de anunciar un hito como disponible, verificar su arranque y recorrido, documentar errores conocidos y señalar cualquier parte pendiente de comprobar. Las instrucciones actuales de acceso y correo están en [ACCESO_LOCAL](ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md).
+
+## Ajustes de revisión previa — bloque 15
+
+17 de noviembre de 2026. Se continúa el rediseño con prioridad móvil según la retroalimentación del usuario. El login utiliza una columna compacta móvil y conserva el panel de marca en escritorio; se redujeron espacios para alturas pequeñas sin ocultar contenido. En Organización, las tablas cambian a tarjetas apiladas en móvil con rótulos por campo y sin desplazamiento horizontal. La barra superior adapta búsqueda y controles a pantallas estrechas; en anchos inferiores a 360 px compacta el espacio de notificaciones.
+
+Se activa traducción global de etiquetas y textos estáticos al alternar ES/EN, incluidos aria-label, placeholder, title y data-label de tarjetas. Los valores de usuario/repositorio marcados data-no-translate se conservan tal cual. El tema usa tokens claros/oscuros y la tipografía local IBM Plex Sans. El layout de acceso usa 100svh; en dispositivos extremadamente bajos o con zoom el contenido puede requerir desplazamiento para seguir siendo accesible, por lo que no se bloquea el overflow a la fuerza.

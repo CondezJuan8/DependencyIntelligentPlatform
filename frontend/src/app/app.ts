@@ -1,5 +1,6 @@
 import { AdmissionPanel } from './features/identity/admission-panel';
 import { PreferencesService } from './core/preferences.service';
+import { LocalizationService } from './core/localization.service';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { finalize } from 'rxjs';
@@ -28,6 +29,7 @@ import { ApplicationShell } from './shared/application-shell';
 })
 export class App implements OnInit {
   readonly preferences=inject(PreferencesService);
+  private readonly localization = inject(LocalizationService);
   readonly session = inject(SessionApiService);
   readonly links = inject(AccountLinkService);
   readonly external = inject(ExternalAuthService);
@@ -36,6 +38,7 @@ export class App implements OnInit {
   readonly error = signal('');
 
   ngOnInit(): void {
+    this.localization.start();
     this.restore();
   }
 
