@@ -1,0 +1,45 @@
+<div class="page-heading">
+  <div><p class="eyebrow">GITHUB</p><h1>{{ isOwner ? 'Conecta tus repositorios' : 'Mis repositorios' }}</h1>
+    <p>{{ isOwner ? 'Instala Dependency Intelligence en tu cuenta y selecciona qué repositorios quieres analizar.' : 'Repositorios habilitados para tu equipo y tus permisos.' }}</p></div>
+  @if (isOwner && organizations().length > 0) {
+    <label class="organization-picker">Organización del espacio
+      <select [value]="organizationId()" (change)="chooseOrganization($event)" aria-label="Selecciona la organización del espacio">
+        @for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }
+      </select>
+    </label>
+  }
+</div>
+
+@if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+@if (message()) { <p class="notice success" role="status">{{ message() }}</p> }
+@if (loading() || pending()) { <p class="notice" role="status">{{ loading() ? 'Cargando repositorios…' : 'Esperando respuesta de GitHub…' }}</p> }
+
+@if (isOwner) {
+  @if (!organizations().length && !loading()) {
+    <section class="empty"><app-di-icon name="box"/><h2>Primero crea tu organización</h2><p>Los repositorios de GitHub se agregan a una organización de Dependency Intelligence para aplicar sus equipos y permisos.</p></section>
+  } @else {
+    <section class="connection-card">
+      <div class="connection-copy"><span class="github-mark">GH</span><div><h2>Conecta tu cuenta de GitHub</h2><p>La instalación y el acceso al código los autorizas tú en GitHub. Puedes limitar la aplicación a repositorios seleccionados.</p></div></div>
+      <button class="primary" type="button" [disabled]="pending() || !organizationId()" (click)="beginInstall()">{{ installations().length ? 'Añadir otra instalación' : 'Instalar GitHub App' }}</button>
+    </section>
+    @for (installation of installations(); track installation.id) {
+      <section class="repo-section"><div class="section-heading"><div><h2>{{ installation.accountLogin }}</h2><p>{{ installation.accountType === 'ORGANIZATION' ? 'Cuenta de organización GitHub' : 'Cuenta personal GitHub' }} · {{ installation.repositories.length }} repositorios autorizados</p></div></div>
+        <div class="repo-list">
+          @for (repository of installation.repositories; track repository.externalId) {
+            <article class="repo-row"><div class="repo-info"><span class="repo-icon"><app-di-icon name="box"/></span><div><h3>{{ repository.fullName }}</h3><p>{{ repository.visibility }} · {{ repository.archived ? 'Archivado' : 'Activo' }} · rama {{ repository.defaultBranch }}</p></div></div>
+              @if (isImported(repository.externalId)) { <span class="badge">Agregado</span> }
+              @else { <label class="select-repo"><input type="checkbox" [checked]="isSelected(repository.externalId)" [disabled]="pending()" (change)="toggle(repository.externalId, $any($event.target).checked)"><span>Agregar</span></label> }
+            </article>
+          } @empty { <p class="empty-line">Esta instalación no tiene repositorios seleccionados. Puedes cambiar el acceso en GitHub.</p> }
+        </div>
+      </section>
+    }
+    @if (selectedIds().size > 0) { <div class="selection-bar"><span>{{ selectedIds().size }} seleccionados</span><button class="primary" [disabled]="pending()" (click)="importSelected()">Agregar a la organización</button></div> }
+    @if (repositories().length > 0) { <section class="repo-section"><h2>Repositorios compartidos contigo</h2>@for(repo of repositories();track repo.id){<article class="repo-row"><div><h3>{{repo.fullName}}</h3><p>{{repo.organizationName}} · rama {{repo.defaultBranch}}</p></div><span class="badge">Acceso autorizado</span></article>}</section> }
+  }
+} @else {
+  <section class="repo-section"><h2>Repositorios habilitados para ti</h2>
+    @for(repository of repositories();track repository.id){<article class="repo-row"><div><h3>{{repository.fullName}}</h3><p>{{repository.organizationName}} · rama {{repository.defaultBranch}}</p></div><span class="badge">Acceso autorizado</span></article>}
+    @empty { @if(!loading()){<div class="empty"><app-di-icon name="shield"/><h3>Aún no tienes repositorios habilitados</h3><p>El propietario de tu organización debe aprobar tu acceso a un equipo y repositorio.</p></div>} }
+  </section>
+}
