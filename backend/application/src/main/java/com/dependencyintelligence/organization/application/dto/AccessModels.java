@@ -13,7 +13,7 @@ public final class AccessModels {
         public boolean owner() { return roles.contains(OrganizationRole.OWNER); }
         public boolean manager() { return roles.stream().anyMatch(OrganizationRole::managesAccess); }
     }
-    public record Member(UUID id, UUID userId, String email, String displayName, String status, List<OrganizationRole> roles) { }
+    public record Member(UUID id, UUID userId, String email, String displayName, String status, List<OrganizationRole> roles, List<Grant> directGrants) { }
     public record Grant(UUID repositoryId, String permission) { }
     public record Team(UUID id, String name, List<UUID> membershipIds, List<Grant> grants, boolean enabled) { }
     public record Repository(UUID id, String fullName) { }

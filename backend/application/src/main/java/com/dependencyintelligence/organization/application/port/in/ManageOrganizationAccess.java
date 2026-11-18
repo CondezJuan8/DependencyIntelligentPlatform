@@ -12,4 +12,5 @@ public interface ManageOrganizationAccess {
     void deleteTeam(UUID actor, UUID organization, UUID team);
     void setTeamMember(UUID actor, UUID organization, UUID team, UUID membership, boolean included);
     void setRepositoryPermissions(UUID actor, UUID organization, UUID team, UUID repository, List<String> permissions);
+    void setMemberRepositoryPermissions(UUID actor, UUID organization, UUID membership, UUID repository, List<String> permissions);
 }

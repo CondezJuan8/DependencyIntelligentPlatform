@@ -62,6 +62,15 @@ public final class ManageOrganizationAccessUseCase implements ManageOrganization
         store.setRepositoryPermissions(org, team, repository, permissions.stream().distinct().toList());
         store.audit(org, user, "team.repository.permissions", "team", team);
     }
+    @Override public void setMemberRepositoryPermissions(UUID user, UUID org, UUID membership, UUID repository, List<String> permissions) {
+        manager(store, org, user);
+        var target = store.member(org, membership);
+        if (!target.status().equals("ACTIVE")) throw new AccessConflictException("Solo miembros activos pueden recibir permisos directos.");
+        if (permissions == null || permissions.size() > REPOSITORY_PERMISSIONS.size()
+                || !REPOSITORY_PERMISSIONS.containsAll(permissions)) throw new IllegalArgumentException("Permisos de repositorio no vÃ¡lidos");
+        store.setMemberRepositoryPermissions(org, membership, repository, permissions.stream().distinct().toList());
+        store.audit(org, user, "member.repository.permissions", "membership", membership);
+    }
     private String name(String value) {
         if (value == null || value.strip().isBlank() || value.strip().length() > 200) throw new IllegalArgumentException("Nombre de equipo no válido");
         return value.strip();

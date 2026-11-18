@@ -173,6 +173,10 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         ok(204, postJson(teamPath+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read"))));
         ok(204, postJson(teamPath, owner.session(), Map.of("name", "Renamed readers"))); assertEquals("Renamed readers", overview(owner, org).path("teams").get(0).path("name").asText());
         ok(204, postJson(teamPath+"/delete", owner.session(), Map.of())); mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isForbidden());
+        ok(204, postJson(path(org)+"/members/"+membership+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read"))));
+        mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isOk());
+        ok(204, postJson(path(org)+"/members/"+membership+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of())));
+        mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isForbidden());
         assertEquals(0, overview(owner, org).path("teams").size());
     }
     @Test void tenantBoundariesCsrfAndAuthenticationProtectAllManagementEntryPoints() throws Exception {

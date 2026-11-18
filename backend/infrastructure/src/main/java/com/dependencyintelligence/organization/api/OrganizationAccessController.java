@@ -52,6 +52,10 @@ public class OrganizationAccessController {
     public void permissions(Principal principal, @PathVariable UUID organizationId, @PathVariable UUID teamId, @PathVariable UUID repositoryId, @Valid @RequestBody Permissions request) {
         access.setRepositoryPermissions(actor(principal), organizationId, teamId, repositoryId, request.permissions());
     }
+    @PostMapping("/members/{membershipId}/repositories/{repositoryId}/permissions") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void memberPermissions(Principal principal, @PathVariable UUID organizationId, @PathVariable UUID membershipId, @PathVariable UUID repositoryId, @Valid @RequestBody Permissions request) {
+        access.setMemberRepositoryPermissions(actor(principal), organizationId, membershipId, repositoryId, request.permissions());
+    }
     public record ChangeMember(@NotBlank @Size(max = 10) String role, @NotBlank @Size(max = 10) String status) { }
     public record Invite(@NotBlank @Size(max = 320) String email, @NotBlank @Size(max = 10) String role,@NotNull UUID teamId,@NotNull UUID repositoryId) { }
     public record Accept(@NotBlank @Pattern(regexp = "[A-Za-z0-9_-]{43}") String token) {

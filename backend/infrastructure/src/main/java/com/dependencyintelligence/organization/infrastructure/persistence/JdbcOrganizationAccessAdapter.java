@@ -37,6 +37,13 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
         return new Actor(rows.getFirst().getKey(), new HashSet<>(rows.stream().map(Map.Entry::getValue).toList()));
     }
     private List<Member> members(UUID org) {
+        var direct = new HashMap<UUID, List<Grant>>();
+        jdbc.query("""
+            select membership_id, repository_id, permission.code from member_repository_permissions direct
+            join permissions permission on permission.id=direct.permission_id
+            where organization_id=? order by repository_id, permission.code
+            """, (org.springframework.jdbc.core.RowCallbackHandler) row -> direct.computeIfAbsent(row.getObject(1, UUID.class), key -> new ArrayList<>())
+                .add(new Grant(row.getObject(2, UUID.class), row.getString(3))), org);
         return jdbc.query("""
             select m.id, m.user_id, u.email, u.display_name, m.status,
               coalesce(array_agg(r.code order by r.code) filter(where r.code is not null), '{}') as role_codes
@@ -45,7 +52,7 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
             left join roles r on r.id = mr.role_id where m.organization_id = ?
             group by m.id, m.user_id, u.email, u.display_name, m.status order by u.email
             """, (row, index) -> new Member(row.getObject(1, UUID.class), row.getObject(2, UUID.class), row.getString(3),
-                row.getString(4), row.getString(5), Arrays.stream((String[]) row.getArray(6).getArray()).map(OrganizationRole::parse).toList()), org);
+                row.getString(4), row.getString(5), Arrays.stream((String[]) row.getArray(6).getArray()).map(OrganizationRole::parse).toList(), direct.getOrDefault(row.getObject(1, UUID.class), List.of())), org);
     }
     @Override public Member member(UUID org, UUID id) {
         return members(org).stream().filter(member -> member.id().equals(id)).findFirst()
@@ -93,6 +100,7 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
         jdbc.update("insert into membership_roles select ?, ?, id from roles where code = ?", org, id, role.name());
         jdbc.update("update organization_memberships set status = ? where organization_id = ? and id = ?", status, org, id);
         if (status.equals("LEFT")) {
+            jdbc.update("delete from member_repository_permissions where organization_id=? and membership_id=?",org,id);
             jdbc.update("delete from member_repository_assignments where organization_id=? and membership_id=?",org,id);
             jdbc.update("delete from team_memberships where organization_id = ? and membership_id = ?", org, id);
         }
@@ -138,6 +146,12 @@ public class JdbcOrganizationAccessAdapter implements OrganizationAccessStore {
         }
         jdbc.update("delete from repository_team_access where organization_id = ? and team_id = ? and repository_id = ?", org, team, repository);
         for (var permission : permissions) jdbc.update("insert into repository_team_access select ?, ?, ?, id from permissions where code = ?", org, repository, team, permission);
+    }
+    @Override public void setMemberRepositoryPermissions(UUID org, UUID membership, UUID repository, List<String> permissions) {
+        if (!Boolean.TRUE.equals(jdbc.queryForObject("select exists(select 1 from organization_memberships where organization_id=? and id=?)", Boolean.class, org, membership))) throw new ResourceNotFoundException("MembresÃ­a no encontrada");
+        if (!Boolean.TRUE.equals(jdbc.queryForObject("select exists(select 1 from repositories where organization_id=? and id=? and is_enabled)", Boolean.class, org, repository))) throw new ResourceNotFoundException("Repositorio no encontrado");
+        jdbc.update("delete from member_repository_permissions where organization_id=? and membership_id=? and repository_id=?",org,membership,repository);
+        for (var permission : permissions) jdbc.update("insert into member_repository_permissions select ?, ?, ?, id from permissions where code=?",org,membership,repository,permission);
     }
     @Override public void audit(UUID org, UUID actor, String action, String type, UUID id) {
         jdbc.update("insert into audit_events(id, organization_id, actor_id, action, resource_type, resource_id, result) values (?, ?, ?, ?, ?, ?, 'SUCCESS')",

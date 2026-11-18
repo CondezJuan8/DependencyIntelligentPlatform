@@ -20,5 +20,6 @@ public interface OrganizationAccessStore {
     void deleteTeam(UUID organizationId, UUID teamId);
     void setTeamMember(UUID organizationId, UUID teamId, UUID membershipId, boolean included);
     void setRepositoryPermissions(UUID organizationId, UUID teamId, UUID repositoryId, List<String> permissions);
+    void setMemberRepositoryPermissions(UUID organizationId, UUID membershipId, UUID repositoryId, List<String> permissions);
     void audit(UUID organizationId, UUID actorId, String action, String resourceType, UUID resourceId);
 }

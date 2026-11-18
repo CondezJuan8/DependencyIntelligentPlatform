@@ -36,6 +36,9 @@ public class OrganizationAccessConfiguration {
             public void setRepositoryPermissions(UUID actor, UUID org, UUID team, UUID repository, List<String> permissions) {
                 transactions.execute(org, () -> { delegate.setRepositoryPermissions(actor, org, team, repository, permissions); return null; });
             }
+            public void setMemberRepositoryPermissions(UUID actor, UUID org, UUID membership, UUID repository, List<String> permissions) {
+                transactions.execute(org, () -> { delegate.setMemberRepositoryPermissions(actor, org, membership, repository, permissions); return null; });
+            }
         };
     }
     @Bean ManageInvitations manageInvitations(OrganizationAccessStore access, InvitationStore store, InvitationDelivery delivery,
