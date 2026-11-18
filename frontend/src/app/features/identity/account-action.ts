@@ -20,6 +20,7 @@ export class AccountAction {
   readonly verification = this.action.kind === 'verify-email';
   readonly valid = /^[A-Za-z0-9_-]{43}$/.test(this.action.token);
   readonly pending = signal(false);
+  readonly refreshing = signal(false);
   readonly done = signal(false);
   readonly error = signal(this.valid ? '' : 'El enlace no es válido. Solicita uno nuevo.');
   password = '';
@@ -41,17 +42,37 @@ export class AccountAction {
         this.confirmation = '';
         this.action.token = '';
         this.done.set(true);
-        if (!this.verification) this.api.account.set(null);
+        if (this.verification) this.refreshAfterVerification();
+        else this.api.account.set(null);
       },
       error: error => this.error.set(accessError(error)),
     });
   }
 
   continue(): void {
-    this.action.token = '';
-    this.api.restore().subscribe({
-      next: () => this.links.action.set(null),
-      error: error => this.error.set(accessError(error)),
+    if (this.done() && this.verification) {
+      this.refreshAfterVerification();
+      return;
+    }
+    this.links.action.set(null);
+  }
+
+  private refreshAfterVerification(): void {
+    if (this.refreshing()) return;
+    this.refreshing.set(true);
+    this.api.restore().pipe(finalize(() => this.refreshing.set(false))).subscribe({
+      next: account => {
+        this.links.notice.set(account?.emailVerified
+          ? account.admissionStatus === 'PENDING_REVIEW'
+            ? 'Correo verificado. Tu cuenta sigue pendiente de aprobación del administrador.'
+            : 'Correo verificado correctamente. El estado de tu cuenta se actualizó.'
+          : 'Tu correo ya está verificado. Inicia sesión para consultar el estado de tu cuenta.');
+        this.links.action.set(null);
+      },
+      error: () => {
+        this.links.notice.set('Correo verificado. Inicia sesión para consultar el estado actualizado.');
+        this.links.action.set(null);
+      },
     });
   }
 }

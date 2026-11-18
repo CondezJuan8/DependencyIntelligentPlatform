@@ -4,6 +4,7 @@ import { AccountLink, parseAccountLink } from './account-link';
 @Injectable({ providedIn: 'root' })
 export class AccountLinkService {
   readonly action = signal<AccountLink | null>(parseAccountLink(window.location.hash));
+  readonly notice = signal('');
 
   constructor() {
     if (this.action()) {

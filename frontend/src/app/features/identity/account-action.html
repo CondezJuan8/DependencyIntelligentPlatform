@@ -19,5 +19,5 @@
     </form>
   }
   @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-  <button class="switch" mat-button type="button" (click)="continue()" [disabled]="pending()">{{ done() ? 'Continuar' : 'Volver al acceso' }}</button>
+  <button class="switch" mat-button type="button" (click)="continue()" [disabled]="pending() || refreshing()">{{ done() ? 'Continuar' : 'Volver al acceso' }}</button>
 </section>

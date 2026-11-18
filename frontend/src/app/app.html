@@ -14,7 +14,7 @@
     }
   </app-auth-frame>
 } @else if (session.account() && (!session.account()?.emailVerified || session.account()?.admissionStatus !== 'APPROVED')) {
-<app-auth-frame>@defer(on immediate){<app-admission-panel/>}@loading{<p role="status">Cargando el estado de tu cuenta…</p>}</app-auth-frame>
+<app-auth-frame>@if(links.notice();as notice){<p class="feedback" role="status">{{notice}} <button mat-button type="button" (click)="links.notice.set('')">Cerrar</button></p>}@defer(on immediate){<app-admission-panel/>}@loading{<p role="status">Cargando el estado de tu cuenta…</p>}</app-auth-frame>
 } @else if (session.account()) {
   @if (external.feedback(); as feedback) {
     @if (feedback.message) {
@@ -28,6 +28,9 @@
       </p>
     }
   }
+  @if (links.notice(); as notice) {
+    <p class="floating-feedback" role="status">{{ notice }}<button aria-label="Cerrar aviso" (click)="links.notice.set('')">×</button></p>
+  }
   @defer (on immediate) {
     <app-application-shell />
   } @loading {
@@ -37,6 +40,9 @@
   }
 } @else {
   <app-auth-frame>
+    @if (links.notice(); as notice) {
+      <p class="feedback" role="status">{{ notice }} <button mat-button type="button" (click)="links.notice.set('')">Cerrar</button></p>
+    }
     @if (external.feedback(); as feedback) {
       @if (feedback.message) {
         <p
