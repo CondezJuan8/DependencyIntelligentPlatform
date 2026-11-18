@@ -723,3 +723,23 @@ Fecha: 18 de noviembre de 2026. Continuación solicitada por el usuario para per
 ### Verificación y límite
 
 Maven `-DskipTests package` compiló Domain, Application, Infrastructure y todos los fuentes de test; build Angular producción correcto. No se ejecutó la prueba de integración ni se aplicó V16 contra PostgreSQL porque Docker/DB no están disponibles en esta sesión. El build Angular mantiene los avisos: bundle 553,71 kB frente a 500 kB, Organización 4,97 kB/4 kB y Dashboard 4,13 kB/4 kB. La carga de carpetas, tema compartido, permisos directos fuera de equipos y revisión completa del idioma siguen pendientes.
+
+## Bloque 24 — Permisos directos por miembro y repositorio
+
+Fecha: 18 de noviembre de 2026. El usuario pidió administrar permisos por miembro además de la asignación a equipos.
+
+### Cambios
+
+- V17 añade `member_repository_permissions` con FK a membresía/repositorio/catálogo, índice, RLS forzado y privilegios runtime/migrator.
+- Application incluye validación del permiso y miembro activo; Infrastructure añade endpoint transaccional de reemplazo, auditoría y persistencia JDBC. El adaptador de autorización concede acceso por equipo o directo, siempre intersectado con el rol.
+- Al retirar a un miembro se eliminan sus grants directos dentro de la misma transacción.
+- Organization muestra selector de repositorio y catálogo de permisos directos dentro de Editar acceso; no depende de que la persona pertenezca a un equipo.
+- Actualizados maestro, arquitectura, especificación database, stack, guía de organización y pendientes. No hay dependencias nuevas.
+
+### Verificación y límites
+
+Maven `-DskipTests package`: compilación de Domain/Application/Infrastructure y test-compile correctos. Angular build production correcto, inicial 554,21 kB; avisos de 500 kB inicial, 4,97 kB Organización y 4,13 kB Dashboard. Se agregó un caso IT para otorgar/retirar un grant directo, pero no pudo ejecutarse porque Docker/PostgreSQL no están disponibles. V17 tampoco está aplicada al volumen local. No se declara aceptación de runtime.
+
+### Siguiente paso
+
+Aplicar V16/V17 al Compose sin borrar el volumen y ejecutar el recorrido IT; revisar la edición directa en UI. Luego continuar tema compartido/configuración del espacio y carga/escaneo seguro de proyectos locales.

@@ -71,6 +71,7 @@ Todas las rutas llevan prefijo `/api/organizations/{organizationId}`, requieren 
 | `POST /teams/{teamId}/delete` | `{}` → 204, elimina asociaciones/permisos |
 | `POST /teams/{teamId}/members/{membershipId}` | `{included: true/false}` → 204 |
 | `POST /teams/{teamId}/repositories/{repositoryId}/permissions` | `{permissions: [...]}` → 204, sustituye el conjunto del equipo/repositorio |
+| `POST /members/{membershipId}/repositories/{repositoryId}/permissions` | `{permissions: [...]}` → 204, sustituye grants directos de esa persona y repositorio; intersección con los permisos del rol |
 
 400 para formato/rol/permiso inválido, 401 sin sesión, 403 sin autorización/CSRF, 404 para recursos ajenos o inexistentes dentro del tenant autorizado, 409 para conflicto de estado/último propietario/invitación inválida y 503 ante fallo SMTP. La API no incluye cuerpos recibidos ni tokens en errores.
 

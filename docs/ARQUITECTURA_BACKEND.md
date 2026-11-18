@@ -12,6 +12,8 @@ El callback autenticado valida la instalación contra un token GitHub de usuario
 
 ## Administración de un repositorio por un miembro
 
+V17 agrega `member_repository_permissions` para grants directos por miembro/repositorio. Application valida el catálogo y el estado activo; Infrastructure escribe bajo transacción tenant, FORCE RLS y auditoría. La autorización acepta grant de equipo o grant directo, siempre intersecado con `role_permissions`. Retirar una membresía limpia sus grants. V17 aún requiere aplicación y prueba IT con PostgreSQL.
+
 V16 añade `repository.manage` a los permisos base de MEMBER, pero su concesión efectiva exige membresía activa, pertenencia al equipo autorizado y grant explícito para el repositorio. Para una comprobación con `repositoryId=null` (acciones organizacionales) la consulta solo permite OWNER/ADMIN, por lo que no se convierte en administrador global. La UI invita como MEMBER al equipo/repositorio y el propietario concede `repository.manage` en la pestaña Permisos. ADMIN conserva alcance organizacional.
 
 ## Referencias vigentes y objetivo

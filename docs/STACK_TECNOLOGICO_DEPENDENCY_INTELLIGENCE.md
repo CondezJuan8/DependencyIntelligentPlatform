@@ -25,6 +25,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Bloque 24, 18 de noviembre de 2026. Permisos directos por miembro/repositorio mediante migración V17, JDBC, FORCE RLS y Spring MVC existente; UI Angular muestra y guarda grants desde la edición de miembro. Autorización suma grants de equipo o directos y siempre respeta el rol. Sin dependencias nuevas; build/test-compile correctos, falta IT en PostgreSQL.
+
 Bloque 23, 18 de noviembre de 2026. V16 expone gestión de repositorio scoped a miembros vía rol base y grant de equipo/repositorio, validada en el adaptador de autorización por recurso. No añade dependencia; se verifica con PostgreSQL antes de activar en Compose.
 
 Bloque GitHub App, 18 de noviembre de 2026. Integración de repositorios con Spring `RestClient`, JCA para JWT/RSA y PKCE, Angular/RxJS existentes, JDBC y estado efímero en memoria. No se añade dependencia ni migración. Permisos de repositorio Contents/Metadata read-only. Instalación/listado/importación de metadatos implementados; faltan credenciales/consentimiento real, descarga de archivos/commits, escáner, webhooks y revisión física en dispositivos. [Guía operativa](GITHUB_REPOSITORIOS.md).
