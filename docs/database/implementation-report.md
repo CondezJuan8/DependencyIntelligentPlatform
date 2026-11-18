@@ -1,3 +1,10 @@
+## Ajustes compartidos de organizacion, bloque 26
+
+18 de noviembre de 2026. Migracion V18 aplicada con Flyway en PostgreSQL local. Catalogo real: 126 tablas de negocio, 89 con ENABLE+FORCE RLS y 223 FK. Catalogo schema.json, diccionario y siete diagramas regenerados; IDs/bindings unicos y todas las FK cubiertas.
+
+`organization_settings` contiene tema SYSTEM/LIGHT/DARK, idioma ES/EN y auditoria de modificacion. Backfill de organizaciones existentes y alta automatica para nuevas organizaciones. RLS permite lectura a miembros activos verificados y cambios solo a OWNER/ADMIN activos. API REST y caso de uso hexagonal aplican authorization y audit. Angular comparte las preferencias al elegir una organizacion y conserva las personales para acceso/registro.
+
+Build backend y Angular correctos. La IT focalizada no se completo: el contenedor Maven no pudo resolver Maven Central por DNS. Requiere repeticion cuando la red Maven funcione. Compose backend/frontend activos y health UP; base, volumen y Mailpit no se reiniciaron.
 # Estado real de implementación de la base de datos
 
 ## Aplicación scoped y permisos directos V16/V17, bloque 25

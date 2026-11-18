@@ -51,7 +51,7 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
 - Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
-- Núcleo de base V1–V17 con 125 tablas, 88 con RLS forzado y 221 FK. Diccionario y siete diagramas regenerados del catálogo; permisos directos por miembro/repositorio, autorización de organizaciones y versión de credenciales probados. Identidad externa reutiliza el esquema. Servicios restantes según matriz del maestro. Vector físico opcional. Resultados en `database/implementation-report.md`.
+- Nucleo database V1-V18 con 126 tablas, 89 con RLS forzado y 223 FK. V18 configura tema/idioma compartidos. Catalogo y siete diagramas regenerados desde PostgreSQL.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
 - Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.
@@ -707,3 +707,7 @@ Por indicación del usuario, la estructura inicial se ejecuta exclusivamente en 
 GitHub, OSV y la descarga inicial de imágenes y dependencias necesitan internet. Los webhooks de GitHub no son accesibles desde GitHub sin conectividad entrante: el flujo inicial deberá usar análisis manual. No se configura ningún túnel público.
 
 La base técnica es Java 21, Spring Boot 3.5, Angular 22 y Angular Material. Las integraciones y el alcance funcional permanecen pendientes de implementación y validación. RAG, OCR, pgvector y proveedores de IA se reservan para fase 2.
+
+## Estado al bloque 26 (18 de noviembre de 2026)
+
+Se implementaron preferencias compartidas de tema e idioma por organizacion mediante V18, API y Angular. Base local en V18: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. Ver `docs/database/implementation-report.md` y `docs/PENDIENTES.md`. Build frontend/backend correcto; la prueba focalizada de integracion sigue pendiente tras fallo DNS de Maven Central en el contenedor aislado.

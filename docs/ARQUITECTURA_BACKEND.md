@@ -24,7 +24,7 @@ El objetivo es el producto completo listo para usar por fases, local primero y s
 
 Las decisiones confirmadas incluyen acceso local/Google/GitHub, Maven/npm, equipos/permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto. IA del producto: Gemini; embeddings: Ollama. Codex no se integra ni se agenda como proveedor hasta nueva instrucción del usuario.
 
-Los módulos siguientes describen código existente. Database alcanza V17 con 125 tablas, 88 con RLS forzado y 221 FK. Acceso local, organización y autorización en [ACCESO_LOCAL](ACCESO_LOCAL.md). Verificación/recuperación y límites de entrega en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md). Estado de base en [implementation-report](database/implementation-report.md).
+Los modulos describen codigo existente. Database alcanza V18: 126 tablas, 89 FORCE RLS, 223 FK. Estado en [implementation-report](database/implementation-report.md).
 
 ### Integraciones que se deben separar
 
@@ -147,3 +147,7 @@ mvn verify -Pdatabase-it
 El primer comando ejecuta pruebas unitarias y de seguridad y genera `infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`. El segundo añade pruebas en PostgreSQL real mediante Testcontainers y requiere Docker. Para usar una base desechable propia, definir `TEST_DATABASE_URL`, `TEST_DATABASE_USER` y `TEST_DATABASE_PASSWORD`; las pruebas crean datos y esquemas, por lo que deben apuntar exclusivamente a una base de prueba.
 
 Para ejecutar el artefacto, aprovisionar el login y configurar credenciales runtime/migración según [database/README.md](database/README.md); usar `java -jar infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`. Compose conserva el arranque desde la raíz; volúmenes existentes requieren aprovisionamiento explícito del nuevo login.
+
+## Estado al bloque 26 (18 de noviembre de 2026)
+
+Se implementaron preferencias compartidas de tema e idioma por organizacion mediante V18, API y Angular. Base local en V18: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. Ver `docs/database/implementation-report.md` y `docs/PENDIENTES.md`. Build frontend/backend correcto; la prueba focalizada de integracion sigue pendiente tras fallo DNS de Maven Central en el contenedor aislado.

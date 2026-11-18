@@ -10784,6 +10784,152 @@
         },
         {
             "rls": true,
+            "name": "organization_settings",
+            "columns": [
+                {
+                    "name": "organization_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "theme",
+                    "type": "text",
+                    "default": "'SYSTEM'::text",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "language",
+                    "type": "text",
+                    "default": "'ES'::text",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "updated_by_user_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "default": "clock_timestamp()",
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "name": "organization_settings_pkey",
+                    "definition": "CREATE UNIQUE INDEX organization_settings_pkey ON public.organization_settings USING btree (organization_id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "organization_settings_manager_insert",
+                    "check": "((organization_id = app_private.current_organization_id()) AND (EXISTS ( SELECT 1\n   FROM (((organization_memberships membership\n     JOIN membership_roles assignment ON (((assignment.organization_id = membership.organization_id) AND (assignment.membership_id = membership.id))))\n     JOIN roles role ON (((role.id = assignment.role_id) AND (role.code = ANY (ARRAY['OWNER'::text, 'ADMIN'::text])))))\n     JOIN users account ON (((account.id = membership.user_id) AND account.is_active AND (account.email_verified_at IS NOT NULL) AND (account.admission_status = 'APPROVED'::text))))\n  WHERE ((membership.organization_id = organization_settings.organization_id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": null,
+                    "command": "INSERT"
+                },
+                {
+                    "name": "organization_settings_manager_update",
+                    "check": "(organization_id = app_private.current_organization_id())",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "((organization_id = app_private.current_organization_id()) AND (EXISTS ( SELECT 1\n   FROM (((organization_memberships membership\n     JOIN membership_roles assignment ON (((assignment.organization_id = membership.organization_id) AND (assignment.membership_id = membership.id))))\n     JOIN roles role ON (((role.id = assignment.role_id) AND (role.code = ANY (ARRAY['OWNER'::text, 'ADMIN'::text])))))\n     JOIN users account ON (((account.id = membership.user_id) AND account.is_active AND (account.email_verified_at IS NOT NULL) AND (account.admission_status = 'APPROVED'::text))))\n  WHERE ((membership.organization_id = organization_settings.organization_id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))",
+                    "command": "UPDATE"
+                },
+                {
+                    "name": "organization_settings_member_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "((organization_id = app_private.current_organization_id()) AND (EXISTS ( SELECT 1\n   FROM (organization_memberships membership\n     JOIN users account ON ((account.id = membership.user_id)))\n  WHERE ((membership.organization_id = organization_settings.organization_id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text) AND account.is_active AND (account.email_verified_at IS NOT NULL) AND (account.admission_status = 'APPROVED'::text)))))",
+                    "command": "SELECT"
+                }
+            ],
+            "triggers": [
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "c",
+                    "name": "organization_settings_language_check",
+                    "columns": [
+                        "language"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((language = ANY (ARRAY['ES'::text, 'EN'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "organization_settings_organization_id_fkey",
+                    "columns": [
+                        "organization_id"
+                    ],
+                    "on_delete": "CASCADE",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE",
+                    "referenced_table": "organizations",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "p",
+                    "name": "organization_settings_pkey",
+                    "columns": [
+                        "organization_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (organization_id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "organization_settings_theme_check",
+                    "columns": [
+                        "theme"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((theme = ANY (ARRAY['SYSTEM'::text, 'LIGHT'::text, 'DARK'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "organization_settings_updated_by_user_id_fkey",
+                    "columns": [
+                        "updated_by_user_id"
+                    ],
+                    "on_delete": "SET NULL",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (updated_by_user_id) REFERENCES users(id) ON DELETE SET NULL",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        {
+            "rls": true,
             "name": "organization_teams",
             "columns": [
                 {
@@ -19002,5 +19148,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "17"
+    "latest_migration": "18"
 }

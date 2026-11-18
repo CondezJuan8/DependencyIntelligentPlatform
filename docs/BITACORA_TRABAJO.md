@@ -767,3 +767,15 @@ Fecha: 18 de noviembre de 2026. Continuación autorizada para aplicar V16/V17 al
 ### Pendiente relacionado
 
 El usuario puede revisar la pantalla Organización → permisos directos; la aceptación visual compartida sigue pendiente. No empezar el siguiente bloque automáticamente: consultar `PENDIENTES.md` y esperar instrucción del usuario.
+
+## Bloque 26 - Preferencias compartidas de organizacion
+
+**Peticion:** avanzar con los pendientes y registrar lo hecho, herramientas y siguiente punto.
+
+**Implementado:** nuevo dominio `WorkspaceTheme`/`WorkspaceLanguage`; puertos de entrada/salida y `ManageWorkspaceSettingsUseCase`; endpoints GET/POST y adaptador JDBC. V18 agrega la tabla `organization_settings`, backfill, FORCE RLS, permisos y defaults en organizaciones nuevas. Angular agrega el selector por organizacion, persistencia y aplicacion de tema/idioma sobre preferencias personales. Se documenta el significado en el diccionario.
+
+**Herramientas:** Docker Compose/Desktop, Flyway, PostgreSQL/psql, Maven y Angular CLI (build en imagen Node), export SQL y generador Python/Pillow. No se agregaron dependencias al producto.
+
+**Verificacion:** compilacion de las imagenes backend y frontend correcta. V18 aplicada; catalogo confirma 126 tablas, 89 FORCE RLS y 223 FK. Diccionario y siete diagramas regenerados, IDs/bindings/FK validados. Health backend UP; frontend http://localhost:8089/ responde HTTP 200. El IT focalizado no pudo iniciar porque Maven Central devolvio error DNS desde el runner; queda pendiente y no se afirma aprobado. PostgreSQL, volumen y Mailpit permanecieron sin reinicio; solo se recrearon backend y frontend.
+
+**Siguiente paso:** revisar visualmente Configuracion del espacio en la instancia local; despues completar la prueba focalizada cuando Maven Central sea accesible. Revisar luego GitHub/repo/analisis con datos reales segun `docs/PENDIENTES.md`, sin iniciar otro bloque sin instruccion.

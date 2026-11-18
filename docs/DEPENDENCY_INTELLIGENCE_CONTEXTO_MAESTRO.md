@@ -12,7 +12,7 @@
 
 El usuario autorizó iniciar la integración de repositorios GitHub. El bloque actual entrega instalación de GitHub App, verificación OAuth/PKCE de que la identidad autenticada tiene acceso a la instalación, selección/importación de metadatos y vista responsive móvil/escritorio. Configuración/aceptación real con `CondezJuan8`, checkout de código, escaneo y despliegue accesible desde otros dispositivos siguen pendientes. Guía: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
 
-Bloques 23–25: administración scoped de repositorios vía `repository.manage` en equipo/repositorio y permisos directos por miembro/repositorio. V16/V17 aplicadas a PostgreSQL local; Flyway validó 17 migraciones. Catálogo regenerado desde el esquema real: 125 tablas de negocio, 88 con FORCE RLS y 221 FK. Prueba IT focalizada de roles/equipo/repositorio y revocación: 1/1 correcta. La UI ya expone administración por equipo y edición directa por miembro; aceptación visual por el usuario sigue pendiente.
+Bloques 23-26: repository.manage scoped y permisos directos (V16/V17), ajustes compartidos de organizacion (V18). PostgreSQL local en V18: 126 tablas de negocio, 89 FORCE RLS, 223 FK. Build frontend/backend correctos; el IT de V18 queda pendiente por fallo DNS al resolver Maven Central.
 
 Las secciones numeradas posteriores conservan el contexto histórico. Las decisiones de este apartado, confirmadas por el usuario, prevalecen sobre propuestas pendientes o límites de entregas anteriores. Referencias prioritarias: este contexto, `ARQUITECTURA_BACKEND.md`, `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`.
 
@@ -1455,3 +1455,7 @@ Al continuar este proyecto, utiliza este archivo como contexto maestro.
 13. Cuando el usuario pida avanzar, utiliza el contexto ya disponible y evita hacerle repetir decisiones o antecedentes.
 
 **Punto de continuación recomendado:** cerrar el alcance exacto del MVP y convertir los requisitos RF/RNF en un backlog priorizado con historias de usuario y criterios de aceptación. Después, diseñar el modelo de datos y los contratos API del flujo vertical de análisis.
+
+## Estado al bloque 26 (18 de noviembre de 2026)
+
+Se implementaron preferencias compartidas de tema e idioma por organizacion mediante V18, API y Angular. Base local en V18: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. Ver `docs/database/implementation-report.md` y `docs/PENDIENTES.md`. Build frontend/backend correcto; la prueba focalizada de integracion sigue pendiente tras fallo DNS de Maven Central en el contenedor aislado.

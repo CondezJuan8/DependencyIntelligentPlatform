@@ -1,14 +1,17 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 18 de noviembre de 2026, tras la decisión de admisión por correo.
+Actualizado: 18 de noviembre de 2026, bloque 26 (configuracion compartida del espacio).
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
 
 Este archivo reúne configuración pendiente, validaciones de lo entregado y funciones por implementar. El alcance y las decisiones técnicas se mantienen en el [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md), la [arquitectura](ARQUITECTURA_BACKEND.md), la [especificación database](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y el [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md). No hay fecha total nueva comprometida.
 
+## Estado del bloque 26 - Configuracion de organizacion
+
+Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organization_settings` con valores por defecto, seguridad RLS y permisos runtime; el alta de organizaciones incluye la fila inicial. La API deja leer a miembros activos y solo OWNER/ADMIN pueden editar. Angular aplica la preferencia del espacio en la sesion, conserva preferencias personales para login/registro y ofrece controles en Configuracion. V18 ya esta en PostgreSQL local: 126 tablas, 89 con FORCE RLS y 223 FK. Build Angular y backend correctos; el IT focalizado queda pendiente porque Maven Central no resolvio DNS desde el contenedor de prueba. Servicios de revision activos en http://localhost:8089/.
 ## Lo que ya está implementado
 
-- Backend separado en Domain, Application e Infrastructure; database V1–V17 aplicada y verificada en PostgreSQL local: 125 tablas de negocio, 88 con FORCE RLS y 221 FK. V16 delimita `repository.manage` al equipo/repositorio; V17 incorpora permisos directos por miembro/repositorio.
+- Backend separado en Domain, Application e Infrastructure; database V1-V18 aplicada y verificada en PostgreSQL local: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
 - Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
@@ -29,14 +32,14 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
 - [ ] **GitHub App real:** configurar la app propiedad de `CondezJuan8`, sus callbacks/permisos y secretos locales según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md); completar instalación/importación real y comprobar el acceso desde móvil y escritorio.
-- [x] **Arranque Compose y migraciones:** imagen backend reconstruida; se reinició solo `backend`, sin detener PostgreSQL/Mailpit ni borrar el volumen. Flyway validó 17 migraciones y aplicó V16/V17; versión final V17 y conteo estructural 125 tablas, 88 FORCE RLS, 221 FK. Health UP, PostgreSQL y Mailpit saludables. No se ejecutó conteo/comparación de filas de negocio antes/después.
+- [x] **Arranque Compose y migraciones:** Flyway valida V1-V18; version V18 con 126 tablas, 89 FORCE RLS y 223 FK. Health UP, PostgreSQL y Mailpit saludables; no se compararon filas de negocio.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
 Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acceso en [ACCESO_LOCAL](ACCESO_LOCAL.md), correo en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md) y revisión de colores en [DISENO_FRONTEND](DISENO_FRONTEND.md). Nunca escribir secretos en este archivo ni enviarlos por chat.
 
 ## Funciones por implementar
 
-- [ ] Configuración compartida de organización: tema del espacio, idioma y más parámetros deben persistirse en el backend con autorización y controles adaptables; las preferencias actuales de apariencia/idioma son locales al navegador.
+- [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
 - [ ] Importación desde carpeta del equipo: selector/upload seguro, límites de tamaño/tipo, almacenamiento temporal y análisis aislado Maven/npm con progreso/errores. El navegador no puede guardar una ruta local del usuario en el servidor.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.

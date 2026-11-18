@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V17. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V18. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -2503,6 +2503,53 @@ Retención/borrado: sin borrado automático; aplicar políticas del tenant y res
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
+## organization_settings
+
+Shared organization workspace theme and language, restricted to active members and managed by organization owners/admins.
+
+Módulo: **identity**. Ámbito: **tenant**. RLS: True; FORCE: True.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `organization_id` | `uuid` | No | — | FK, PK |
+| `theme` | `text` | No | 'SYSTEM'::text |  |
+| `language` | `text` | No | 'ES'::text |  |
+| `updated_by_user_id` | `uuid` | Sí | — | FK |
+| `updated_at` | `timestamp with time zone` | No | clock_timestamp() |  |
+
+Restricciones:
+
+- `organization_settings_language_check`: `CHECK ((language = ANY (ARRAY['ES'::text, 'EN'::text])))`. Validada: True.
+- `organization_settings_organization_id_fkey`: `FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE`. Validada: True.
+- `organization_settings_pkey`: `PRIMARY KEY (organization_id)`. Validada: True.
+- `organization_settings_theme_check`: `CHECK ((theme = ANY (ARRAY['SYSTEM'::text, 'LIGHT'::text, 'DARK'::text])))`. Validada: True.
+- `organization_settings_updated_by_user_id_fkey`: `FOREIGN KEY (updated_by_user_id) REFERENCES users(id) ON DELETE SET NULL`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE UNIQUE INDEX organization_settings_pkey ON public.organization_settings USING btree (organization_id)`
+
+Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
+
+- Política `organization_settings_manager_insert`, roles public: USING `None`; CHECK `((organization_id = app_private.current_organization_id()) AND (EXISTS ( SELECT 1
+   FROM (((organization_memberships membership
+     JOIN membership_roles assignment ON (((assignment.organization_id = membership.organization_id) AND (assignment.membership_id = membership.id))))
+     JOIN roles role ON (((role.id = assignment.role_id) AND (role.code = ANY (ARRAY['OWNER'::text, 'ADMIN'::text])))))
+     JOIN users account ON (((account.id = membership.user_id) AND account.is_active AND (account.email_verified_at IS NOT NULL) AND (account.admission_status = 'APPROVED'::text))))
+  WHERE ((membership.organization_id = organization_settings.organization_id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))`.
+- Política `organization_settings_manager_update`, roles public: USING `((organization_id = app_private.current_organization_id()) AND (EXISTS ( SELECT 1
+   FROM (((organization_memberships membership
+     JOIN membership_roles assignment ON (((assignment.organization_id = membership.organization_id) AND (assignment.membership_id = membership.id))))
+     JOIN roles role ON (((role.id = assignment.role_id) AND (role.code = ANY (ARRAY['OWNER'::text, 'ADMIN'::text])))))
+     JOIN users account ON (((account.id = membership.user_id) AND account.is_active AND (account.email_verified_at IS NOT NULL) AND (account.admission_status = 'APPROVED'::text))))
+  WHERE ((membership.organization_id = organization_settings.organization_id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text)))))`; CHECK `(organization_id = app_private.current_organization_id())`.
+- Política `organization_settings_member_read`, roles public: USING `((organization_id = app_private.current_organization_id()) AND (EXISTS ( SELECT 1
+   FROM (organization_memberships membership
+     JOIN users account ON ((account.id = membership.user_id)))
+  WHERE ((membership.organization_id = organization_settings.organization_id) AND (membership.user_id = app_private.current_user_id()) AND (membership.status = 'ACTIVE'::text) AND account.is_active AND (account.email_verified_at IS NOT NULL) AND (account.admission_status = 'APPROVED'::text)))))`; CHECK `None`.
+
 ## organization_teams
 
 Equipos de una organización.
@@ -2563,7 +2610,7 @@ Restricciones:
 - `organizations_slug_key`: `UNIQUE (slug)`. Validada: True.
 - `organizations_status_check`: `CHECK ((status = ANY (ARRAY['ACTIVE'::text, 'SUSPENDED'::text, 'CLOSED'::text])))`. Validada: True.
 
-Referencias entrantes: `audit_events` (organization_id), `background_jobs` (organization_id), `components` (organization_id), `data_retention_policies` (organization_id), `documents` (organization_id), `integrations` (organization_id), `membership_invitations` (organization_id), `notification_rules` (organization_id), `notifications` (organization_id), `organization_memberships` (organization_id), `organization_teams` (organization_id), `report_schedules` (organization_id), `repositories` (organization_id), `scan_profiles` (organization_id).
+Referencias entrantes: `audit_events` (organization_id), `background_jobs` (organization_id), `components` (organization_id), `data_retention_policies` (organization_id), `documents` (organization_id), `integrations` (organization_id), `membership_invitations` (organization_id), `notification_rules` (organization_id), `notifications` (organization_id), `organization_memberships` (organization_id), `organization_settings` (organization_id), `organization_teams` (organization_id), `report_schedules` (organization_id), `repositories` (organization_id), `scan_profiles` (organization_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -4059,7 +4106,7 @@ Restricciones:
 - `users_pkey`: `PRIMARY KEY (id)`. Validada: True.
 - `users_reviewed_by_user_id_fkey`: `FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
 
-Referencias entrantes: `audit_events` (actor_id), `membership_invitations` (accepted_by_user_id), `membership_invitations` (approved_by_user_id), `organization_memberships` (user_id), `organization_memberships` (invited_by_user_id), `platform_administrators` (user_id), `platform_audit_events` (actor_id), `user_access_tokens` (target_user_id), `user_access_tokens` (user_id), `user_identities` (user_id), `user_password_credentials` (user_id), `users` (reviewed_by_user_id).
+Referencias entrantes: `audit_events` (actor_id), `membership_invitations` (accepted_by_user_id), `membership_invitations` (approved_by_user_id), `organization_memberships` (user_id), `organization_memberships` (invited_by_user_id), `organization_settings` (updated_by_user_id), `platform_administrators` (user_id), `platform_audit_events` (actor_id), `user_access_tokens` (target_user_id), `user_access_tokens` (user_id), `user_identities` (user_id), `user_password_credentials` (user_id), `users` (reviewed_by_user_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 

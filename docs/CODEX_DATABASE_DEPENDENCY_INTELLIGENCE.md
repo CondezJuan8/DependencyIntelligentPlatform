@@ -19,7 +19,7 @@ Bloque 11: invitaciones, aceptación, membresías/roles, equipos y permisos por 
 
 Bloque 09: acceso Google/GitHub y vínculos explícitos implementados sobre `users`, `user_identities` y versión de credenciales existentes. No requiere migración nueva: V1–V13, 121 tablas. Los tokens externos se descartan, sin persistir secretos ni instalaciones ficticias. No cambia el catálogo ni sus diagramas. Configuración real de clientes pendiente. [Detalle de identidad](IDENTIDAD_GOOGLE_GITHUB.md).
 
-Referencia vigente de diseño. Esquema local hasta V17 con 125 tablas, 88 con RLS forzado y 221 FK. V12 permite consultar organizaciones propias; V13 incorpora versión de credenciales e índice de solicitudes; V14 agrega administración/asignaciones; V15 permite decisiones de admisión desde correo; V16/V17 gobiernan permisos scoped por repositorio y miembro. Verificación/recuperación operativas en bloque 07 y ampliadas en bloque 20. Estado, diagramas, diccionario y normalización en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
+Referencia vigente de diseno. Esquema local hasta V18 con 126 tablas, 89 con RLS forzado y 223 FK. V18 persiste tema SYSTEM/LIGHT/DARK e idioma ES/EN a nivel organizacion, con lectura de miembros activos y escritura OWNER/ADMIN. Ver estado, diagramas y diccionario en [database/README.md](database/README.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 
@@ -1477,3 +1477,7 @@ que requieren al equipo.
 **Prioridad:** integridad referencial, aislamiento multi-tenant,
 trazabilidad histórica y normalización real. La estética del diagrama
 nunca debe prevalecer sobre la fidelidad del modelo.
+
+## Estado al bloque 26 (18 de noviembre de 2026)
+
+Se implementaron preferencias compartidas de tema e idioma por organizacion mediante V18, API y Angular. Base local en V18: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. Ver `docs/database/implementation-report.md` y `docs/PENDIENTES.md`. Build frontend/backend correcto; la prueba focalizada de integracion sigue pendiente tras fallo DNS de Maven Central en el contenedor aislado.
