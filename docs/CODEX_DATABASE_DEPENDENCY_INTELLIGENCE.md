@@ -11,7 +11,7 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
-Bloque 23: V16 agrega `repository.manage` al rol MEMBER, efectivo solo con grant de equipo y repositorio. Bloque 24: V17 crea `member_repository_permissions` para permisos directos por miembro/repositorio, con FK, índice, FORCE RLS y grants runtime/migrator. Las acciones organizacionales sin repo siguen restringidas a OWNER/ADMIN y los grants se intersecan con el rol. V16/V17 implementadas, pendientes de aplicación/validación PostgreSQL; el catálogo aplicado hasta V15 mantiene 124 tablas.
+Bloque 23: V16 agrega `repository.manage` al rol MEMBER, efectivo solo con grant de equipo y repositorio. Bloque 24: V17 crea `member_repository_permissions` para permisos directos por miembro/repositorio, con FK, índice, FORCE RLS y grants runtime/migrator. Las acciones organizacionales sin repo siguen restringidas a OWNER/ADMIN y los grants se intersecan con el rol. Bloque 25: V16/V17 aplicadas y validadas en PostgreSQL; prueba IT focalizada correcta. Catálogo regenerado: 125 tablas, 88 con FORCE RLS y 221 FK.
 
 18 de noviembre de 2026, bloque 20: V14 añade asignaciones directas de repositorio, administración de plataforma y su auditoría. V15 añade `target_user_id` y `admission_decision` a `user_access_tokens`, restricciones de coherencia e índice parcial para decisiones por correo de un solo uso; no crea tablas. V15 está aplicada en PostgreSQL local. Catálogo actualizado: 124 tablas de negocio, 87 con FORCE RLS, 218 FK; validación estructural en [database/README.md](database/README.md).
 
@@ -19,7 +19,7 @@ Bloque 11: invitaciones, aceptación, membresías/roles, equipos y permisos por 
 
 Bloque 09: acceso Google/GitHub y vínculos explícitos implementados sobre `users`, `user_identities` y versión de credenciales existentes. No requiere migración nueva: V1–V13, 121 tablas. Los tokens externos se descartan, sin persistir secretos ni instalaciones ficticias. No cambia el catálogo ni sus diagramas. Configuración real de clientes pendiente. [Detalle de identidad](IDENTIDAD_GOOGLE_GITHUB.md).
 
-Referencia vigente de diseño. Esquema local hasta V15 con 124 tablas, 87 con RLS forzado y 218 FK. V12 permite consultar organizaciones propias; V13 incorpora versión de credenciales e índice de solicitudes; V14 agrega administración/asignaciones; V15 permite decisiones de admisión desde correo. Verificación/recuperación operativas en bloque 07 y ampliadas en bloque 20. Estado, diagramas, diccionario y normalización en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
+Referencia vigente de diseño. Esquema local hasta V17 con 125 tablas, 88 con RLS forzado y 221 FK. V12 permite consultar organizaciones propias; V13 incorpora versión de credenciales e índice de solicitudes; V14 agrega administración/asignaciones; V15 permite decisiones de admisión desde correo; V16/V17 gobiernan permisos scoped por repositorio y miembro. Verificación/recuperación operativas en bloque 07 y ampliadas en bloque 20. Estado, diagramas, diccionario y normalización en [database/README.md](database/README.md). Servicios restantes y pgvector opcional según el [informe](database/implementation-report.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 

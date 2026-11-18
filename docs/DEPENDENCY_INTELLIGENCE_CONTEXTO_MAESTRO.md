@@ -12,7 +12,7 @@
 
 El usuario autorizó iniciar la integración de repositorios GitHub. El bloque actual entrega instalación de GitHub App, verificación OAuth/PKCE de que la identidad autenticada tiene acceso a la instalación, selección/importación de metadatos y vista responsive móvil/escritorio. Configuración/aceptación real con `CondezJuan8`, checkout de código, escaneo y despliegue accesible desde otros dispositivos siguen pendientes. Guía: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
 
-Bloques 23–24: administración scoped de repositorios vía `repository.manage` en equipo/repositorio y permisos directos por miembro/repositorio. V16/V17 escritas, aún no aplicadas ni verificadas en la instancia PostgreSQL. La UI ya expone administración por equipo y edición directa por miembro; aceptación funcional de la base queda pendiente.
+Bloques 23–25: administración scoped de repositorios vía `repository.manage` en equipo/repositorio y permisos directos por miembro/repositorio. V16/V17 aplicadas a PostgreSQL local; Flyway validó 17 migraciones. Catálogo regenerado desde el esquema real: 125 tablas de negocio, 88 con FORCE RLS y 221 FK. Prueba IT focalizada de roles/equipo/repositorio y revocación: 1/1 correcta. La UI ya expone administración por equipo y edición directa por miembro; aceptación visual por el usuario sigue pendiente.
 
 Las secciones numeradas posteriores conservan el contexto histórico. Las decisiones de este apartado, confirmadas por el usuario, prevalecen sobre propuestas pendientes o límites de entregas anteriores. Referencias prioritarias: este contexto, `ARQUITECTURA_BACKEND.md`, `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md` y `STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md`.
 
@@ -27,7 +27,7 @@ Bloque 13, 16 de noviembre de 2026: antes de GitHub, el usuario priorizó redise
 ### Decisiones cerradas
 
 - Objetivo: todo el producto listo para usar, por fases; primero local y después servidor. Disponibilidad declarada: 25 horas semanales. El plan de demo/50 horas ya no limita alcance o aceptación; no hay nueva fecha total comprometida.
-- Nueva base implementada mediante V4–V15 con 124 tablas de negocio, 87 con RLS forzado y 218 FK, medido desde el catálogo PostgreSQL local. V14 agrega tablas de asignaciones directas y administración de plataforma; V15 admite decisiones de admisión. Catálogo, diccionario y diagramas regenerados y validados. Pgvector sigue opcional.
+- Nueva base implementada mediante V4–V17 con 125 tablas de negocio, 88 con RLS forzado y 221 FK, medido desde el catálogo PostgreSQL local. V14 agrega asignaciones directas y administración de plataforma; V15 admite decisiones desde correo; V17 permite permisos directos por miembro/repositorio. Catálogo, diccionario y siete diagramas regenerados y validados. Pgvector sigue opcional.
 - Acceso: correo/contraseña, Google y GitHub, con recuperación/verificación y vinculación segura de identidades. Login GitHub y acceso a repositorios mediante instalación/autorización son funciones distintas.
 - Ecosistemas: Java/Maven y JavaScript/npm.
 - Paleta visual confirmada, navy #101827, azul #2563EB, cian #06B6D4, slate #1E293B, fondo #F8FAFC, blanco #FFFFFF y semánticos verde/amarillo/naranja/rojo. Enlaces sobre blanco en azul para contraste. Distribución, tokens y variantes legibles en `DISENO_FRONTEND.md`.
@@ -64,7 +64,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 ### Estado de la base y del código existente
 
 - Tres módulos Maven Domain/Application/Infrastructure; Domain y Application sin Spring/JPA.
-- Flyway V1–V15 con 124 tablas, 87 con RLS forzado y 218 FK. Diccionario y siete diagramas validados desde el catálogo aplicado. V12 permite consultar organizaciones propias; V13 soporta revocación de sesiones, V14 administración de plataforma y V15 decisiones de admisión.
+- Flyway V1–V17 con 125 tablas, 88 con RLS forzado y 221 FK. Diccionario y siete diagramas validados desde el catálogo aplicado. V12 permite consultar organizaciones propias; V13 soporta revocación de sesiones, V14 administración de plataforma, V15 decisiones de admisión y V17 permisos directos por miembro/repositorio.
 - F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
 - Registro/login/logout, creación/listado de organizaciones y restauración de sesión disponibles en Angular. APIs de repositorios/scans autorizadas con rol y equipo. Las sesiones viven en memoria del backend y vencen por inactividad. Docker y el recorrido visual completo siguen pendientes. Ver `ACCESO_LOCAL.md`.
 - Verificación y recuperación operativas con tokens aleatorios, hash, caducidad y uso único. Mailpit 1.33.1 recibe los correos locales. Cola de recuperación acotada en memoria, con reenvío manual ante fallo/reinicio. SMTP y PostgreSQL requieren reenvío si una aceptación de correo precede a un commit fallido. Configuración y pruebas en `VERIFICACION_Y_RECUPERACION.md`.

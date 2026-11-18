@@ -8,7 +8,7 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 
 ## Lo que ya está implementado
 
-- Backend separado en Domain, Application e Infrastructure; database V1–V17. V1–V15 aplicadas/catalogadas con 124 tablas, 87 con RLS forzado y 218 FK; V16/V17 están implementadas pero falta aplicarlas/verificarlas en PostgreSQL.
+- Backend separado en Domain, Application e Infrastructure; database V1–V17 aplicada y verificada en PostgreSQL local: 125 tablas de negocio, 88 con FORCE RLS y 221 FK. V16 delimita `repository.manage` al equipo/repositorio; V17 incorpora permisos directos por miembro/repositorio.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
 - Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
@@ -29,7 +29,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
 - [ ] **GitHub App real:** configurar la app propiedad de `CondezJuan8`, sus callbacks/permisos y secretos locales según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md); completar instalación/importación real y comprobar el acceso desde móvil y escritorio.
-- [ ] **Arranque Compose:** compilación y arranque comprobados el 18/11: backend health UP, frontend HTTP 200, PostgreSQL y Mailpit saludables; V15 aplicada al volumen existente. Falta aplicar V16/V17, reiniciar Compose y comprobar explícitamente que los datos de negocio sobreviven el reinicio.
+- [x] **Arranque Compose y migraciones:** imagen backend reconstruida; se reinició solo `backend`, sin detener PostgreSQL/Mailpit ni borrar el volumen. Flyway validó 17 migraciones y aplicó V16/V17; versión final V17 y conteo estructural 125 tablas, 88 FORCE RLS, 221 FK. Health UP, PostgreSQL y Mailpit saludables. No se ejecutó conteo/comparación de filas de negocio antes/después.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
 Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acceso en [ACCESO_LOCAL](ACCESO_LOCAL.md), correo en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md) y revisión de colores en [DISENO_FRONTEND](DISENO_FRONTEND.md). Nunca escribir secretos en este archivo ni enviarlos por chat.

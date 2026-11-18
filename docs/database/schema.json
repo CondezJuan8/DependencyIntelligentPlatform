@@ -9001,6 +9001,137 @@
         },
         {
             "rls": true,
+            "name": "member_repository_permissions",
+            "columns": [
+                {
+                    "name": "organization_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "membership_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "repository_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "permission_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "name": "member_repository_permissions_lookup_idx",
+                    "definition": "CREATE INDEX member_repository_permissions_lookup_idx ON public.member_repository_permissions USING btree (organization_id, membership_id, repository_id)"
+                },
+                {
+                    "name": "member_repository_permissions_pkey",
+                    "definition": "CREATE UNIQUE INDEX member_repository_permissions_pkey ON public.member_repository_permissions USING btree (organization_id, membership_id, repository_id, permission_id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "platform_administrator_read",
+                    "check": null,
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "app_private.is_platform_administrator()",
+                    "command": "SELECT"
+                },
+                {
+                    "name": "tenant_isolation",
+                    "check": "(organization_id = app_private.current_organization_id())",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "(organization_id = app_private.current_organization_id())",
+                    "command": "ALL"
+                }
+            ],
+            "triggers": [
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "f",
+                    "name": "member_repository_permissions_organization_id_membership_i_fkey",
+                    "columns": [
+                        "organization_id",
+                        "membership_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "organization_memberships",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "member_repository_permissions_organization_id_repository_i_fkey",
+                    "columns": [
+                        "organization_id",
+                        "repository_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "repositories",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "member_repository_permissions_permission_id_fkey",
+                    "columns": [
+                        "permission_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE RESTRICT",
+                    "referenced_table": "permissions",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "p",
+                    "name": "member_repository_permissions_pkey",
+                    "columns": [
+                        "organization_id",
+                        "membership_id",
+                        "repository_id",
+                        "permission_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (organization_id, membership_id, repository_id, permission_id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                }
+            ]
+        },
+        {
+            "rls": true,
             "name": "membership_invitations",
             "columns": [
                 {
@@ -18871,5 +19002,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "15"
+    "latest_migration": "17"
 }

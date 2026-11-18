@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V15. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V17. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -2120,6 +2120,38 @@ Retención/borrado: sin borrado automático; aplicar políticas del tenant y res
 - Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
+## member_repository_permissions
+
+Direct permission grants for a membership and repository, intersected with its effective role.
+
+Módulo: **identity**. Ámbito: **tenant**. RLS: True; FORCE: True.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `organization_id` | `uuid` | No | — | FK, PK |
+| `membership_id` | `uuid` | No | — | FK, PK |
+| `repository_id` | `uuid` | No | — | FK, PK |
+| `permission_id` | `uuid` | No | — | FK, PK |
+
+Restricciones:
+
+- `member_repository_permissions_organization_id_membership_i_fkey`: `FOREIGN KEY (organization_id, membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `member_repository_permissions_organization_id_repository_i_fkey`: `FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `member_repository_permissions_permission_id_fkey`: `FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE RESTRICT`. Validada: True.
+- `member_repository_permissions_pkey`: `PRIMARY KEY (organization_id, membership_id, repository_id, permission_id)`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE INDEX member_repository_permissions_lookup_idx ON public.member_repository_permissions USING btree (organization_id, membership_id, repository_id)`
+- `CREATE UNIQUE INDEX member_repository_permissions_pkey ON public.member_repository_permissions USING btree (organization_id, membership_id, repository_id, permission_id)`
+
+Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
+
+- Política `platform_administrator_read`, roles public: USING `app_private.is_platform_administrator()`; CHECK `None`.
+- Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
+
 ## membership_invitations
 
 Invitación con token hash, estado y expiración.
@@ -2453,7 +2485,7 @@ Restricciones:
 - `uq_membership_id`: `UNIQUE (id)`. Validada: True.
 - `uq_membership_tenant_id`: `UNIQUE (organization_id, id)`. Validada: True.
 
-Referencias entrantes: `assistant_conversations` (organization_id, created_by_membership_id), `change_pull_request_proposals` (organization_id, approved_by_membership_id), `change_simulations` (organization_id, requested_by_membership_id), `data_deletion_requests` (organization_id, requested_by_membership_id), `documents` (organization_id, uploaded_by_membership_id), `impact_analyses` (organization_id, requested_by_membership_id), `member_repository_assignments` (organization_id, membership_id), `membership_invitations` (organization_id, invited_by_membership_id), `membership_roles` (organization_id, membership_id), `notification_deliveries` (organization_id, membership_id), `notification_subscriptions` (organization_id, membership_id), `report_jobs` (organization_id, requested_by_membership_id), `report_schedule_recipients` (organization_id, membership_id), `scans` (organization_id, requested_by_membership_id), `team_memberships` (organization_id, membership_id).
+Referencias entrantes: `assistant_conversations` (organization_id, created_by_membership_id), `change_pull_request_proposals` (organization_id, approved_by_membership_id), `change_simulations` (organization_id, requested_by_membership_id), `data_deletion_requests` (organization_id, requested_by_membership_id), `documents` (organization_id, uploaded_by_membership_id), `impact_analyses` (organization_id, requested_by_membership_id), `member_repository_assignments` (organization_id, membership_id), `member_repository_permissions` (organization_id, membership_id), `membership_invitations` (organization_id, invited_by_membership_id), `membership_roles` (organization_id, membership_id), `notification_deliveries` (organization_id, membership_id), `notification_subscriptions` (organization_id, membership_id), `report_jobs` (organization_id, requested_by_membership_id), `report_schedule_recipients` (organization_id, membership_id), `scans` (organization_id, requested_by_membership_id), `team_memberships` (organization_id, membership_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -2594,7 +2626,7 @@ Restricciones:
 - `permissions_code_key`: `UNIQUE (code)`. Validada: True.
 - `permissions_pkey`: `PRIMARY KEY (id)`. Validada: True.
 
-Referencias entrantes: `repository_team_access` (permission_id), `role_permissions` (permission_id).
+Referencias entrantes: `member_repository_permissions` (permission_id), `repository_team_access` (permission_id), `role_permissions` (permission_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -2993,7 +3025,7 @@ Restricciones:
 - `repositories_visibility_check`: `CHECK ((visibility = ANY (ARRAY['PUBLIC'::text, 'PRIVATE'::text, 'INTERNAL'::text, 'UNKNOWN'::text])))`. Validada: True.
 - `uq_repository_provider_identity`: `UNIQUE (organization_id, provider, external_id)`. Validada: True.
 
-Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
+Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `member_repository_permissions` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 

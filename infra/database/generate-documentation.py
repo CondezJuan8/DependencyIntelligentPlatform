@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 PURPOSES = {
+    'member_repository_permissions': ('identity', 'Direct permission grants for a membership and repository, intersected with its effective role.'),
     'organizations': ('identity', 'Organización propietaria y límite de tenant.'),
     'users': ('identity', 'Identidad global con verificación de correo y versión de credenciales para revocar sesiones.'),
     'user_identities': ('identity', 'Vínculos verificados a identidades externas Google/GitHub y sujetos históricos.'),
@@ -293,7 +294,12 @@ def export_previews(scene, stem):
         from PIL import Image, ImageDraw, ImageFont
         scale=1
         canvas=Image.new('RGB',(math.ceil(w*scale),math.ceil(h*scale)),'white'); drawing=ImageDraw.Draw(canvas)
-        def font(size): return ImageFont.truetype('C:/Windows/Fonts/consola.ttf',max(8,round(size*scale)))
+        font_path=next((candidate for candidate in ('C:/Windows/Fonts/consola.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',
+            '/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf') if Path(candidate).is_file()),None)
+        def font(size):
+            size=max(8,round(size*scale))
+            return ImageFont.truetype(font_path,size) if font_path else ImageFont.load_default(size=size)
         def point(xx,yy): return ((xx+20)*scale,(yy+20)*scale)
     except ImportError:
         drawing=None

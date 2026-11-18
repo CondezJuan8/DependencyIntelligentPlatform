@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V15**, con **124 tablas de negocio, 87 con RLS forzado y 218 FK**. Flyway se excluye del conteo. V14 agregó tablas de administración y asignaciones directas de repositorio; V15 soporta decisiones de admisión por correo. Catálogo, diccionario y diagramas se exportan del PostgreSQL local migrado. Funciones de acceso en [ACCESO_LOCAL](../ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](../VERIFICACION_Y_RECUPERACION.md).
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V17**, con **125 tablas de negocio, 88 con RLS forzado y 221 FK**. Flyway se excluye del conteo. V14 agrega administración y asignaciones de repositorio; V15 soporta decisiones de admisión por correo; V17 almacena permisos directos por miembro/repositorio. Catálogo, diccionario y diagramas se exportan del PostgreSQL local migrado. Funciones de acceso en [ACCESO_LOCAL](../ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](../VERIFICACION_Y_RECUPERACION.md).
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,7 +16,7 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint de PostgreSQL crea `dependency_app`. Flyway usa sus propias credenciales y aplica V1–V13. El datasource usa ese login limitado, miembro de `dependency_runtime`. El usuario crea su cuenta desde el formulario de registro.
+El entrypoint de PostgreSQL crea `dependency_app`. Flyway usa sus propias credenciales y aplica V1–V17. El datasource usa ese login limitado, miembro de `dependency_runtime`. El usuario crea su cuenta desde el formulario de registro.
 
 **Volumen existente:** los scripts initdb solo se ejecutan al inicializarlo. Añadir `POSTGRES_APP_PASSWORD` a `.env`, recrear el servicio de base para recibir la variable y aprovisionar antes del backend:
 
@@ -69,6 +69,6 @@ psql -X -qAt -v ON_ERROR_STOP=1 -f infra/database/export-schema.sql -o docs/data
 python infra/database/generate-documentation.py docs/database/schema.json docs/database
 ```
 
-El export contiene estructura/políticas/flags de roles, nunca filas de negocio ni contraseñas. El generador usa Python estándar; Pillow, si está disponible, añade PNG. No instala bibliotecas ni llama proveedores. Diagramas 2–6: entidades/FK reales con referencias externas compartidas. Diagramas 1/7: flujos lógicos discontinuos. Validación de IDs, bindings y cobertura de 208 FK. `elements`, `appState`, `files`: [estructura nativa documentada](https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/initialdata).
+El export contiene estructura/políticas/flags de roles, nunca filas de negocio ni contraseñas. El generador usa Python estándar; Pillow, si está disponible, añade PNG. No instala bibliotecas ni llama proveedores. Diagramas 2–6: entidades/FK reales con referencias externas compartidas. Diagramas 1/7: flujos lógicos discontinuos. Validación de IDs, bindings y cobertura de 221 FK. `elements`, `appState`, `files`: [estructura nativa documentada](https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/initialdata).
 
 Verificación disponible de Docker, Excalidraw, pgvector y revisión visual del acceso en [implementation-report](implementation-report.md) y [ACCESO_LOCAL](../ACCESO_LOCAL.md).

@@ -743,3 +743,27 @@ Maven `-DskipTests package`: compilación de Domain/Application/Infrastructure y
 ### Siguiente paso
 
 Aplicar V16/V17 al Compose sin borrar el volumen y ejecutar el recorrido IT; revisar la edición directa en UI. Luego continuar tema compartido/configuración del espacio y carga/escaneo seguro de proyectos locales.
+
+## Bloque 25 — Aplicación y validación de permisos por repositorio
+
+Fecha: 18 de noviembre de 2026. Continuación autorizada para aplicar V16/V17 al PostgreSQL de Compose y comprobar acceso de equipo y directo por miembro.
+
+### Cambios y herramientas
+
+- Reconstruida la imagen backend con Maven y ejecutado `docker compose up -d backend`. Se recreó solo backend; PostgreSQL, Mailpit, frontend y volumen siguieron activos.
+- Flyway validó 17 migraciones y aplicó V16/V17. Catálogo PostgreSQL: versión 17, 125 tablas de negocio, 88 con FORCE RLS y 221 FK.
+- Reexportado el catálogo estructural sin filas de negocio/secretos; regenerados `schema.json`, diccionario y siete diagramas nativos, SVG y PNG. La validación confirma IDs y bindings únicos y todas las 221 FK cubiertas.
+- Corregidos los fixtures de `OrganizationAccessIT`: cuentas verificadas también se aprueban en la base de prueba, las invitaciones incluyen equipo/repositorio, su permiso de lectura y la aprobación manual del propietario; el host SMTP es configurable para Mailpit aislado.
+- El generador de diagramas ahora selecciona fuentes compatibles con Windows/Linux. Sin dependencia nueva en la aplicación.
+- Herramientas: Docker Compose/Desktop, Maven/Failsafe, PostgreSQL/psql, Mailpit y contenedor temporal Python/Pillow para documentación.
+
+### Verificación
+
+- Imagen backend construida correctamente. Backend inició y Flyway informó `Successfully applied 2 migrations ... version v17`; backend y PostgreSQL quedaron activos/healthy junto a frontend y Mailpit.
+- `OrganizationAccessIT#teamPermissionsAreIntersectedWithRolesAndRevocationsApplyToRealRequests`: 1/1 correcta en base PostgreSQL temporal, con Mailpit temporal. Comprueba permiso repository.read otorgado por equipo, intersección MEMBER/VIEWER, restricción de `repository.manage`, revocación del acceso y alta/baja de grant directo por miembro.
+- Suites unitarias Domain/Application/Infrastructure: 35 casos, cero fallos. Compilación de la prueba IT correcta.
+- Retirados los tres contenedores efímeros de prueba. El volumen principal no se borró. No se comparó conteo de filas de negocio antes/después del reinicio.
+
+### Pendiente relacionado
+
+El usuario puede revisar la pantalla Organización → permisos directos; la aceptación visual compartida sigue pendiente. No empezar el siguiente bloque automáticamente: consultar `PENDIENTES.md` y esperar instrucción del usuario.

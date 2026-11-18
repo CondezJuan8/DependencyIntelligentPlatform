@@ -1,6 +1,6 @@
 # Normalización del esquema aplicado V13
 
-Fuente en catálogo real, diccionario y migraciones V4–V13. V13 incorpora credential_version, atributo escalar determinado por el usuario, e índice de solicitudes de tokens. Los cambios de contraseña actualizan hash y versión dentro de la transacción. El inventario de claves mantiene su estructura. La revisión de 1NF–5NF analiza dependencias declaradas y excepciones técnicas. [Catálogo](schema.json), [diccionario](data-dictionary.md).
+Fuente en catálogo real, diccionario y migraciones V4–V17. V13 incorpora credential_version, atributo escalar determinado por el usuario, e índice de solicitudes de tokens. V17 normaliza los permisos directos por miembro/repositorio en una tabla de asociación con FK e índice. Los cambios de contraseña actualizan hash y versión dentro de la transacción. El inventario de claves mantiene su estructura. La revisión de 1NF–5NF analiza dependencias declaradas y excepciones técnicas. [Catálogo](schema.json), [diccionario](data-dictionary.md).
 
 ## Criterios y decisiones
 

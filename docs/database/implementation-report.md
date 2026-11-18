@@ -1,5 +1,13 @@
 # Estado real de implementación de la base de datos
 
+## Aplicación scoped y permisos directos V16/V17, bloque 25
+
+18 de noviembre de 2026. Se reconstruyó la imagen del backend y se reinició únicamente ese servicio; PostgreSQL, Mailpit y el volumen persistente permanecieron activos. Flyway validó las 17 migraciones y aplicó V16/V17 al PostgreSQL local, ahora en V17. Conteo desde catálogo: 125 tablas de negocio, 88 con FORCE RLS y 221 FK. Exportación estructural regeneró `schema.json`, diccionario y los siete diagramas Excalidraw/SVG/PNG; IDs, bindings y cobertura completa de FK validados. V17 es la tabla 125.
+
+Prueba focalizada `OrganizationAccessIT#teamPermissionsAreIntersectedWithRolesAndRevocationsApplyToRealRequests`: 1/1 correcta con PostgreSQL 17.7 y Mailpit temporales aislados en la red Compose; las 35 pruebas unitarias de Domain/Application/Infrastructure también pasaron. El recorrido comprobó invitación equipo/repositorio, lectura autorizada, intersección de permisos con rol, permiso administrativo scoped, revocación por membresía/equipo y grant directo por miembro/repositorio. Los fixtures quedaron alineados con aprobación del propietario y parámetros obligatorios de invitación. Las tres dependencias efímeras se retiraron; no se modificó la base temporalmente probada ni se borró el volumen del usuario. No se compararon filas de negocio antes/después.
+
+Herramientas usadas: Docker Compose/Desktop, Maven/Failsafe, PostgreSQL/psql, Mailpit y Python/Pillow temporales para generar diagramas. Sin dependencias nuevas en el producto.
+
 ## Decisión de admisión V15, bloque 20
 
 18 de noviembre de 2026. V14 agregó `member_repository_assignments`, `platform_administrators` y `platform_audit_events`. V15 amplía `user_access_tokens` con administrador destinatario, cuenta objetivo y acción Aprobar/Rechazar, restricciones de coherencia e índice parcial de decisiones pendientes; no agrega tablas. Tras aplicar V15 al PostgreSQL local y regenerar artefactos desde catálogo, hay 124 tablas de negocio, 87 con FORCE RLS y 218 FK. Catálogo validado con 7 diagramas nativos, IDs/bindings únicos y las FK cubiertas. Pruebas y flujo HTTP documentados en [verificación y recuperación](../VERIFICACION_Y_RECUPERACION.md).
