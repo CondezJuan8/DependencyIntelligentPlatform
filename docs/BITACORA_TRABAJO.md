@@ -552,3 +552,24 @@ Fecha: 18 de noviembre de 2026, America/Bogota. Petición: instalar Docker y eje
 ### Siguiente paso
 
 El usuario puede revisar la interfaz Docker en `http://localhost:8089`. Después, cuando indique trabajar el siguiente bloque, definir el bootstrap inicial del administrador; no confundir las cuentas de la instancia anterior con las del volumen nuevo. La instancia nativa no se detuvo.
+
+## Bloque 17 — Refresco tras confirmar correo
+
+Fecha: 18 de noviembre de 2026, America/Bogota. Petición: explicar la ventana que aparece al confirmar correo y corregir que no se actualizara el estado ni permitiera continuar.
+
+### Hallazgo y cambio
+
+- El enlace de verificación está diseñado para abrir la pantalla de confirmación y requerir un clic explícito en «Confirmar mi correo»; el enlace observado apunta correctamente al frontend Docker `localhost:8089`.
+- La confirmación se guardó en base de datos: el usuario de prueba aparece con `email_verified_at` presente y `admission_status=PENDING_REVIEW`. Verificar el correo no aprueba la cuenta; el paso de aprobación del administrador sigue pendiente.
+- Corregido el flujo frontend: tras una confirmación exitosa, consulta automáticamente `/api/auth/me` y cierra la pantalla del token. Si la sesión sigue activa, muestra el estado actualizado; si no, vuelve al acceso con un mensaje para iniciar sesión. El estado pendiente de aprobación se explica sin marcarlo como error. El botón manual queda para reintentar la consulta.
+- Reconstruido y reemplazado únicamente el contenedor frontend; no se tocaron backend ni datos.
+
+### Verificación y herramientas
+
+Docker Compose/build Angular terminó correctamente. El código compila dentro de la imagen; no se ejecutaron suites adicionales. Se verificaron previamente la URL del enlace (sin mostrar el token), la respuesta HTTP 200 de la aplicación/proxy y el estado agregado de la base. No se completó una sesión UI end-to-end con credenciales del usuario.
+
+Herramientas: PowerShell, `apply_patch`, Docker CLI/Compose, Mailpit local y PostgreSQL; Angular/TypeScript y RxJS existentes. Sin dependencias nuevas.
+
+### Siguiente paso
+
+Revisar el flujo en `http://localhost:8089`. La cuenta permanecerá en revisión hasta que un administrador de plataforma la apruebe. En la base Docker todavía no existe un administrador inicial; el bootstrap seguro sigue anotado en PENDIENTES y no se creó una cuenta privilegiada automáticamente.
