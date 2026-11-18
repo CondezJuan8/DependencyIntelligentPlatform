@@ -177,6 +177,10 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         UUID team = UUID.fromString(ok(201, postJson(path(org)+"/teams", owner.session(), Map.of("name", "Readers"))).path("id").asText());
         UUID membership = join(owner, org, member, "VIEWER", team, repository);
         String teamPath = path(org)+"/teams/"+team, repositoryPath = path(org)+"/repositories/"+repository;
+        var ownerGitHubStatus = ok(200, mvc.perform(get(path(org)+"/github/status").session(owner.session())).andReturn());
+        assertTrue(ownerGitHubStatus.path("canManage").asBoolean());
+        var memberGitHubStatus = ok(200, mvc.perform(get(path(org)+"/github/status").session(member.session())).andReturn());
+        assertFalse(memberGitHubStatus.path("canManage").asBoolean());
         ok(204, postJson(teamPath+"/members/"+membership, owner.session(), Map.of("included", true)));
         ok(204, postJson(teamPath+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read", "scan.read", "scan.create", "repository.manage"))));
         mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isOk());
