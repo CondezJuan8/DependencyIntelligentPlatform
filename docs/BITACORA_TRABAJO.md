@@ -788,3 +788,16 @@ El usuario puede revisar la pantalla Organización → permisos directos; la ace
 **Herramientas/verificacion:** Docker Compose, build Angular en imagen Node, HTTP local. Build correcto con las advertencias preexistentes de presupuesto de bundle y estilos. Frontend actualizado en puerto 8089, responde HTTP 200; API/base/Mailpit permanecen activos. No se ejecutaron suites de pruebas para este cambio de presentacion.
 
 **Siguiente paso:** revisar en navegador el idioma de sidebar/buscador y cambiar idioma/tema desde el encabezado con organizacion activa. Registrar observaciones antes de otro bloque.
+## Bloque 28 - Diagnostico de conexion GitHub
+
+**Peticion:** la instalacion GitHub falla con mensaje generico de autorizacion en la vista de repositorios.
+
+**Hallazgo:** la vista antes cargaba repositorios sin comprobar el rol para esa organizacion y mostraba Instalacion segun el tipo global de cuenta. El backend ya exige `repository.manage` por organizacion. Ademas, el `.env` local carece de las variables `GITHUB_APP_*`, asi que la conexion externa no puede completarse todavia.
+
+**Cambios:** se agrega `GET /api/organizations/{id}/github/status`, que devuelve solo estado configurado/capacidad de gestion y un motivo seguro, sin exponer credenciales. El frontend evita llamar el listado si falta rol/configuracion, deshabilita Instalar y muestra el requisito. Para 403, el cliente usa el detalle seguro enviado por la API. Guia y callback local actualizados a localhost:8089.
+
+**Herramientas/verificacion:** Docker Compose, Maven/Failsafe, PostgreSQL temporal, Mailpit temporal, build Angular, inspeccion de API/permisos/configuracion y HTTP local. `docker compose build backend frontend` correcto; Maven `verify` correcto con 35 pruebas unitarias (Domain 5, Application 12, Infrastructure 18); `OrganizationAccessIT#teamPermissionsAreIntersectedWithRolesAndRevocationsApplyToRealRequests` correcto (1/1) y comprueba `canManage` para propietario y miembro. V1–V18 se validaron durante el IT. La app local sigue activa en localhost:8089: frontend expuesto, backend arriba, PostgreSQL y Mailpit saludables; no se recrearon ni borraron estos ultimos servicios ni el volumen principal. El build Angular conserva avisos existentes de presupuesto de bundle/SCSS. No se ejecutó OAuth ni instalación real: el `.env` no tiene `GITHUB_APP_*`, por lo que faltan credenciales de la GitHub App y no se inventaron ni modificaron secretos.
+
+**Siguiente paso:** crear/configurar la GitHub App bajo `CondezJuan8`, registrar Homepage/Setup/Callback en localhost:8089 y agregar ID/Client ID/secret/private key en `.env` local. Reiniciar solo backend, revisar Estado GitHub e instalar la App para terminar la comprobacion real. No enviar secretos por chat.
+
+**Commits:** tres commits por responsabilidad: diagnostico/API y experiencia de usuario, cobertura del permiso por organizacion y documentacion/bitacora.

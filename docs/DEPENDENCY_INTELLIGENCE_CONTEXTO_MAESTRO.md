@@ -1459,3 +1459,6 @@ Al continuar este proyecto, utiliza este archivo como contexto maestro.
 ## Estado al bloque 26 (18 de noviembre de 2026)
 
 Se implementaron preferencias compartidas de tema e idioma por organizacion mediante V18, API y Angular. Base local en V18: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. Ver `docs/database/implementation-report.md` y `docs/PENDIENTES.md`. Build frontend/backend correcto; la prueba focalizada de integracion sigue pendiente tras fallo DNS de Maven Central en el contenedor aislado.
+## Diagnostico GitHub - bloque 28 (18 de noviembre de 2026)
+
+El flujo real todavia requiere configurar la GitHub App del propietario. Las variables `GITHUB_APP_*` faltan en el `.env` local. La UI ahora informa configuracion incompleta frente a permisos insuficientes por organizacion y solo habilita instalacion si ambas condiciones estan listas. Prueba real aun pendiente; callbacks de esta instancia usan localhost:8089. Detalle: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).

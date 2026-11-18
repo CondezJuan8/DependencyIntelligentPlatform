@@ -10,9 +10,9 @@ Esta función es distinta del inicio de sesión GitHub. OAuth de identidad permi
 
 En GitHub, bajo la cuenta u organización propietaria (prevista: `CondezJuan8`), crea una GitHub App desde **Settings → Developer settings → GitHub Apps** y define:
 
-- Homepage URL: `http://localhost:8088`
-- Setup URL: `http://localhost:8088/?view=repositories`
-- User authorization callback URL: `http://localhost:8088/api/integrations/github/app-callback`
+- Homepage URL: `http://localhost:8089`
+- Setup URL: `http://localhost:8089/?view=repositories`
+- User authorization callback URL: `http://localhost:8089/api/integrations/github/app-callback`
 - Permisos de repositorio: **Contents: Read-only** y **Metadata: Read-only**.
 - Selecciona **Only select repositories** al instalarla. La persona propietaria decide en GitHub qué repositorios autoriza.
 - Desactiva webhooks durante este bloque; la recepción/validación de eventos aún no está implementada.
@@ -28,7 +28,7 @@ GITHUB_APP_ID=id-numerico-de-la-app
 GITHUB_APP_CLIENT_ID=client-id-de-la-app
 GITHUB_APP_CLIENT_SECRET=client-secret-de-la-app
 GITHUB_APP_PRIVATE_KEY_BASE64=llave-privada-pem-codificada-en-base64
-GITHUB_APP_CALLBACK_URL=http://localhost:8088/api/integrations/github/app-callback
+GITHUB_APP_CALLBACK_URL=http://localhost:8089/api/integrations/github/app-callback
 ```
 
 El **App ID**, el **Client ID** y el secreto de cliente son valores diferentes. La llave privada PEM que genera GitHub se codifica completa en Base64 para la variable indicada; no se sube el archivo PEM. Los valores predeterminados dejan la función apagada. En el servidor se reemplazan las URLs `localhost` por el origen público HTTPS y se suministran secretos con el almacén seguro del entorno.
@@ -56,3 +56,9 @@ La verificación de pertenencia es necesaria porque GitHub advierte que no debe 
 La vista usa primero una disposición móvil: encabezado apilado, selector a ancho completo, filas que pueden envolver texto y controles táctiles con altura mínima. En pantallas amplias, el encabezado y las acciones vuelven a distribuirse horizontalmente. Los estilos siguen los tokens oficiales del frontend.
 
 Esto acredita estilos responsive en el código; no equivale a una comprobación visual en teléfono físico. `localhost` solo es accesible en el equipo que ejecuta la aplicación. Para que otros dispositivos se conecten hace falta desplegarla en una dirección de red/servidor accesible, HTTPS y callbacks GitHub con ese mismo origen. No se descargan ni escanean fuentes; el próximo tramo funcional es checkout seguro del código, jobs de análisis, Maven/npm, SBOM y resultados.
+
+## Diagnostico de conexion - bloque 28
+
+La pantalla consulta ahora un estado seguro por organizacion que distingue configuracion incompleta de permisos insuficientes. El boton de instalacion queda deshabilitado y explica el paso pendiente en ambos casos. En la configuracion local revisada el archivo `.env` no contiene las variables `GITHUB_APP_*`; por ello todavia se debe registrar/configurar la GitHub App del usuario antes de completar el flujo real. No poner placeholders ni secretos en Git/chat.
+
+Para esta instancia se usa `http://localhost:8089`; Homepage, Setup URL y callback deben coincidir con ese origen, en especial `http://localhost:8089/api/integrations/github/app-callback`. Si se cambia `WEB_PORT`, actualizar en GitHub y `.env` el callback con el mismo puerto y reiniciar backend.

@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 18 de noviembre de 2026, bloque 27 (traduccion del menu y controles personales).
+Actualizado: 18 de noviembre de 2026, bloque 28 (diagnostico de conexion GitHub).
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
 
@@ -85,3 +85,6 @@ El primer recorrido pendiente de revisión es acceso y colores. El siguiente hit
 ## Estado del bloque 27 - Sidebar, busqueda y preferencias de encabezado
 
 Se tradujeron las etiquetas de navegacion y resultados del buscador; ahora puede buscarse usando el nombre mostrado en ingles. El selector de idioma y tema del encabezado vuelve a estar activo con una organizacion. El ajuste compartido queda como valor predeterminado y cada persona puede aplicar un override local desde el encabezado; se conserva en este navegador. Frontend actualizado en http://localhost:8089/ y responde HTTP 200. Falta tu revision visual.
+## Estado del bloque 28 - Diagnostico GitHub
+
+La pantalla ahora comprueba si la cuenta puede administrar GitHub en la organizacion y si la GitHub App esta configurada. Explica el requisito y no deja pulsar Instalar cuando falta configuracion o rol. En el `.env` local faltan las variables `GITHUB_APP_*`, por lo que aun hace falta registrar/configurar la App y guardar sus secretos localmente antes de probar OAuth e importacion. Callback vigente: `http://localhost:8089/api/integrations/github/app-callback`.
