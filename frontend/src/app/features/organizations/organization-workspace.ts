@@ -7,6 +7,7 @@ import { finalize } from 'rxjs';
 import { accessError, Organization, SessionApiService } from '../../core/session-api.service';
 import { OrganizationAccess } from './organization-access';
 import { DiIcon } from '../../shared/di-icon';
+import { WorkspaceSettingsService } from '../../core/workspace-settings.service';
 
 @Component({
   selector: 'app-organization-workspace',
@@ -23,6 +24,7 @@ import { DiIcon } from '../../shared/di-icon';
 })
 export class OrganizationWorkspace implements OnInit {
   private readonly api = inject(SessionApiService);
+  private readonly workspaceSettings = inject(WorkspaceSettingsService);
   readonly organizations = signal<Organization[]>([]);
   readonly loading = signal(true);
   readonly pending = signal(false);
@@ -44,8 +46,10 @@ export class OrganizationWorkspace implements OnInit {
       .subscribe({
         next: (organizations) => {
           this.organizations.set(organizations);
+          this.workspaceSettings.setOrganizations(organizations);
           this.selected.set(
-            organizations.find((item) => item.id === this.selected()?.id) ??
+            organizations.find((item) => item.id === this.workspaceSettings.activeOrganizationId()) ??
+              organizations.find((item) => item.id === this.selected()?.id) ??
               organizations[0] ??
               null,
           );
@@ -68,6 +72,8 @@ export class OrganizationWorkspace implements OnInit {
           );
           form.resetForm({ name: '' });
           this.selected.set(organization);
+          this.workspaceSettings.setOrganizations(this.organizations());
+          this.workspaceSettings.activate(organization.id);
           this.creating.set(false);
         },
         error: (error) => this.error.set(accessError(error)),
@@ -78,5 +84,6 @@ export class OrganizationWorkspace implements OnInit {
       this.organizations().find((item) => item.id === (event.target as HTMLSelectElement).value) ??
         null,
     );
+    if (this.selected()) this.workspaceSettings.activate(this.selected()!.id);
   }
 }

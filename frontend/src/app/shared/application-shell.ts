@@ -14,6 +14,7 @@ import { ConnectedIdentities } from '../features/identity/connected-identities';
 import { InvitationLinkService } from '../features/organizations/invitation-link.service';
 import { WorkspaceSidebar } from './workspace-sidebar';
 import { WorkspaceTopbar } from './workspace-topbar';
+import { WorkspaceSettingsService } from '../core/workspace-settings.service';
 @Component({
   selector: 'app-application-shell',
   imports: [PlatformAdministration,RepositoryWorkspace,AccountSettings,
@@ -35,6 +36,11 @@ export class ApplicationShell {
   readonly page = signal<Page>(initialPage(window.location.search,this.api.account()));
   readonly sidebar = signal(false);
   constructor() {
+    const workspaceSettings = inject(WorkspaceSettingsService);
+    effect(() => {
+      if (this.api.account()) workspaceSettings.initializeDefault();
+      else workspaceSettings.clear();
+    });
     const invitationLinks = inject(InvitationLinkService);
     effect(() => {
       if (invitationLinks.invitation()) this.go('organization');

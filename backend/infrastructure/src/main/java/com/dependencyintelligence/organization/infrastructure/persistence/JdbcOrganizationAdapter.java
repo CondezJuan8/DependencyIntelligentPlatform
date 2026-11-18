@@ -26,6 +26,7 @@ public class JdbcOrganizationAdapter implements OrganizationStore {
     @Override public OrganizationResult createWithOwner(UUID userId, String name) {
         UUID id = UUID.randomUUID();
         return tenants.execute(id, () -> {
+            jdbc.queryForObject("select set_config('app.user_id', ?, true)", String.class, userId.toString());
             var active = jdbc.query("select id from users where id = ? and is_active and email_verified_at is not null and admission_status='APPROVED' and account_type='OWNER' for share",
                 (row, index) -> row.getObject("id", UUID.class), userId);
             if (active.isEmpty()) throw new AuthenticationFailedException();
@@ -38,6 +39,7 @@ public class JdbcOrganizationAdapter implements OrganizationStore {
                 select ?, ?, id from roles where code = 'OWNER'
                 """, id, membership);
             if (assigned != 1) throw new IllegalStateException("Owner role is not configured");
+            jdbc.update("insert into organization_settings(organization_id) values (?)", id);
             jdbc.update("""
                 insert into audit_events(id, organization_id, actor_id, action, resource_type, resource_id, result)
                 values (?, ?, ?, 'organization.create', 'organization', ?, 'SUCCESS')

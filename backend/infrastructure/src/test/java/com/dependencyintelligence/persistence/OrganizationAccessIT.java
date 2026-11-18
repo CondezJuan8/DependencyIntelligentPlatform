@@ -199,6 +199,27 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         mvc.perform(get(repositoryPath).session(member.session())).andExpect(status().isForbidden());
         assertTrue(overview(owner, org).path("teams").findValuesAsText("name").stream().noneMatch("Renamed readers"::equals));
     }
+    @Test void workspaceSettingsAreSharedAndRestrictedToOrganizationManagers() throws Exception {
+        var owner = person(true); var member = person(true); var org = organization(owner);
+        UUID memberId = tenants.execute(org, () -> {
+            jdbc.queryForObject("select set_config('app.user_id', ?, true)", String.class, owner.id().toString());
+            UUID id = jdbc.queryForObject("insert into organization_memberships(organization_id,user_id) values (?,?) returning id", UUID.class, org, member.id());
+            jdbc.update("insert into membership_roles(organization_id,membership_id,role_id) select ?,?,id from roles where code='MEMBER'", org, id);
+            return id;
+        });
+        String settingsPath = path(org)+"/settings";
+        var defaults = ok(200, mvc.perform(get(settingsPath).session(owner.session())).andReturn());
+        assertEquals("SYSTEM", defaults.path("theme").asText()); assertEquals("ES", defaults.path("language").asText());
+        assertTrue(defaults.path("canManage").asBoolean());
+        var memberSettings = ok(200, mvc.perform(get(settingsPath).session(member.session())).andReturn());
+        assertFalse(memberSettings.path("canManage").asBoolean());
+        ok(403, postJson(settingsPath, member.session(), Map.of("theme", "DARK", "language", "EN")));
+        var updated = ok(200, postJson(settingsPath, owner.session(), Map.of("theme", "DARK", "language", "EN")));
+        assertEquals("DARK", updated.path("theme").asText()); assertEquals("EN", updated.path("language").asText());
+        var shared = ok(200, mvc.perform(get(settingsPath).session(member.session())).andReturn());
+        assertEquals("DARK", shared.path("theme").asText()); assertEquals("EN", shared.path("language").asText());
+        assertEquals(1, tenants.execute(org, () -> jdbc.queryForObject("select count(*) from audit_events where organization_id=? and action='organization.settings.update'", Integer.class, org)));
+    }
     @Test void tenantBoundariesCsrfAndAuthenticationProtectAllManagementEntryPoints() throws Exception {
         var owner = person(true); var other = person(true); var org = organization(owner); var foreignOrg = organization(other);
         UUID foreignMember = membership(other, foreignOrg, other);

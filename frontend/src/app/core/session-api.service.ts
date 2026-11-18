@@ -4,6 +4,9 @@ import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
 export interface Account { id: string; email: string; displayName: string; emailVerified: boolean; accountType:'OWNER'|'MEMBER'; admissionStatus:'PENDING_REVIEW'|'APPROVED'|'REJECTED'; platformAdmin:boolean; }
 export interface Organization { id: string; name: string; }
+export type WorkspaceTheme = 'SYSTEM' | 'LIGHT' | 'DARK';
+export type WorkspaceLanguage = 'ES' | 'EN';
+export interface WorkspaceSettings { organizationId: string; organizationName: string; theme: WorkspaceTheme; language: WorkspaceLanguage; canManage: boolean; }
 interface CsrfToken { headerName: string; token: string; }
 
 @Injectable({ providedIn: 'root' })
