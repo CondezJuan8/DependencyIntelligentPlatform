@@ -16,8 +16,8 @@ import java.time.Duration;
 
 @Configuration
 public class IdentityConfiguration {
-    @Bean RegisterAccount registerAccount(AccountStore store, PasswordHashing hashing) {
-        return new RegisterAccountUseCase(store, hashing);
+    @Bean RegisterAccount registerAccount(AccountStore store, PasswordHashing hashing, PendingAdmissionNotifier notifier) {
+        return new RegisterAccountUseCase(store, hashing, notifier);
     }
     @Bean AuthenticateAccount authenticateAccount(AccountStore store, PasswordHashing hashing) {
         return new AuthenticateAccountUseCase(store, hashing);
