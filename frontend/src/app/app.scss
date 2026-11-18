@@ -8,12 +8,12 @@
   justify-items: center;
   gap: 20px;
   min-height: 100svh;
-  color: #64748b;
+  color: var(--di-text-subtle);
   font-size: 13px;
 }
 .feedback,
 .floating-feedback {
-  border: 1px solid #bbf7d0;
+  border: 1px solid var(--di-border);
   background: var(--di-success-background);
   color: var(--di-success-text);
   padding: 14px 18px;
@@ -39,6 +39,6 @@
 }
 .error {
   color: var(--di-critical-text);
-  border-color: #fecaca;
+  border-color: var(--di-border);
   background: var(--di-critical-background);
 }
