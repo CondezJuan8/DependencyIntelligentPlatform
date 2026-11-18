@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 18 de noviembre de 2026, bloque 26 (configuracion compartida del espacio).
+Actualizado: 18 de noviembre de 2026, bloque 27 (traduccion del menu y controles personales).
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
 
@@ -82,3 +82,6 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 4. Marcamos como terminado solo lo que tenga evidencia y guardamos commits coherentes con emoji y descripción en español.
 
 El primer recorrido pendiente de revisión es acceso y colores. El siguiente hito funcional es **GitHub → repositorio → análisis → inventario con datos reales**; todavía no está completado. Codex queda fuera de la IA del producto hasta petición explícita del usuario. No se presupone una cuota, modelo ni gratuidad de proveedores.
+## Estado del bloque 27 - Sidebar, busqueda y preferencias de encabezado
+
+Se tradujeron las etiquetas de navegacion y resultados del buscador; ahora puede buscarse usando el nombre mostrado en ingles. El selector de idioma y tema del encabezado vuelve a estar activo con una organizacion. El ajuste compartido queda como valor predeterminado y cada persona puede aplicar un override local desde el encabezado; se conserva en este navegador. Frontend actualizado en http://localhost:8089/ y responde HTTP 200. Falta tu revision visual.

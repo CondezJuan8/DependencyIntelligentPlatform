@@ -86,3 +86,7 @@ La primera revisión puede comenzar por acceso y apariencia al levantar el entor
 17 de noviembre de 2026. Se continúa el rediseño con prioridad móvil según la retroalimentación del usuario. El login utiliza una columna compacta móvil y conserva el panel de marca en escritorio; se redujeron espacios para alturas pequeñas sin ocultar contenido. En Organización, las tablas cambian a tarjetas apiladas en móvil con rótulos por campo y sin desplazamiento horizontal. La barra superior adapta búsqueda y controles a pantallas estrechas; en anchos inferiores a 360 px compacta el espacio de notificaciones.
 
 Se activa traducción global de etiquetas y textos estáticos al alternar ES/EN, incluidos aria-label, placeholder, title y data-label de tarjetas. Los valores de usuario/repositorio marcados data-no-translate se conservan tal cual. El tema usa tokens claros/oscuros y la tipografía local IBM Plex Sans. El layout de acceso usa 100svh; en dispositivos extremadamente bajos o con zoom el contenido puede requerir desplazamiento para seguir siendo accesible, por lo que no se bloquea el overflow a la fuerza.
+
+## Ajustes de idioma y preferencias del encabezado - bloque 27
+
+Sidebar, buscador y resultados usan el mismo catalogo de traducciones. La busqueda compara tanto la etiqueta localizada como la original. Los controles de idioma/tema del encabezado siguen disponibles aunque la organizacion tenga preferencias compartidas: estas preferencias compartidas son los valores iniciales y el usuario puede establecer un override local, persistido en el navegador.

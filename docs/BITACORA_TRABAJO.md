@@ -779,3 +779,12 @@ El usuario puede revisar la pantalla Organización → permisos directos; la ace
 **Verificacion:** compilacion de las imagenes backend y frontend correcta. V18 aplicada; catalogo confirma 126 tablas, 89 FORCE RLS y 223 FK. Diccionario y siete diagramas regenerados, IDs/bindings/FK validados. Health backend UP; frontend http://localhost:8089/ responde HTTP 200. El IT focalizado no pudo iniciar porque Maven Central devolvio error DNS desde el runner; queda pendiente y no se afirma aprobado. PostgreSQL, volumen y Mailpit permanecieron sin reinicio; solo se recrearon backend y frontend.
 
 **Siguiente paso:** revisar visualmente Configuracion del espacio en la instancia local; despues completar la prueba focalizada cuando Maven Central sea accesible. Revisar luego GitHub/repo/analisis con datos reales segun `docs/PENDIENTES.md`, sin iniciar otro bloque sin instruccion.
+## Bloque 27 - Traducciones de navegacion y controles activos del encabezado
+
+**Peticion:** completar el ingles del sidebar/buscador y mantener activos los controles de idioma/tema en el encabezado.
+
+**Cambios:** sidebar y buscador ahora pasan etiquetas/estados a `TranslatePipe`; el buscador reconoce etiquetas traducidas; se agregaron las entradas faltantes del catalogo y normalizacion de algunos textos con mojibake. El control del encabezado aplica un override personal persistido en localStorage que prevalece sobre los valores de organizacion; preferencias personales siguen disponibles en Configuracion. Se actualizan pendientes y guia de diseno.
+
+**Herramientas/verificacion:** Docker Compose, build Angular en imagen Node, HTTP local. Build correcto con las advertencias preexistentes de presupuesto de bundle y estilos. Frontend actualizado en puerto 8089, responde HTTP 200; API/base/Mailpit permanecen activos. No se ejecutaron suites de pruebas para este cambio de presentacion.
+
+**Siguiente paso:** revisar en navegador el idioma de sidebar/buscador y cambiar idioma/tema desde el encabezado con organizacion activa. Registrar observaciones antes de otro bloque.
