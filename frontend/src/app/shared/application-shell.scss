@@ -20,39 +20,6 @@ main {
   flex: 1;
   min-width: 0;
 }
-.breadcrumb {
-  font-size: 10px;
-  color: var(--di-text-subtle);
-  display: flex;
-  gap: 10px;
-  margin-bottom: 25px;
-  align-items: center;
-}
-.breadcrumb > span:first-child {
-  color: #cbd5e1;
-}
-.workspace-status {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 9px;
-  color: var(--di-text-subtle);
-}
-.workspace-status i {
-  width: 5px;
-  height: 5px;
-  background: var(--di-success);
-  border-radius: 50%;
-}
-.workspace-footer {
-  padding: 16px 32px;
-  border-top: 1px solid #e5ebf5;
-  font-size: 9px;
-  color: var(--di-text-subtle);
-  display: flex;
-  justify-content: space-between;
-}
 .page-heading h1 {
   font-size: 29px;
   letter-spacing: -1px;
@@ -64,7 +31,7 @@ main {
   margin: 0 0 25px;
 }
 .profile-card {
-  background: white;
+  background: var(--di-surface);
   border: 1px solid var(--di-border);
   border-radius: 10px;
   padding: 25px;
@@ -95,7 +62,7 @@ main {
   text-align: center;
   border: 1px solid var(--di-border);
   border-radius: 12px;
-  background: white;
+  background: var(--di-surface);
   padding: 70px 25px;
 }
 .coming-icon {
@@ -178,21 +145,9 @@ main {
   main {
     padding: 20px;
   }
-  .workspace-status {
-    display: none;
-  }
 }
 @media (max-width: 480px) {
   main {
     padding: 18px 14px;
-  }
-  .breadcrumb {
-    margin-bottom: 20px;
-  }
-  .workspace-footer {
-    padding: 15px;
-  }
-  .workspace-footer span:last-child {
-    display: none;
   }
 }

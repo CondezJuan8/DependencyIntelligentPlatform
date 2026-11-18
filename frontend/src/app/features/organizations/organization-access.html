@@ -99,20 +99,20 @@
           <tbody>
             @for (member of visibleMembers(); track member.id) {
               <tr>
-                <td>
+                <td data-label="Nombre">
                   <span class="person"
                     ><span class="person-avatar">{{ initials(member.displayName) }}</span
-                    ><strong>{{ member.displayName }}</strong></span
+                    ><strong data-no-translate>{{ member.displayName }}</strong></span
                   >
                 </td>
-                <td>{{ member.email }}</td>
-                <td>{{ teamsFor(member) }}</td>
-                <td>
+                <td data-label="Correo electrónico" [attr.data-no-translate]="''">{{ member.email }}</td>
+                <td data-label="Equipo"><span data-no-translate>{{ teamsFor(member) }}</span></td>
+                <td data-label="Rol">
                   @for (role of member.roles; track role) {
                     <span class="role-label">{{ roleLabel(role) }}</span>
                   }
                 </td>
-                <td>
+                <td data-label="Estado">
                   <span
                     class="status"
                     [class.active-status]="member.status === 'ACTIVE'"
@@ -120,7 +120,7 @@
                     >{{ statusLabel(member.status) }}</span
                   >
                 </td>
-                <td class="actions">
+                <td data-label="Acceso" class="actions">
                   @if (editable(member)) {
                     <button
                       class="di-icon-button"
@@ -190,18 +190,18 @@
           <tbody>
             @for (invitation of access.invitations; track invitation.id) {
               <tr>
-                <td>
+                <td data-label="Correo invitado" [attr.data-no-translate]="''">
                   <span class="person"
                     ><span class="person-avatar"><app-di-icon name="mail" /></span
                     >{{ invitation.email }}</span
                   >
                 </td>
-                <td>
+                <td data-label="Rol">
                   @for (role of invitation.roles; track role) {
                     {{ roleLabel(role) }}
                   }
                 </td>
-                <td>
+                <td data-label="Estado">
                   <span
                     class="status"
                     [class.active-status]="invitation.status === 'ACCEPTED'"
@@ -209,8 +209,8 @@
                     >{{ statusLabel(invitation.status) }}</span
                   >
                 </td>
-                <td>{{ invitation.expiresAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                <td>
+                <td data-label="Caducidad">{{ invitation.expiresAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td data-label="Acciones">
                   @if(invitation.status==='AWAITING_OWNER'){<button mat-flat-button (click)="approvalConfirmation.set(invitation)" [disabled]="pending()">Aprobar acceso</button>}
 @if (invitation.status === 'PENDING' || invitation.status === 'AWAITING_OWNER') {
                     <button
@@ -363,7 +363,7 @@
                 [disabled]="pending()"
               >
                 @for (item of access.teams; track item.id) {
-                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  <mat-option [value]="item.id"><span data-no-translate>{{ item.name }}</span></mat-option>
                 }
               </mat-select></mat-form-field
             ><mat-form-field appearance="outline"
@@ -374,7 +374,7 @@
                 [disabled]="pending()"
               >
                 @for (repo of access.repositories; track repo.id) {
-                  <mat-option [value]="repo.id">{{ repo.fullName }}</mat-option>
+                  <mat-option [value]="repo.id"><span data-no-translate>{{ repo.fullName }}</span></mat-option>
                 }
               </mat-select></mat-form-field
             >
@@ -527,7 +527,7 @@
           }
           @if (memberConfirmation(); as member) {
             <h2 id="dialog-title">Editar acceso</h2>
-            <p>{{ member.displayName }}<br />{{ member.email }}</p>
+            <p><span data-no-translate>{{ member.displayName }}</span><br /><span data-no-translate>{{ member.email }}</span></p>
             <form (ngSubmit)="changeMember()">
               <mat-form-field appearance="outline"
                 ><mat-label>Rol</mat-label

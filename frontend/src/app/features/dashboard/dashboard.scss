@@ -37,7 +37,7 @@ h1 {
 }
 .panel {
   background: var(--di-surface);
-  border: 1px solid #e3eaf4;
+  border: 1px solid var(--di-border);
   box-shadow: 0 2px 5px #142e5210;
   border-radius: 10px;
 }
@@ -78,7 +78,7 @@ h2 {
   position: relative;
   text-align: center;
   max-width: 285px;
-  background: #ffffffed;
+  background: color-mix(in srgb, var(--di-surface) 94%, transparent);
   padding: 14px;
 }
 .empty-icon {
@@ -136,8 +136,8 @@ h2 {
     to bottom,
     transparent 0,
     transparent 44px,
-    #edf2f8 44px,
-    #edf2f8 45px
+    var(--di-surface-muted) 44px,
+    var(--di-surface-muted) 45px
   );
   border-bottom: 1px solid var(--di-border);
 }

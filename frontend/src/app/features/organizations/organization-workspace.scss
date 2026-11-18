@@ -25,9 +25,9 @@ h1 {
   max-width: 210px;
   border: 1px solid var(--di-border-soft);
   border-radius: 6px;
-  background: white;
+  background: var(--di-surface);
   padding: 9px 12px;
-  color: #475569;
+  color: var(--di-text-secondary);
   font-size: 12px;
 }
 .heading-actions button {
@@ -40,7 +40,7 @@ h1 {
   margin-right: 7px;
 }
 .create {
-  background: white;
+  background: var(--di-surface);
   border: 1px solid var(--di-border);
   border-radius: 12px;
   padding: 35px;

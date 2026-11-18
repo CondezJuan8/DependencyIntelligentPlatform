@@ -9,7 +9,7 @@
 }
 .metrics article {
   background: var(--di-surface);
-  border: 1px solid #e3eaf4;
+  border: 1px solid var(--di-border);
   box-shadow: 0 2px 5px #142e5210;
   border-radius: 10px;
 }
@@ -51,19 +51,19 @@
 }
 .blue {
   color: var(--di-primary);
-  background: #e6efff;
+  background: var(--di-info-background);
 }
 .cyan {
-  color: #0e7490;
-  background: #e0f7ff;
+  color: var(--di-accent-text);
+  background: var(--di-info-background);
 }
 .purple {
   color: #7c3aed;
-  background: #f0eaff;
+  background: var(--di-surface-muted);
 }
 .gray {
   color: var(--di-text-subtle);
-  background: #eef2f6;
+  background: var(--di-surface-muted);
 }
 @media (max-width: 1150px) {
   .metrics {

@@ -16,10 +16,6 @@
       (toggleMenu)="sidebar.set(!sidebar())"
     />
     <main id="workspace-main" tabindex="-1" (keydown.escape)="sidebar.set(false)">
-      <div class="breadcrumb">
-        Espacio de trabajo <span>/</span> {{ current.label
-        }}<span class="workspace-status"><i></i>Sesión activa</span>
-      </div>
       @defer (on immediate) {
         <app-email-verification />
       } @error {

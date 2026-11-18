@@ -19,7 +19,7 @@
   background: none;
   padding: 16px 17px 18px;
   font-size: 12px;
-  color: #475569;
+  color: var(--di-text-secondary);
   font-weight: 550;
   cursor: pointer;
 }
@@ -73,7 +73,7 @@
   border: 1px solid var(--di-border-soft);
   border-radius: 6px;
   padding: 9px 11px;
-  background: white;
+  background: var(--di-surface);
   color: var(--di-text-subtle);
 }
 .search app-di-icon {
@@ -93,37 +93,37 @@
 }
 select {
   border: 1px solid var(--di-border-soft);
-  background: white;
-  color: #475569;
+  background: var(--di-surface);
+  color: var(--di-text-secondary);
   border-radius: 6px;
   font-size: 11px;
   padding: 8px;
 }
 .table-wrap {
-  overflow: auto;
-  border: 1px solid #e0e8f3;
+  overflow: hidden;
+  border: 1px solid var(--di-border);
   border-radius: 9px;
-  background: white;
+  background: var(--di-surface);
   box-shadow: 0 2px 5px #142e5208;
 }
 table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 680px;
+  min-width: 0;
   text-align: left;
   font-size: 11px;
 }
 th {
   font-weight: 600;
   color: var(--di-text-secondary);
-  background: #f3f7fd;
+  background: var(--di-surface-muted);
   padding: 14px 17px;
   font-size: 10px;
 }
 td {
   padding: 17px;
-  border-top: 1px solid #edf2f8;
-  color: #475569;
+  border-top: 1px solid var(--di-border);
+  color: var(--di-text-secondary);
   max-width: 220px;
   overflow-wrap: anywhere;
 }
@@ -133,7 +133,7 @@ td strong {
   font-weight: 600;
 }
 tr:hover td {
-  background: #fafcff;
+  background: var(--di-surface-muted);
 }
 .person {
   display: flex;
@@ -147,7 +147,7 @@ tr:hover td {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #e9f0ff;
+  background: var(--di-info-background);
   color: var(--di-primary);
   font-weight: 600;
   font-size: 10px;
@@ -163,12 +163,12 @@ tr:hover td {
   border-radius: 20px;
   padding: 4px 8px;
   background: var(--di-surface-muted);
-  color: #475569;
+  color: var(--di-text-secondary);
   font-size: 10px;
   white-space: nowrap;
 }
 .active-status {
-  background: #dcfce7;
+  background: var(--di-success-background);
   color: var(--di-success-text);
 }
 .warning-status {
@@ -196,10 +196,10 @@ tr:hover td {
   align-items: center;
 }
 .table-footer button {
-  background: white;
+  background: var(--di-surface);
   border: 1px solid var(--di-border);
   border-radius: 5px;
-  color: #475569;
+  color: var(--di-text-secondary);
   font-size: 10px;
   padding: 6px 9px;
   cursor: pointer;
@@ -287,4 +287,16 @@ tr:hover td {
   .toolbar h2 {
     font-size: 14px;
   }
+  .table-wrap { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+  table, tbody { display: block; width: 100%; }
+  thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  tbody { display: grid; gap: 10px; }
+  tr { display: grid; border: 1px solid var(--di-border); border-radius: 9px; background: var(--di-surface); overflow: hidden; }
+  td { display: grid; grid-template-columns: minmax(90px, 34%) minmax(0, 1fr); align-items: center; gap: 8px; max-width: none; padding: 10px 12px; border-top: 1px solid var(--di-border); }
+  td:first-child { border-top: 0; }
+  td::before { content: attr(data-label); color: var(--di-text-subtle); font-size: 10px; font-weight: 600; }
+  td[colspan] { display: block; }
+  td[colspan]::before { content: none; }
+  tr:hover td { background: transparent; }
+  .actions { text-align: left; }
 }
