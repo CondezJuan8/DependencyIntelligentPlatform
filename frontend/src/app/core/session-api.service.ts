@@ -54,7 +54,9 @@ export function accessError(error: HttpErrorResponse): string {
   if (error.status === 503 && typeof error.error?.detail === 'string') return error.error.detail;
   if (error.status === 0 || error.status >= 500) return 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
   if (error.status === 429) return 'Has realizado demasiados intentos. Espera un minuto e inténtalo de nuevo.';
-  if (error.status === 403) return 'No se pudo autorizar la operación. Actualiza la página e inténtalo de nuevo.';
+  if (error.status === 403) return typeof error.error?.detail === 'string'
+    ? error.error.detail
+    : 'Tu cuenta no tiene permiso para esta acción en la organización seleccionada.';
   if (error.status === 401) return 'La sesión ha expirado o las credenciales son incorrectas.';
   return typeof error.error?.detail === 'string' ? error.error.detail : 'Revisa los datos e inténtalo de nuevo.';
 }

@@ -7,6 +7,7 @@ interface Repository { id: string; organizationId: string; organizationName: str
 interface Candidate { externalId: string; fullName: string; defaultBranch: string; htmlUrl: string; visibility: string; archived: boolean; }
 interface Installation { id: number; accountLogin: string; accountType: 'USER' | 'ORGANIZATION'; repositories: Candidate[]; }
 interface Workspace { installations: Installation[]; importedRepositoryIds: string[]; }
+interface GitHubSetupStatus { configured: boolean; canManage: boolean; detail: string; }
 @Component({
   selector: 'app-repository-workspace', imports: [DiIcon], templateUrl: './repository-workspace.html', styleUrl: './repository-workspace.scss',
 })
@@ -14,11 +15,13 @@ export class RepositoryWorkspace implements OnInit {
   readonly api = inject(SessionApiService);
   readonly organizations = signal<Organization[]>([]);
   readonly organizationId = signal('');
+  readonly githubStatus = signal<GitHubSetupStatus | null>(null);
   readonly installations = signal<Installation[]>([]);
   readonly importedIds = signal(new Set<string>());
   readonly repositories = signal<Repository[]>([]);
   readonly selectedIds = signal(new Set<string>());
   readonly loading = signal(false);
+  readonly statusLoading = signal(false);
   readonly pending = signal(false);
   readonly error = signal('');
   readonly message = signal('');
@@ -32,7 +35,7 @@ export class RepositoryWorkspace implements OnInit {
         this.organizations.set(items);
         const saved = sessionStorage.getItem('di.github.organization');
         const selected = items.find(item => item.id === saved) ?? items[0];
-        if (selected) { this.organizationId.set(selected.id); this.loadWorkspace(); }
+        if (selected) { this.organizationId.set(selected.id); this.loadSetupStatus(selected.id); }
       },
       error: error => this.error.set(accessError(error)),
     });
@@ -80,6 +83,8 @@ export class RepositoryWorkspace implements OnInit {
 
   loadWorkspace(): void {
     const organizationId = this.organizationId(); if (!organizationId || this.loading()) return;
+    const status = this.githubStatus();
+    if (!status?.configured || !status.canManage) return;
     sessionStorage.setItem('di.github.organization', organizationId);
     this.loading.set(true); this.error.set('');
     this.api.get<Workspace>(`/api/organizations/${organizationId}/github/repositories`)
@@ -87,14 +92,30 @@ export class RepositoryWorkspace implements OnInit {
       .subscribe({ next: data => this.applyWorkspace(data), error: error => this.error.set(accessError(error)) });
   }
 
+  private loadSetupStatus(organizationId: string): void {
+    this.githubStatus.set(null); this.installations.set([]); this.importedIds.set(new Set()); this.repositories.set([]); this.error.set('');
+    this.statusLoading.set(true);
+    this.api.get<GitHubSetupStatus>(`/api/organizations/${organizationId}/github/status`)
+      .pipe(finalize(() => this.statusLoading.set(false)))
+      .subscribe({
+        next: status => {
+          if (this.organizationId() !== organizationId) return;
+          this.githubStatus.set(status);
+          if (status.configured && status.canManage) this.loadWorkspace();
+        },
+        error: error => this.error.set(accessError(error)),
+      });
+  }
+
   chooseOrganization(event: Event): void {
     const id = (event.target as HTMLSelectElement).value;
     this.organizationId.set(id); sessionStorage.setItem('di.github.organization', id);
-    this.installations.set([]); this.selectedIds.set(new Set()); this.loadWorkspace();
+    this.installations.set([]); this.selectedIds.set(new Set()); this.loadSetupStatus(id);
   }
 
   beginInstall(): void {
-    const organizationId = this.organizationId(); if (!organizationId || this.pending()) return;
+    const organizationId = this.organizationId(); const status = this.githubStatus();
+    if (!organizationId || this.pending() || !status?.configured || !status.canManage) return;
     sessionStorage.setItem('di.github.organization', organizationId); this.pending.set(true); this.error.set('');
     this.api.post<{ url: string }>(`/api/organizations/${organizationId}/github/installations`, {})
       .pipe(finalize(() => this.pending.set(false)))
