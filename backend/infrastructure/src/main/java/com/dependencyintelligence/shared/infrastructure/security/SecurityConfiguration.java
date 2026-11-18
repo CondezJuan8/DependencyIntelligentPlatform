@@ -62,7 +62,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.GET, "/api/auth/csrf", "/api/auth/providers", "/api/auth/oauth2/callback/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/providers/*/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/register-invited", "/api/auth/login", "/api/auth/password-reset/request",
-                    "/api/auth/password-reset/confirm", "/api/auth/email-verification/confirm").permitAll()
+                    "/api/auth/password-reset/confirm", "/api/auth/email-verification/confirm", "/api/platform/admission-decisions").permitAll()
                 .requestMatchers("/api/auth/me", "/api/auth/email-verification/request", "/api/auth/providers/**",
                     "/api/organizations", "/api/organizations/**", "/api/platform/**", "/api/account/**").authenticated()
                 .anyRequest().denyAll())

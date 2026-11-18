@@ -1,8 +1,14 @@
 <section class="access" aria-labelledby="action-title">
-  <h2 id="action-title">{{ verification ? 'Verifica tu correo' : 'Elige una contraseña nueva' }}</h2>
-  @if (done()) {
+  <h2 id="action-title">{{ admissionDecision ? 'Decisión de admisión' : verification ? 'Verifica tu correo' : 'Elige una contraseña nueva' }}</h2>
+  @if (admissionDecision && pending()) {
+    <p role="status">Procesando la decisión enviada desde el correo…</p>
+  } @else if (done()) {
+    @if (admissionDecision) {
+      <p class="success" role="status">{{ decisionMessage() }}</p>
+    } @else {
     <p class="success" role="status">{{ verification ? 'Correo verificado correctamente.' : 'Contraseña actualizada. Inicia sesión con tu contraseña nueva.' }}</p>
-  } @else {
+    }
+  } @else if (!admissionDecision) {
     <form #form="ngForm" (ngSubmit)="submit(form)" [attr.aria-busy]="pending()">
       @if (!verification) {
         <mat-form-field appearance="outline">
@@ -19,5 +25,5 @@
     </form>
   }
   @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-  <button class="switch" mat-button type="button" (click)="continue()" [disabled]="pending() || refreshing()">{{ done() ? 'Continuar' : 'Volver al acceso' }}</button>
+  <button class="switch" mat-button type="button" (click)="continue()" [disabled]="pending() || refreshing()">{{ done() ? 'Ir al acceso' : 'Volver al acceso' }}</button>
 </section>

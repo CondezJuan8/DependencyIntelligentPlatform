@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,18 +13,42 @@ import { AccountLinkService } from './account-link.service';
   templateUrl: './account-action.html',
   styleUrl: './access-form.scss',
 })
-export class AccountAction {
+export class AccountAction implements OnInit {
   readonly links = inject(AccountLinkService);
   private readonly api = inject(SessionApiService);
   readonly action = this.links.action()!;
   readonly verification = this.action.kind === 'verify-email';
+  readonly admissionDecision = this.action.kind === 'admission-decision';
   readonly valid = /^[A-Za-z0-9_-]{43}$/.test(this.action.token);
   readonly pending = signal(false);
   readonly refreshing = signal(false);
   readonly done = signal(false);
+  readonly decisionMessage = signal('');
   readonly error = signal(this.valid ? '' : 'El enlace no es válido. Solicita uno nuevo.');
   password = '';
   confirmation = '';
+
+  ngOnInit(): void {
+    if (this.admissionDecision) this.applyAdmissionDecision();
+  }
+
+  private applyAdmissionDecision(): void {
+    if (!this.valid || this.pending()) return;
+    this.pending.set(true);
+    this.error.set('');
+    this.api.post<{ decision: 'APPROVE' | 'REJECT' }>('/api/platform/admission-decisions', { token: this.action.token })
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: result => {
+          this.action.token = '';
+          this.decisionMessage.set(result.decision === 'APPROVE'
+            ? 'Cuenta aprobada. La persona ya puede iniciar sesión.'
+            : 'Solicitud rechazada. No se habilitó el acceso.');
+          this.done.set(true);
+        },
+        error: error => this.error.set(accessError(error)),
+      });
+  }
 
   submit(form: NgForm): void {
     if (!this.valid || this.pending() || this.done() || form.invalid) return;
