@@ -43,7 +43,7 @@ flowchart TD
 
 El equipo limita el alcance del rol; no lo amplía. Un VIEWER con `scan.create` asignado por equipo sigue sin poder solicitar análisis. Para MEMBER/VIEWER, quitar un equipo o sus permisos retira el acceso cuando no existe otro equipo que lo conceda.
 
-El editor admite `repository.read`, `scan.read`, `scan.create`, `document.read`, `document.manage`, `assistant.query`, `impact.create`, `change.simulate`, `change.propose`, `report.read` y `report.export`. Rechaza permisos de gestión de organización/equipos u otros códigos. Los permisos de módulos futuros son configuración; no convierten esos módulos en funciones implementadas. Los endpoints existentes de repositorios/scans ya aplican la intersección; los futuros módulos deberán hacerlo también.
+El editor admite `repository.read`, `repository.manage`, `scan.read`, `scan.create`, `document.read`, `document.manage`, `assistant.query`, `impact.create`, `change.simulate`, `change.propose`, `report.read` y `report.export`. Un OWNER puede dar `repository.manage` a un equipo para un solo repositorio; un MEMBER de ese equipo puede gestionar esa conexión únicamente cuando la autorización incluye el ID de ese repositorio. Las operaciones a nivel organización con repositorio nulo siguen reservadas a OWNER/ADMIN. `ADMIN` continúa siendo administrador de toda la organización. Los permisos de módulos futuros son configuración; no convierten esos módulos en funciones implementadas.
 
 ## Seguridad y entrega de invitaciones
 
@@ -62,7 +62,7 @@ Todas las rutas llevan prefijo `/api/organizations/{organizationId}`, requieren 
 | Método y ruta relativa | Cuerpo / resultado |
 | --- | --- |
 | `GET /access` | Membresía propia, miembros, equipos/asociaciones, repositorios habilitados, catálogo y últimas 100 invitaciones; sin tokens |
-| `POST /invitations` | `{email, role}` → 201, resumen; SMTP |
+| `POST /invitations` | `{email, role, teamId, repositoryId}` → 201, resumen; SMTP. Para administración de un solo repositorio, invitar como MEMBER y después conceder `repository.manage` a su equipo/repositorio. |
 | `POST /invitations/{invitationId}/revoke` | `{}` → 204, revoca si sigue pendiente |
 | `POST /invitations/{invitationId}/accept` | `{token}` → 204, membresía con rol y consumo atómicos |
 | `POST /members/{membershipId}` | `{role, status}` → 204; status ACTIVE/SUSPENDED/LEFT |

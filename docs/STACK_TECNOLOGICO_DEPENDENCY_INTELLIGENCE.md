@@ -25,6 +25,8 @@ El objetivo es definir tecnologías coherentes entre sí, evitar dependencias in
 
 ### Actualización de implementación — 14 de noviembre de 2026
 
+Bloque 23, 18 de noviembre de 2026. V16 expone gestión de repositorio scoped a miembros vía rol base y grant de equipo/repositorio, validada en el adaptador de autorización por recurso. No añade dependencia; se verifica con PostgreSQL antes de activar en Compose.
+
 Bloque GitHub App, 18 de noviembre de 2026. Integración de repositorios con Spring `RestClient`, JCA para JWT/RSA y PKCE, Angular/RxJS existentes, JDBC y estado efímero en memoria. No se añade dependencia ni migración. Permisos de repositorio Contents/Metadata read-only. Instalación/listado/importación de metadatos implementados; faltan credenciales/consentimiento real, descarga de archivos/commits, escáner, webhooks y revisión física en dispositivos. [Guía operativa](GITHUB_REPOSITORIOS.md).
 
 Bloque 13, 16 de noviembre de 2026. Rediseño con Angular/Material/Forms/CDK A11y/RxJS existentes, SVG nativo, Sass/tokens y @defer. Sin nueva dependencia ni fuente/imagen externa. AuthFrame, shell, sidebar/topbar, dashboard y métricas separados; tabla/pestañas/diálogos de organización. Siete comprobaciones directas de navegación y build de producción correctos, 406,37 kB iniciales sin ampliar presupuesto. Revisión visual conjunta pendiente; [criterios de diseño](DISENO_FRONTEND.md).

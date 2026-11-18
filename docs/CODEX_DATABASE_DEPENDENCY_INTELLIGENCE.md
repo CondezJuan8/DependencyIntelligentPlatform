@@ -11,6 +11,8 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
+Bloque 23: V16 agrega únicamente `repository.manage` al rol MEMBER; no crea tablas. El permiso solo resulta efectivo con grant explícito de equipo y repositorio; acciones organizacionales sin repo permanecen restringidas a OWNER/ADMIN. No cambia el conteo del catálogo. Validación de migración/alcance PostgreSQL aún pendiente de ejecutar.
+
 18 de noviembre de 2026, bloque 20: V14 añade asignaciones directas de repositorio, administración de plataforma y su auditoría. V15 añade `target_user_id` y `admission_decision` a `user_access_tokens`, restricciones de coherencia e índice parcial para decisiones por correo de un solo uso; no crea tablas. V15 está aplicada en PostgreSQL local. Catálogo actualizado: 124 tablas de negocio, 87 con FORCE RLS, 218 FK; validación estructural en [database/README.md](database/README.md).
 
 Bloque 11: invitaciones, aceptación, membresías/roles, equipos y permisos por repositorio implementados sobre tablas de V5 y grants/RLS existentes. Cambios y auditoría atómicos; protección del último propietario por bloqueo de organización. Sin migración nueva ni modificaciones de catálogo/diagramas: 121 tablas hasta V13. [Contratos y evidencia](INVITACIONES_EQUIPOS_PERMISOS.md).

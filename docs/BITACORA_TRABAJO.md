@@ -707,3 +707,19 @@ Herramientas: `apply_patch`, PowerShell, Angular CLI 22/Node 24. Sin dependencia
 ### Siguiente paso
 
 Revisar visualmente modo claro/oscuro e inglés en acceso, Dashboard, Organización y perfil; luego completar de forma independiente tema compartido, administración por repositorio, carga local aislada y asignaciones de permisos con autorización y pruebas de persistencia.
+
+## Bloque 23 — Administración limitada a un repositorio
+
+Fecha: 18 de noviembre de 2026. Continuación solicitada por el usuario para permisos de administración de repositorios.
+
+### Cambios
+
+- Se añade V16 para incluir `repository.manage` entre las capacidades del rol MEMBER. El permiso solo es efectivo cuando la persona pertenece a un equipo con ese grant explícito para un repositorio determinado.
+- La autorización con repositorio nulo sigue reservada a OWNER/ADMIN; por eso un permiso scoped no permite gestionar toda la organización ni iniciar una instalación global de GitHub.
+- El catálogo de permisos por equipo ahora incluye `repository.manage`. Se añadió una explicación en Organización: invitar como Miembro al equipo/repositorio y luego conceder el permiso específico; ADMIN sigue teniendo alcance de organización.
+- Sin tablas nuevas ni cambio del número de entidades. Se añade al test de integración una comprobación de que el permiso de miembro no autoriza la operación global.
+- Se actualizan arquitectura, stack, DB, guía de permisos, pendientes y bitácora.
+
+### Verificación y límite
+
+Maven `-DskipTests package` compiló Domain, Application, Infrastructure y todos los fuentes de test; build Angular producción correcto. No se ejecutó la prueba de integración ni se aplicó V16 contra PostgreSQL porque Docker/DB no están disponibles en esta sesión. El build Angular mantiene los avisos: bundle 553,71 kB frente a 500 kB, Organización 4,97 kB/4 kB y Dashboard 4,13 kB/4 kB. La carga de carpetas, tema compartido, permisos directos fuera de equipos y revisión completa del idioma siguen pendientes.

@@ -10,6 +10,10 @@ Application declara `ManageGitHubInstallation`, `GitHubAppGateway`, `GitHubInsta
 
 El callback autenticado valida la instalación contra un token GitHub de usuario de corta vida y luego confirma el App ID con JWT de la App; el token de usuario se descarta. Esto sigue la advertencia de GitHub de no confiar solo en `installation_id` devuelto por Setup URL. Estado atado a usuario/sesión/organización vence a los diez minutos; el almacenamiento del estado es en memoria, así que reiniciar backend invalida un flujo en curso. Solo se persisten instalaciones y metadatos de repositorio seleccionados. Sin esquema/migración nuevo. Configuración, permisos read-only y callbacks en [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
 
+## Administración de un repositorio por un miembro
+
+V16 añade `repository.manage` a los permisos base de MEMBER, pero su concesión efectiva exige membresía activa, pertenencia al equipo autorizado y grant explícito para el repositorio. Para una comprobación con `repositoryId=null` (acciones organizacionales) la consulta solo permite OWNER/ADMIN, por lo que no se convierte en administrador global. La UI invita como MEMBER al equipo/repositorio y el propietario concede `repository.manage` en la pestaña Permisos. ADMIN conserva alcance organizacional.
+
 ## Referencias vigentes y objetivo
 
 Bloque 13 (16/11/2026): rediseño Angular de acceso, shell/dashboard y organización. Reutiliza las APIs existentes; no modifica Domain/Application/Infrastructure del backend ni esquema/migraciones. Estados vacíos para módulos pendientes, sin métricas simuladas. Componentes y revisión en [DISENO_FRONTEND](DISENO_FRONTEND.md).
