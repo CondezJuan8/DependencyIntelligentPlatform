@@ -60,6 +60,13 @@ server:
     include-message: never
     include-stacktrace: never
 app:
+  vulnerability:
+    osv:
+      base-url: ${OSV_API_BASE_URL:https://api.osv.dev}
+      connect-timeout: ${OSV_CONNECT_TIMEOUT:PT5S}
+      read-timeout: ${OSV_READ_TIMEOUT:PT15S}
+      freshness: ${OSV_ASSESSMENT_MAX_AGE:PT24H}
+      batch-size: ${OSV_BATCH_SIZE:100}
   local-repositories:
     storage-root: ${LOCAL_REPOSITORY_STORAGE_ROOT:./data/repositories}
   github:
