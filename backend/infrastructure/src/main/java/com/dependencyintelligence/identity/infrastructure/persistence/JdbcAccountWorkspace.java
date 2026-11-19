@@ -14,7 +14,7 @@ public class JdbcAccountWorkspace implements FindAccountWorkspace {
     public JdbcAccountWorkspace(JdbcTemplate jdbc,TenantTransactions tenants,OrganizationStore organizations,RepositoryPermissionStore permissions){this.jdbc=jdbc;this.tenants=tenants;this.organizations=organizations;this.permissions=permissions;}
     public List<Repository> repositories(UUID user){
         var result=new ArrayList<Repository>();
-        for(var org:organizations.listForUser(user))result.addAll(tenants.execute(org.id(),()->jdbc.query("select id,full_name,default_branch from repositories where organization_id=? and is_enabled order by full_name",(r,n)->new Repository(r.getObject(1,UUID.class),org.id(),org.name(),r.getString(2),r.getString(3)),org.id()).stream().filter(repo->permissions.permits(user,org.id(),repo.id(),"repository.read")).toList()));
+        for(var org:organizations.listForUser(user))result.addAll(tenants.execute(org.id(),()->jdbc.query("select id,full_name,default_branch,provider from repositories where organization_id=? and is_enabled order by full_name",(r,n)->new Repository(r.getObject(1,UUID.class),org.id(),org.name(),r.getString(2),r.getString(3),r.getString(4)),org.id()).stream().filter(repo->permissions.permits(user,org.id(),repo.id(),"repository.read")).toList()));
         return List.copyOf(result);
     }
 }

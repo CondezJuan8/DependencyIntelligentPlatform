@@ -4,6 +4,7 @@ import com.dependencyintelligence.identity.application.exception.AccountMailUnav
 import com.dependencyintelligence.identity.application.port.out.AccountTokenCodec;
 import com.dependencyintelligence.organization.infrastructure.mail.SmtpInvitationDelivery;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
+import com.dependencyintelligence.repository.infrastructure.storage.RepositorySourceService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,7 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
     @Autowired ObjectMapper json;
     @Autowired JdbcTemplate jdbc;
     @Autowired TenantTransactions tenants;
+    @Autowired RepositorySourceService sourceService;
     @Autowired AccountTokenCodec tokens;
     @MockitoSpyBean SmtpInvitationDelivery mail;
 
@@ -118,6 +120,11 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         assertTrue(archive.startsWith(LOCAL_REPOSITORY_STORAGE) && Files.isRegularFile(archive));
         try (var zip = new java.util.zip.ZipInputStream(Files.newInputStream(archive))) {
             assertEquals("pom.xml", zip.getNextEntry().getName());
+        }
+        try (var snapshot = sourceService.prepare(sourceService.locate(org, repository))) {
+            assertEquals("local", snapshot.provider());
+            assertEquals(archive, snapshot.archive());
+            assertEquals(64, snapshot.sha256().length());
         }
         var listing = mvc.perform(get(path(org) + "/repositories/local-folders").session(owner.session()))
             .andExpect(status().isOk()).andReturn();
