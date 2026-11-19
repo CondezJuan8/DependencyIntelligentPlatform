@@ -931,3 +931,17 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Verificación:** build Docker backend/frontend correcto (BUILD SUCCESS; pruebas de módulos ejecutadas sin errores), V21 aplicada, backend/frontend activos, `/health` HTTP 200 en `localhost:8089`. No se probó un repositorio npm real autenticado por el usuario.
 
 **Siguiente paso:** probar un repositorio con `package-lock.json` v2/v3 en Inventario; luego guardar aristas de dependencia, agregar npm al dashboard y conectar avisos OSV con su evidencia.
+
+## Bloque 41 - Catálogo visual unificado del inventario
+
+**Petición:** reorganizar la parte visual para que Inventario sea atractivo, funcional, accesible, entendible y responsive; añadir mejoras necesarias sin inventar capacidades de seguridad.
+
+**Cambios:** se reemplazó la vista que obligaba a pulsar botones separados Maven/npm por una pantalla con una acción coordinada que solicita ambos análisis existentes en paralelo y conserva resultados parciales. El catálogo agrupa por ecosistema + namespace + paquete y anida versiones exactas; expone búsquedas y filtros por ecosistema, tipo directo/transitivo y ámbito. Añade resumen de identidades/versiones/ocurrencias, estados por scanner, llamadas claras a la acción, estado de riesgo sin evaluar y procedencia desplegable por ocurrencia (origen, SHA-256, commit, manifiesto y fecha). La vista usa etiquetas visibles, estados anunciados a lectores de pantalla, foco de teclado, `details/summary` accesible y layout mobile-first con tokens de color existentes.
+
+**Archivos y alcance:** `frontend/src/app/features/inventory/inventory-workspace.ts`, su plantilla y SCSS, traducciones ES/EN; documentación del contexto maestro, arquitectura, stack, diseño visual y pendientes. Sin cambios Domain/Application/Infrastructure, endpoints, base de datos, permisos ni dependencias externas. Se actualizó el estado de pendientes: UI agregada lista en código; aristas de grafo, más cobertura/resolución, agregación multi-repositorio, npm en dashboard y OSV continúan pendientes.
+
+**Herramientas y tecnologías usadas:** Angular 22, TypeScript, RxJS `forkJoin`, HTML semántico, SCSS, tokens oficiales y APIs Maven/npm existentes. No se implementó una dependencia nueva.
+
+**Verificación:** build de producción Angular mediante `docker compose build frontend` correcto. El chunk de Inventario sigue lazy; sus estilos se separaron en dos hojas encapsuladas (4,32 KB y 5,51 KB), ambas bajo el error máximo de 8 KB. Permanecen avisos de presupuesto ya aplicables al producto: bundle inicial 565,21 KB frente a 500 KB de aviso y estilos grandes de otras pantallas. Se actualizó únicamente el frontend con `docker compose up -d --no-deps --force-recreate frontend`; `/` respondió HTTP 200 y el contenedor quedó activo en `127.0.0.1:8089`. No se ejecutaron pruebas automatizadas; el backend no cambió.
+
+**Siguiente paso:** revisar Inventario en escritorio/móvil y el recorrido Maven + npm con un repositorio real; después priorizar relaciones transitivas verificables y la agregación npm del dashboard.

@@ -1,6 +1,12 @@
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 
+### Bloque 41 - Catálogo visual unificado del inventario
+
+La pantalla Inventario presenta Maven y npm en una sola vista por repositorio: un botón ejecuta ambos analizadores disponibles y conserva resultados parciales con estado por ecosistema. Los paquetes se agrupan por ecosistema, namespace y nombre; cada identidad muestra sus versiones exactas y ocurrencias por archivo/ámbito. Incluye búsqueda, filtros por ecosistema/tipo/ámbito, resumen de conteos, procedencia desplegable con fuente/hash/commit, estados de carga/error/vacío y diseño mobile-first accesible con teclado y lectores de pantalla.
+
+La interfaz usa las APIs Maven/npm existentes y la paleta/tokens del producto. No cambia el esquema ni agrega dependencias. El riesgo aparece explícitamente como **sin evaluar**: OSV no está conectado. El catálogo se limita a los últimos snapshots Maven y npm del repositorio elegido; la cobertura de parsers, las relaciones transitivas y la agregación entre repositorios siguen pendientes. Ver [diseño frontend](DISENO_FRONTEND.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
+
 **Fecha de elaboración:** 12 de noviembre de 2026  
 **Propósito:** conservar el contexto, decisiones, ideas, requisitos, arquitectura, pantallas, investigación pendiente y próximos pasos conversados sobre el proyecto Dependency Intelligence, para continuar el trabajo desde otra cuenta de ChatGPT.
 

@@ -1,5 +1,11 @@
 # Paleta y criterios de revisión del frontend
 
+## Bloque 41 - Inventario unificado, mobile-first y accesible
+
+La vista agrupa las versiones de Maven y npm en un catálogo con búsqueda y filtros por ecosistema, tipo directo/transitivo y ámbito. Una sola acción analiza ambos formatos y presenta resultados parciales indicando el estado de cada scanner. Cada ocurrencia conserva acceso desplegable a la fuente del ZIP, hash, commit cuando existe, manifiesto y fecha.
+
+El riesgo no se colorea como seguro o vulnerable: aparece como **sin evaluar** hasta integrar OSV. Los indicadores cuentan paquetes/ versiones exactos y ocurrencias detectadas, sin mezclarlos entre ecosistemas. Controles con etiqueta persistente, foco visible, estados anunciados, `details/summary` operables por teclado, colores semánticos con texto y cortes responsive desde celular completan la pantalla. El bloque no agrega íconos externos, fuentes, dependencias ni colores fuera de los tokens existentes.
+
 ## Rediseño basado en referencias del usuario — bloque 13
 
 16 de noviembre de 2026. El usuario entregó tres imágenes de organización, login y dashboard, y delegó el diseño del registro. Se toma su composición visual como referencia, manteniendo español, la paleta oficial y los contratos existentes. La imagen no autoriza planes comerciales, datos de ejemplo presentados como reales ni funciones nuevas de GitHub/IA.

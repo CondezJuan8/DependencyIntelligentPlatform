@@ -161,3 +161,9 @@ Para ejecutar el artefacto, aprovisionar el login y configurar credenciales runt
 ## Estado al bloque 26 (18 de noviembre de 2026)
 
 Se implementaron preferencias compartidas de tema e idioma por organizacion mediante V18, API y Angular. Base local en V18: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. Ver `docs/database/implementation-report.md` y `docs/PENDIENTES.md`. Build frontend/backend correcto; la prueba focalizada de integracion sigue pendiente tras fallo DNS de Maven Central en el contenedor aislado.
+
+## Bloque 41 - Vista unificada de inventario
+
+El frontend consume las consultas Maven/npm ya existentes de forma paralela y combina los últimos snapshots por repositorio. La acción de análisis dispara ambos casos de uso y tolera que solo uno encuentre un manifiesto compatible; los fallos de autorización o servidor se presentan por ecosistema. La agregación de presentación usa la identidad compuesta `ecosistema + namespace + nombre` y agrupa por versión exacta, preservando ocurrencias y su manifiesto/ámbito.
+
+La vista no reemplaza los casos de uso ni inventa un scanner genérico. Los adapters Domain/Application/Infrastructure, la detección adicional de ecosistemas, aristas transitivas, análisis OSV y vistas multi-repositorio quedan como capacidades backend pendientes. No hubo cambios de esquema, migraciones, permisos ni dependencias en este bloque.

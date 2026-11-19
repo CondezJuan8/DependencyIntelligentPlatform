@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 40 (lector npm y lockfile).
+Actualizado: 19 de noviembre de 2026, bloque 41 (catálogo visual unificado de Inventario).
 
-**Estado actual:** GitHub y carpeta local ya se importan y descargan en `localhost:8089`. API y UI analizan POM Maven (directas con versión explícita) y package-lock npm v2/v3 (versiones instaladas directas/transitivas). Dashboard resume Maven y repositorios; falta agregar conteo npm. Falta validar con un repositorio npm real y revisar visualmente. Maven transitivo/herencia/BOM siguen pendientes.
+**Estado actual:** GitHub y carpeta local se importan y descargan en `localhost:8089`. La vista Inventario ahora analiza Maven y npm con una acción, agrega identidades/ versiones por ecosistema, búsqueda y filtros, muestra estados parciales y procedencia; el riesgo se indica sin evaluar hasta conectar OSV. Se mantiene la cobertura actual del POM explícito y package-lock v2/v3. Pendientes: revisar visualmente el nuevo catálogo, agregar npm al resumen del dashboard, mejorar resolución Maven y aristas del grafo, validar con más repositorios y conectar OSV.
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -58,9 +58,9 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 | Identidad y organización | Backend/UI de invitaciones y gestión entregados en bloque 11; pendiente revisión conjunta y paginación de historiales de invitaciones grandes | Completar aceptación visual/operativa sin considerar pendiente el código ya probado |
 | Integración de repositorios GitHub | Instalación de App, verificación OAuth/PKCE, listado e importación de metadatos | Configurar y verificar instalación real, revocar/desconectar, leer commits/archivos y procesar eventos idempotentes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
-| SBOM y ecosistemas | Carga HTTP, scanner aislado Maven/npm, cobertura del parser y relaciones con evidencia | Procesar proyectos reales de ambos ecosistemas y guardar componentes/aristas sin inferencias falsas |
+| SBOM y ecosistemas | Carga, parsers Maven/npm con cobertura ampliada, scanner aislado y relaciones con evidencia | Procesar proyectos reales y guardar componentes/aristas verificables sin inferencias |
 | Vulnerabilidades | Adaptador OSV, coincidencia por versión, evidencia y hallazgos | Mostrar vulnerabilidades reproducibles del snapshot analizado |
-| Inventario y grafo | API/UI con búsqueda, filtros, paginación, relaciones y rutas de riesgo | Navegar dependencias y distinguir directa/transitiva solo cuando exista evidencia |
+| Inventario y grafo | Catálogo UI agregado por repositorio con búsqueda/filtros implementado; API de grafo, paginación multi-repositorio, aristas y rutas pendientes | Navegar paquetes/versiones y relaciones con evidencia trazable; directa/transitiva solo cuando la fuente lo respalde |
 | Historial y comparación | Consultas por commit y comparación de snapshots del mismo repositorio | Identificar añadidos, eliminados y actualizados con procedencia |
 | Recomendaciones | Versiones candidatas/corregidas, riesgo y evidencia documental | Proponer cambios explicables y pruebas pertinentes |
 | Impacto y primer piloto | ADD/UPDATE/REMOVE/REPLACE, estados KNOWN/POTENTIAL/VALIDATED, pruebas aisladas y propuesta de PR aprobable | Ejecutar validación aislada y presentar una propuesta revisable; acciones sobre repositorios sujetas a aprobación en el producto |
