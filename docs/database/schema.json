@@ -15973,6 +15973,279 @@
         },
         {
             "rls": true,
+            "name": "scan_vulnerability_assessments",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "default": "gen_random_uuid()",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "organization_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "scan_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "scan_component_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "source",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "assessment_status",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "checked_at",
+                    "type": "timestamp with time zone",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "source_modified_at",
+                    "type": "timestamp with time zone",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "response_sha256",
+                    "type": "text",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "hash_basis",
+                    "type": "text",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "advisories",
+                    "type": "jsonb",
+                    "default": "'[]'::jsonb",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "failure_code",
+                    "type": "text",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                }
+            ],
+            "comment": "vulnerability: Append-only per-scan-component OSV assessment with tenant-scoped canonical JSON evidence.",
+            "indexes": [
+                {
+                    "name": "ix_scan_vulnerability_assessment_latest",
+                    "definition": "CREATE INDEX ix_scan_vulnerability_assessment_latest ON public.scan_vulnerability_assessments USING btree (organization_id, scan_id, scan_component_id, checked_at DESC, id DESC)"
+                },
+                {
+                    "name": "scan_vulnerability_assessments_organization_id_id_key",
+                    "definition": "CREATE UNIQUE INDEX scan_vulnerability_assessments_organization_id_id_key ON public.scan_vulnerability_assessments USING btree (organization_id, id)"
+                },
+                {
+                    "name": "scan_vulnerability_assessments_pkey",
+                    "definition": "CREATE UNIQUE INDEX scan_vulnerability_assessments_pkey ON public.scan_vulnerability_assessments USING btree (id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "schema_migration_access",
+                    "check": "true",
+                    "roles": [
+                        "dependency_migrator"
+                    ],
+                    "using": "true",
+                    "command": "ALL"
+                },
+                {
+                    "name": "tenant_isolation",
+                    "check": "(organization_id = app_private.current_organization_id())",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "(organization_id = app_private.current_organization_id())",
+                    "command": "ALL"
+                }
+            ],
+            "triggers": [
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "f",
+                    "name": "scan_vulnerability_assessment_organization_id_scan_id_scan_fkey",
+                    "columns": [
+                        "organization_id",
+                        "scan_id",
+                        "scan_component_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, scan_id, scan_component_id) REFERENCES scan_components(organization_id, scan_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "scan_components",
+                    "referenced_columns": [
+                        "organization_id",
+                        "scan_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_advisories_check",
+                    "columns": [
+                        "advisories"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((jsonb_typeof(advisories) = 'array'::text))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_assessment_status_check",
+                    "columns": [
+                        "assessment_status"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((assessment_status = ANY (ARRAY['MATCHED'::text, 'NO_KNOWN_ADVISORIES'::text, 'INCOMPLETE'::text, 'UNAVAILABLE'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_check",
+                    "columns": [
+                        "assessment_status",
+                        "failure_code"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((assessment_status = ANY (ARRAY['UNAVAILABLE'::text, 'INCOMPLETE'::text])) = (failure_code IS NOT NULL)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_check1",
+                    "columns": [
+                        "response_sha256",
+                        "hash_basis"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((response_sha256 IS NULL) = (hash_basis IS NULL)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_failure_code_check",
+                    "columns": [
+                        "failure_code"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((failure_code IS NULL) OR (failure_code ~ '^[A-Z0-9_]{1,80}$'::text)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_hash_basis_check",
+                    "columns": [
+                        "hash_basis"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((hash_basis IS NULL) OR (hash_basis = 'CANONICAL_JSON'::text)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "u",
+                    "name": "scan_vulnerability_assessments_organization_id_id_key",
+                    "columns": [
+                        "organization_id",
+                        "id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "UNIQUE (organization_id, id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "p",
+                    "name": "scan_vulnerability_assessments_pkey",
+                    "columns": [
+                        "id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scan_vulnerability_assessments_response_sha256_check",
+                    "columns": [
+                        "response_sha256"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((response_sha256 IS NULL) OR (response_sha256 ~ '^[a-f0-9]{64}$'::text)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "scan_vulnerability_assessments_source_fkey",
+                    "columns": [
+                        "source"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (source) REFERENCES vulnerability_sources(code) ON DELETE RESTRICT",
+                    "referenced_table": "vulnerability_sources",
+                    "referenced_columns": [
+                        "code"
+                    ]
+                }
+            ]
+        },
+        {
+            "rls": true,
             "name": "scan_vulnerability_findings",
             "columns": [
                 {
@@ -16399,6 +16672,27 @@
                     "default": null,
                     "nullable": true,
                     "generated": false
+                },
+                {
+                    "name": "source_sha256",
+                    "type": "character varying(64)",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "manifest_count",
+                    "type": "integer",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "unresolved_count",
+                    "type": "integer",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
                 }
             ],
             "comment": null,
@@ -16480,6 +16774,7 @@
                         "origin",
                         "git_reference",
                         "repository_commit_id",
+                        "source_sha256",
                         "scanner_name",
                         "scanner_version",
                         "status",
@@ -16487,7 +16782,7 @@
                     ],
                     "on_delete": null,
                     "validated": true,
-                    "definition": "CHECK (((((origin)::text = 'REPOSITORY_SCAN'::text) AND (git_reference IS NOT NULL)) OR (((origin)::text = 'SBOM_IMPORT'::text) AND (git_reference IS NULL) AND (repository_commit_id IS NULL) AND (scanner_name IS NULL) AND (scanner_version IS NULL) AND ((status)::text = 'COMPLETED'::text) AND (trigger_type = 'IMPORT'::text))))",
+                    "definition": "CHECK (((((origin)::text = 'REPOSITORY_SCAN'::text) AND (git_reference IS NOT NULL)) OR (((origin)::text = 'LOCAL_UPLOAD_SCAN'::text) AND (git_reference IS NULL) AND (repository_commit_id IS NULL) AND (source_sha256 IS NOT NULL)) OR (((origin)::text = 'SBOM_IMPORT'::text) AND (git_reference IS NULL) AND (repository_commit_id IS NULL) AND (scanner_name IS NULL) AND (scanner_version IS NULL) AND ((status)::text = 'COMPLETED'::text) AND (trigger_type = 'IMPORT'::text))))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -16625,6 +16920,18 @@
                     "referenced_columns": null
                 },
                 {
+                    "kind": "c",
+                    "name": "scans_manifest_count_check",
+                    "columns": [
+                        "manifest_count"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((manifest_count >= 0))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
                     "kind": "u",
                     "name": "scans_organization_id_id_key",
                     "columns": [
@@ -16661,7 +16968,7 @@
                     ],
                     "on_delete": null,
                     "validated": true,
-                    "definition": "CHECK (((origin)::text = ANY ((ARRAY['REPOSITORY_SCAN'::character varying, 'SBOM_IMPORT'::character varying])::text[])))",
+                    "definition": "CHECK (((origin)::text = ANY ((ARRAY['REPOSITORY_SCAN'::character varying, 'LOCAL_UPLOAD_SCAN'::character varying, 'SBOM_IMPORT'::character varying])::text[])))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -16674,6 +16981,18 @@
                     "on_delete": null,
                     "validated": true,
                     "definition": "PRIMARY KEY (id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scans_source_sha256_check",
+                    "columns": [
+                        "source_sha256"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((source_sha256)::text ~ '^[a-f0-9]{64}$'::text))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -16698,6 +17017,18 @@
                     "on_delete": null,
                     "validated": true,
                     "definition": "CHECK ((trigger_type = ANY (ARRAY['MANUAL'::text, 'WEBHOOK'::text, 'SCHEDULED'::text, 'IMPORT'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "scans_unresolved_count_check",
+                    "columns": [
+                        "unresolved_count"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((unresolved_count >= 0))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -19358,5 +19689,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "19"
+    "latest_migration": "23"
 }

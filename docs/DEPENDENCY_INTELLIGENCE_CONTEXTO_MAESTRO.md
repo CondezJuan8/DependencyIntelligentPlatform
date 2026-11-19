@@ -1,11 +1,11 @@
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 
-### Bloque 41 - Catálogo visual unificado del inventario
+### Bloque 42 - Consulta de vulnerabilidades OSV por versión
 
-La pantalla Inventario presenta Maven y npm en una sola vista por repositorio: un botón ejecuta ambos analizadores disponibles y conserva resultados parciales con estado por ecosistema. Los paquetes se agrupan por ecosistema, namespace y nombre; cada identidad muestra sus versiones exactas y ocurrencias por archivo/ámbito. Incluye búsqueda, filtros por ecosistema/tipo/ámbito, resumen de conteos, procedencia desplegable con fuente/hash/commit, estados de carga/error/vacío y diseño mobile-first accesible con teclado y lectores de pantalla.
+La pantalla Inventario presenta Maven y npm en una sola vista por repositorio: un botón ejecuta ambos analizadores y después evalúa sus versiones exactas con OSV. Los paquetes se agrupan por ecosistema, namespace y nombre; cada identidad muestra versiones exactas y ocurrencias por archivo/ámbito. Incluye búsqueda, filtros, conteos, procedencia de fuente/hash/commit y estados accesibles. El bloque 42 agrega avisos y evidencia con estado fresco/parcial/no disponible; detalles y límites en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
-La interfaz usa las APIs Maven/npm existentes y la paleta/tokens del producto. No cambia el esquema ni agrega dependencias. El riesgo aparece explícitamente como **sin evaluar**: OSV no está conectado. El catálogo se limita a los últimos snapshots Maven y npm del repositorio elegido; la cobertura de parsers, las relaciones transitivas y la agregación entre repositorios siguen pendientes. Ver [diseño frontend](DISENO_FRONTEND.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
+La interfaz usa los analizadores Maven/npm y consulta OSV por versiones exactas. V22/V23 guardan evidencia tenant-scoped append-only, preservando la diferencia entre sin avisos conocidos y fallo. La consulta OSV no garantiza cobertura total ni produce todavía rangos deterministas, fixes, grafo o recomendaciones. La cobertura de parsers, las relaciones transitivas y la agregación entre repositorios siguen pendientes. Ver [diseño frontend](DISENO_FRONTEND.md), [OSV](OSV_VULNERABILIDADES.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
 
 **Fecha de elaboración:** 12 de noviembre de 2026  
 **Propósito:** conservar el contexto, decisiones, ideas, requisitos, arquitectura, pantallas, investigación pendiente y próximos pasos conversados sobre el proyecto Dependency Intelligence, para continuar el trabajo desde otra cuenta de ChatGPT.
@@ -867,6 +867,8 @@ Endpoints de referencia que se mencionaron:
 La consulta requiere datos adecuados de paquete, ecosistema y versión. Para el MVP conviene agrupar consultas con `querybatch`, controlar lotes, manejar respuestas parciales y evitar consultas redundantes.
 
 La respuesta de OSV debe mapearse a un modelo interno. No se debe acoplar el dominio al JSON externo.
+
+**Implementación actual (bloque 42):** Application expone una evaluación por repositorio y Infrastructure consulta versiones exactas de Maven/npm en lotes. La evidencia cruda se conserva tenant-scoped en V22; el inventario muestra aviso, consulta sin avisos conocidos, resultado incompleto/indisponible y datos desactualizados. Esta consulta todavía no representa ingestión del catálogo público ni análisis de rangos, hallazgo normalizado, versiones corregidas, recomendación, grafo ni cobertura completa. La ausencia de coincidencias OSV no demuestra que un paquete sea seguro. Detalle y verificación: [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
 ## 7.4 SBOM y cdxgen
 

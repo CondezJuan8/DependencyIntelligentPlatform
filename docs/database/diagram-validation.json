@@ -1,7 +1,7 @@
 {
-  "tables": 127,
-  "tenant_tables": 90,
-  "foreign_keys": 225,
+  "tables": 128,
+  "tenant_tables": 91,
+  "foreign_keys": 227,
   "native_diagrams": 7,
   "validated_unique_ids": true,
   "validated_bindings": true,

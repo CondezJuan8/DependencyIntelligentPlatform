@@ -8,6 +8,10 @@ Actualización del bloque 20 (18/11/2026): la aprobación/rechazo inmediato reut
 **Fecha:** 13 de noviembre de 2026  
 **Estado:** Propuesta consolidada para aprobación del equipo  
 
+### Actualización del bloque 42 — consulta OSV
+
+Spring `RestClient` con JDK `HttpClient`, `POST /v1/querybatch`, lectura de avisos OSV y `ObjectMapper`; Java `MessageDigest` SHA-256; Application/Domain Java puros; persistencia JDBC/PostgreSQL con Flyway V22; Angular 22/TypeScript/SCSS para resultados. La configuración OSV no requiere credenciales y los timeouts, lote y antigüedad máxima son configurables. No se agregó dependencia de producto. Resultado del build, pruebas mínimas y estado de migración en la [bitácora](BITACORA_TRABAJO.md) y [documento OSV](OSV_VULNERABILIDADES.md).
+
 ### Actualización del bloque 41 - Inventario visual unificado
 
 Angular 22, TypeScript, señales, RxJS `forkJoin`, HTML semántico y SCSS con los tokens existentes. La UI reutiliza las APIs Maven/npm, agrupa resultados por ecosistema/nombre/versión y muestra procedencia de los snapshots. No se añadió paquete npm, API nueva ni migración. La verificación de build queda registrada en la bitácora.
@@ -52,13 +56,13 @@ Actualización del bloque 06, 15 de noviembre de 2026. Acceso local en Spring Se
 Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El objetivo vigente es el producto completo listo para usar, por fases, primero local y después servidor. El plan anterior de demo/50 horas deja de limitar el alcance o la aceptación. Decisiones y pendientes: `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; diseño database vigente: `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md`.
 
 - Acceso confirmado: correo/contraseña, Google y GitHub; equipos y permisos por repositorio en el primer piloto. La identidad GitHub no sustituye la autorización/instalación para acceder a repositorios.
-- Ecosistemas del producto: Java/Maven y JavaScript/npm. El soporte actual del parser solo cubre el subconjunto Maven del ejemplo.
+- Ecosistemas de análisis activos en el bloque 42: Java/Maven explícito y JavaScript/npm package-lock v2/v3; sus versiones exactas se evalúan en OSV. Se mantiene pendiente ampliar la resolución y cobertura.
 - IA de la plataforma: Gemini. Embeddings: Ollama. Modelo, versión, dimensión y límites concretos se verifican al implementar los adaptadores; no se incorporan librerías por anticipado.
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
 - Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
-- Núcleo database V1-V19 con 127 tablas, 90 con RLS forzado y 225 FK. V18 configura tema/idioma compartidos; V19 guarda metadatos de repositorios locales. Catálogo y siete diagramas regenerados desde PostgreSQL.
-- Importación local usa `MultipartFile`, Java ZIP/I/O y volumen Docker privado `repository_data`; 100 MiB/2.000 archivos, sin nueva dependencia. No hay worker de análisis conectado aún.
+- Núcleo database V1-V23 con 128 tablas, 91 con RLS forzado y 227 FK. V18 configura tema/idioma; V19 guarda repositorios locales; V22/V23 conservan evaluaciones OSV tenant-scoped append-only. Catálogo y siete diagramas regenerados desde PostgreSQL.
+- Importación local usa `MultipartFile`, Java ZIP/I/O y volumen Docker privado `repository_data`; 100 MiB/2.000 archivos, sin nueva dependencia. Maven/npm se analizan en petición; workers aislados con progreso/reintentos siguen pendientes.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
 - Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.

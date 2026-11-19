@@ -73,6 +73,7 @@ PURPOSES = {
     'sbom_documents': ('scan', 'Procedencia de SBOM, antes sbom_imports; archivo retenido opcional, nunca inventado.'),
     'sbom_external_references': ('scan', 'Referencias externas asociadas al documento SBOM.'),
     'scan_components': ('scan', 'Aparición de una versión dentro de un snapshot, con bom_ref local.'),
+    'scan_vulnerability_assessments': ('vulnerability', 'Evaluación exacta por versión y snapshot con evidencia OSV tenant-scoped, estado de fallo y frescura.'),
     'dependency_edges': ('scan', 'Arista entre dos apariciones del mismo snapshot; no demuestra comunicación runtime.'),
     'scan_comparisons': ('scan', 'Comparación reproducible entre snapshots distintos del mismo repositorio.'),
     'scan_component_changes': ('scan', 'Resultado derivado/persistido de comparación por paquete y versiones.'),

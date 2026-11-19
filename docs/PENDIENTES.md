@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 41 (catálogo visual unificado de Inventario).
+Actualizado: 19 de noviembre de 2026, bloque 42 (evaluación de vulnerabilidades OSV).
 
-**Estado actual:** GitHub y carpeta local se importan y descargan en `localhost:8089`. La vista Inventario ahora analiza Maven y npm con una acción, agrega identidades/ versiones por ecosistema, búsqueda y filtros, muestra estados parciales y procedencia; el riesgo se indica sin evaluar hasta conectar OSV. Se mantiene la cobertura actual del POM explícito y package-lock v2/v3. Pendientes: revisar visualmente el nuevo catálogo, agregar npm al resumen del dashboard, mejorar resolución Maven y aristas del grafo, validar con más repositorios y conectar OSV.
+**Estado actual:** GitHub y carpeta local se importan y descargan en `localhost:8089`. Inventario analiza Maven y npm, agrupa identidades/versiones, conserva procedencia y consulta OSV para cada versión exacta. La UI diferencia avisos, ausencia de avisos conocidos, resultado parcial, indisponibilidad y evidencia desactualizada. La revisión visual sigue pendiente; también npm en dashboard, resolución Maven, aristas del grafo y validación con más repositorios. El estado y límites OSV están en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -17,7 +17,7 @@ Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organiza
 
 - Bootstrap inicial seguro implementado: comando interactivo local sin endpoint HTTP, transaccion de un solo uso, restriccion a base sin usuarios/organizaciones/admins, hash PBKDF2, cuenta OWNER aprobada/verificada y auditoria. Compose ya cuenta con un administrador activo. Ver [ACCESO_LOCAL](ACCESO_LOCAL.md).
 
-- Backend separado en Domain, Application e Infrastructure; database V1-V19 aplicada y verificada en PostgreSQL local: 127 tablas de negocio, 90 con FORCE RLS y 225 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido; V19 registra ZIP de fuentes locales privados.
+- Backend separado en Domain, Application e Infrastructure; database V1-V23 aplicada y verificada en PostgreSQL local: 128 tablas de negocio, 91 con FORCE RLS y 227 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido; V19 registra ZIP privado; V22/V23 guardan evidencia OSV append-only.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
 - Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
@@ -39,7 +39,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
 - [x] **GitHub App real en escritorio local:** OAuth/PKCE completado en `localhost:8089`, instalación de `CondezJuan8` activa en Dinamita, dos repositorios importados y descarga ZIP confirmada por el usuario. Queda pendiente revisión en móvil/otro dispositivo y automatizar sincronización ante cambios de selección en GitHub.
-- [x] **Arranque Compose y migraciones:** Flyway valida V1-V19; version V19 con 127 tablas, 90 FORCE RLS y 225 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
+- [x] **Arranque Compose y migraciones:** Flyway valida V1-V23; V23 con 128 tablas, 91 FORCE RLS y 227 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
 Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acceso en [ACCESO_LOCAL](ACCESO_LOCAL.md), correo en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md) y revisión de colores en [DISENO_FRONTEND](DISENO_FRONTEND.md). Nunca escribir secretos en este archivo ni enviarlos por chat.
@@ -59,7 +59,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 | Integración de repositorios GitHub | Instalación de App, verificación OAuth/PKCE, listado e importación de metadatos | Configurar y verificar instalación real, revocar/desconectar, leer commits/archivos y procesar eventos idempotentes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
 | SBOM y ecosistemas | Carga, parsers Maven/npm con cobertura ampliada, scanner aislado y relaciones con evidencia | Procesar proyectos reales y guardar componentes/aristas verificables sin inferencias |
-| Vulnerabilidades | Adaptador OSV, coincidencia por versión, evidencia y hallazgos | Mostrar vulnerabilidades reproducibles del snapshot analizado |
+| Vulnerabilidades | Consulta OSV por versión exacta, snapshots con evidencia tenant-scoped e interfaz de avisos/estados implementados en bloque 42. Falta validación en vivo con un repositorio real y cobertura funcional de más ecosistemas | Confirmar aviso, resultado vacío, error y frescura con respuestas OSV en un repositorio del usuario; conservar límites de cobertura visibles |
 | Inventario y grafo | Catálogo UI agregado por repositorio con búsqueda/filtros implementado; API de grafo, paginación multi-repositorio, aristas y rutas pendientes | Navegar paquetes/versiones y relaciones con evidencia trazable; directa/transitiva solo cuando la fuente lo respalde |
 | Historial y comparación | Consultas por commit y comparación de snapshots del mismo repositorio | Identificar añadidos, eliminados y actualizados con procedencia |
 | Recomendaciones | Versiones candidatas/corregidas, riesgo y evidencia documental | Proponer cambios explicables y pruebas pertinentes |

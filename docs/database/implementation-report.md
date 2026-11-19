@@ -7,6 +7,10 @@
 Build backend y Angular correctos. La IT focalizada no se completo: el contenedor Maven no pudo resolver Maven Central por DNS. Requiere repeticion cuando la red Maven funcione. Compose backend/frontend activos y health UP; base, volumen y Mailpit no se reiniciaron.
 # Estado real de implementación de la base de datos
 
+## Evaluación OSV por versión V22/V23, bloque 42
+
+19 de noviembre de 2026. Flyway aplicó V22 y V23 al PostgreSQL local sin reiniciar la base ni tocar sus volúmenes. El catálogo actual contiene 128 tablas de negocio, 91 con ENABLE+FORCE RLS y 227 FK. `scan_vulnerability_assessments` queda tenant-scoped y enlazada a `scan_components`; la nueva tabla confirma ambos flags RLS activos. V22 conserva snapshots de respuesta y error por componente/versión; V23 deja al runtime solo leer e insertar y mantiene el catálogo público separado. La evaluación y la API se describen en [OSV_VULNERABILIDADES](../OSV_VULNERABILIDADES.md).
+
 ## Repositorios locales V19, bloque 29
 
 18 de noviembre de 2026. Flyway aplicó V19 al PostgreSQL local y conservó el volumen existente. `local_repository_sources` registra tenant, repositorio, llave privada, SHA-256, tamaño ZIP, número de archivos y membresía de carga; V19 habilita FORCE RLS/privilegios runtime. Catálogo estructural: 127 tablas de negocio, 90 con FORCE RLS y 225 FK. `schema.json`, diccionario y diagramas regenerados desde PostgreSQL; IDs/bindings únicos y todas las FK cubiertas. No se exportaron filas de negocio. La persistencia de bytes va al volumen Compose `repository_data`, no a PostgreSQL.

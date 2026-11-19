@@ -26,6 +26,10 @@ V17 agrega `member_repository_permissions` para grants directos por miembro/repo
 
 V16 añade `repository.manage` a los permisos base de MEMBER, pero su concesión efectiva exige membresía activa, pertenencia al equipo autorizado y grant explícito para el repositorio. Para una comprobación con `repositoryId=null` (acciones organizacionales) la consulta solo permite OWNER/ADMIN, por lo que no se convierte en administrador global. La UI invita como MEMBER al equipo/repositorio y el propietario concede `repository.manage` en la pestaña Permisos. ADMIN conserva alcance organizacional.
 
+## Vulnerabilidades por versión — bloque 42
+
+Application define `AssessRepositoryVulnerabilities`, los DTO internos y el puerto `OsvVulnerabilityGateway`; Domain contiene solo el estado de evaluación. Infrastructure adapta OSV mediante consultas versionadas por lotes y obtiene detalles de avisos por su identificador. El adaptador PostgreSQL escribe snapshots tenant-scoped en V22 con evidencia JSON/hash y estados distintos para hallazgos, respuesta sin avisos, incompletitud y fallo; V23 limita el rol runtime a inserción/lectura append-only. La API autoriza el repositorio antes de invocar el caso de uso; la red OSV se consulta fuera de esa transacción. Angular carga la evidencia vigente y puede solicitar otra evaluación desde Inventario. OSV no escribe el catálogo público ni resuelve rangos por heurísticas propias. Contratos y límites en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
+
 ## Referencias vigentes y objetivo
 
 Bloque 13 (16/11/2026): rediseño Angular de acceso, shell/dashboard y organización. Reutiliza las APIs existentes; no modifica Domain/Application/Infrastructure del backend ni esquema/migraciones. Estados vacíos para módulos pendientes, sin métricas simuladas. Componentes y revisión en [DISENO_FRONTEND](DISENO_FRONTEND.md).
@@ -34,7 +38,7 @@ El objetivo es el producto completo listo para usar por fases, local primero y s
 
 Las decisiones confirmadas incluyen acceso local/Google/GitHub, Maven/npm, equipos/permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto. IA del producto: Gemini; embeddings: Ollama. Codex no se integra ni se agenda como proveedor hasta nueva instrucción del usuario.
 
-Los modulos describen codigo existente. Database alcanza V19: 127 tablas, 90 FORCE RLS, 225 FK. El flujo local guarda la carpeta en un ZIP privado, ligado a un repositorio local y autorizado por `repository.manage`; el acceso de equipo/miembro a ese repo usa la autorizacion existente. Estado en [implementation-report](database/implementation-report.md).
+Los módulos describen código existente. Database alcanza V23: 128 tablas de negocio, 91 con FORCE RLS y 227 FK. El flujo local guarda la carpeta en un ZIP privado, ligado a un repositorio local y autorizado por `repository.manage`; el acceso de equipo/miembro a ese repo usa la autorización existente. OSV añade snapshots por versión en V22 y los mantiene append-only en V23. Estado en [implementation-report](database/implementation-report.md).
 
 ### Integraciones que se deben separar
 
