@@ -152,8 +152,12 @@
                                 <li><a [href]="advisory.url" target="_blank" rel="noopener noreferrer">{{ advisory.id }}<span class="visually-hidden"> (abre en una pestaña nueva)</span></a>
                                   <span class="severity" [class]="'severity severity-' + advisory.severity.toLowerCase()">{{ advisory.severity }}</span>
                                   @if (advisory.summary) { <p>{{ advisory.summary }}</p> }
-                                  @if (advisory.cvssVector) { <small>CVSS: {{ advisory.cvssVector }}</small> }
-                                  @if (advisory.references.length > 0) { <details><summary>Fuentes y referencias</summary><ul>@for (reference of advisory.references; track reference) { <li><a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a></li> }</ul></details> }
+                                  <div class="advisory-explanation"><strong>En palabras simples</strong><p>{{ advisoryExplanation(advisory) }}</p><strong>Qué puedes hacer</strong><p>{{ advisoryAction(advisory) }}</p>
+                                    @if (fixedVersions(advisory); as fixes) { @if (fixes.length > 0) { <p class="fixed-versions"><strong>Versiones corregidas publicadas:</strong> <code>{{ fixes.join(', ') }}</code></p> } }
+                                  </div>
+                                  @if (advisory.cvssVector) { <p class="cvss-detail"><strong>Puntuación técnica CVSS:</strong> <code>{{ advisory.cvssVector }}</code></p> }
+                                  @if (advisory.details) { <details class="technical-details"><summary>Ver descripción técnica original</summary><p>{{ advisory.details }}</p></details> }
+                                  @if (advisory.references.length > 0) { <details class="reference-details"><summary>Fuentes y referencias oficiales</summary><ul>@for (reference of advisory.references; track reference) { <li><a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a></li> }</ul></details> }
                                 </li>
                               }
                             </ul>

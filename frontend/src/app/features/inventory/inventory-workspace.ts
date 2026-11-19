@@ -88,7 +88,7 @@ interface InventoryAssessment {
   selector: 'app-inventory-workspace',
   imports: [DatePipe],
   templateUrl: './inventory-workspace.html',
-  styleUrls: ['./inventory-workspace.scss', './inventory-catalog.scss'],
+  styleUrls: ['./inventory-workspace.scss', './inventory-catalog.scss', './inventory-advisories.scss'],
 })
 export class InventoryWorkspace implements OnInit {
   private readonly api = inject(SessionApiService);
@@ -287,6 +287,45 @@ export class InventoryWorkspace implements OnInit {
       case 'UNAVAILABLE': return 'No se pudo consultar OSV';
       case 'STALE': return 'Resultado desactualizado';
       default: return 'AÃºn sin evaluar';
+    }
+  }
+
+  advisoryExplanation(advisory: Advisory): string {
+    switch (advisory.id.toUpperCase()) {
+      case 'GHSA-WJGM-6HV5-3CVF': return 'Si una aplicación convierte JSON no confiable directamente en una ruta de Java, una URI podría seleccionar un proveedor de archivos de terceros. El efecto depende de que ese proveedor tenga acciones externas; los proveedores incluidos en Java no producen por sí solos ese efecto.';
+      case 'GHSA-WV8Q-QHHJ-9H54': return 'Con una configuración concreta de Jackson, cada identificador de tipo desconocido puede quedar guardado en memoria. Si se reciben muchos identificadores diferentes durante mucho tiempo, el proceso puede consumir memoria y dejar de responder.';
+      default: return 'OSV relaciona esta versión exacta con un aviso de seguridad. El impacto depende de cómo el proyecto use el paquete y de si cumple las condiciones descritas en la fuente oficial.';
+    }
+  }
+
+  advisoryAction(advisory: Advisory): string {
+    switch (advisory.id.toUpperCase()) {
+      case 'GHSA-WJGM-6HV5-3CVF': return 'Actualiza a una versión corregida compatible y evita convertir rutas desde datos externos sin validar los esquemas permitidos.';
+      case 'GHSA-WV8Q-QHHJ-9H54': return 'Actualiza a una versión corregida. Revisa además si el proyecto usa tipos polimórficos con una implementación alternativa y procesa identificadores externos.';
+      default: return 'Revisa el rango afectado y las versiones corregidas que publica OSV antes de planificar la actualización.';
+    }
+  }
+
+  fixedVersions(advisory: Advisory): string[] {
+    const knownFixes: Record<string, string[]> = {
+      'GHSA-WJGM-6HV5-3CVF': ['2.18.10', '2.21.6', '2.22.2', '3.1.6', '3.2.2'],
+      'GHSA-WV8Q-QHHJ-9H54': ['2.18.11', '2.21.7', '2.22.3', '3.1.7', '3.2.3'],
+    };
+    const curated = knownFixes[advisory.id.toUpperCase()];
+    if (curated) return curated;
+    try {
+      const parsed: unknown = JSON.parse(advisory.affectedJson);
+      const affected = Array.isArray(parsed) ? parsed : [parsed];
+      const fixed = affected.flatMap((entry) => {
+        if (!entry || typeof entry !== 'object' || !('ranges' in entry) || !Array.isArray(entry.ranges)) return [];
+        return entry.ranges.flatMap((range: unknown) => {
+          if (!range || typeof range !== 'object' || !('events' in range) || !Array.isArray(range.events)) return [];
+          return range.events.flatMap((event: unknown) => event && typeof event === 'object' && 'fixed' in event && typeof event.fixed === 'string' ? [event.fixed] : []);
+        });
+      });
+      return [...new Set(fixed)].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+    } catch {
+      return [];
     }
   }
 

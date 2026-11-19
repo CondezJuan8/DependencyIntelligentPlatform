@@ -1,0 +1,27 @@
+.advisory-explanation { display: grid; gap: 2px; margin: 12px 0; padding: 13px 15px; border-left: 3px solid var(--di-info-text); border-radius: 0 9px 9px 0; background: var(--di-info-background); }
+.advisory-explanation > strong { color: var(--di-info-text); font-size: 13px; }
+.advisory-explanation p { margin: 0 0 7px; color: var(--di-text); font-size: 14px; line-height: 1.6; }
+.advisory-explanation .fixed-versions { margin: 2px 0 0; }
+.cvss-detail { margin: 8px 0 !important; font-size: 13px !important; }
+.technical-details, .reference-details { margin-top: 9px; min-width: 0; }
+.advisory-list details summary { display: inline-flex; width: fit-content; max-width: 100%; align-items: baseline; color: var(--di-link); cursor: pointer; line-height: 1.5; }
+.advisory-list details > p { margin: 8px 0; white-space: pre-line; overflow-wrap: anywhere; }
+.advisory-list details ul { display: grid; gap: 8px; min-width: 0; margin: 8px 0; padding-left: 21px; }
+.advisory-list details li { min-width: 0; line-height: 1.55; }
+.advisory-list details li a { overflow-wrap: anywhere; word-break: normal; }
+@media (max-width: 600px) {
+  .advisory-list { padding-left: 18px; }
+  .advisory-explanation { padding: 11px 12px; }
+}
+.state-matched { border-left: 3px solid var(--di-critical); background: var(--di-critical-background); }
+.state-no_known_advisories { border-left: 3px solid var(--di-success); background: var(--di-success-background); }
+.state-incomplete, .state-unavailable, .state-stale, .state-not_assessed { border-left: 3px solid var(--di-warning); background: var(--di-warning-background); }
+.advisory-list { display: grid; gap: 14px; min-width: 0; margin: 8px 0 0; padding-left: 22px; }
+.advisory-list > li { min-width: 0; padding: 0 4px 0 2px; }
+.advisory-list a { color: var(--di-link); font-weight: 700; overflow-wrap: anywhere; }
+.advisory-list p { margin: 6px 0; color: var(--di-text); font-size: 14px; line-height: 1.55; }
+.advisory-list .severity { margin-left: 8px; padding: 2px 7px; border-radius: 999px; color: white; font-size: 10px; font-weight: 750; }
+.advisory-list .severity-critical, .advisory-list .severity-high { background: var(--di-critical); }
+.advisory-list .severity-medium { background: var(--di-warning); color: #101827; }
+.advisory-list .severity-low { background: var(--di-success); }
+.advisory-list .severity-unknown { background: var(--di-text-subtle); }
