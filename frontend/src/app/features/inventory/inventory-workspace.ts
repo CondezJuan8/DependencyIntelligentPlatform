@@ -69,6 +69,21 @@ interface PackageGroup {
   transitiveCount: number;
 }
 
+type AssessmentStatus = 'NOT_ASSESSED' | 'MATCHED' | 'NO_KNOWN_ADVISORIES' | 'INCOMPLETE' | 'UNAVAILABLE' | 'STALE';
+interface Advisory {
+  id: string; summary: string | null; details: string | null; severity: string; cvssVector: string | null;
+  publishedAt: string | null; modifiedAt: string | null; url: string; aliases: string[]; references: string[]; affectedJson: string;
+}
+interface VersionAssessment {
+  packageVersion: { ecosystem: string; namespace: string | null; name: string; version: string };
+  status: AssessmentStatus; lastSuccessfulStatus: AssessmentStatus | null; checkedAt: string | null;
+  lastSuccessfulAt: string | null; sourceModifiedAt: string | null; failureCode: string | null; advisories: Advisory[];
+}
+interface InventoryAssessment {
+  generatedAt: string; assessedVersions: number; affectedVersions: number; advisoryCount: number;
+  unavailableVersions: number; staleVersions: number; assessments: VersionAssessment[];
+}
+
 @Component({
   selector: 'app-inventory-workspace',
   imports: [DatePipe],
@@ -83,6 +98,9 @@ export class InventoryWorkspace implements OnInit {
   readonly repository = signal<Repository | null>(null);
   readonly occurrences = signal<Occurrence[]>([]);
   readonly scanResults = signal<ScanResult[]>([]);
+  readonly vulnerabilityAssessment = signal<InventoryAssessment | null>(null);
+  readonly assessmentError = signal('');
+  readonly assessingVulnerabilities = signal(false);
   readonly search = signal('');
   readonly ecosystemFilter = signal<'ALL' | Ecosystem>('ALL');
   readonly dependencyFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE'>('ALL');
@@ -176,6 +194,8 @@ export class InventoryWorkspace implements OnInit {
     this.repository.set(repository);
     this.occurrences.set([]);
     this.scanResults.set([]);
+    this.vulnerabilityAssessment.set(null);
+    this.assessmentError.set('');
     this.clearFilters();
     this.error.set('');
     this.notice.set('');
@@ -221,13 +241,15 @@ export class InventoryWorkspace implements OnInit {
     forkJoin([
       this.runScanner(repository, 'MAVEN'),
       this.runScanner(repository, 'NPM'),
-    ]).pipe(finalize(() => this.busy.set(false))).subscribe((results) => {
+    ]).subscribe((results) => {
       this.scanResults.set(results);
       this.occurrences.set(this.toOccurrences(results));
       const complete = results.filter((result) => result.status === 'complete').length;
       if (complete === 2) this.notice.set('Análisis completado para Maven y npm.');
       else if (complete === 1) this.notice.set('El inventario se actualizó parcialmente; revisa el estado de cada ecosistema.');
       else this.error.set(results.find((result) => result.status === 'error')?.message ?? 'No encontramos manifiestos compatibles para Maven ni npm en este repositorio.');
+      if (complete > 0) this.assessVulnerabilities(repository);
+      else this.busy.set(false);
     });
   }
 
@@ -235,16 +257,55 @@ export class InventoryWorkspace implements OnInit {
     forkJoin([
       this.loadScanner(repository, 'MAVEN'),
       this.loadScanner(repository, 'NPM'),
+      this.loadVulnerabilityAssessment(repository),
     ]).pipe(finalize(() => {
       if (requestSequence === this.scanLoadSequence) this.loadingScans.set(false);
-    })).subscribe((results) => {
+    })).subscribe(([maven, npm, assessment]) => {
       if (requestSequence !== this.scanLoadSequence) return;
+      const results = [maven, npm];
       const found = results.filter((result) => result.scan !== null);
       this.scanResults.set(results);
       this.occurrences.set(this.toOccurrences(found));
+      this.vulnerabilityAssessment.set(assessment);
       const scanError = results.find((result) => result.status === 'error');
       if (scanError) this.error.set(scanError.message);
     });
+  }
+
+  assessmentFor(group: PackageGroup, version: VersionGroup): VersionAssessment | undefined {
+    return this.vulnerabilityAssessment()?.assessments.find((item) =>
+      item.packageVersion.ecosystem.toUpperCase() === group.ecosystem
+      && item.packageVersion.namespace === group.namespace && item.packageVersion.name === group.name
+      && item.packageVersion.version === version.version);
+  }
+
+  assessmentLabel(status: AssessmentStatus): string {
+    switch (status) {
+      case 'MATCHED': return 'Avisos encontrados';
+      case 'NO_KNOWN_ADVISORIES': return 'OSV no reporta avisos para esta versiÃ³n';
+      case 'INCOMPLETE': return 'Resultado parcial; revisa los detalles';
+      case 'UNAVAILABLE': return 'No se pudo consultar OSV';
+      case 'STALE': return 'Resultado desactualizado';
+      default: return 'AÃºn sin evaluar';
+    }
+  }
+
+  private assessVulnerabilities(repository: Repository): void {
+    this.assessingVulnerabilities.set(true);
+    this.api.post<InventoryAssessment>(this.vulnerabilityEndpoint(repository), {}).pipe(
+      finalize(() => { this.assessingVulnerabilities.set(false); this.busy.set(false); }),
+    ).subscribe({
+      next: (assessment) => { this.vulnerabilityAssessment.set(assessment); this.assessmentError.set(''); },
+      error: (failure: HttpErrorResponse) => this.assessmentError.set(accessError(failure)),
+    });
+  }
+
+  private loadVulnerabilityAssessment(repository: Repository) {
+    return this.api.get<InventoryAssessment>(this.vulnerabilityEndpoint(repository)).pipe(catchError(() => of(null)));
+  }
+
+  private vulnerabilityEndpoint(repository: Repository): string {
+    return `/api/organizations/${repository.organizationId}/repositories/${repository.id}/vulnerability-analysis`;
   }
 
   private loadScanner(repository: Repository, ecosystem: Ecosystem) {

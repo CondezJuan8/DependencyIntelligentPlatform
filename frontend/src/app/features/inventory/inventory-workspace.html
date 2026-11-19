@@ -71,10 +71,22 @@
         <article class="summary-card"><span>Transitivas</span><strong>{{ transitiveCount }}</strong><small>Registradas en lockfiles</small></article>
       </section>
 
-      <aside class="risk-note" aria-label="Estado de evaluación de riesgo">
-        <span class="risk-icon" aria-hidden="true">i</span>
-        <p><strong>Riesgo aún sin evaluar.</strong> Estos resultados muestran versiones detectadas; la comprobación contra avisos de seguridad todavía no está conectada.</p>
-      </aside>
+      <section class="assessment-summary" aria-labelledby="assessment-heading" aria-live="polite">
+        <div><p class="eyebrow">SEGURIDAD · OSV</p><h2 id="assessment-heading">Evaluación de vulnerabilidades</h2>
+          <p>Comparamos versiones exactas con avisos publicados en OSV. Un resultado sin avisos conocidos no garantiza que una versión esté libre de vulnerabilidades.</p></div>
+        @if (assessingVulnerabilities()) { <span class="assessment-progress" role="status"><span class="button-spinner" aria-hidden="true"></span> Consultando OSV…</span> }
+        @if (vulnerabilityAssessment(); as assessment) {
+          <div class="assessment-metrics">
+            <span><strong>{{ assessment.affectedVersions }}</strong> versiones con avisos</span>
+            <span><strong>{{ assessment.advisoryCount }}</strong> avisos únicos</span>
+            <span><strong>{{ assessment.unavailableVersions }}</strong> incompletas o sin verificar</span>
+          </div>
+        }
+      </section>
+      @if (assessmentError()) { <p class="notice warning" role="status">No se pudo completar la consulta de vulnerabilidades: {{ assessmentError() }}</p> }
+      @if (vulnerabilityAssessment()?.staleVersions; as staleCount) {
+        @if (staleCount > 0) { <p class="notice warning" role="status">{{ staleCount }} versiones tienen resultados desactualizados. Vuelve a analizar para consultar OSV de nuevo.</p> }
+      }
 
       @if (unresolvedCount > 0) {
         <p class="notice warning" role="status">{{ unresolvedCount }} dependencias o versiones no pudieron resolverse desde los manifiestos compatibles.</p>
@@ -129,6 +141,27 @@
                   @for (version of group.versions; track version.version) {
                     <article class="version-card">
                       <header class="version-heading"><h3>Versión <code data-no-translate>{{ version.version }}</code></h3><div class="kind-tags"><span class="tag direct">{{ version.directCount }} directas</span><span class="tag transitive">{{ version.transitiveCount }} transitivas</span></div></header>
+                      @if (assessmentFor(group, version); as assessment) {
+                        <section class="version-assessment" [class]="'version-assessment state-' + assessment.status.toLowerCase()" [attr.aria-label]="assessmentLabel(assessment.status)">
+                          <strong>{{ assessmentLabel(assessment.status) }}</strong>
+                          @if (assessment.checkedAt) { <span>Consultado {{ assessment.checkedAt | date:'medium' }}</span> }
+                          @if (assessment.failureCode) { <span>La consulta no fue completa ({{ assessment.failureCode }}).</span> }
+                          @if (assessment.advisories.length > 0) {
+                            <ul class="advisory-list">
+                              @for (advisory of assessment.advisories; track advisory.id) {
+                                <li><a [href]="advisory.url" target="_blank" rel="noopener noreferrer">{{ advisory.id }}<span class="visually-hidden"> (abre en una pestaña nueva)</span></a>
+                                  <span class="severity" [class]="'severity severity-' + advisory.severity.toLowerCase()">{{ advisory.severity }}</span>
+                                  @if (advisory.summary) { <p>{{ advisory.summary }}</p> }
+                                  @if (advisory.cvssVector) { <small>CVSS: {{ advisory.cvssVector }}</small> }
+                                  @if (advisory.references.length > 0) { <details><summary>Fuentes y referencias</summary><ul>@for (reference of advisory.references; track reference) { <li><a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a></li> }</ul></details> }
+                                </li>
+                              }
+                            </ul>
+                          }
+                        </section>
+                      } @else {
+                        <p class="version-assessment state-not_assessed">Aún sin evaluar con OSV.</p>
+                      }
                       <ul class="occurrence-list">
                         @for (occurrence of version.occurrences; track occurrence.scanId + occurrence.dependency.manifestPath + occurrence.dependency.scope) {
                           <li>
