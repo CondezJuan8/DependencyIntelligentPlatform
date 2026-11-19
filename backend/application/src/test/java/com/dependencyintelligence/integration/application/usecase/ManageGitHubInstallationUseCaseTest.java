@@ -63,6 +63,21 @@ class ManageGitHubInstallationUseCaseTest {
             () -> useCase.completeFromCallback(user, "session-1", state, "one-use-code"));
     }
 
+    @Test void installButtonUsesOAuthWhenTheAppHasOneUnlinkedInstallation() {
+        var states = new States(); var store = new Installations();
+        var app = new App() {
+            @Override public List<InstallationInfo> installationsForConnection() {
+                return List.of(new InstallationInfo(77, "CondezJuan8", "USER"));
+            }
+        };
+        var useCase = new ManageGitHubInstallationUseCase(app, states, store, Clock.fixed(now, ZoneOffset.UTC));
+        String url = useCase.begin(organization, user, "session-1").url();
+        assertTrue(url.startsWith("https://github.com/login/oauth/authorize?"));
+        String state = url.split("state=")[1].split("&")[0];
+        useCase.completeFromCallback(user, "session-1", state, "one-use-code");
+        assertEquals(77, store.connected.getFirst().id());
+    }
+
     private final class States implements GitHubInstallationStateStore {
         final Map<String, Pending> values = new java.util.concurrent.ConcurrentHashMap<>();
         @Override public void save(String state, Pending pending) { values.put(state, pending); }
@@ -70,12 +85,13 @@ class ManageGitHubInstallationUseCaseTest {
         @Override public boolean consume(String state, Pending pending) { return values.remove(state, pending); }
         @Override public boolean attachAuthorization(String state, Pending current, Pending authorized) { return values.replace(state, current, authorized); }
     }
-    private final class App implements GitHubAppGateway {
+    private class App implements GitHubAppGateway {
         @Override public String installationUrl(String state) { return "https://github.com/apps/dependency-intelligence/installations/new?state=" + state; }
         @Override public String userAuthorizationUrl(String state, String challenge) { return "https://github.com/login/oauth/authorize?client_id=client&state="+state+"&code_challenge="+challenge; }
         @Override public String exchangeAuthorizationCode(String code, String verifier) { assertEquals("one-use-code",code); assertNotNull(verifier); return "temporary-user-token"; }
         @Override public void verifyUserCanAccessInstallation(String token, long id) { assertEquals("temporary-user-token",token); assertEquals(77,id); }
         @Override public InstallationInfo verifyInstallation(long id) { return new InstallationInfo(id, "CondezJuan8", "USER"); }
+        @Override public List<InstallationInfo> installationsForConnection() { return List.of(); }
         @Override public List<Candidate> repositories(long id) { return List.of(new Candidate("90210", "CondezJuan8/demo", "main", "https://github.com/CondezJuan8/demo", "PRIVATE", false)); }
         @Override public String downloadArchive(long id, String repositoryExternalId, String fullName, java.nio.file.Path target) { throw new UnsupportedOperationException(); }
     }

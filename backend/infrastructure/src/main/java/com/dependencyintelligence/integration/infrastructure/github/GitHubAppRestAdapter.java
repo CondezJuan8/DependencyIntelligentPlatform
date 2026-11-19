@@ -110,6 +110,21 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
         }
     }
 
+    @Override public List<InstallationInfo> installationsForConnection() {
+        requireConfigured();
+        try {
+            var installations = client.get().uri(uri -> uri.path("/app/installations").queryParam("per_page", 2).build())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + appJwt()).retrieve()
+                .body(new ParameterizedTypeReference<List<InstallationResponse>>() {});
+            if (installations == null) throw upstreamFailure(null);
+            return installations.stream().filter(item -> item.appId() == Long.parseLong(properties.id())
+                && item.account() != null && item.account().login() != null)
+                .map(item -> new InstallationInfo(item.id(), item.account().login(),
+                    "Organization".equalsIgnoreCase(item.account().type()) ? "ORGANIZATION" : "USER"))
+                .toList();
+        } catch (RestClientException failure) { throw upstreamFailure(failure); }
+    }
+
 
     @Override public List<Candidate> repositories(long installationId) {
         requireConfigured();

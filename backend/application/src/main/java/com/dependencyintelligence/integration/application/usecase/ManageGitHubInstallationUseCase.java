@@ -31,6 +31,10 @@ public final class ManageGitHubInstallationUseCase implements ManageGitHubInstal
     }
 
     @Override public InstallationLink begin(UUID organization, UUID user, String browserSession) {
+        var connected = installations.connected(organization, user);
+        var available = app.installationsForConnection();
+        if (available.size() == 1 && connected.stream().noneMatch(item -> item.id() == available.getFirst().id()))
+            return connectExisting(organization, user, browserSession, available.getFirst().id());
         byte[] bytes = new byte[32]; random.nextBytes(bytes);
         String state = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         states.save(state, new Pending(organization, user, browserSession, clock.instant().plus(Duration.ofMinutes(10)), null, null));
