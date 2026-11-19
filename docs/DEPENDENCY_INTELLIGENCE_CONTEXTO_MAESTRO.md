@@ -6,7 +6,15 @@
 
 > Este documento consolida el contexto disponible de las conversaciones. Distingue lo que ya se propuso de lo que está decidido. Las propuestas no deben tratarse como decisiones aprobadas si el usuario todavía no las confirmó. Tampoco se deben interpretar ejemplos, datos de mockups o estimaciones como resultados reales.
 
-## Decisiones vigentes y estado de continuidad — 15 de noviembre de 2026
+## Decisiones vigentes y estado de continuidad - 19 de noviembre de 2026
+
+### Bloque 32 — Bootstrap seguro del primer administrador
+
+Application incorpora el caso de uso y los puertos; Infrastructure ofrece un comando de consola solo bajo el perfil `platform-admin-bootstrap`, expuesto como servicio Compose opt-in sin HTTP. El operador ingresa nombre/correo y contraseña confirmada en terminal; esta no se pasa por argumentos ni entorno. El alta se permite una sola vez con cero usuarios, organizaciones y administradores, verificado bajo bloqueo transaccional; crea una cuenta OWNER activa, aprobada y con correo verificado, hash PBKDF2, asignación de administrador global y auditoría. Pruebas focalizadas: dos unitarias y una integración PostgreSQL temporal correctas; `docker compose config --quiet` válido. El comando todavía no se ejecutó contra la base local: requiere que el usuario escriba sus credenciales. Procedimiento: [ACCESO_LOCAL](ACCESO_LOCAL.md); estado y dependencias: [PENDIENTES](PENDIENTES.md).
+
+### Bloque 31 — Configuracion local de GitHub App
+
+La App `dependency-intelligence-platform` de `CondezJuan8` esta creada. Slug, App ID, Client ID, Client Secret y llave privada se configuraron localmente en `.env`, ignorado por Git; nunca registrar secretos en documentos. Una consulta JWT RS256 de solo lectura a `GET /app` devolvio HTTP 200 con la identidad esperada. Aun faltan instalacion en la cuenta/organizacion, consentimiento OAuth/PKCE e importacion real desde la plataforma. Ver [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md) y [bitacora](BITACORA_TRABAJO.md).
 
 ### Bloque 29 — GitHub App y origen local
 

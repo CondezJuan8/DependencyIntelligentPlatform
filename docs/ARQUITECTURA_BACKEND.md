@@ -1,5 +1,9 @@
 # Arquitectura del backend
 
+## Bootstrap del primer administrador de plataforma
+
+El caso de uso `BootstrapPlatformAdministrator` vive en Application y depende de puertos propios para hash de contraseña y persistencia. Infrastructure aporta el adaptador JDBC transaccional y el comando de consola bajo el perfil exclusivo `platform-admin-bootstrap`. Compose lo expone como servicio opt-in `platform-admin-bootstrap`, sin puertos HTTP; solicita los datos en una terminal con eco de contraseña desactivado y requiere confirmación literal. Un bloqueo advisory y una verificación dentro de la transacción exigen cero usuarios, organizaciones y administradores antes de crear una cuenta OWNER aprobada/verificada, su credencial PBKDF2, su rol global y el evento de auditoría. No existe endpoint ni bootstrap automático en el backend normal; el procedimiento se limita a una base local nueva. Ver [acceso local](ACCESO_LOCAL.md).
+
 ## Decisión de admisión por correo
 
 Bloque 20: Application contiene el caso de uso `DecidePlatformAdmission` y sus puertos; Infrastructure adapta SMTP, HTTP y persistencia JDBC. Cada token está dirigido a un administrador y a una cuenta pendiente. La ruta procesa la decisión inmediata sin sesión, con consumo único y trazabilidad de auditoría. La pantalla persistente de espera pertenece al flujo de acceso y permanece independiente del token. Configuración y limitaciones en [Verificación y recuperación](VERIFICACION_Y_RECUPERACION.md).

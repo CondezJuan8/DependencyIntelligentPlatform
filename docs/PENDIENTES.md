@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 31 (activación local de GitHub App).
+Actualizado: 19 de noviembre de 2026, bloque 32 (bootstrap seguro del administrador inicial).
 
-**Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
+**Instruccion vigente del usuario:** conservar los pendientes y trabajarlos juntos cuando el usuario lo indique. El usuario autorizo integrar GitHub y trabajar ahora el bootstrap inicial seguro; las demas funciones siguen pendientes hasta acordar su bloque.
 
 Este archivo reúne configuración pendiente, validaciones de lo entregado y funciones por implementar. El alcance y las decisiones técnicas se mantienen en el [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md), la [arquitectura](ARQUITECTURA_BACKEND.md), la [especificación database](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y el [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md). No hay fecha total nueva comprometida.
 
@@ -10,6 +10,8 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 
 Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organization_settings` con valores por defecto, seguridad RLS y permisos runtime; el alta de organizaciones incluye la fila inicial. La API deja leer a miembros activos y solo OWNER/ADMIN pueden editar. Angular aplica la preferencia del espacio en la sesion, conserva preferencias personales para login/registro y ofrece controles en Configuracion. V18 ya esta en PostgreSQL local: 126 tablas, 89 con FORCE RLS y 223 FK. Build Angular y backend correctos; el IT focalizado queda pendiente porque Maven Central no resolvio DNS desde el contenedor de prueba. Servicios de revision activos en http://localhost:8089/.
 ## Lo que ya está implementado
+
+- Bootstrap inicial seguro implementado: comando interactivo local sin endpoint HTTP, transaccion de un solo uso, restriccion a base sin usuarios/organizaciones/admins, hash PBKDF2, cuenta OWNER aprobada/verificada y auditoria. La ejecucion sobre la instancia vacia queda pendiente de que el propietario ingrese sus datos en terminal. Ver [ACCESO_LOCAL](ACCESO_LOCAL.md).
 
 - Backend separado en Domain, Application e Infrastructure; database V1-V19 aplicada y verificada en PostgreSQL local: 127 tablas de negocio, 90 con FORCE RLS y 225 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido; V19 registra ZIP de fuentes locales privados.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
@@ -48,7 +50,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 
 | Área | Pendiente | Criterio de cierre |
 | --- | --- | --- |
-| Arranque local Docker | La instancia actual tiene administrador de plataforma; falta documentar/probar el bootstrap repetible para instalaciones nuevas | Crear el primer administrador una sola vez mediante un mecanismo local controlado, con secretos fuera de Git y sin habilitar auto-administración pública |
+| Arranque local Docker | Comando de bootstrap implementado; la instancia vigente aun esta vacia y falta que el propietario cree la primera cuenta administrativa desde terminal interactiva | Crear el primer administrador una sola vez en base vacia; confirmar login, correo ya verificado, rol global y posterior creacion de organizacion, sin habilitar auto-administracion publica |
 | Identidad y organización | Backend/UI de invitaciones y gestión entregados en bloque 11; pendiente revisión conjunta y paginación de historiales de invitaciones grandes | Completar aceptación visual/operativa sin considerar pendiente el código ya probado |
 | Integración de repositorios GitHub | Instalación de App, verificación OAuth/PKCE, listado e importación de metadatos | Configurar y verificar instalación real, revocar/desconectar, leer commits/archivos y procesar eventos idempotentes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
