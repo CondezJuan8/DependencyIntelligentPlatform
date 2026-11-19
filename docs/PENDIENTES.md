@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 18 de noviembre de 2026, bloque 28 (diagnostico de conexion GitHub).
+Actualizado: 18 de noviembre de 2026, bloque 29 (GitHub y repositorios locales).
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
 
@@ -11,12 +11,13 @@ Este archivo reúne configuración pendiente, validaciones de lo entregado y fun
 Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organization_settings` con valores por defecto, seguridad RLS y permisos runtime; el alta de organizaciones incluye la fila inicial. La API deja leer a miembros activos y solo OWNER/ADMIN pueden editar. Angular aplica la preferencia del espacio en la sesion, conserva preferencias personales para login/registro y ofrece controles en Configuracion. V18 ya esta en PostgreSQL local: 126 tablas, 89 con FORCE RLS y 223 FK. Build Angular y backend correctos; el IT focalizado queda pendiente porque Maven Central no resolvio DNS desde el contenedor de prueba. Servicios de revision activos en http://localhost:8089/.
 ## Lo que ya está implementado
 
-- Backend separado en Domain, Application e Infrastructure; database V1-V18 aplicada y verificada en PostgreSQL local: 126 tablas de negocio, 89 con FORCE RLS y 223 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido.
+- Backend separado en Domain, Application e Infrastructure; database V1-V19 aplicada y verificada en PostgreSQL local: 127 tablas de negocio, 90 con FORCE RLS y 225 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido; V19 registra ZIP de fuentes locales privados.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
 - Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
 - Google/GitHub y vinculación/desvinculación segura en backend y Angular, comprobados con proveedor HTTP local de prueba. Faltan credenciales y consentimiento reales.
 - Parser CycloneDX Maven acotado e importación persistente; todavía sin flujo de análisis real completo.
+- Importación local de carpetas al almacenamiento privado y registro tenant-scoped del repositorio. El proceso no ejecuta todavía un escaneo automático.
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
 - Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
 - Rediseño según las tres imágenes del usuario: acceso/registro, shell lateral, dashboard con estados vacíos y organización con tabla, filtros, pestañas y diálogos. Build correcto; falta aceptación visual del usuario. [Diseño](DISENO_FRONTEND.md).
@@ -31,8 +32,8 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
-- [ ] **GitHub App real:** configurar la app propiedad de `CondezJuan8`, sus callbacks/permisos y secretos locales según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md); completar instalación/importación real y comprobar el acceso desde móvil y escritorio.
-- [x] **Arranque Compose y migraciones:** Flyway valida V1-V18; version V18 con 126 tablas, 89 FORCE RLS y 223 FK. Health UP, PostgreSQL y Mailpit saludables; no se compararon filas de negocio.
+- [ ] **GitHub App real:** crear la app propiedad de `CondezJuan8` desde el enlace de la pantalla, configurar callbacks/permisos y secretos locales según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md); completar instalación/importación real y comprobar el acceso desde móvil y escritorio.
+- [x] **Arranque Compose y migraciones:** Flyway valida V1-V19; version V19 con 127 tablas, 90 FORCE RLS y 225 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
 Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acceso en [ACCESO_LOCAL](ACCESO_LOCAL.md), correo en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md) y revisión de colores en [DISENO_FRONTEND](DISENO_FRONTEND.md). Nunca escribir secretos en este archivo ni enviarlos por chat.
@@ -40,7 +41,8 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 ## Funciones por implementar
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
-- [ ] Importación desde carpeta del equipo: selector/upload seguro, límites de tamaño/tipo, almacenamiento temporal y análisis aislado Maven/npm con progreso/errores. El navegador no puede guardar una ruta local del usuario en el servidor.
+- [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes.
+- [ ] Análisis de repositorios locales/GitHub: checkout/lectura de fuentes o ZIP privado, jobs aislados Maven/npm, progreso, resultados, errores y reintentos. La subida por sí sola no constituye un análisis.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
 

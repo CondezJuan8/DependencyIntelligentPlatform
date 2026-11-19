@@ -10,6 +10,10 @@ Application declara `ManageGitHubInstallation`, `GitHubAppGateway`, `GitHubInsta
 
 El callback autenticado valida la instalación contra un token GitHub de usuario de corta vida y luego confirma el App ID con JWT de la App; el token de usuario se descarta. Esto sigue la advertencia de GitHub de no confiar solo en `installation_id` devuelto por Setup URL. Estado atado a usuario/sesión/organización vence a los diez minutos; el almacenamiento del estado es en memoria, así que reiniciar backend invalida un flujo en curso. Solo se persisten instalaciones y metadatos de repositorio seleccionados. Sin esquema/migración nuevo. Configuración, permisos read-only y callbacks en [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
 
+### Importación local de carpetas
+
+`ImportLocalFolderUseCase` valida nombre, límites y rutas en Application; el adaptador HTTP recibe partes multipart; el puerto `LocalRepositorySourceStore` guarda un ZIP con rutas relativas saneadas y SHA-256 fuera de la raíz web, y persiste sus metadatos en `local_repository_sources` bajo RLS. Compose monta `repository_data` separado de PostgreSQL. El repositorio usa `provider=local`, por lo que los equipos y permisos por repositorio existentes aplican sin duplicar RBAC. Límites actuales: 100 MiB, 2.000 archivos; no se extraen entradas ZIP ni se ejecutan comandos. El ZIP no está todavía conectado al scanner o descarga.
+
 ## Administración de un repositorio por un miembro
 
 V17 agrega `member_repository_permissions` para grants directos por miembro/repositorio. Application valida el catálogo y el estado activo; Infrastructure escribe bajo transacción tenant, FORCE RLS y auditoría. La autorización acepta grant de equipo o grant directo, siempre intersecado con `role_permissions`. Retirar una membresía limpia sus grants. V16/V17 aplicadas a PostgreSQL local; la prueba focalizada de integración de permisos pasó.
@@ -24,7 +28,7 @@ El objetivo es el producto completo listo para usar por fases, local primero y s
 
 Las decisiones confirmadas incluyen acceso local/Google/GitHub, Maven/npm, equipos/permisos por repositorio y pruebas aisladas/propuesta de PR para el primer piloto. IA del producto: Gemini; embeddings: Ollama. Codex no se integra ni se agenda como proveedor hasta nueva instrucción del usuario.
 
-Los modulos describen codigo existente. Database alcanza V18: 126 tablas, 89 FORCE RLS, 223 FK. Estado en [implementation-report](database/implementation-report.md).
+Los modulos describen codigo existente. Database alcanza V19: 127 tablas, 90 FORCE RLS, 225 FK. El flujo local guarda la carpeta en un ZIP privado, ligado a un repositorio local y autorizado por `repository.manage`; el acceso de equipo/miembro a ese repo usa la autorizacion existente. Estado en [implementation-report](database/implementation-report.md).
 
 ### Integraciones que se deben separar
 

@@ -8872,6 +8872,216 @@
         },
         {
             "rls": true,
+            "name": "local_repository_sources",
+            "columns": [
+                {
+                    "name": "organization_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "repository_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "storage_backend",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "storage_key",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "sha256",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "size_bytes",
+                    "type": "bigint",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "file_count",
+                    "type": "integer",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "uploaded_by_membership_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "default": "CURRENT_TIMESTAMP",
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "name": "ix_local_repository_sources_uploader",
+                    "definition": "CREATE INDEX ix_local_repository_sources_uploader ON public.local_repository_sources USING btree (organization_id, uploaded_by_membership_id)"
+                },
+                {
+                    "name": "local_repository_sources_pkey",
+                    "definition": "CREATE UNIQUE INDEX local_repository_sources_pkey ON public.local_repository_sources USING btree (organization_id, repository_id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "schema_migration_access",
+                    "check": "true",
+                    "roles": [
+                        "dependency_migrator"
+                    ],
+                    "using": "true",
+                    "command": "ALL"
+                },
+                {
+                    "name": "tenant_isolation",
+                    "check": "(organization_id = app_private.current_organization_id())",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "(organization_id = app_private.current_organization_id())",
+                    "command": "ALL"
+                }
+            ],
+            "triggers": [
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "c",
+                    "name": "local_repository_sources_file_count_check",
+                    "columns": [
+                        "file_count"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((file_count >= 1) AND (file_count <= 2000)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "local_repository_sources_organization_id_repository_id_fkey",
+                    "columns": [
+                        "organization_id",
+                        "repository_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "repositories",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "f",
+                    "name": "local_repository_sources_organization_id_uploaded_by_membe_fkey",
+                    "columns": [
+                        "organization_id",
+                        "uploaded_by_membership_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, uploaded_by_membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "organization_memberships",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "p",
+                    "name": "local_repository_sources_pkey",
+                    "columns": [
+                        "organization_id",
+                        "repository_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (organization_id, repository_id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "local_repository_sources_sha256_check",
+                    "columns": [
+                        "sha256"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "local_repository_sources_size_bytes_check",
+                    "columns": [
+                        "size_bytes"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((size_bytes > 0))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "local_repository_sources_storage_backend_check",
+                    "columns": [
+                        "storage_backend"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((storage_backend = 'LOCAL'::text))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "local_repository_sources_storage_key_check",
+                    "columns": [
+                        "storage_key"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK (((storage_key ~ '^[0-9a-f-]{36}/[0-9a-f-]{36}\\.zip$'::text) AND (storage_key !~ '(^|/)\\.\\.(/|$)'::text)))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                }
+            ]
+        },
+        {
+            "rls": true,
             "name": "member_repository_assignments",
             "columns": [
                 {
@@ -19148,5 +19358,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "18"
+    "latest_migration": "19"
 }

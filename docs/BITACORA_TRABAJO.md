@@ -801,3 +801,15 @@ El usuario puede revisar la pantalla Organización → permisos directos; la ace
 **Siguiente paso:** crear/configurar la GitHub App bajo `CondezJuan8`, registrar Homepage/Setup/Callback en localhost:8089 y agregar ID/Client ID/secret/private key en `.env` local. Reiniciar solo backend, revisar Estado GitHub e instalar la App para terminar la comprobacion real. No enviar secretos por chat.
 
 **Commits:** tres commits por responsabilidad: diagnostico/API y experiencia de usuario, cobertura del permiso por organizacion y documentacion/bitacora.
+
+## Bloque 29 - Acceso al registro de GitHub App y alcance de repositorios locales
+
+**Peticion:** hacer que el boton de GitHub abra el sitio correcto y contemplar repositorios locales desde carpetas con un flujo equivalente.
+
+**Decisiones confirmadas:** la GitHub App de `CondezJuan8` aun no existe; el usuario necesita crearla. El enlace de creacion debe abrir el formulario oficial de GitHub. Para repositorios locales, el usuario eligio subir las carpetas al almacenamiento privado de la organizacion.
+
+**Cambios:** si la App no existe, la pantalla ofrece el formulario oficial `https://github.com/settings/apps/new`. Cuando se configure en `.env`, el CTA actual redirige por el backend a la instalacion `https://github.com/apps/{slug}/installations/new`. Se implementa la carga de directorio con límites 100 MiB/2.000 archivos, filtro de `.git`, dependencias/build, validación de una raíz y rutas, ZIP privado persistente fuera del webroot, registro `provider=local` y catálogo scoped para permisos existentes. V19 agrega `local_repository_sources` con FK compuestas, hash/bytes/conteo/membresía y FORCE RLS; Compose monta `repository_data` independiente de PostgreSQL. Se actualizan los documentos/diagramas database. La carga no ejecuta el análisis Maven/npm.
+
+**Herramientas y verificación:** Docker Compose, Angular/Node, Maven/JDK 21, JUnit, Testcontainers, PostgreSQL 17.7, Mailpit, Python 3.13/Pillow y PostgreSQL/psql. Build frontend/backend correcto con 38 pruebas unitarias (Domain 5, Application 15, Infrastructure 18); `OrganizationAccessIT#localFolderImportPersistsPrivateArchiveAndOrganizationRepository` correcto (1/1) en PostgreSQL/Mailpit temporales. Flyway aplicó V19 al PostgreSQL local existente sin borrar el volumen. Catálogo estructural validado: 127 tablas, 90 FORCE RLS, 225 FK, siete diagramas y todos los IDs/bindings/FK cubiertos. Frontend `localhost:8089` HTTP 200; backend, PostgreSQL, Mailpit y volumen de fuentes activos. Advertencias Angular de bundle inicial (559,86 kB/500) y estilos (incluido repositorios 4,59 kB/4 kB) siguen visibles. La prueba real de instalación GitHub no se ejecutó porque la App aún no existe y no hay `GITHUB_APP_*`.
+
+**Siguiente paso:** crear la App desde el enlace y configurarla localmente sin compartir secretos; después probar el consentimiento e importación GitHub. El siguiente bloque de análisis debe leer fuentes del ZIP/commit, encolar jobs aislados Maven/npm y devolver resultados/progreso. La importación actual solo guarda y asigna el repositorio.

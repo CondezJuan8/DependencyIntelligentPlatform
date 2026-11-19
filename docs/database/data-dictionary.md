@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V18. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V19. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -2089,6 +2089,47 @@ Referencias entrantes: `component_licenses` (license_id), `scan_component_licens
 Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valores todavía utilizados.
 
 
+## local_repository_sources
+
+Private ZIP archive imported from a local project folder; repository-scoped and tenant-isolated source material.
+
+Módulo: **integration**. Ámbito: **tenant**. RLS: True; FORCE: True.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `organization_id` | `uuid` | No | — | FK, PK |
+| `repository_id` | `uuid` | No | — | FK, PK |
+| `storage_backend` | `text` | No | — |  |
+| `storage_key` | `text` | No | — |  |
+| `sha256` | `text` | No | — |  |
+| `size_bytes` | `bigint` | No | — |  |
+| `file_count` | `integer` | No | — |  |
+| `uploaded_by_membership_id` | `uuid` | No | — | FK |
+| `created_at` | `timestamp with time zone` | No | CURRENT_TIMESTAMP |  |
+
+Restricciones:
+
+- `local_repository_sources_file_count_check`: `CHECK (((file_count >= 1) AND (file_count <= 2000)))`. Validada: True.
+- `local_repository_sources_organization_id_repository_id_fkey`: `FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `local_repository_sources_organization_id_uploaded_by_membe_fkey`: `FOREIGN KEY (organization_id, uploaded_by_membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `local_repository_sources_pkey`: `PRIMARY KEY (organization_id, repository_id)`. Validada: True.
+- `local_repository_sources_sha256_check`: `CHECK ((sha256 ~ '^[a-f0-9]{64}$'::text))`. Validada: True.
+- `local_repository_sources_size_bytes_check`: `CHECK ((size_bytes > 0))`. Validada: True.
+- `local_repository_sources_storage_backend_check`: `CHECK ((storage_backend = 'LOCAL'::text))`. Validada: True.
+- `local_repository_sources_storage_key_check`: `CHECK (((storage_key ~ '^[0-9a-f-]{36}/[0-9a-f-]{36}\.zip$'::text) AND (storage_key !~ '(^|/)\.\.(/|$)'::text)))`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE INDEX ix_local_repository_sources_uploader ON public.local_repository_sources USING btree (organization_id, uploaded_by_membership_id)`
+- `CREATE UNIQUE INDEX local_repository_sources_pkey ON public.local_repository_sources USING btree (organization_id, repository_id)`
+
+Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
+
+- Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
+- Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
+
 ## member_repository_assignments
 
 Permisos directos de una membresía en un repositorio, delimitados por organización.
@@ -2485,7 +2526,7 @@ Restricciones:
 - `uq_membership_id`: `UNIQUE (id)`. Validada: True.
 - `uq_membership_tenant_id`: `UNIQUE (organization_id, id)`. Validada: True.
 
-Referencias entrantes: `assistant_conversations` (organization_id, created_by_membership_id), `change_pull_request_proposals` (organization_id, approved_by_membership_id), `change_simulations` (organization_id, requested_by_membership_id), `data_deletion_requests` (organization_id, requested_by_membership_id), `documents` (organization_id, uploaded_by_membership_id), `impact_analyses` (organization_id, requested_by_membership_id), `member_repository_assignments` (organization_id, membership_id), `member_repository_permissions` (organization_id, membership_id), `membership_invitations` (organization_id, invited_by_membership_id), `membership_roles` (organization_id, membership_id), `notification_deliveries` (organization_id, membership_id), `notification_subscriptions` (organization_id, membership_id), `report_jobs` (organization_id, requested_by_membership_id), `report_schedule_recipients` (organization_id, membership_id), `scans` (organization_id, requested_by_membership_id), `team_memberships` (organization_id, membership_id).
+Referencias entrantes: `assistant_conversations` (organization_id, created_by_membership_id), `change_pull_request_proposals` (organization_id, approved_by_membership_id), `change_simulations` (organization_id, requested_by_membership_id), `data_deletion_requests` (organization_id, requested_by_membership_id), `documents` (organization_id, uploaded_by_membership_id), `impact_analyses` (organization_id, requested_by_membership_id), `local_repository_sources` (organization_id, uploaded_by_membership_id), `member_repository_assignments` (organization_id, membership_id), `member_repository_permissions` (organization_id, membership_id), `membership_invitations` (organization_id, invited_by_membership_id), `membership_roles` (organization_id, membership_id), `notification_deliveries` (organization_id, membership_id), `notification_subscriptions` (organization_id, membership_id), `report_jobs` (organization_id, requested_by_membership_id), `report_schedule_recipients` (organization_id, membership_id), `scans` (organization_id, requested_by_membership_id), `team_memberships` (organization_id, membership_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -3072,7 +3113,7 @@ Restricciones:
 - `repositories_visibility_check`: `CHECK ((visibility = ANY (ARRAY['PUBLIC'::text, 'PRIVATE'::text, 'INTERNAL'::text, 'UNKNOWN'::text])))`. Validada: True.
 - `uq_repository_provider_identity`: `UNIQUE (organization_id, provider, external_id)`. Validada: True.
 
-Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `member_repository_permissions` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
+Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `local_repository_sources` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `member_repository_permissions` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 

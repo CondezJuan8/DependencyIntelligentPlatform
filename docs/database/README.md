@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V18**, con **126 tablas de negocio, 89 con RLS forzado y 223 FK**. Flyway se excluye del conteo. V18 agrega ajustes compartidos de tema/idioma por organizacion. Catalogo, diccionario y diagramas se exportan del PostgreSQL local migrado.
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V19**, con **127 tablas de negocio, 90 con RLS forzado y 225 FK**. Flyway se excluye del conteo. V19 agrega `local_repository_sources`, catálogo tenant-scoped de archivos ZIP privados para carpetas subidas. Catalogo, diccionario y diagramas se exportan del PostgreSQL local migrado.
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,7 +16,9 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint crea dependency_app. Flyway aplica V1-V18; el datasource usa el login limitado dependency_app, miembro de dependency_runtime.
+El entrypoint crea dependency_app. Flyway aplica V1-V19; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
+
+Las cargas locales se limitan a 100 MiB y 2.000 archivos por carpeta. Los originales empaquetados viven fuera de la base; conserva y respalda también el volumen `repository_data` para poder recuperar los repositorios importados.
 
 **Volumen existente:** los scripts initdb solo se ejecutan al inicializarlo. Añadir `POSTGRES_APP_PASSWORD` a `.env`, recrear el servicio de base para recibir la variable y aprovisionar antes del backend:
 
@@ -69,6 +71,6 @@ psql -X -qAt -v ON_ERROR_STOP=1 -f infra/database/export-schema.sql -o docs/data
 python infra/database/generate-documentation.py docs/database/schema.json docs/database
 ```
 
-El export contiene estructura/politicas/roles, nunca datos de negocio ni contrasenas. El generador usa Python estandar; Pillow anade PNG. Diagramas 2-6 representan FK reales; diagramas 1/7 flujos logicos. Validacion confirma IDs, bindings y las 223 FK.
+El export contiene estructura/politicas/roles, nunca datos de negocio ni contrasenas. El generador usa Python estandar; Pillow anade PNG. Diagramas 2-6 representan FK reales; diagramas 1/7 flujos logicos. Validacion confirma IDs, bindings y las 225 FK.
 
 Verificación disponible de Docker, Excalidraw, pgvector y revisión visual del acceso en [implementation-report](implementation-report.md) y [ACCESO_LOCAL](../ACCESO_LOCAL.md).

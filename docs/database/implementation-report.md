@@ -7,6 +7,10 @@
 Build backend y Angular correctos. La IT focalizada no se completo: el contenedor Maven no pudo resolver Maven Central por DNS. Requiere repeticion cuando la red Maven funcione. Compose backend/frontend activos y health UP; base, volumen y Mailpit no se reiniciaron.
 # Estado real de implementación de la base de datos
 
+## Repositorios locales V19, bloque 29
+
+18 de noviembre de 2026. Flyway aplicó V19 al PostgreSQL local y conservó el volumen existente. `local_repository_sources` registra tenant, repositorio, llave privada, SHA-256, tamaño ZIP, número de archivos y membresía de carga; V19 habilita FORCE RLS/privilegios runtime. Catálogo estructural: 127 tablas de negocio, 90 con FORCE RLS y 225 FK. `schema.json`, diccionario y diagramas regenerados desde PostgreSQL; IDs/bindings únicos y todas las FK cubiertas. No se exportaron filas de negocio. La persistencia de bytes va al volumen Compose `repository_data`, no a PostgreSQL.
+
 ## Aplicación scoped y permisos directos V16/V17, bloque 25
 
 18 de noviembre de 2026. Se reconstruyó la imagen del backend y se reinició únicamente ese servicio; PostgreSQL, Mailpit y el volumen persistente permanecieron activos. Flyway validó las 17 migraciones y aplicó V16/V17 al PostgreSQL local, ahora en V17. Conteo desde catálogo: 125 tablas de negocio, 88 con FORCE RLS y 221 FK. Exportación estructural regeneró `schema.json`, diccionario y los siete diagramas Excalidraw/SVG/PNG; IDs, bindings y cobertura completa de FK validados. V17 es la tabla 125.

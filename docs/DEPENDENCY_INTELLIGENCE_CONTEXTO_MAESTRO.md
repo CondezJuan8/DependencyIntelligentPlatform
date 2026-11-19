@@ -8,6 +8,10 @@
 
 ## Decisiones vigentes y estado de continuidad — 15 de noviembre de 2026
 
+### Bloque 29 — GitHub App y origen local
+
+La GitHub App de `CondezJuan8` aún no existe. El CTA de repositorios abre el formulario oficial de creación; una App creada debe configurarse en `.env` antes de habilitar la instalación en repositorios. Implementada la carga de carpetas locales a un ZIP privado del servidor, repositorio `local` en la organización y listado para administrar permisos existentes. V19 en PostgreSQL: 127 tablas, 90 con FORCE RLS y 225 FK. La carga no ejecuta análisis; checkout/lectura de fuentes, jobs aislados Maven/npm y resultados siguen pendientes. Ver [GitHub/repo](GITHUB_REPOSITORIOS.md), [bitácora](BITACORA_TRABAJO.md) y [pendientes](PENDIENTES.md).
+
 ### Actualización de integración GitHub
 
 El usuario autorizó iniciar la integración de repositorios GitHub. El bloque actual entrega instalación de GitHub App, verificación OAuth/PKCE de que la identidad autenticada tiene acceso a la instalación, selección/importación de metadatos y vista responsive móvil/escritorio. Configuración/aceptación real con `CondezJuan8`, checkout de código, escaneo y despliegue accesible desde otros dispositivos siguen pendientes. Guía: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).

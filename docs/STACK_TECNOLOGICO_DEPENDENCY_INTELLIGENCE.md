@@ -51,7 +51,8 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
 - Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
-- Nucleo database V1-V18 con 126 tablas, 89 con RLS forzado y 223 FK. V18 configura tema/idioma compartidos. Catalogo y siete diagramas regenerados desde PostgreSQL.
+- Núcleo database V1-V19 con 127 tablas, 90 con RLS forzado y 225 FK. V18 configura tema/idioma compartidos; V19 guarda metadatos de repositorios locales. Catálogo y siete diagramas regenerados desde PostgreSQL.
+- Importación local usa `MultipartFile`, Java ZIP/I/O y volumen Docker privado `repository_data`; 100 MiB/2.000 archivos, sin nueva dependencia. No hay worker de análisis conectado aún.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
 - Lectura de SBOM: adaptador Jackson sobre el puerto propio `SbomParser`. Jackson ya llega transitivamente con Spring Web; no se incorporó una dependencia nueva. El subconjunto inicial es CycloneDX JSON 1.6, bibliotecas Maven planas y coordenadas/PURL explícitos coincidentes, con límites de 5 MiB y 500 componentes.

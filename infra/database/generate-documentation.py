@@ -40,6 +40,7 @@ PURPOSES = {
     'integrations': ('integration', 'Conexión de una organización a una cuenta externa, sin secretos en claro.'),
     'github_installations': ('integration', 'Subtipo GitHub: instalación y cuenta conectadas a una integración GitHub.'),
     'repositories': ('integration', 'Repositorio identificado por proveedor e ID externo dentro del tenant.'),
+    'local_repository_sources': ('integration', 'Private ZIP archive imported from a local project folder; repository-scoped and tenant-isolated source material.'),
     'repository_branches': ('integration', 'Ramas observadas y commit más reciente, si existe.'),
     'repository_commits': ('integration', 'Identidad de commit dentro de un repositorio; no es un catálogo global de SHA.'),
     'webhook_events': ('integration', 'Recepciones idempotentes por proveedor/delivery; firma se verifica en el adaptador futuro.'),

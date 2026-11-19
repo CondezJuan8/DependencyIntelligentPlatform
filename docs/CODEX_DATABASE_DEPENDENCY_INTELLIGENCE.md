@@ -19,7 +19,7 @@ Bloque 11: invitaciones, aceptación, membresías/roles, equipos y permisos por 
 
 Bloque 09: acceso Google/GitHub y vínculos explícitos implementados sobre `users`, `user_identities` y versión de credenciales existentes. No requiere migración nueva: V1–V13, 121 tablas. Los tokens externos se descartan, sin persistir secretos ni instalaciones ficticias. No cambia el catálogo ni sus diagramas. Configuración real de clientes pendiente. [Detalle de identidad](IDENTIDAD_GOOGLE_GITHUB.md).
 
-Referencia vigente de diseno. Esquema local hasta V18 con 126 tablas, 89 con RLS forzado y 223 FK. V18 persiste tema SYSTEM/LIGHT/DARK e idioma ES/EN a nivel organizacion, con lectura de miembros activos y escritura OWNER/ADMIN. Ver estado, diagramas y diccionario en [database/README.md](database/README.md).
+Referencia vigente de diseno. Esquema local hasta V19 con 127 tablas, 90 con RLS forzado y 225 FK. V18 persiste tema/idioma de organizacion; V19 registra archivos ZIP privados ligados a repositorios locales. Ver estado, diagramas y diccionario en [database/README.md](database/README.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 
@@ -75,6 +75,10 @@ pgvector ni a pagar un proveedor de IA para ejecutar el núcleo inicial.
 ------------------------------------------------------------------------
 
 ## 1. Fuentes analizadas y alcance
+
+### Estado aplicado V19 — importación de carpetas locales
+
+V19 agrega `local_repository_sources`, ligada por FK compuesta al tenant/repositorio/membresía y protegida con ENABLE+FORCE RLS. `integration_providers` agrega el proveedor `local`; el repositorio conserva identidad y asignaciones RBAC existentes. La metadata del ZIP privado registra hash SHA-256, bytes, cantidad de archivos, almacenamiento y membresía que lo cargó. Los bytes viven en el volumen de aplicación `repository_data`, fuera de PostgreSQL y del webroot. El caso de uso limita a 100 MiB/2.000 archivos, sanea rutas y excluye `.git`, `node_modules` y carpetas de compilación. Esta entrega no implementa análisis.
 
 Codex debe tomar como fuente los tres archivos del proyecto:
 
@@ -420,6 +424,15 @@ estables.
                                       `visibility`, `is_archived`,
                                       `is_enabled`, `last_synced_at`.
                                       Unique por tenant e ID externo.
+
+  `local_repository_sources`          Fuente ZIP privada de un repositorio
+                                      subido desde carpeta: PK/FK compuesta
+                                      `(organization_id, repository_id)`,
+                                      storage backend/key, SHA-256, bytes,
+                                      conteo de archivos, membresía de carga
+                                      y fecha. `provider=local` no referencia
+                                      una integración externa. RLS forzado;
+                                      los bytes no se guardan en PostgreSQL.
 
   `repository_branches`               Ramas rastreadas opcionalmente:
                                       repositorio, nombre, último commit
@@ -968,7 +981,7 @@ corresponda, índices y validaciones de dominio:
 1.  `organization_memberships` tiene UNIQUE
     `(organization_id, user_id)`.
 2.  Una membership solo referencia un usuario y organización existentes.
-3.  `repositories` pertenece a una integración de la misma organización.
+3.  `repositories` con proveedor externo pertenece a una integración de la misma organización; `provider=local` no la requiere y se acompaña de `local_repository_sources` con tenant, permisos y clave de almacenamiento controlada.
 4.  `scans` pertenece a un repositorio de la misma organización.
 5.  `scan_components` pertenece a un scan y una component_version
     existente.
