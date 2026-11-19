@@ -4,7 +4,7 @@ package com.dependencyintelligence.component.domain;
 public record PackageCoordinates(String ecosystem, String namespace, String name, String version, String purl) {
     public PackageCoordinates {
         ecosystem = required(ecosystem, "Ecosystem", 100);
-        namespace = required(namespace, "Namespace", 255);
+        namespace = namespace == null ? null : required(namespace, "Namespace", 255);
         name = required(name, "Name", 512);
         version = required(version, "Version", 255);
         purl = required(purl, "PURL", 2048);

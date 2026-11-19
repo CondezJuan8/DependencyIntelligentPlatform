@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MavenAnalysisStore {
-    MavenInventory save(UUID scanId, UUID organizationId, UUID repositoryId, String provider,
+    MavenInventory save(String scannerName, UUID scanId, UUID organizationId, UUID repositoryId, String provider,
                         String sourceSha256, String commitSha, Instant analyzedAt, ManifestAnalysis analysis);
-    Optional<MavenInventory> latest(UUID organizationId, UUID repositoryId);
+    Optional<MavenInventory> latest(String scannerName, UUID organizationId, UUID repositoryId);
 }

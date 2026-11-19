@@ -19,6 +19,9 @@ import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSo
 import com.dependencyintelligence.scan.application.port.out.MavenManifestReader;
 import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
 import com.dependencyintelligence.scan.application.usecase.AnalyzeMavenRepositoryUseCase;
+import com.dependencyintelligence.scan.application.port.in.AnalyzeNpmRepository;
+import com.dependencyintelligence.scan.application.port.out.NpmLockfileReader;
+import com.dependencyintelligence.scan.application.usecase.AnalyzeNpmRepositoryUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
@@ -72,4 +75,5 @@ public class UseCaseConfiguration {
             MavenAnalysisStore store, Clock clock) {
         return new AnalyzeMavenRepositoryUseCase(source, reader, store, clock);
     }
+    @Bean AnalyzeNpmRepository analyzeNpmRepository(RepositoryAnalysisSource source,NpmLockfileReader reader,MavenAnalysisStore store,Clock clock){return new AnalyzeNpmRepositoryUseCase(source,reader,store,clock);}
 }

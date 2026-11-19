@@ -27,7 +27,7 @@ public final class AnalyzeMavenRepositoryUseCase implements AnalyzeMavenReposito
             var analysis = manifests.read(source.content());
             if (analysis.manifestCount() == 0)
                 throw new IllegalArgumentException("Este repositorio no contiene pom.xml. El análisis npm llegará después.");
-            return store.save(UUID.randomUUID(), organizationId, repositoryId, source.provider(),
+            return store.save("maven-manifest", UUID.randomUUID(), organizationId, repositoryId, source.provider(),
                 source.sha256(), source.commitSha(), clock.instant().truncatedTo(ChronoUnit.MICROS), analysis);
         } catch (IOException exception) {
             throw new IllegalStateException("No se pudo cerrar el archivo de código fuente.", exception);
@@ -35,6 +35,6 @@ public final class AnalyzeMavenRepositoryUseCase implements AnalyzeMavenReposito
     }
 
     @Override public Optional<MavenInventory> latest(UUID organizationId, UUID repositoryId) {
-        return store.latest(organizationId, repositoryId);
+        return store.latest("maven-manifest", organizationId, repositoryId);
     }
 }
