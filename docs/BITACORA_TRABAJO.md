@@ -907,3 +907,13 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Herramientas/verificación:** Java/Spring Boot, PostgreSQL/Flyway, Angular, Docker Compose, Maven. Build de ambas imágenes correcto (BUILD SUCCESS; 20 pruebas de Infrastructure sin errores en el bloque ejecutado). Compose desplegado en `localhost:8089`, `/health` UP y PostgreSQL en V20. No se lanzó una operación de análisis autenticada en nombre del usuario.
 
 **Pendiente inmediato:** el usuario debe probar «Analizar Maven» con uno de sus repositorios en Inventario; después completar npm y worker aislado.
+
+## Bloque 39 — Dashboard con repositorios reales
+
+**Petición:** comprobar si el dashboard se actualiza al integrar repositorios.
+
+**Hallazgo/cambio:** antes solo consultaba organizaciones; el indicador de repositorios y sus tarjetas seguían estáticos. Ahora consulta `/api/account/workspace`, cuenta repositorios accesibles, los lista con organización y origen LOCAL/GitHub y presenta un estado vacío diferente si ya hay fuentes. Al entrar de nuevo al dashboard tras importar, la vista vuelve a consultar los datos.
+
+**Herramientas/verificación:** Angular/TypeScript y Docker Compose. Build del frontend correcto; frontend recreado y `http://localhost:8089/` responde HTTP 200. No se inventaron totales de dependencias ni niveles de riesgo; esas métricas permanecen vacías hasta conectar sus datos.
+
+**Siguiente paso:** aceptar visualmente el dashboard y luego ampliar su lectura de snapshots Maven para mostrar dependencias analizadas con agregación real.

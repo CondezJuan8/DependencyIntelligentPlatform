@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 38 (API Maven e Inventario inicial).
+Actualizado: 19 de noviembre de 2026, bloque 39 (dashboard conectado a repositorios).
 
-**Estado actual:** GitHub y carpeta local ya se importan y descargan en `localhost:8089`. Bloque 38 añade API para lectura estática de Maven y vista inicial de Inventario. Falta que el usuario ejecute un análisis autenticado. Solo reconoce dependencias directas con versiones explícitas; Maven transitivo/herencia/BOM y npm siguen pendientes.
+**Estado actual:** GitHub y carpeta local ya se importan y descargan en `localhost:8089`. Bloque 38 añade API para lectura estática de Maven y vista inicial de Inventario. Bloque 39 conecta el dashboard a los repositorios accesibles. Falta que el usuario pruebe un análisis autenticado y revisar visualmente el dashboard. Solo reconoce dependencias directas con versiones explícitas; Maven transitivo/herencia/BOM y npm siguen pendientes.
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
