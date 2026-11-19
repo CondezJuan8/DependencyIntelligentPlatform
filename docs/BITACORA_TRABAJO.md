@@ -895,3 +895,15 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Verificación:** build Docker del backend correcto con las pruebas unitarias existentes; backend recreado sin tocar PostgreSQL, Mailpit ni la instancia nativa, `/health` respondió `UP`. El POST de la carpeta real devolvió HTTP 200. PostgreSQL contiene una fuente LOCAL de 446 archivos y ZIP privado de 30.110.249 bytes; el total de repositorios habilitados es tres (dos GitHub y uno LOCAL). El usuario confirmó que la carpeta aparece y que `Descargar fuente` funciona. No se inspeccionó el contenido de sus archivos.
 
 **Siguiente paso:** acordar el bloque de extracción segura y análisis aislado Maven/npm para convertir estas fuentes en snapshots, dependencias e inventario reales. La importación por sí sola aún no analiza código.
+
+## Bloque 38 — Análisis Maven e Inventario inicial
+
+**Petición:** continuar el flujo análisis → dependencias → inventario y dejar la API montada en localhost.
+
+**Implementación:** nueva API `POST/GET /api/organizations/{organizationId}/repositories/{repositoryId}/maven-analysis`, con `scan.create` para analizar y `repository.read` para consultar. El adaptador reutiliza la fuente autorizada LOCAL/GitHub, guarda hash de ZIP, commit cuando aplica, manifiestos POM, dependencias directas con versión explícita y ámbito. V20 agrega origen local, hash y contadores. Inventario ya tiene selector de repositorio, botón de análisis y lista de dependencias.
+
+**Límites:** análisis estático de declaraciones directas en `pom.xml`; no ejecuta Maven ni plugins del proyecto, no resuelve transitivas, herencia/BOM o versiones externas no concretas, y no ejecuta npm/OSV. ZIP se procesa en memoria, sin extraerlo al filesystem.
+
+**Herramientas/verificación:** Java/Spring Boot, PostgreSQL/Flyway, Angular, Docker Compose, Maven. Build de ambas imágenes correcto (BUILD SUCCESS; 20 pruebas de Infrastructure sin errores en el bloque ejecutado). Compose desplegado en `localhost:8089`, `/health` UP y PostgreSQL en V20. No se lanzó una operación de análisis autenticada en nombre del usuario.
+
+**Pendiente inmediato:** el usuario debe probar «Analizar Maven» con uno de sus repositorios en Inventario; después completar npm y worker aislado.

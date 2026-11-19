@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 37 (carga LOCAL real verificada).
+Actualizado: 19 de noviembre de 2026, bloque 38 (API Maven e Inventario inicial).
 
-**Estado actual:** solo `administrador@example.test` y `condez.juanp@gmail.com` están activas. Mamitapuebla está suspendida; la identidad histórica de su propietario se conserva anonimizada, sin acceso ni credenciales, por los eventos de auditoría. Respaldo privado en `.tools/backups/dependency-before-account-cleanup.dump`. GitHub confirmó la instalación `183677764` de `CondezJuan8`, Contents: Read y dos repositorios autorizados. El propietario completó OAuth en `localhost:8089`; la base tiene una instalación activa de Dinamita, dos repositorios GitHub y uno LOCAL habilitados. El usuario confirmó que los tres aparecen y la descarga ZIP funciona. La carpeta propia se importó por HTTP 200 al volumen privado: 446 archivos y ZIP de 30.110.249 bytes. Se excluyen archivos de credenciales conocidos. Análisis aislado Maven/npm sigue pendiente.
+**Estado actual:** GitHub y carpeta local ya se importan y descargan en `localhost:8089`. Bloque 38 añade API para lectura estática de Maven y vista inicial de Inventario. Falta que el usuario ejecute un análisis autenticado. Solo reconoce dependencias directas con versiones explícitas; Maven transitivo/herencia/BOM y npm siguen pendientes.
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -48,7 +48,7 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
 - [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build/credenciales conocidas, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes. Una carpeta real de 446 archivos se importó y descargó correctamente en Dinamita.
-- [ ] Análisis de repositorios locales/GitHub: la lectura/descarga de ZIP local o GitHub ya está implementada; faltan validación y extracción segura del ZIP, jobs aislados Maven/npm, progreso, resultados, errores y reintentos. La subida por sí sola no constituye un análisis.
+- [ ] Análisis de repositorios: la API Maven lee POMs sin extraerlos al disco ni ejecutar código y guarda snapshot, hash y dependencias directas; falta validar el recorrido con el usuario, cubrir versiones heredadas/BOM y transitivas, implementar npm y después jobs aislados/progreso/reintentos.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
 
