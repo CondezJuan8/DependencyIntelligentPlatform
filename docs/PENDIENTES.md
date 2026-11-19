@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 39 (dashboard conectado a repositorios).
+Actualizado: 19 de noviembre de 2026, bloque 40 (lector npm y lockfile).
 
-**Estado actual:** GitHub y carpeta local ya se importan y descargan en `localhost:8089`. Bloque 38 añade API para lectura estática de Maven y vista inicial de Inventario. Bloque 39 conecta el dashboard a los repositorios accesibles. Falta que el usuario pruebe un análisis autenticado y revisar visualmente el dashboard. Solo reconoce dependencias directas con versiones explícitas; Maven transitivo/herencia/BOM y npm siguen pendientes.
+**Estado actual:** GitHub y carpeta local ya se importan y descargan en `localhost:8089`. API y UI analizan POM Maven (directas con versión explícita) y package-lock npm v2/v3 (versiones instaladas directas/transitivas). Dashboard resume Maven y repositorios; falta agregar conteo npm. Falta validar con un repositorio npm real y revisar visualmente. Maven transitivo/herencia/BOM siguen pendientes.
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -48,7 +48,7 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
 - [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build/credenciales conocidas, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes. Una carpeta real de 446 archivos se importó y descargó correctamente en Dinamita.
-- [ ] Análisis de repositorios: la API Maven lee POMs sin extraerlos al disco ni ejecutar código y guarda snapshot, hash y dependencias directas; falta validar el recorrido con el usuario, cubrir versiones heredadas/BOM y transitivas, implementar npm y después jobs aislados/progreso/reintentos.
+- [ ] Análisis de repositorios: Maven lee declaraciones directas concretas; npm lee paquetes del lockfile v2/v3 con tipo directo/transitivo. Falta validación real del usuario, aristas padre-hijo, Maven transitivo/herencia/BOM, npm v1 y jobs aislados/progreso/reintentos.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
 

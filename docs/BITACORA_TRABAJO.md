@@ -919,3 +919,15 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Siguiente paso:** aceptar visualmente el dashboard y luego ampliar su lectura de snapshots Maven para mostrar dependencias analizadas con agregación real.
 
 **Continuación:** el dashboard consulta el último snapshot Maven de cada repositorio accesible, muestra total agregado de dependencias directas y hasta cinco análisis recientes con fecha y conteo por repositorio. No representa riesgo ni transitivas. Frontend recompilado, desplegado y HTTP 200.
+
+## Bloque 40 — Análisis npm desde package-lock
+
+**Petición:** completar análisis npm en el flujo del repositorio, Inventario y dashboard.
+
+**Implementación:** `POST/GET /api/organizations/{organizationId}/repositories/{repositoryId}/npm-analysis`. Lee `package-lock.json` v2/v3 desde el ZIP sin extraer archivos ni ejecutar `npm install` o scripts. Guarda versiones resueltas del mapa `packages`, clasifica directas/transitivas desde las dependencias raíz y marcas del lockfile, y registra ámbito runtime/development/optional. V21 registra scanner; el catálogo normalizado ahora persiste ecosistema y tipo de dependencia. Inventario ofrece acciones Maven y npm y muestra ambos tipos. Mantiene permisos `scan.create`/`repository.read` y hash de fuente/commit.
+
+**Límites:** lockfiles v1, múltiples `package-lock.json` en un ZIP, enlaces locales y metadatos sin versión se excluyen o rechazan; el parser no ejecuta gestor ni valida integridad de instalación. No hay aún aristas padre-hijo de transitivas, OSV ni actualización del resumen del dashboard para contar npm.
+
+**Verificación:** build Docker backend/frontend correcto (BUILD SUCCESS; pruebas de módulos ejecutadas sin errores), V21 aplicada, backend/frontend activos, `/health` HTTP 200 en `localhost:8089`. No se probó un repositorio npm real autenticado por el usuario.
+
+**Siguiente paso:** probar un repositorio con `package-lock.json` v2/v3 en Inventario; luego guardar aristas de dependencia, agregar npm al dashboard y conectar avisos OSV con su evidencia.
