@@ -42,6 +42,9 @@ public final class Scan {
         if (origin == ScanOrigin.SBOM_IMPORT && (gitReference != null || status != ScanStatus.COMPLETED)) {
             throw new IllegalArgumentException("Manual import must be completed without a fabricated Git reference");
         }
+        if (origin == ScanOrigin.LOCAL_UPLOAD_SCAN && gitReference != null) {
+            throw new IllegalArgumentException("Local source must not have a Git reference");
+        }
         this.gitReference = gitReference == null ? null : gitReference.strip();
         boolean valid = switch (status) {
             case PENDING -> startedAt == null && finishedAt == null && failureReason == null;

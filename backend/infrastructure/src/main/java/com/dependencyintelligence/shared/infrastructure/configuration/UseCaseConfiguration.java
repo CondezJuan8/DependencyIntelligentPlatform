@@ -14,6 +14,11 @@ import com.dependencyintelligence.repository.application.usecase.RegisterReposit
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
 import com.dependencyintelligence.scan.application.usecase.RequestScanUseCase;
+import com.dependencyintelligence.scan.application.port.in.AnalyzeMavenRepository;
+import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSource;
+import com.dependencyintelligence.scan.application.port.out.MavenManifestReader;
+import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
+import com.dependencyintelligence.scan.application.usecase.AnalyzeMavenRepositoryUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
@@ -61,5 +66,10 @@ public class UseCaseConfiguration {
                                  Clock clock, TenantTransactions transactions) {
         var useCase = new RequestScanUseCase(repositories, scans, clock);
         return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
+    }
+
+    @Bean AnalyzeMavenRepository analyzeMavenRepository(RepositoryAnalysisSource source, MavenManifestReader reader,
+            MavenAnalysisStore store, Clock clock) {
+        return new AnalyzeMavenRepositoryUseCase(source, reader, store, clock);
     }
 }
