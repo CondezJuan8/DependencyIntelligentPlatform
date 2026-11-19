@@ -12,7 +12,7 @@ export const navigation = [
     id: 'inventory',
     label: 'Inventario',
     icon: 'box',
-    ready: false,
+    ready: true,
     description:
       'Consulta y filtra las dependencias de tus repositorios. Disponible cuando conectemos el flujo de análisis.',
   },

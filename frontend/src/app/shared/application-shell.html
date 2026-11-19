@@ -24,6 +24,7 @@
       @switch (page()) {
 @case ('administration') { @defer(on immediate){<app-platform-administration/>}@loading{<p role="status">Cargando administración…</p>} }
 @case ('repositories') { @defer(on immediate){<app-invitation-acceptance/><app-repository-workspace/>}@loading{<p role="status">Cargando repositorios…</p>} }
+@case ('inventory') { @defer(on immediate){<app-inventory-workspace/>}@loading{<p role="status">Cargando inventario…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
             <app-dashboard (manage)="go('organization')" />
