@@ -388,4 +388,12 @@ export const english: Record<string, string> = {
   'La instalación de GitHub quedó verificada y conectada.': 'The GitHub installation was verified and connected.',
   'Cancelaste la autorización de GitHub. Puedes intentarlo otra vez.': 'You cancelled GitHub authorization. You can try again.',
   'No se pudo verificar la instalación con la identidad de GitHub autorizada. Revisa el acceso e inténtalo otra vez.': 'The installation could not be verified with the authorized GitHub identity. Check access and try again.',
+  '¿Ya instalaste la GitHub App?': 'Have you already installed the GitHub App?',
+  'Abre la instalación en la configuración de GitHub y copia el número al final de su URL. La conexión se verificará con tu cuenta de GitHub antes de mostrar repositorios.': 'Open the installation in GitHub settings and copy the number at the end of its URL. Your GitHub account will be verified before repositories appear.',
+  'Número de instalación': 'Installation number',
+  'Vincular instalación existente': 'Connect existing installation',
+  'Abrir mis instalaciones en GitHub': 'Open my GitHub installations',
+  'Descargar fuente': 'Download source',
+  'Repositorios de este espacio': 'Repositories in this workspace',
+  'Otro': 'Other',
 };

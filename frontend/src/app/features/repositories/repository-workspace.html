@@ -29,6 +29,19 @@
         <button class="primary" type="button" [disabled]="pending() || statusLoading() || !organizationId() || !githubStatus()?.configured || !githubStatus()?.canManage" (click)="beginInstall()">{{ installations().length ? 'Añadir otra instalación' : 'Instalar GitHub App' }}</button>
       }
     </section>
+    @if (githubStatus()?.configured && githubStatus()?.canManage) {
+      <section class="repo-section existing-installation">
+        <h2>{{ '¿Ya instalaste la GitHub App?' | t }}</h2>
+        <p>{{ 'Abre la instalación en la configuración de GitHub y copia el número al final de su URL. La conexión se verificará con tu cuenta de GitHub antes de mostrar repositorios.' | t }}</p>
+        <div class="existing-installation-controls">
+          <label for="github-installation-id">{{ 'Número de instalación' | t }}</label>
+          <input id="github-installation-id" inputmode="numeric" autocomplete="off" placeholder="Ejemplo: 12345678"
+            [value]="existingInstallationId()" (input)="updateExistingInstallationId($event)" />
+          <button class="primary" type="button" [disabled]="pending() || !existingInstallationId()" (click)="connectExisting()">{{ 'Vincular instalación existente' | t }}</button>
+        </div>
+        <a href="https://github.com/settings/installations" target="_blank" rel="noopener noreferrer">{{ 'Abrir mis instalaciones en GitHub' | t }}</a>
+      </section>
+    }
     <section class="repo-section local-upload">
       <div><h2>{{ 'Importar carpeta local' | t }}</h2><p>{{ 'Sube el proyecto desde tu equipo a la organización. Límite: 100 MiB y 2.000 archivos. Se omiten .git, node_modules y carpetas de compilación.' | t }}</p></div>
       <label class="folder-picker" for="local-project-folder">{{ 'Selecciona una carpeta de proyecto' | t }}</label>
@@ -41,7 +54,7 @@
       @if (localRepositories().length) {
         <div class="local-repository-list"><h3>{{ 'Carpetas importadas' | t }}</h3>
           @for (localRepository of localRepositories(); track localRepository.id) {
-            <article class="repo-row"><div><h3>{{ localRepository.name }}</h3><p>{{ localRepository.fileCount }} {{ 'archivos' | t }} · {{ formatSize(localRepository.sizeBytes) }} · {{ 'Almacenamiento privado' | t }}</p></div><span class="badge">{{ 'Local' | t }}</span></article>
+            <article class="repo-row"><div><h3>{{ localRepository.name }}</h3><p>{{ localRepository.fileCount }} {{ 'archivos' | t }} · {{ formatSize(localRepository.sizeBytes) }} · {{ 'Almacenamiento privado' | t }}</p></div><div class="repo-actions"><span class="badge">{{ 'Local' | t }}</span><a [href]="'/api/organizations/' + organizationId() + '/repositories/' + localRepository.id + '/source'">{{ 'Descargar fuente' | t }}</a></div></article>
           }
         </div>
       }
@@ -51,7 +64,7 @@
         <div class="repo-list">
           @for (repository of installation.repositories; track repository.externalId) {
             <article class="repo-row"><div class="repo-info"><span class="repo-icon"><app-di-icon name="box"/></span><div><h3>{{ repository.fullName }}</h3><p>{{ repository.visibility }} · {{ repository.archived ? 'Archivado' : 'Activo' }} · rama {{ repository.defaultBranch }}</p></div></div>
-              @if (isImported(repository.externalId)) { <span class="badge">Agregado</span> }
+              @if (isImported(repository.externalId)) { <span class="badge">GitHub · Agregado</span> }
               @else { <label class="select-repo"><input type="checkbox" [checked]="isSelected(repository.externalId)" [disabled]="pending()" (change)="toggle(repository.externalId, $any($event.target).checked)"><span>Agregar</span></label> }
             </article>
           } @empty { <p class="empty-line">Esta instalación no tiene repositorios seleccionados. Puedes cambiar el acceso en GitHub.</p> }
@@ -59,11 +72,11 @@
       </section>
     }
     @if (selectedIds().size > 0) { <div class="selection-bar"><span>{{ selectedIds().size }} seleccionados</span><button class="primary" [disabled]="pending()" (click)="importSelected()">Agregar a la organización</button></div> }
-    @if (repositories().length > 0) { <section class="repo-section"><h2>Repositorios compartidos contigo</h2>@for(repo of repositories();track repo.id){<article class="repo-row"><div><h3>{{repo.fullName}}</h3><p>{{repo.organizationName}} · rama {{repo.defaultBranch}}</p></div><span class="badge">Acceso autorizado</span></article>}</section> }
+    @if (visibleRepositories().length > 0) { <section class="repo-section"><h2>{{ 'Repositorios de este espacio' | t }}</h2>@for(repo of visibleRepositories();track repo.id){<article class="repo-row"><div><h3>{{repo.fullName}}</h3><p>{{repo.organizationName}} · {{ 'rama' | t }} {{repo.defaultBranch}}</p></div><div class="repo-actions"><span class="badge">{{ sourceLabel(repo.source) | t }}</span>@if(repo.source === 'local' || repo.source === 'github'){<a [href]="sourceUrl(repo)">{{ 'Descargar fuente' | t }}</a>}</div></article>}</section> }
   }
 } @else {
   <section class="repo-section"><h2>Repositorios habilitados para ti</h2>
-    @for(repository of repositories();track repository.id){<article class="repo-row"><div><h3>{{repository.fullName}}</h3><p>{{repository.organizationName}} · rama {{repository.defaultBranch}}</p></div><span class="badge">Acceso autorizado</span></article>}
+    @for(repository of repositories();track repository.id){<article class="repo-row"><div><h3>{{repository.fullName}}</h3><p>{{repository.organizationName}} · {{ 'rama' | t }} {{repository.defaultBranch}}</p></div><div class="repo-actions"><span class="badge">{{ sourceLabel(repository.source) | t }} · {{ 'Acceso autorizado' | t }}</span>@if(repository.source === 'local' || repository.source === 'github'){<a [href]="sourceUrl(repository)">{{ 'Descargar fuente' | t }}</a>}</div></article>}
     @empty { @if(!loading()){<div class="empty"><app-di-icon name="shield"/><h3>Aún no tienes repositorios habilitados</h3><p>El propietario de tu organización debe aprobar tu acceso a un equipo y repositorio.</p></div>} }
   </section>
 }

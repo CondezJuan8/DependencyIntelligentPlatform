@@ -5,7 +5,7 @@ import { Organization, SessionApiService, accessError } from '../../core/session
 import { DiIcon } from '../../shared/di-icon';
 import { TranslatePipe } from '../../core/translate.pipe';
 
-interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; defaultBranch: string; }
+interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; defaultBranch: string; source: string; }
 interface Candidate { externalId: string; fullName: string; defaultBranch: string; htmlUrl: string; visibility: string; archived: boolean; }
 interface Installation { id: number; accountLogin: string; accountType: 'USER' | 'ORGANIZATION'; repositories: Candidate[]; }
 interface Workspace { installations: Installation[]; importedRepositoryIds: string[]; }
@@ -26,6 +26,7 @@ export class RepositoryWorkspace implements OnInit {
   readonly localRepositories = signal<LocalRepository[]>([]);
   readonly localFiles = signal<File[]>([]);
   readonly localName = signal('');
+  readonly existingInstallationId = signal('');
   readonly uploadProgress = signal<number | null>(null);
   readonly selectedIds = signal(new Set<string>());
   readonly loading = signal(false);
@@ -110,6 +111,7 @@ export class RepositoryWorkspace implements OnInit {
           if (this.organizationId() !== organizationId) return;
           this.githubStatus.set(status);
             if (status.canManage) this.loadLocalRepositories(organizationId);
+            if (status.canManage) this.loadAccessibleRepositories();
             if (status.configured && status.canManage) this.loadWorkspace();
         },
         error: error => this.error.set(accessError(error)),
@@ -159,6 +161,7 @@ export class RepositoryWorkspace implements OnInit {
           } else if (event instanceof HttpResponse && event.body) {
             this.message.set(`Carpeta «${event.body.name}» importada. ${event.body.fileCount} archivos guardados; lista para asignar al equipo.`);
             this.localFiles.set([]); this.localName.set(''); this.loadLocalRepositories(organizationId);
+            this.loadAccessibleRepositories();
           }
         },
         error: error => { this.message.set(''); this.error.set(accessError(error)); },
@@ -187,12 +190,34 @@ export class RepositoryWorkspace implements OnInit {
       .subscribe({ next: result => window.location.assign(result.url), error: error => this.error.set(accessError(error)) });
   }
 
+  connectExisting(): void {
+    const organizationId = this.organizationId();
+    const installationId = this.existingInstallationId().trim();
+    if (!organizationId || !/^\d{1,19}$/.test(installationId) || this.pending() || !this.githubStatus()?.canManage) {
+      this.error.set('Copia el número de instalación desde la URL de configuración de GitHub.');
+      return;
+    }
+    sessionStorage.setItem('di.github.organization', organizationId);
+    this.pending.set(true); this.error.set('');
+    this.api.post<{ url: string }>(`/api/organizations/${organizationId}/github/installations/existing`,
+      { installationId })
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({ next: result => window.location.assign(result.url), error: error => this.error.set(accessError(error)) });
+  }
+
+  updateExistingInstallationId(event: Event): void {
+    this.existingInstallationId.set((event.target as HTMLInputElement).value);
+  }
+
   toggle(externalId: string, checked: boolean): void {
     this.selectedIds.update(current => { const next = new Set(current); checked ? next.add(externalId) : next.delete(externalId); return next; });
   }
 
   isImported(id: string): boolean { return this.importedIds().has(id); }
   isSelected(id: string): boolean { return this.selectedIds().has(id); }
+  sourceLabel(source: string): string { return source === 'local' ? 'Local' : source === 'github' ? 'GitHub' : 'Otro'; }
+  visibleRepositories(): Repository[] { return this.repositories().filter(repository => repository.organizationId === this.organizationId()); }
+  sourceUrl(repository: Repository): string { return `/api/organizations/${repository.organizationId}/repositories/${repository.id}/source`; }
 
   importSelected(): void {
     const organizationId = this.organizationId(); const repositoryIds = [...this.selectedIds()];
@@ -207,10 +232,12 @@ export class RepositoryWorkspace implements OnInit {
   private applyWorkspace(data: Workspace): void {
     const imported = new Set(data.importedRepositoryIds);
     this.installations.set(data.installations); this.importedIds.set(imported);
-    const organization = this.organizations().find(item => item.id === this.organizationId());
-    this.repositories.set(data.installations.flatMap(installation => installation.repositories)
-      .filter(repository => imported.has(repository.externalId))
-      .map(repository => ({ id: repository.externalId, organizationId: this.organizationId(), organizationName: organization?.name ?? '',
-        fullName: repository.fullName, defaultBranch: repository.defaultBranch })));
+    this.loadAccessibleRepositories();
+  }
+
+  private loadAccessibleRepositories(): void {
+    this.api.get<Repository[]>('/api/account/workspace').subscribe({
+      next: items => this.repositories.set(items), error: error => this.error.set(accessError(error)),
+    });
   }
 }
