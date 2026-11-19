@@ -7,7 +7,8 @@ COPY infrastructure/pom.xml infrastructure/pom.xml
 COPY domain/src domain/src
 COPY application/src application/src
 COPY infrastructure/src infrastructure/src
-RUN mvn -B -ntp verify
+ARG OPERATOR_TOOL_IMAGE=false
+RUN if [ "$OPERATOR_TOOL_IMAGE" = "true" ]; then mvn -B -ntp -DskipTests package; else mvn -B -ntp verify; fi
 
 FROM eclipse-temurin:21-jre-jammy
 RUN groupadd --system app && useradd --system --gid app app

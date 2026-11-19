@@ -72,6 +72,32 @@ services:
         condition: service_started
     volumes:
       - repository_data:/var/lib/dependency-intelligence/repositories
+  platform-admin-bootstrap:
+    profiles: ["bootstrap"]
+    build:
+      context: ./backend
+      args:
+        OPERATOR_TOOL_IMAGE: "true"
+    environment:
+      DB_HOST: database
+      POSTGRES_DB: ${POSTGRES_DB:-dependency_intelligence}
+      DB_RUNTIME_USER: ${MIGRATION_USER:-${POSTGRES_USER:-dependency}}
+      POSTGRES_APP_PASSWORD: ${MIGRATION_PASSWORD:-${POSTGRES_PASSWORD:?Copia .env.example a .env}}
+      MIGRATION_USER: ${MIGRATION_USER:-${POSTGRES_USER:-dependency}}
+      MIGRATION_PASSWORD: ${MIGRATION_PASSWORD:-${POSTGRES_PASSWORD:?Copia .env.example a .env}}
+      APP_DATABASE_ENFORCE_RUNTIME_ROLE: "false"
+      GITHUB_APP_ENABLED: "false"
+      GOOGLE_LOGIN_ENABLED: "false"
+      GITHUB_LOGIN_ENABLED: "false"
+      WEB_PORT: ${WEB_PORT:-8088}
+    command:
+      - --spring.profiles.active=platform-admin-bootstrap
+      - --spring.main.web-application-type=none
+    stdin_open: true
+    tty: true
+    depends_on:
+      database:
+        condition: service_healthy
   frontend:
     build: ./frontend
     ports:

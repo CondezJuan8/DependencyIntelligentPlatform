@@ -16,6 +16,9 @@ import java.time.Duration;
 
 @Configuration
 public class IdentityConfiguration {
+    @Bean BootstrapPlatformAdministrator bootstrapPlatformAdministrator(PlatformAdministratorBootstrapStore store, PasswordHashing hashing) {
+        return new BootstrapPlatformAdministratorUseCase(store, hashing);
+    }
     @Bean RegisterAccount registerAccount(AccountStore store, PasswordHashing hashing, PendingAdmissionNotifier notifier) {
         return new RegisterAccountUseCase(store, hashing, notifier);
     }
