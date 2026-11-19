@@ -11,14 +11,14 @@
   <article>
     <div>
       <p>Repositorios</p>
-      <strong>—</strong><small>Pendiente de conexión</small>
+      <strong>{{ loading() ? '…' : failed() ? '—' : repositories() }}</strong><small>Repositorios locales y GitHub</small>
     </div>
     <span class="metric-icon cyan"><app-di-icon name="box" /></span>
   </article>
   <article>
     <div>
       <p>Dependencias</p>
-      <strong>—</strong><small>Sin análisis disponibles</small>
+      <strong>{{ dependencies() === null ? '—' : dependencies() }}</strong><small>{{ dependencies() === null ? 'Sin análisis disponibles' : 'Dependencias declaradas' }}</small>
     </div>
     <span class="metric-icon purple"><app-di-icon name="graph" /></span>
   </article>

@@ -15,9 +15,19 @@
 }
 <app-workspace-metrics
   [count]="organizations().length"
+  [repositories]="repositories().length"
+  [dependencies]="dependencyCount"
   [loading]="loading()"
   [failed]="!!error()"
 />
+<section class="panel" style="margin:0 0 1.5rem">
+  <div class="panel-title"><h2>Repositorios conectados</h2><span class="di-tag">{{ repositories().length }}</span></div>
+  @for (repository of repositories(); track repository.id) {
+    <button class="organization-row" (click)="manage.emit()"><span class="organization-avatar">{{ repository.source === 'local' ? 'L' : 'GH' }}</span><span>{{ repository.fullName }}<small>{{ repository.organizationName }} · {{ repository.source === 'local' ? 'Local' : 'GitHub' }}</small></span><app-di-icon name="arrow" /></button>
+  } @empty {
+    @if (!loading()) { <div class="compact-empty"><p>Todavía no hay repositorios con acceso para tu cuenta.</p><button mat-stroked-button (click)="manage.emit()">Conectar o importar repositorio</button></div> }
+  }
+</section>
 <div class="primary-grid">
   <section class="panel">
     <div class="panel-title">
@@ -45,8 +55,8 @@
       </svg>
       <div class="empty-copy">
         <span class="empty-icon"><app-di-icon name="graph" /></span>
-        <h3>Todo empieza con un repositorio</h3>
-        <p>Cuando esté conectado y analizado, aquí verás cómo se relacionan sus dependencias.</p>
+        <h3>{{ repositories().length ? 'Repositorios conectados; el grafo aún no está disponible' : 'Todo empieza con un repositorio' }}</h3>
+        <p>{{ repositories().length ? 'El dashboard ya muestra tus repositorios. Las relaciones aparecerán cuando esté lista la lectura de dependencias transitivas.' : 'Cuando conectes un repositorio, el dashboard lo mostrará aquí.' }}</p>
       </div>
     </div>
     <div class="legend">

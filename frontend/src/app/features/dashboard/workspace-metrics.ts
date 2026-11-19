@@ -8,6 +8,8 @@ import { DiIcon } from '../../shared/di-icon';
 })
 export class WorkspaceMetrics {
   readonly count = input(0);
+  readonly repositories = input(0);
+  readonly dependencies = input<number | null>(null);
   readonly loading = input(false);
   readonly failed = input(false);
 }
