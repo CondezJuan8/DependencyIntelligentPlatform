@@ -1,6 +1,10 @@
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 
+### Bloque 43 — vulnerabilidades legibles en Dashboard e Inventario
+
+El Dashboard consulta los snapshots Maven, npm y OSV de cada repositorio accesible. Resume versiones por cuatro categorías semánticas: crítico, riesgo alto, advertencia y sin avisos conocidos. Una versión solo puede aparecer como «sin avisos conocidos» con respuesta OSV exitosa; consultas parciales, vencidas o fallidas se informan como pendientes. Se muestran avisos con repositorio, paquete, versión e hipervínculo a la fuente OSV. Inventario añade explicación sencilla y acción sugerida para GHSA-wjgm-6hv5-3cvf y GHSA-wv8q-qhhj-9h54, las versiones corregidas publicadas y secciones desplegables para la descripción técnica y referencias. Tipografía y espacio aumentan para facilitar lectura. Sin cambios backend, DB ni dependencias. Build/deploy y estado de `localhost:8089` documentados en [bitácora](BITACORA_TRABAJO.md); pendientes actualizados en [PENDIENTES](PENDIENTES.md).
+
 ### Bloque 42 - Consulta de vulnerabilidades OSV por versión
 
 La pantalla Inventario presenta Maven y npm en una sola vista por repositorio: un botón ejecuta ambos analizadores y después evalúa sus versiones exactas con OSV. Los paquetes se agrupan por ecosistema, namespace y nombre; cada identidad muestra versiones exactas y ocurrencias por archivo/ámbito. Incluye búsqueda, filtros, conteos, procedencia de fuente/hash/commit y estados accesibles. El bloque 42 agrega avisos y evidencia con estado fresco/parcial/no disponible; detalles y límites en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).

@@ -1,5 +1,9 @@
 # Paleta y criterios de revisión del frontend
 
+## Bloque 43 — lectura de vulnerabilidades
+
+Dashboard presenta cuatro categorías con texto, color semántico y conteo de versiones por repositorio; muestra hasta seis avisos con paquete@versión, repositorio y enlace a OSV. Las evaluaciones pendientes o con error llevan un mensaje separado y no se presentan como seguras. Tipografía, alturas de línea, tamaño de texto y aire de paneles aumentan para aprovechar el espacio. En Inventario las explicaciones y recomendaciones aparecen antes del detalle técnico desplegable; referencias largas ocupan varias líneas sin estrechar el contenido. El diseño reutiliza tokens de modo claro/oscuro. Revisión visual responsive y aceptación del usuario siguen pendientes.
+
 ## Bloque 41 - Inventario unificado, mobile-first y accesible
 
 La vista agrupa las versiones de Maven y npm en un catálogo con búsqueda y filtros por ecosistema, tipo directo/transitivo y ámbito. Una sola acción analiza ambos formatos y presenta resultados parciales indicando el estado de cada scanner. Cada ocurrencia conserva acceso desplegable a la fuente del ZIP, hash, commit cuando existe, manifiesto y fecha.

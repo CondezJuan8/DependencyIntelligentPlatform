@@ -961,3 +961,23 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Límites:** no se han validado datos reales de advisories para los repositorios del usuario, cobertura OSV, rango completo de versiones, hallazgos normalizados/globales, recomendaciones, fixes, segunda fuente, aristas ni remediación. Una respuesta vacía significa solo que OSV no reportó avisos conocidos en esa consulta.
 
 **Siguiente paso:** abrir Inventario en `http://localhost:8089` con un repositorio Maven/npm real; comprobar visualmente aviso, respuesta sin avisos y fallos de red antes de añadir el resumen npm al dashboard o avanzar al grafo. Los contenedores backend/frontend quedaron recreados y health/portada responden HTTP 200.
+
+## Bloque 43 — vulnerabilidades claras en Dashboard e Inventario
+
+**Petición:** dar más espacio a la tipografía; mostrar en Dashboard los avisos clasificados con los cuatro colores semánticos; explicar los errores técnicos en palabras comprensibles.
+
+**Cambios:** Dashboard consulta análisis Maven/npm y snapshots OSV para todos los repositorios accesibles. Muestra conteos de versiones por Crítico, Riesgo alto, Advertencia y Sin avisos conocidos, una lista de hasta seis avisos con paquete, versión, repositorio y enlace a OSV, y un aviso aparte para evaluaciones pendientes. La etiqueta sin avisos se reserva a `NO_KNOWN_ADVISORIES`; fallo, atraso o evaluación pendiente no se interpreta como seguro. Inventario incorpora explicación/acción enfocadas en los dos advisories Jackson de la captura, muestra versiones corregidas publicadas y separa la explicación del detalle técnico expandible. Se aumentó tipografía, interlineado y espacio de los paneles y se corrigió el ajuste de texto de referencias largas.
+
+**Archivos y alcance:** Dashboard, vista de Inventario, SCSS, `docs/PENDIENTES.md`, contexto maestro, arquitectura, stack y diseño visual. Solo frontend/documentación: sin cambios de API, Domain/Application/Infrastructure, permisos, migraciones ni dependencias nuevas.
+
+**Herramientas y tecnologías usadas:** Angular 22, TypeScript, RxJS `forkJoin`, HTML semántico, SCSS y tokens oficiales de color. OSV sigue siendo la fuente; las explicaciones conocidas son texto determinista, sin llamar a Gemini.
+
+**Verificación:** pendiente de ejecutar el build de producción frontend, recrear solo el contenedor frontend en `localhost:8089` y revisar health/HTTP. No se ejecuta la suite backend porque no se modificó código de servidor. Aceptación visual en escritorio/móvil queda pendiente del usuario.
+
+**Siguiente paso:** abrir Dashboard y luego un paquete afectado en Inventario con los repositorios reales; comprobar conteos, estados incompletos, lectura de enlaces y explicación de avisos.
+
+**Verificación añadida:** `docker compose build frontend` terminó correctamente con Angular 22. Avisos restantes de presupuesto: bundle inicial 570.35 kB/500 kB, hojas preexistentes de organización/repositorios/inventario, y dashboard 4.15 kB/4 kB (no supera el límite de error). Se recreó solo el frontend; `http://localhost:8089/` y el bundle JS respondieron HTTP 200. Backend quedó UP; PostgreSQL y Mailpit healthy. No se ejecutaron pruebas automatizadas: este bloque solo cambia frontend/documentación.
+
+**Fuentes oficiales usadas para las explicaciones:** [GHSA-wjgm-6hv5-3cvf](https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wjgm-6hv5-3cvf) y [GHSA-wv8q-qhhj-9h54](https://github.com/advisories/GHSA-wv8q-qhhj-9h54). La primera requiere valorar la conversión de JSON a Path y los providers presentes; la segunda depende de configuración polimórfica con fallback e identificadores externos. La mera presencia de la dependencia no confirma que esas condiciones se cumplan en el repositorio.
+
+**Cierre de verificación:** el build final (incluido el aviso de carga OSV fallida) también pasó. El bundle inicial quedó en 570.70 kB; solo se informan avisos de presupuesto, no errores. Frontend recreado; portada y bundle HTTP 200 en `localhost:8089`.

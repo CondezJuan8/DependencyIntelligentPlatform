@@ -1,5 +1,9 @@
 # Arquitectura del backend
 
+## Bloque 43 — presentación del resultado OSV
+
+Dashboard consulta el endpoint de evaluación existente para cada repositorio al que tiene acceso y combina resultados Maven/npm con los snapshots de vulnerabilidades. La clasificación de presentación usa la severidad de OSV: CRITICAL, HIGH y MEDIUM/LOW/UNKNOWN como advertencia; «sin avisos conocidos» solo se asigna al estado `NO_KNOWN_ADVISORIES`. `INCOMPLETE`, `UNAVAILABLE`, `STALE` y `NOT_ASSESSED` se contabilizan como pendientes. Si hay varias alertas para la misma versión, el resumen usa la de mayor severidad. No hay cambios a Domain, Application, Infrastructure, contratos, permisos o base de datos.
+
 ## Bootstrap del primer administrador de plataforma
 
 El caso de uso `BootstrapPlatformAdministrator` vive en Application y depende de puertos propios para hash de contraseña y persistencia. Infrastructure aporta el adaptador JDBC transaccional y el comando de consola bajo el perfil exclusivo `platform-admin-bootstrap`. Compose lo expone como servicio opt-in `platform-admin-bootstrap`, sin puertos HTTP; solicita los datos en una terminal con eco de contraseña desactivado y requiere confirmación literal. Un bloqueo advisory y una verificación dentro de la transacción exigen cero usuarios, organizaciones y administradores antes de crear una cuenta OWNER aprobada/verificada, su credencial PBKDF2, su rol global y el evento de auditoría. No existe endpoint ni bootstrap automático en el backend normal; el procedimiento se limita a una base local nueva. Ver [acceso local](ACCESO_LOCAL.md).

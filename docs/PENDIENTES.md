@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 42 (evaluación de vulnerabilidades OSV).
+Actualizado: 19 de noviembre de 2026, bloque 43 (Dashboard OSV y avisos legibles).
 
-**Estado actual:** GitHub y carpeta local se importan y descargan en `localhost:8089`. Inventario analiza Maven y npm, agrupa identidades/versiones, conserva procedencia y consulta OSV para cada versión exacta. La UI diferencia avisos, ausencia de avisos conocidos, resultado parcial, indisponibilidad y evidencia desactualizada. La revisión visual sigue pendiente; también npm en dashboard, resolución Maven, aristas del grafo y validación con más repositorios. El estado y límites OSV están en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
+**Estado actual:** GitHub y carpeta local se importan y descargan en `localhost:8089`. Inventario analiza Maven y npm, conserva procedencia y consulta OSV por versión. Dashboard resume avisos OSV en cuatro categorías y deja fuera de la categoría segura las consultas incompletas o fallidas. Inventario ofrece explicaciones sencillas de los dos advisories incluidos y conserva el detalle técnico. Falta aceptación visual del usuario con repositorios reales. Siguen pendientes mejorar resolución Maven, aristas del grafo y ampliar cobertura de ecosistemas. Límites OSV: [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md); recorrido del bloque: [bitácora](BITACORA_TRABAJO.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -59,7 +59,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 | Integración de repositorios GitHub | Instalación de App, verificación OAuth/PKCE, listado e importación de metadatos | Configurar y verificar instalación real, revocar/desconectar, leer commits/archivos y procesar eventos idempotentes |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
 | SBOM y ecosistemas | Carga, parsers Maven/npm con cobertura ampliada, scanner aislado y relaciones con evidencia | Procesar proyectos reales y guardar componentes/aristas verificables sin inferencias |
-| Vulnerabilidades | Consulta OSV por versión exacta, snapshots con evidencia tenant-scoped e interfaz de avisos/estados implementados en bloque 42. Falta validación en vivo con un repositorio real y cobertura funcional de más ecosistemas | Confirmar aviso, resultado vacío, error y frescura con respuestas OSV en un repositorio del usuario; conservar límites de cobertura visibles |
+| Vulnerabilidades | Consulta OSV por versión exacta, snapshots con evidencia tenant-scoped, agrupación del Dashboard por cuatro niveles y explicaciones sencillas en Inventario (bloques 42–43) | Revisar el Dashboard y explicaciones con datos reales del usuario; comprobar visualmente móvil/escritorio |
 | Inventario y grafo | Catálogo UI agregado por repositorio con búsqueda/filtros implementado; API de grafo, paginación multi-repositorio, aristas y rutas pendientes | Navegar paquetes/versiones y relaciones con evidencia trazable; directa/transitiva solo cuando la fuente lo respalde |
 | Historial y comparación | Consultas por commit y comparación de snapshots del mismo repositorio | Identificar añadidos, eliminados y actualizados con procedencia |
 | Recomendaciones | Versiones candidatas/corregidas, riesgo y evidencia documental | Proponer cambios explicables y pruebas pertinentes |
@@ -96,3 +96,9 @@ Se tradujeron las etiquetas de navegacion y resultados del buscador; ahora puede
 ## Estado del bloque 28 - Diagnostico GitHub
 
 La pantalla ahora comprueba si la cuenta puede administrar GitHub en la organizacion y si la GitHub App esta configurada. Explica el requisito y no deja pulsar Instalar cuando falta configuracion o rol. En el `.env` local faltan las variables `GITHUB_APP_*`, por lo que aun hace falta registrar/configurar la App y guardar sus secretos localmente antes de probar OAuth e importacion. Callback vigente: `http://localhost:8089/api/integrations/github/app-callback`.
+
+### Actualización del bloque 43
+
+El tablero de vulnerabilidades y las explicaciones de advisories ya están implementados en frontend. Build y despliegue de `localhost:8089` se verificarán en este bloque; la revisión visual conjunta con repositorios reales todavía está pendiente.
+
+Estado final del bloque 43: frontend compilado, desplegado y disponible en `http://localhost:8089`; portada y bundle HTTP 200. La revisión visual con datos reales queda para el usuario.
