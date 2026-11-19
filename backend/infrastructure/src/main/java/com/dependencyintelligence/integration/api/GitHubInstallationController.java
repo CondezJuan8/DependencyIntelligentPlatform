@@ -54,6 +54,18 @@ public class GitHubInstallationController {
             github.begin(organizationId, user(principal), request.getSession(true).getId()));
     }
 
+    @PostMapping("/installations/existing")
+    public InstallationLink connectExisting(@PathVariable UUID organizationId, @Valid @RequestBody ExistingRequest body,
+                                             Principal principal, jakarta.servlet.http.HttpServletRequest request) {
+        return authorization.execute(principal, organizationId, null, "repository.manage", () -> {
+            try {
+                return github.connectExisting(organizationId, user(principal), request.getSession(true).getId(), Long.parseLong(body.installationId()));
+            } catch (NumberFormatException invalid) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El identificador de instalación de GitHub no es válido.");
+            }
+        });
+    }
+
     @PostMapping("/installations/authorize")
     public InstallationLink authorizeInstallation(@PathVariable UUID organizationId, @Valid @RequestBody CompleteRequest request,
                                                    Principal principal, jakarta.servlet.http.HttpServletRequest servletRequest) {
@@ -93,4 +105,5 @@ public class GitHubInstallationController {
         @Override public String toString() { return "CompleteRequest[REDACTED]"; }
     }
     public record ImportRequest(@NotEmpty @Size(max = 500) List<@Pattern(regexp = "[0-9]{1,20}") String> repositoryIds) { }
+    public record ExistingRequest(@NotBlank @Pattern(regexp = "[1-9][0-9]{0,18}") String installationId) { }
 }

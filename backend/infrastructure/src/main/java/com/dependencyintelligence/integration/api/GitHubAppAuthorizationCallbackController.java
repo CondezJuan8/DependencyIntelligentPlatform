@@ -13,6 +13,7 @@ import java.security.Principal;
 
 @RestController
 public class GitHubAppAuthorizationCallbackController {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GitHubAppAuthorizationCallbackController.class);
     private final ManageGitHubInstallation github;
     private final String baseUrl;
     public GitHubAppAuthorizationCallbackController(ManageGitHubInstallation github,
@@ -32,7 +33,8 @@ public class GitHubAppAuthorizationCallbackController {
             try {
                 github.completeFromCallback(java.util.UUID.fromString(principal.getName()), session.getId(), state, code);
                 status = "connected";
-            } catch (RuntimeException ignored) {
+            } catch (RuntimeException failure) {
+                log.warn("GitHub App callback rejected: {}", failure.getClass().getSimpleName());
                 status = "error";
             }
         } else if (error != null) status = "cancelled";

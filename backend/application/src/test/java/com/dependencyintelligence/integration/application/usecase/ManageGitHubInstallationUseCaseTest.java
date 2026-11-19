@@ -48,6 +48,21 @@ class ManageGitHubInstallationUseCaseTest {
             () -> useCase.importRepositories(organization, user, List.of("999")));
     }
 
+    @Test void connectsAnAlreadyInstalledAppOnlyAfterTheSameBrowserAuthorizesIt() {
+        var states = new States(); var store = new Installations(); var app = new App();
+        var useCase = new ManageGitHubInstallationUseCase(app, states, store, Clock.fixed(now, ZoneOffset.UTC));
+        var url = useCase.connectExisting(organization, user, "session-1", 77).url();
+        assertTrue(url.contains("code_challenge="));
+        String state = url.split("state=")[1].split("&")[0];
+        assertThrows(InvalidGitHubInstallStateException.class,
+            () -> useCase.completeFromCallback(user, "other-session", state, "one-use-code"));
+        assertTrue(store.connected.isEmpty());
+        useCase.completeFromCallback(user, "session-1", state, "one-use-code");
+        assertEquals(77, store.connected.getFirst().id());
+        assertThrows(InvalidGitHubInstallStateException.class,
+            () -> useCase.completeFromCallback(user, "session-1", state, "one-use-code"));
+    }
+
     private final class States implements GitHubInstallationStateStore {
         final Map<String, Pending> values = new java.util.concurrent.ConcurrentHashMap<>();
         @Override public void save(String state, Pending pending) { values.put(state, pending); }
@@ -62,6 +77,7 @@ class ManageGitHubInstallationUseCaseTest {
         @Override public void verifyUserCanAccessInstallation(String token, long id) { assertEquals("temporary-user-token",token); assertEquals(77,id); }
         @Override public InstallationInfo verifyInstallation(long id) { return new InstallationInfo(id, "CondezJuan8", "USER"); }
         @Override public List<Candidate> repositories(long id) { return List.of(new Candidate("90210", "CondezJuan8/demo", "main", "https://github.com/CondezJuan8/demo", "PRIVATE", false)); }
+        @Override public String downloadArchive(long id, String repositoryExternalId, String fullName, java.nio.file.Path target) { throw new UnsupportedOperationException(); }
     }
     private final class Installations implements GitHubInstallationStore {
         final List<GitHubAppGateway.InstallationInfo> connected = new ArrayList<>();

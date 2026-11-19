@@ -37,6 +37,21 @@ public final class ManageGitHubInstallationUseCase implements ManageGitHubInstal
         return new InstallationLink(app.installationUrl(state));
     }
 
+    @Override public InstallationLink connectExisting(UUID organization, UUID user, String browserSession, long installationId) {
+        if (installationId < 1) throw new IllegalArgumentException("El identificador de instalación debe ser positivo.");
+        installations.connected(organization, user);
+        app.verifyInstallation(installationId);
+        byte[] stateBytes = new byte[32]; random.nextBytes(stateBytes);
+        String state = Base64.getUrlEncoder().withoutPadding().encodeToString(stateBytes);
+        byte[] verifierBytes = new byte[32]; random.nextBytes(verifierBytes);
+        String verifier = Base64.getUrlEncoder().withoutPadding().encodeToString(verifierBytes);
+        String challenge;
+        try { challenge = Base64.getUrlEncoder().withoutPadding().encodeToString(MessageDigest.getInstance("SHA-256").digest(verifier.getBytes(java.nio.charset.StandardCharsets.US_ASCII))); }
+        catch (NoSuchAlgorithmException exception) { throw new IllegalStateException("SHA-256 is unavailable."); }
+        states.save(state, new Pending(organization, user, browserSession, clock.instant().plus(Duration.ofMinutes(10)), installationId, verifier));
+        return new InstallationLink(app.userAuthorizationUrl(state, challenge));
+    }
+
     @Override public InstallationLink authorizeInstallation(UUID organization, UUID user, String browserSession, String state, long installationId) {
         var pending = pending(state, organization, user, browserSession);
         if (pending.installationId() != null || installationId < 1) throw new InvalidGitHubInstallStateException();

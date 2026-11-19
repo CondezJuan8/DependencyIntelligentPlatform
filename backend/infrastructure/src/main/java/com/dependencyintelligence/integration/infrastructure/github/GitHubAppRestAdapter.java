@@ -16,6 +16,13 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -37,10 +44,12 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
     private final RestClient client;
     private final RestClient website;
     private final Clock clock;
+    private final HttpClient http;
 
     public GitHubAppRestAdapter(GitHubAppProperties properties, ObjectMapper json, Clock clock) {
         this.properties = properties; this.json = json; this.clock = clock;
         var http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).followRedirects(HttpClient.Redirect.NEVER).build();
+        this.http = http;
         var factory = new JdkClientHttpRequestFactory(http); factory.setReadTimeout(Duration.ofSeconds(15));
         this.client = RestClient.builder().baseUrl(properties.apiBaseUrl()).requestFactory(factory)
             .defaultHeader(HttpHeaders.ACCEPT, "application/vnd.github+json")
@@ -101,6 +110,7 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
         }
     }
 
+
     @Override public List<Candidate> repositories(long installationId) {
         requireConfigured();
         String token = installationToken(installationId);
@@ -120,6 +130,60 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
         } while (result.size() < total && page <= 20);
         if (result.size() < total) throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "La instalación contiene más de 2000 repositorios; acota el acceso en GitHub.");
         return List.copyOf(result);
+    }
+
+    @Override public String downloadArchive(long installationId, String repositoryExternalId, String fullName, Path target) {
+        if (fullName == null || !fullName.matches("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+") ||
+            repositories(installationId).stream().noneMatch(repository -> repository.externalId().equals(repositoryExternalId)
+                && repository.fullName().equals(fullName)))
+            throw new IllegalArgumentException("El repositorio ya no está autorizado en la instalación de GitHub.");
+        String token = installationToken(installationId);
+        String base = properties.apiBaseUrl().replaceAll("/+$", "") + "/repos/" + fullName;
+        try {
+            var commits = http.send(apiRequest(URI.create(base + "/commits?per_page=1"), token), HttpResponse.BodyHandlers.ofString());
+            if (commits.statusCode() != 200) throw upstreamFailure(null);
+            var commitList = json.readTree(commits.body());
+            if (!commitList.isArray() || commitList.isEmpty()) throw upstreamFailure(null);
+            String sha = commitList.get(0).path("sha").asText();
+            if (!sha.matches("[a-fA-F0-9]{40}")) throw upstreamFailure(null);
+            URI archiveUrl = URI.create(base + "/zipball/" + sha);
+            var response = http.send(apiRequest(archiveUrl, token), HttpResponse.BodyHandlers.ofInputStream());
+            try (InputStream initial = response.body()) {
+                if (response.statusCode() == 200) copyBounded(initial, target);
+                else if (response.statusCode() == 302) {
+                    URI redirect = URI.create(response.headers().firstValue("Location").orElse(""));
+                    if (!"https".equals(redirect.getScheme()) || !"codeload.github.com".equals(redirect.getHost()))
+                        throw upstreamFailure(null);
+                    var archive = http.send(HttpRequest.newBuilder(redirect).timeout(Duration.ofSeconds(60)).GET().build(),
+                        HttpResponse.BodyHandlers.ofInputStream());
+                    try (InputStream download = archive.body()) {
+                        if (archive.statusCode() != 200) throw upstreamFailure(null);
+                        copyBounded(download, target);
+                    }
+                } else throw upstreamFailure(null);
+            }
+            return sha.toLowerCase();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt(); throw upstreamFailure(interrupted);
+        } catch (java.io.IOException failure) { throw upstreamFailure(failure); }
+    }
+
+    private static HttpRequest apiRequest(URI url, String token) {
+        return HttpRequest.newBuilder(url).timeout(Duration.ofSeconds(30))
+            .header(HttpHeaders.ACCEPT, "application/vnd.github+json")
+            .header("X-GitHub-Api-Version", API_VERSION)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token).GET().build();
+    }
+
+    private static void copyBounded(InputStream input, Path target) throws java.io.IOException {
+        try (OutputStream output = Files.newOutputStream(target)) {
+            byte[] buffer = new byte[8192]; long bytes = 0;
+            for (int count; (count = input.read(buffer)) != -1;) {
+                bytes += count;
+                if (bytes > 100L * 1024 * 1024) throw new java.io.IOException("GitHub archive exceeds 100 MiB.");
+                output.write(buffer, 0, count);
+            }
+        }
     }
 
     private String installationToken(long installationId) {
