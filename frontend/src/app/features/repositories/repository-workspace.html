@@ -26,7 +26,7 @@
       @if (!statusLoading() && githubStatus()?.canManage && !githubStatus()?.configured) {
         <a class="primary" href="https://github.com/settings/apps/new" target="_blank" rel="noopener noreferrer">{{ 'Crear GitHub App en GitHub' | t }}</a>
       } @else {
-        <button class="primary" type="button" [disabled]="pending() || statusLoading() || !organizationId() || !githubStatus()?.configured || !githubStatus()?.canManage" (click)="beginInstall()">{{ installations().length ? 'Añadir otra instalación' : 'Instalar GitHub App' }}</button>
+        <button class="primary" type="button" [disabled]="pending() || statusLoading() || !organizationId() || !githubStatus()?.configured || !githubStatus()?.canManage" (click)="beginInstall()">{{ (installations().length ? 'Añadir otra instalación' : 'Conectar GitHub') | t }}</button>
       }
     </section>
     @if (githubStatus()?.configured && githubStatus()?.canManage) {

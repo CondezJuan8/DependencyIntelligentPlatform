@@ -365,6 +365,7 @@ export const english: Record<string, string> = {
   'La instalación y el acceso al código los autorizas tú en GitHub. Puedes limitar la aplicación a repositorios seleccionados.': 'You authorize the installation and code access in GitHub. You can limit the app to selected repositories.',
   'Añadir otra instalación': 'Add another installation',
   'Instalar GitHub App': 'Install GitHub App',
+  'Conectar GitHub': 'Connect GitHub',
   'Cuenta de organización GitHub': 'GitHub organization account',
   'Cuenta personal GitHub': 'Personal GitHub account',
   'repositorios autorizados': 'authorized repositories',
