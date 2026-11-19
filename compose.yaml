@@ -61,6 +61,7 @@ services:
       GITHUB_APP_PRIVATE_KEY_BASE64: ${GITHUB_APP_PRIVATE_KEY_BASE64:-}
       GITHUB_APP_CALLBACK_URL: ${GITHUB_APP_CALLBACK_URL:-http://localhost:${WEB_PORT:-8088}/api/integrations/github/app-callback}
       GITHUB_APP_API_BASE_URL: ${GITHUB_APP_API_BASE_URL:-https://api.github.com}
+      LOCAL_REPOSITORY_STORAGE_ROOT: /var/lib/dependency-intelligence/repositories
       OAUTH_AUTHORIZATION_LIFETIME: ${OAUTH_AUTHORIZATION_LIFETIME:-PT5M}
       OAUTH_REAUTHENTICATION_WINDOW: ${OAUTH_REAUTHENTICATION_WINDOW:-PT10M}
       INVITATION_LIFETIME: ${INVITATION_LIFETIME:-PT72H}
@@ -69,6 +70,8 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_started
+    volumes:
+      - repository_data:/var/lib/dependency-intelligence/repositories
   frontend:
     build: ./frontend
     ports:
@@ -77,3 +80,4 @@ services:
       - backend
 volumes:
   postgres_data:
+  repository_data:

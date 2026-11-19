@@ -1,6 +1,6 @@
 <div class="page-heading">
-  <div><p class="eyebrow">GITHUB</p><h1>{{ isOwner ? 'Conecta tus repositorios' : 'Mis repositorios' }}</h1>
-    <p>{{ isOwner ? 'Instala Dependency Intelligence en tu cuenta y selecciona qué repositorios quieres analizar.' : 'Repositorios habilitados para tu equipo y tus permisos.' }}</p></div>
+  <div><p class="eyebrow">{{ 'REPOSITORIOS' | t }}</p><h1>{{ (isOwner ? 'Repositorios de la organización' : 'Mis repositorios') | t }}</h1>
+    <p>{{ (isOwner ? 'Conecta GitHub o importa una carpeta de proyecto desde tu equipo.' : 'Repositorios habilitados para tu equipo y tus permisos.') | t }}</p></div>
   @if (isOwner && organizations().length > 0) {
     <label class="organization-picker">Organización del espacio
       <select [value]="organizationId()" (change)="chooseOrganization($event)" aria-label="Selecciona la organización del espacio">
@@ -23,7 +23,28 @@
   } @else {
     <section class="connection-card">
       <div class="connection-copy"><span class="github-mark">GH</span><div><h2>Conecta tu cuenta de GitHub</h2><p>La instalación y el acceso al código los autorizas tú en GitHub. Puedes limitar la aplicación a repositorios seleccionados.</p></div></div>
-      <button class="primary" type="button" [disabled]="pending() || statusLoading() || !organizationId() || !githubStatus()?.configured || !githubStatus()?.canManage" (click)="beginInstall()">{{ installations().length ? 'Añadir otra instalación' : 'Instalar GitHub App' }}</button>
+      @if (!statusLoading() && githubStatus()?.canManage && !githubStatus()?.configured) {
+        <a class="primary" href="https://github.com/settings/apps/new" target="_blank" rel="noopener noreferrer">{{ 'Crear GitHub App en GitHub' | t }}</a>
+      } @else {
+        <button class="primary" type="button" [disabled]="pending() || statusLoading() || !organizationId() || !githubStatus()?.configured || !githubStatus()?.canManage" (click)="beginInstall()">{{ installations().length ? 'Añadir otra instalación' : 'Instalar GitHub App' }}</button>
+      }
+    </section>
+    <section class="repo-section local-upload">
+      <div><h2>{{ 'Importar carpeta local' | t }}</h2><p>{{ 'Sube el proyecto desde tu equipo a la organización. Límite: 100 MiB y 2.000 archivos. Se omiten .git, node_modules y carpetas de compilación.' | t }}</p></div>
+      <label class="folder-picker" for="local-project-folder">{{ 'Selecciona una carpeta de proyecto' | t }}</label>
+      <input id="local-project-folder" type="file" webkitdirectory directory multiple (change)="selectLocalFolder($event)" [disabled]="pending()" />
+      @if (localFiles().length) {
+        <p class="file-selection">{{ localName() }} · {{ localFiles().length }} {{ 'archivos' | t }} · {{ selectedFolderSize() }}</p>
+        <button class="primary" type="button" [disabled]="pending() || !localName() || !githubStatus()?.canManage" (click)="uploadLocalFolder()">{{ pending() ? ('Subiendo carpeta' | t) : ('Subir a la organización' | t) }}</button>
+        @if (uploadProgress() !== null) { <progress max="100" [value]="uploadProgress() ?? 0" aria-label="{{ 'Progreso de carga' | t }}"></progress> }
+      }
+      @if (localRepositories().length) {
+        <div class="local-repository-list"><h3>{{ 'Carpetas importadas' | t }}</h3>
+          @for (localRepository of localRepositories(); track localRepository.id) {
+            <article class="repo-row"><div><h3>{{ localRepository.name }}</h3><p>{{ localRepository.fileCount }} {{ 'archivos' | t }} · {{ formatSize(localRepository.sizeBytes) }} · {{ 'Almacenamiento privado' | t }}</p></div><span class="badge">{{ 'Local' | t }}</span></article>
+          }
+        </div>
+      }
     </section>
     @for (installation of installations(); track installation.id) {
       <section class="repo-section"><div class="section-heading"><div><h2>{{ installation.accountLogin }}</h2><p>{{ installation.accountType === 'ORGANIZATION' ? 'Cuenta de organización GitHub' : 'Cuenta personal GitHub' }} · {{ installation.repositories.length }} repositorios autorizados</p></div></div>

@@ -1,15 +1,19 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
 import { DiIcon } from '../../shared/di-icon';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; defaultBranch: string; }
 interface Candidate { externalId: string; fullName: string; defaultBranch: string; htmlUrl: string; visibility: string; archived: boolean; }
 interface Installation { id: number; accountLogin: string; accountType: 'USER' | 'ORGANIZATION'; repositories: Candidate[]; }
 interface Workspace { installations: Installation[]; importedRepositoryIds: string[]; }
 interface GitHubSetupStatus { configured: boolean; canManage: boolean; detail: string; }
+interface LocalRepository { id: string; name: string; fileCount: number; sizeBytes: number; uploadedAt: string; }
+interface LocalFolderImportResult { id: string; name: string; fileCount: number; sizeBytes: number; }
 @Component({
-  selector: 'app-repository-workspace', imports: [DiIcon], templateUrl: './repository-workspace.html', styleUrl: './repository-workspace.scss',
+  selector: 'app-repository-workspace', imports: [DiIcon, TranslatePipe], templateUrl: './repository-workspace.html', styleUrl: './repository-workspace.scss',
 })
 export class RepositoryWorkspace implements OnInit {
   readonly api = inject(SessionApiService);
@@ -19,6 +23,10 @@ export class RepositoryWorkspace implements OnInit {
   readonly installations = signal<Installation[]>([]);
   readonly importedIds = signal(new Set<string>());
   readonly repositories = signal<Repository[]>([]);
+  readonly localRepositories = signal<LocalRepository[]>([]);
+  readonly localFiles = signal<File[]>([]);
+  readonly localName = signal('');
+  readonly uploadProgress = signal<number | null>(null);
   readonly selectedIds = signal(new Set<string>());
   readonly loading = signal(false);
   readonly statusLoading = signal(false);
@@ -101,7 +109,8 @@ export class RepositoryWorkspace implements OnInit {
         next: status => {
           if (this.organizationId() !== organizationId) return;
           this.githubStatus.set(status);
-          if (status.configured && status.canManage) this.loadWorkspace();
+            if (status.canManage) this.loadLocalRepositories(organizationId);
+            if (status.configured && status.canManage) this.loadWorkspace();
         },
         error: error => this.error.set(accessError(error)),
       });
@@ -110,7 +119,63 @@ export class RepositoryWorkspace implements OnInit {
   chooseOrganization(event: Event): void {
     const id = (event.target as HTMLSelectElement).value;
     this.organizationId.set(id); sessionStorage.setItem('di.github.organization', id);
-    this.installations.set([]); this.selectedIds.set(new Set()); this.loadSetupStatus(id);
+    this.installations.set([]); this.localRepositories.set([]); this.localFiles.set([]); this.localName.set('');
+    this.selectedIds.set(new Set()); this.loadSetupStatus(id);
+  }
+
+  selectLocalFolder(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    const ignored = new Set(['.git', 'node_modules', 'target', 'dist', 'build', '.angular']);
+    const included = files.filter(file => !file.webkitRelativePath.split('/').slice(1, -1).some(part => ignored.has(part.toLowerCase())));
+    const root = included[0]?.webkitRelativePath.split('/')[0] ?? '';
+    this.localName.set(root);
+    this.error.set('');
+    const bytes = included.reduce((total, file) => total + file.size, 0);
+    if (!included.length) { this.localFiles.set([]); this.error.set('No se encontraron archivos para importar.'); this.message.set(''); }
+    else if (included.length > 2_000 || bytes > 100 * 1024 * 1024) {
+      this.localFiles.set([]); this.error.set('La carpeta supera el límite de 2.000 archivos o 100 MiB.'); this.message.set('');
+    } else { this.localFiles.set(included); this.message.set(''); }
+  }
+
+  uploadLocalFolder(): void {
+    const organizationId = this.organizationId();
+    const files = this.localFiles();
+    if (!organizationId || !files.length || this.pending() || !this.githubStatus()?.canManage) return;
+    const form = new FormData();
+    form.append('name', this.localName());
+    for (const file of files) {
+      form.append('paths', file.webkitRelativePath);
+      form.append('files', file, file.name);
+    }
+    this.pending.set(true); this.error.set(''); this.message.set('Subiendo la carpeta al almacenamiento privado…'); this.uploadProgress.set(0);
+    this.api.upload<LocalFolderImportResult>(`/api/organizations/${organizationId}/repositories/local-folder`, form)
+      .pipe(finalize(() => { this.pending.set(false); this.uploadProgress.set(null); }))
+      .subscribe({
+        next: event => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const total = event.total ?? 0;
+            if (total > 0) this.uploadProgress.set(Math.round(100 * event.loaded / total));
+          } else if (event instanceof HttpResponse && event.body) {
+            this.message.set(`Carpeta «${event.body.name}» importada. ${event.body.fileCount} archivos guardados; lista para asignar al equipo.`);
+            this.localFiles.set([]); this.localName.set(''); this.loadLocalRepositories(organizationId);
+          }
+        },
+        error: error => { this.message.set(''); this.error.set(accessError(error)); },
+      });
+  }
+
+  private loadLocalRepositories(organizationId: string): void {
+    this.api.get<LocalRepository[]>(`/api/organizations/${organizationId}/repositories/local-folders`)
+      .subscribe({ next: items => this.localRepositories.set(items), error: error => this.error.set(accessError(error)) });
+  }
+
+  formatSize(bytes: number): string {
+    return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  }
+
+  selectedFolderSize(): string {
+    return this.formatSize(this.localFiles().reduce((total, file) => total + file.size, 0));
   }
 
   beginInstall(): void {

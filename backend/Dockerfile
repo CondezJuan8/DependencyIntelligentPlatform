@@ -11,6 +11,7 @@ RUN mvn -B -ntp verify
 
 FROM eclipse-temurin:21-jre-jammy
 RUN groupadd --system app && useradd --system --gid app app
+RUN mkdir -p /var/lib/dependency-intelligence/repositories && chown -R app:app /var/lib/dependency-intelligence
 WORKDIR /app
 COPY --from=build /workspace/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar app.jar
 USER app

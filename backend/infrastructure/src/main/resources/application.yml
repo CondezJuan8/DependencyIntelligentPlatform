@@ -15,8 +15,8 @@ spring:
     password: ${MIGRATION_PASSWORD:${POSTGRES_PASSWORD}}
   servlet:
     multipart:
-      max-file-size: 20MB
-      max-request-size: 20MB
+      max-file-size: 100MB
+      max-request-size: 110MB
   mail:
     host: ${SMTP_HOST:localhost}
     port: ${SMTP_PORT:1025}

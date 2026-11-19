@@ -3,8 +3,13 @@ package com.dependencyintelligence.shared.infrastructure.configuration;
 import com.dependencyintelligence.organization.application.port.out.OrganizationLookup;
 import com.dependencyintelligence.repository.application.port.in.FindRepository;
 import com.dependencyintelligence.repository.application.port.in.RegisterRepository;
+import com.dependencyintelligence.repository.application.port.in.ImportLocalFolder;
+import com.dependencyintelligence.repository.application.port.in.ListLocalRepositories;
 import com.dependencyintelligence.repository.application.port.out.RepositoryStore;
+import com.dependencyintelligence.repository.application.port.out.LocalRepositorySourceStore;
 import com.dependencyintelligence.repository.application.usecase.FindRepositoryUseCase;
+import com.dependencyintelligence.repository.application.usecase.ImportLocalFolderUseCase;
+import com.dependencyintelligence.repository.application.usecase.ListLocalRepositoriesUseCase;
 import com.dependencyintelligence.repository.application.usecase.RegisterRepositoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
@@ -33,6 +38,18 @@ public class UseCaseConfiguration {
                                                 Clock clock, TenantTransactions transactions) {
         var useCase = new RegisterRepositoryUseCase(organizations, repositories, clock);
         return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
+    }
+
+    @Bean ImportLocalFolder importLocalFolder(OrganizationLookup organizations, RepositoryStore repositories,
+                                               LocalRepositorySourceStore sources, Clock clock, TenantTransactions transactions) {
+        var useCase = new ImportLocalFolderUseCase(organizations, repositories, sources, clock);
+        return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
+    }
+
+    @Bean ListLocalRepositories listLocalRepositories(OrganizationLookup organizations, LocalRepositorySourceStore sources,
+                                                      TenantTransactions transactions) {
+        var useCase = new ListLocalRepositoriesUseCase(organizations, sources);
+        return organization -> transactions.execute(organization, () -> useCase.execute(organization));
     }
 
     @Bean FindRepository findRepository(RepositoryStore repositories, TenantTransactions transactions) {

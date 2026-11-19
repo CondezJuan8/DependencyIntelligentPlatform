@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
@@ -40,6 +40,15 @@ export class SessionApiService {
     // Fetch a fresh masked token because authentication/logout rotates the server token.
     return this.http.get<CsrfToken>('/api/auth/csrf').pipe(
       switchMap(csrf => this.http.post<T>(path, body, { headers: { [csrf.headerName]: csrf.token } })),
+      catchError(error => this.handleFailure(error)),
+    );
+  }
+
+  upload<T>(path: string, body: FormData): Observable<HttpEvent<T>> {
+    return this.http.get<CsrfToken>('/api/auth/csrf').pipe(
+      switchMap(csrf => this.http.post<T>(path, body, {
+        headers: { [csrf.headerName]: csrf.token }, observe: 'events', reportProgress: true,
+      })),
       catchError(error => this.handleFailure(error)),
     );
   }
