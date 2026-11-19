@@ -859,3 +859,15 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Verificación:** compilación de backend/frontend correcta con Docker Compose; pruebas unitarias del backend pasaron en el build (Domain 5, Application 18, Infrastructure 20), incluida la cobertura del flujo de instalación preexistente y sus restricciones de sesión y dos pruebas de fuente local/GitHub con gateway simulado. El IT de carpeta local se amplió para comprobar la ruta de lectura, pero el build no ejecuta esa clase IT; su nueva aserción queda pendiente de ejecución. El build Angular tuvo una entrada de traducción duplicada que se corrigió y se compiló de nuevo correctamente. Backend y frontend actualizados en `localhost:8089`; `/api/auth/csrf` responde JSON HTTP 200. PostgreSQL/Mailpit y entorno nativo se conservaron. Consulta posterior: dos cuentas activas, Mamitapuebla suspendida, cero instalaciones y cero repositorios en la plataforma. Consulta autenticada de solo lectura a GitHub con JWT de la App: instalación `183677764` en `CondezJuan8`, Contents: Read, token de instalación HTTP 201 y dos repositorios autorizados HTTP 200. No se afirma validación real del consentimiento ni descarga remota porque requieren una instalación vinculada por el propietario.
 
 **Siguiente paso:** desde la sesión de `condez.juanp@gmail.com`, vincular el ID de instalación de la App a Dinamita, autorizar GitHub, importar un repositorio real y verificar ZIP; luego integrar análisis aislado Maven/npm sobre estas fuentes.
+
+## Bloque 35 — Retorno de GitHub y versión visible
+
+**Petición:** la captura del usuario muestra que los dos repositorios se ven en GitHub, pero no en localhost:8089.
+
+**Hallazgo:** la base seguía con cero instalaciones y cero repositorios. Nginx registró `POST /github/installations` y una vuelta a la vista sin solicitud a `app-callback`; el botón antiguo llevó al flujo de instalación, no a OAuth. La captura no tenía la sección «Vincular instalación existente», señal de que la pestaña conservaba el frontend anterior.
+
+**Cambio:** `begin` consulta en el servidor hasta dos instalaciones de la App. Con exactamente una aún no vinculada, el botón **Conectar GitHub** inicia OAuth/PKCE directamente; el callback mantiene la validación de usuario, sesión, App ID y acceso antes de persistir. Con cero o varias instalaciones sigue el flujo de selección y el enlace explícito. Nginx envía `Cache-Control: no-store, must-revalidate` para `index.html` y Angular recarga una página restaurada desde el historial del navegador. Se añadió una prueba del camino automático sin saltar el consentimiento.
+
+**Herramientas/tecnologías:** Docker Compose, logs Nginx, PostgreSQL/psql, GitHub App REST, Java/Maven/JUnit y Angular/Nginx. Sin dependencia ni migración nueva.
+
+**Verificación:** build backend/frontend correcto; 5 pruebas Domain, 19 Application y 20 Infrastructure pasaron; HTTP del frontend devuelve `Cache-Control: no-store, must-revalidate`, API responde HTTP 200. Backend y frontend recreados; database/Mailpit y entorno nativo se conservaron. La prueba real OAuth e importación sigue pendiente de la acción del propietario en su sesión.
