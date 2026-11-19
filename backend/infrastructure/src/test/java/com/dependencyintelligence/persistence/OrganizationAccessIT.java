@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -22,6 +23,8 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
@@ -35,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {"app.database.enforce-runtime-role=true", "app.security.authentication.max-attempts-per-minute=1000"})
 @AutoConfigureMockMvc
 class OrganizationAccessIT extends PostgresIntegrationSupport {
+    private static final Path LOCAL_REPOSITORY_STORAGE = Path.of(System.getProperty("java.io.tmpdir"), "di-local-repository-it-" + UUID.randomUUID());
     private static GenericContainer<?> mailpit;
     private static String inbox;
     private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
@@ -59,6 +63,15 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
             registry.add("spring.mail.port", () -> Integer.parseInt(System.getenv("TEST_SMTP_PORT")));
         }
         registry.add("app.mail.public-base-url", () -> "http://localhost:8088");
+        registry.add("app.local-repositories.storage-root", LOCAL_REPOSITORY_STORAGE::toString);
+    }
+
+    @org.junit.jupiter.api.AfterAll static void removeLocalRepositoryFixture() throws Exception {
+        if (Files.exists(LOCAL_REPOSITORY_STORAGE)) {
+            try (var paths = Files.walk(LOCAL_REPOSITORY_STORAGE)) {
+                for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
     }
     private record Person(UUID id, String email, MockHttpSession session) { }
     private record Invitation(UUID id, String token) { }
@@ -81,6 +94,35 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
     }
     private UUID organization(Person owner) throws Exception { return UUID.fromString(ok(201, postJson("/api/organizations", owner.session(), Map.of("name", "Organization access fixture"))).path("id").asText()); }
     private String path(UUID org) { return "/api/organizations/" + org; }
+
+    @Test void localFolderImportPersistsPrivateArchiveAndOrganizationRepository() throws Exception {
+        var owner = person(true);
+        UUID org = organization(owner);
+        var csrfResponse = mvc.perform(get("/api/auth/csrf").session(owner.session())).andExpect(status().isOk()).andReturn();
+        var csrf = json.readTree(csrfResponse.getResponse().getContentAsString());
+        String source = "<project><modelVersion>4.0.0</modelVersion></project>";
+        var upload = multipart(path(org) + "/repositories/local-folder");
+        upload.file(new MockMultipartFile("files", "pom.xml", "application/xml", source.getBytes(StandardCharsets.UTF_8)));
+        upload.param("name", "local-fixture"); upload.param("paths", "local-fixture/pom.xml"); upload.session(owner.session());
+        upload.header(csrf.path("headerName").asText(), csrf.path("token").asText());
+        upload.servletPath(path(org) + "/repositories/local-folder");
+        var result = mvc.perform(upload)
+            .andExpect(status().isOk()).andReturn();
+        JsonNode imported = json.readTree(result.getResponse().getContentAsString());
+        UUID repository = UUID.fromString(imported.path("id").asText());
+        assertEquals("local-fixture", imported.path("name").asText());
+        assertEquals(1, imported.path("fileCount").asInt());
+        assertEquals("local", tenants.execute(org, () -> jdbc.queryForObject("select provider from repositories where organization_id=? and id=?", String.class, org, repository)));
+        String storageKey = tenants.execute(org, () -> jdbc.queryForObject("select storage_key from local_repository_sources where organization_id=? and repository_id=?", String.class, org, repository));
+        Path archive = LOCAL_REPOSITORY_STORAGE.resolve(storageKey).normalize();
+        assertTrue(archive.startsWith(LOCAL_REPOSITORY_STORAGE) && Files.isRegularFile(archive));
+        try (var zip = new java.util.zip.ZipInputStream(Files.newInputStream(archive))) {
+            assertEquals("pom.xml", zip.getNextEntry().getName());
+        }
+        var listing = mvc.perform(get(path(org) + "/repositories/local-folders").session(owner.session()))
+            .andExpect(status().isOk()).andReturn();
+        assertEquals(repository.toString(), json.readTree(listing.getResponse().getContentAsString()).get(0).path("id").asText());
+    }
     private JsonNode overview(Person person, UUID org) throws Exception {
         return ok(200, mvc.perform(get(path(org)+"/access").session(person.session())).andReturn());
     }
