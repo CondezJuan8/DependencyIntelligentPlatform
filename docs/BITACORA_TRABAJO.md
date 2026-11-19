@@ -813,3 +813,13 @@ El usuario puede revisar la pantalla Organización → permisos directos; la ace
 **Herramientas y verificación:** Docker Compose, Angular/Node, Maven/JDK 21, JUnit, Testcontainers, PostgreSQL 17.7, Mailpit, Python 3.13/Pillow y PostgreSQL/psql. Build frontend/backend correcto con 38 pruebas unitarias (Domain 5, Application 15, Infrastructure 18); `OrganizationAccessIT#localFolderImportPersistsPrivateArchiveAndOrganizationRepository` correcto (1/1) en PostgreSQL/Mailpit temporales. Flyway aplicó V19 al PostgreSQL local existente sin borrar el volumen. Catálogo estructural validado: 127 tablas, 90 FORCE RLS, 225 FK, siete diagramas y todos los IDs/bindings/FK cubiertos. Frontend `localhost:8089` HTTP 200; backend, PostgreSQL, Mailpit y volumen de fuentes activos. Advertencias Angular de bundle inicial (559,86 kB/500) y estilos (incluido repositorios 4,59 kB/4 kB) siguen visibles. La prueba real de instalación GitHub no se ejecutó porque la App aún no existe y no hay `GITHUB_APP_*`.
 
 **Siguiente paso:** crear la App desde el enlace y configurarla localmente sin compartir secretos; después probar el consentimiento e importación GitHub. El siguiente bloque de análisis debe leer fuentes del ZIP/commit, encolar jobs aislados Maven/npm y devolver resultados/progreso. La importación actual solo guarda y asigna el repositorio.
+
+## Bloque 30 - Preparación local de GitHub App
+
+**Petición:** continuar configurando la GitHub App creada por `CondezJuan8` con su App ID, Client ID y llave privada local.
+
+**Cambios:** se guardaron slug, App ID, Client ID, callback de `localhost:8089` y llave privada codificada en Base64 en `.env`, ignorado por Git. La variable `GITHUB_APP_ENABLED` queda en `false` y Client Secret vacío; no se inicia una configuración incompleta. No se copiaron secretos a documentos ni al repositorio.
+
+**Herramientas/verificación:** PowerShell y .NET para validar encabezado/cierre PEM RSA, codificar el archivo y actualizar `.env` sin imprimir su contenido. Se confirmó en `.gitignore` que `.env` está excluido. La llave codificada tiene 2.240 caracteres; no se ejecutaron pruebas ni se reiniciaron servicios, porque falta Client Secret y la integración sigue desactivada.
+
+**Siguiente paso:** generar el Client Secret en los ajustes de la GitHub App y agregarlo localmente a `GITHUB_APP_CLIENT_SECRET`; después habilitar `GITHUB_APP_ENABLED=true`, recrear únicamente el backend y probar instalación/selección de repositorios.
