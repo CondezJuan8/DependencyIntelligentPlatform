@@ -8,13 +8,17 @@
 
 ## Decisiones vigentes y estado de continuidad - 19 de noviembre de 2026
 
+### Bloque 34 — Fuentes local/GitHub y datos de la instancia
+
+La GitHub App de `CondezJuan8` ya está instalada en GitHub (ID de instalación `183677764`), con `Contents: Read` y dos repositorios autorizados, comprobados por API con JWT de la App. La base de Dependency Intelligence aún tiene cero instalaciones vinculadas y cero repositorios: falta que `condez.juanp@gmail.com` inicie sesión en Dinamita, use **Vincular instalación existente** y complete OAuth/PKCE de GitHub. El backend conserva esa verificación y no inserta la instalación sin consentimiento de la identidad GitHub. La vista distingue repositorios locales y GitHub y ambos pueden entregar un ZIP de fuente autorizado, con SHA-256; GitHub incluye commit fijo. Análisis aislado Maven/npm, validación/extracción segura del ZIP e inventario siguen pendientes. La instancia conserva solo dos cuentas activas (administrador y `condez.juanp@gmail.com`); Mamitapuebla quedó suspendida con historial preservado mediante identidad histórica anonimizada. Ver [GitHub/repositorios](GITHUB_REPOSITORIOS.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md). Este bloque sustituye los estados anteriores que decían que la App no existía o aún no estaba instalada.
+
 ### Bloque 32 — Bootstrap seguro del primer administrador
 
 Application incorpora el caso de uso y los puertos; Infrastructure ofrece un comando de consola solo bajo el perfil `platform-admin-bootstrap`, expuesto como servicio Compose opt-in sin HTTP. El operador ingresa nombre/correo y contraseña confirmada en terminal; esta no se pasa por argumentos ni entorno. El alta se permite una sola vez con cero usuarios, organizaciones y administradores, verificado bajo bloqueo transaccional; crea una cuenta OWNER activa, aprobada y con correo verificado, hash PBKDF2, asignación de administrador global y auditoría. Pruebas focalizadas: dos unitarias y una integración PostgreSQL temporal correctas; `docker compose config --quiet` válido. En el bloque 33 se verificó el arranque de consola hasta la primera pregunta. Compose ya cuenta con administrador y organizaciones. Procedimiento: [ACCESO_LOCAL](ACCESO_LOCAL.md); estado y dependencias: [PENDIENTES](PENDIENTES.md).
 
 ### Bloque 31 — Configuracion local de GitHub App
 
-La App `dependency-intelligence-platform` de `CondezJuan8` esta creada. Slug, App ID, Client ID, Client Secret y llave privada se configuraron localmente en `.env`, ignorado por Git; nunca registrar secretos en documentos. Una consulta JWT RS256 de solo lectura a `GET /app` devolvio HTTP 200 con la identidad esperada. Aun faltan instalacion en la cuenta/organizacion, consentimiento OAuth/PKCE e importacion real desde la plataforma. Ver [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md) y [bitacora](BITACORA_TRABAJO.md).
+La App `dependency-intelligence-platform` de `CondezJuan8` esta creada. Slug, App ID, Client ID, Client Secret y llave privada se configuraron localmente en `.env`, ignorado por Git; nunca registrar secretos en documentos. Una consulta JWT RS256 de solo lectura a `GET /app` devolvio HTTP 200 con la identidad esperada. La instalación se confirmó posteriormente en el bloque 34; faltan consentimiento OAuth/PKCE e importación real desde la plataforma. Ver [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md) y [bitacora](BITACORA_TRABAJO.md).
 
 ### Bloque 29 — GitHub App y origen local
 

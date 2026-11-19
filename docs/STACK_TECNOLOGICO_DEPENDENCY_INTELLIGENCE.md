@@ -2,6 +2,8 @@
 
 **Versión:** 1.0  
 
+Actualización del bloque 34 (19/11/2026): la fuente local/GitHub usa Java 21 `HttpClient`, ZIP, SHA-256 y almacenamiento privado temporal, junto con GitHub App REST, Spring MVC/JDBC, PostgreSQL y Angular existentes. No se agregó dependencia de producto ni migración. La App tiene dos repositorios autorizados en GitHub; consentimiento OAuth e importación a la plataforma siguen pendientes. El ZIP todavía no se extrae ni analiza.
+
 Actualización del bloque 20 (18/11/2026): la aprobación/rechazo inmediato reutiliza Java/Application, Spring MVC/Security/TransactionTemplate, JDBC/PostgreSQL/Flyway V15, Angular/HttpClient y SMTP/Mailpit. No se añadió dependencia de producto. Ver [bitácora](BITACORA_TRABAJO.md) y [flujo de correo](VERIFICACION_Y_RECUPERACION.md).
 **Fecha:** 13 de noviembre de 2026  
 **Estado:** Propuesta consolidada para aprobación del equipo  

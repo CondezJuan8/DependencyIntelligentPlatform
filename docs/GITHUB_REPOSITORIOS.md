@@ -1,8 +1,18 @@
 # Conexión de repositorios GitHub
 
+## Estado operativo del bloque actual (19/11/2026)
+
+La GitHub App está configurada y su JWT se comprobó previamente con `GET /app` (HTTP 200). Una consulta directa de solo lectura a GitHub el 19/11/2026 confirmó la instalación `183677764` en `CondezJuan8`, permiso `Contents: Read`, token de instalación emitido (HTTP 201) y dos repositorios autorizados (HTTP 200). En la base de la plataforma **no hay todavía instalaciones ni repositorios vinculados**. La instalación hecha directamente en GitHub no crea por sí sola un vínculo con una organización de la plataforma.
+
+La vista de repositorios ofrece ahora **Vincular instalación existente**: abre `https://github.com/settings/installations`, copia el número al final de la URL de configuración de esta App, selecciona Dinamita en la plataforma y escribe ese número. Se inicia OAuth de la GitHub App con PKCE; el callback exige la misma sesión y comprueba con GitHub que la identidad autorizada accede a esa instalación y que pertenece a esta App. Luego aparecerán los repositorios autorizados para importarlos. El botón **Instalar GitHub App** sigue disponible para instalaciones nuevas. La vinculación real requiere que el propietario complete el consentimiento en su navegador; todavía no está acreditada por una prueba completa con GitHub real.
+
+Los repositorios importados de GitHub y las carpetas locales se distinguen mediante `provider` en el catálogo y etiquetas en la interfaz. Ambos usan los mismos permisos por repositorio. `GET /api/organizations/{organizationId}/repositories/{repositoryId}/source` requiere `repository.read` y entrega un ZIP. Para local comprueba el SHA-256 guardado; para GitHub comprueba de nuevo el acceso de la instalación, fija el SHA del último commit de la rama predeterminada y obtiene un ZIP temporal limitado a 100 MiB. Responde con `X-Repository-Source`, `X-Source-SHA256` y, en GitHub, `X-Git-Commit`. Esto prepara una fuente reproducible para los próximos analizadores. El análisis Maven/npm y la extracción segura de ZIP siguen pendientes y no se ejecutan al importar.
+
+La base se respaldó en `.tools/backups/dependency-before-account-cleanup.dump` (ignorado por Git) antes de eliminar cuentas de prueba. Permanecen activas únicamente `administrador@example.test` y `condez.juanp@gmail.com`. Mamitapuebla fue suspendida y su única membresía pasó a `LEFT`; cuatro cuentas se eliminaron físicamente. La quinta quedó como identidad histórica anonimizada, inactiva y sin credenciales para conservar cuatro eventos de auditoría.
+
 ## Estado
 
-Implementado en el bloque de integración GitHub: instalación de una GitHub App, autorización de la instalación por el usuario autenticado, listado y selección de repositorios e importación de sus metadatos a una organización. La pantalla adapta su disposición a móvil y escritorio. La conexión real permanece pendiente de crear/configurar la app y completar una prueba con la cuenta `CondezJuan8`.
+Implementado en el bloque de integración GitHub: instalación de una GitHub App, autorización de la instalación por el usuario autenticado, listado y selección de repositorios e importación de sus metadatos a una organización. La pantalla adapta su disposición a móvil y escritorio. La App ya existe y está instalada en GitHub; permanece pendiente completar el consentimiento desde la plataforma con la cuenta propietaria.
 
 Esta función es distinta del inicio de sesión GitHub. OAuth de identidad permite entrar o vincular una cuenta; la GitHub App concede acceso limitado a repositorios.
 
@@ -59,10 +69,10 @@ Esto acredita estilos responsive en el código; no equivale a una comprobación 
 
 ## Diagnostico de conexion - bloque 28
 
-La pantalla consulta el estado seguro por organizacion y distingue configuracion incompleta de permisos insuficientes. La GitHub App de `CondezJuan8` ya esta creada y las variables locales completas estan en `.env`, ignorado por Git. La autenticacion de la App se verifico contra `GET https://api.github.com/app` (HTTP 200, App ID y slug coinciden). Todavia falta instalarla en la cuenta/organizacion de destino y completar el consentimiento OAuth/PKCE desde la plataforma. No poner secretos en Git/chat.
+La pantalla consulta el estado seguro por organizacion y distingue configuracion incompleta de permisos insuficientes. La GitHub App de `CondezJuan8` ya esta creada y las variables locales completas estan en `.env`, ignorado por Git. La autenticacion de la App se verifico contra `GET https://api.github.com/app` (HTTP 200, App ID y slug coinciden). La instalacion en GitHub ya existe; falta completar el consentimiento OAuth/PKCE desde la plataforma. No poner secretos en Git/chat.
 
 Para esta instancia se usa `http://localhost:8089`; Homepage, Setup URL y callback deben coincidir con ese origen, en especial `http://localhost:8089/api/integrations/github/app-callback`. Si se cambia `WEB_PORT`, actualizar en GitHub y `.env` el callback con el mismo puerto y reiniciar backend.
 
 La App ya existe con slug `dependency-intelligence-platform`. El CTA **Instalar GitHub App** inicia el flujo backend y redirige a `https://github.com/apps/{slug}/installations/new`; la autorización OAuth/PKCE termina en el callback registrado. Crear la App, instalarla en una cuenta y seleccionar repositorios son pasos distintos.
 
-En la misma pantalla, el propietario puede cargar un directorio desde su equipo. El navegador manda hasta 2.000 archivos y 100 MiB; se omiten `.git`, `node_modules`, `target`, `dist`, `build` y `.angular`. El backend valida rutas y empaqueta las fuentes en ZIP privado ligado a un repositorio `local`, dentro del volumen persistente `repository_data`. La organización puede asignar los mismos permisos de equipo/miembro. La carga todavía no inicia análisis Maven/npm ni habilita descarga de los fuentes; esa será una fase separada.
+En la misma pantalla, el propietario puede cargar un directorio desde su equipo. El navegador manda hasta 2.000 archivos y 100 MiB; se omiten `.git`, `node_modules`, `target`, `dist`, `build` y `.angular`. El backend valida rutas y empaqueta las fuentes en ZIP privado ligado a un repositorio `local`, dentro del volumen persistente `repository_data`. La organización puede asignar los mismos permisos de equipo/miembro. La descarga autorizada del ZIP está implementada; la carga todavía no inicia análisis Maven/npm.

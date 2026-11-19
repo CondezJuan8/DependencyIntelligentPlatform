@@ -1,6 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 33 (arranque del bootstrap y estado de Compose).
+Actualizado: 19 de noviembre de 2026, bloque 34 (GitHub, fuentes y limpieza de cuentas).
+
+**Estado actual:** solo `administrador@example.test` y `condez.juanp@gmail.com` están activas. Mamitapuebla está suspendida; la identidad histórica de su propietario se conserva anonimizada, sin acceso ni credenciales, por los eventos de auditoría. Respaldo privado en `.tools/backups/dependency-before-account-cleanup.dump`. GitHub confirmó la instalación `183677764` de `CondezJuan8`, Contents: Read y dos repositorios autorizados. La base de la plataforma aún tiene cero instalaciones y cero repositorios: el consentimiento/vinculación real y la primera importación se deben completar desde la sesión del propietario en `localhost:8089`. Ya hay flujo para instalación existente y endpoint común de ZIP local/GitHub; falta probar el recorrido con la sesión real y ejecutar el análisis Maven/npm.
 
 **Instruccion vigente del usuario:** conservar los pendientes y trabajarlos juntos cuando el usuario lo indique. El usuario autorizo integrar GitHub y trabajar ahora el bootstrap inicial seguro; las demas funciones siguen pendientes hasta acordar su bloque.
 
@@ -23,7 +25,7 @@ Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organiza
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
 - Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
 - Rediseño según las tres imágenes del usuario: acceso/registro, shell lateral, dashboard con estados vacíos y organización con tabla, filtros, pestañas y diálogos. Build correcto; falta aceptación visual del usuario. [Diseño](DISENO_FRONTEND.md).
-- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. App creada bajo `CondezJuan8`; credenciales locales completas en `.env` ignorado por Git y autenticación de aplicación comprobada con `GET /app` (HTTP 200). Falta instalarla en una cuenta/organización y probar consentimiento e importación dentro de la plataforma.
+- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. App instalada bajo `CondezJuan8` con dos repositorios autorizados; credenciales locales completas en `.env` ignorado por Git. Falta vincularla a Dinamita con consentimiento y probar importación dentro de la plataforma.
 
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
@@ -34,7 +36,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
-- [ ] **GitHub App real:** instalarla en la cuenta/organización deseada con repositorios seleccionados; completar consentimiento OAuth/PKCE e importación real y comprobar el acceso desde móvil y escritorio según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md). La autenticación de la App fue validada; el flujo de instalación de usuario todavía no.
+- [ ] **GitHub App real:** vincular la instalación que ya existe con Dinamita mediante su número de instalación y el consentimiento OAuth/PKCE desde `localhost:8089`; importar un repositorio real, descargar su ZIP y comprobar acceso desde móvil y escritorio según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md). La autenticación de la App fue validada; el consentimiento del usuario aún no.
 - [x] **Arranque Compose y migraciones:** Flyway valida V1-V19; version V19 con 127 tablas, 90 FORCE RLS y 225 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
@@ -44,7 +46,7 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
 - [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes.
-- [ ] Análisis de repositorios locales/GitHub: checkout/lectura de fuentes o ZIP privado, jobs aislados Maven/npm, progreso, resultados, errores y reintentos. La subida por sí sola no constituye un análisis.
+- [ ] Análisis de repositorios locales/GitHub: la lectura/descarga de ZIP local o GitHub ya está implementada; faltan validación y extracción segura del ZIP, jobs aislados Maven/npm, progreso, resultados, errores y reintentos. La subida por sí sola no constituye un análisis.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
 
