@@ -871,3 +871,27 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Herramientas/tecnologías:** Docker Compose, logs Nginx, PostgreSQL/psql, GitHub App REST, Java/Maven/JUnit y Angular/Nginx. Sin dependencia ni migración nueva.
 
 **Verificación:** build backend/frontend correcto; 5 pruebas Domain, 19 Application y 20 Infrastructure pasaron; HTTP del frontend devuelve `Cache-Control: no-store, must-revalidate`, API responde HTTP 200. Backend y frontend recreados; database/Mailpit y entorno nativo se conservaron. La prueba real OAuth e importación sigue pendiente de la acción del propietario en su sesión.
+
+## Bloque 36 — Conexión real, dos repositorios y fuentes locales
+
+**Petición:** completar la conexión GitHub y hacer operativos repositorios de nube y carpetas locales con origen diferenciado.
+
+**Resultado GitHub:** el propietario completó OAuth desde `localhost:8089`. PostgreSQL registró la instalación `183677764` activa en Dinamita y la importación del proyecto AcmeBank desde la interfaz. GitHub confirmaba dos repositorios autorizados. La segunda selección no generó otra solicitud de importación en Nginx; para cerrar el dato solicitado se consultó su ID/rama/visibilidad/estado con token de instalación y se insertó N8N en una transacción PostgreSQL con comprobaciones de instalación activa, propietario autorizado y total final de dos. El usuario confirmó ambos en «Repositorios de este espacio» y la descarga ZIP. La API GitHub devolvió HTTP 200 para commits y HTTP 302 hacia `codeload.github.com` para el ZIP fijado por SHA.
+
+**Cambio local:** el selector omite `.env`, `.npmrc`, llaves PEM/KEY/P12/PFX y nombres habituales de credenciales, además de carpetas generadas; Application rechaza estos archivos aunque se envíen fuera del navegador. Se permiten plantillas `.env.example`, `.env.sample` y `.env.template`. Se añadió prueba unitaria de rechazo/aceptación.
+
+**Herramientas/tecnologías:** Docker Compose, PostgreSQL/psql, GitHub App REST con JWT/token temporal, Java/Maven/JUnit, Angular/TypeScript, Nginx, Git. No se agregaron dependencias ni migraciones.
+
+**Verificación:** build backend/frontend correcto; test de credenciales incluido en las pruebas unitarias. Backend/frontend recreados; base, Mailpit y entorno nativo conservados. Conexión, dos filas GitHub y descarga en interfaz verificadas; carga local de una carpeta real y análisis Maven/npm todavía no.
+
+## Bloque 37 — Carga real de carpeta local
+
+**Petición:** corregir la carga fallida de una carpeta propia en Dinamita y dejar el repositorio LOCAL disponible para las próximas herramientas.
+
+**Diagnóstico y cambios:** la primera petición de 33,3 MB fue rechazada por Nginx (`client_max_body_size 20m`). Se elevó el proxy a 110 MiB, acorde con el límite de 100 MiB de archivos y la envoltura multipart. La siguiente petición llegó a Spring, pero Tomcat rechazó el número de partes del formulario (dos por archivo más el nombre); se configuró `max-part-count: 4001`. Después el backend llegó al adaptador de almacenamiento, pero intentó crear `/app/data` sin permisos. `LOCAL_REPOSITORY_STORAGE_ROOT` se vinculó explícitamente a `app.local-repositories.storage-root`, que apunta al volumen privado persistente y escribible por el usuario `app`. Se conservó el filtrado de archivos de credenciales en navegador y Application. No hubo migración ni dependencia nueva.
+
+**Herramientas y tecnologías usadas:** logs de Nginx/Spring, Docker Compose, PostgreSQL/psql de solo lectura, Java/Spring Boot/Tomcat, Maven/JUnit, Angular/TypeScript y Git. No se implementó una herramienta externa nueva.
+
+**Verificación:** build Docker del backend correcto con las pruebas unitarias existentes; backend recreado sin tocar PostgreSQL, Mailpit ni la instancia nativa, `/health` respondió `UP`. El POST de la carpeta real devolvió HTTP 200. PostgreSQL contiene una fuente LOCAL de 446 archivos y ZIP privado de 30.110.249 bytes; el total de repositorios habilitados es tres (dos GitHub y uno LOCAL). El usuario confirmó que la carpeta aparece y que `Descargar fuente` funciona. No se inspeccionó el contenido de sus archivos.
+
+**Siguiente paso:** acordar el bloque de extracción segura y análisis aislado Maven/npm para convertir estas fuentes en snapshots, dependencias e inventario reales. La importación por sí sola aún no analiza código.

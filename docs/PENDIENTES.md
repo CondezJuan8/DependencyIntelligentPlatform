@@ -1,10 +1,10 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 34 (GitHub, fuentes y limpieza de cuentas).
+Actualizado: 19 de noviembre de 2026, bloque 37 (carga LOCAL real verificada).
 
-**Estado actual:** solo `administrador@example.test` y `condez.juanp@gmail.com` están activas. Mamitapuebla está suspendida; la identidad histórica de su propietario se conserva anonimizada, sin acceso ni credenciales, por los eventos de auditoría. Respaldo privado en `.tools/backups/dependency-before-account-cleanup.dump`. GitHub confirmó la instalación `183677764` de `CondezJuan8`, Contents: Read y dos repositorios autorizados. La base de la plataforma aún tiene cero instalaciones y cero repositorios: el consentimiento/vinculación real y la primera importación se deben completar desde la sesión del propietario en `localhost:8089`. Ya hay flujo para instalación existente y endpoint común de ZIP local/GitHub; falta probar el recorrido con la sesión real y ejecutar el análisis Maven/npm.
+**Estado actual:** solo `administrador@example.test` y `condez.juanp@gmail.com` están activas. Mamitapuebla está suspendida; la identidad histórica de su propietario se conserva anonimizada, sin acceso ni credenciales, por los eventos de auditoría. Respaldo privado en `.tools/backups/dependency-before-account-cleanup.dump`. GitHub confirmó la instalación `183677764` de `CondezJuan8`, Contents: Read y dos repositorios autorizados. El propietario completó OAuth en `localhost:8089`; la base tiene una instalación activa de Dinamita, dos repositorios GitHub y uno LOCAL habilitados. El usuario confirmó que los tres aparecen y la descarga ZIP funciona. La carpeta propia se importó por HTTP 200 al volumen privado: 446 archivos y ZIP de 30.110.249 bytes. Se excluyen archivos de credenciales conocidos. Análisis aislado Maven/npm sigue pendiente.
 
-Bloque 35: el botón principal ahora detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El usuario debe actualizar la pestaña, pulsar **Conectar GitHub**, autorizar y seleccionar los dos repositorios para importarlos. Verificar después que la base registre instalación y repositorios; la captura anterior solo acreditaba la instalación en GitHub.
+Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
 **Instruccion vigente del usuario:** conservar los pendientes y trabajarlos juntos cuando el usuario lo indique. El usuario autorizo integrar GitHub y trabajar ahora el bootstrap inicial seguro; las demas funciones siguen pendientes hasta acordar su bloque.
 
@@ -21,13 +21,13 @@ Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organiza
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
 - Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
-- Google/GitHub y vinculación/desvinculación segura en backend y Angular, comprobados con proveedor HTTP local de prueba. Faltan credenciales y consentimiento reales.
+- Google/GitHub y vinculación/desvinculación segura en backend y Angular. La GitHub App de repositorios ya tiene credenciales locales y consentimiento real en Dinamita; el login social de Google/GitHub aún requiere su propia configuración y comprobación real.
 - Parser CycloneDX Maven acotado e importación persistente; todavía sin flujo de análisis real completo.
 - Importación local de carpetas al almacenamiento privado y registro tenant-scoped del repositorio. El proceso no ejecuta todavía un escaneo automático.
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
 - Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
 - Rediseño según las tres imágenes del usuario: acceso/registro, shell lateral, dashboard con estados vacíos y organización con tabla, filtros, pestañas y diálogos. Build correcto; falta aceptación visual del usuario. [Diseño](DISENO_FRONTEND.md).
-- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. App instalada bajo `CondezJuan8` con dos repositorios autorizados; credenciales locales completas en `.env` ignorado por Git. Falta vincularla a Dinamita con consentimiento y probar importación dentro de la plataforma.
+- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. App instalada bajo `CondezJuan8` con dos repositorios autorizados; credenciales locales completas en `.env` ignorado por Git. Vinculación e importación reales completadas en Dinamita; falta sincronización automática ante cambios posteriores en GitHub.
 
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
@@ -38,7 +38,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
-- [ ] **GitHub App real:** vincular la instalación que ya existe con Dinamita mediante su número de instalación y el consentimiento OAuth/PKCE desde `localhost:8089`; importar un repositorio real, descargar su ZIP y comprobar acceso desde móvil y escritorio según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md). La autenticación de la App fue validada; el consentimiento del usuario aún no.
+- [x] **GitHub App real en escritorio local:** OAuth/PKCE completado en `localhost:8089`, instalación de `CondezJuan8` activa en Dinamita, dos repositorios importados y descarga ZIP confirmada por el usuario. Queda pendiente revisión en móvil/otro dispositivo y automatizar sincronización ante cambios de selección en GitHub.
 - [x] **Arranque Compose y migraciones:** Flyway valida V1-V19; version V19 con 127 tablas, 90 FORCE RLS y 225 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
@@ -47,7 +47,7 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 ## Funciones por implementar
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
-- [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes.
+- [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build/credenciales conocidas, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes. Una carpeta real de 446 archivos se importó y descargó correctamente en Dinamita.
 - [ ] Análisis de repositorios locales/GitHub: la lectura/descarga de ZIP local o GitHub ya está implementada; faltan validación y extracción segura del ZIP, jobs aislados Maven/npm, progreso, resultados, errores y reintentos. La subida por sí sola no constituye un análisis.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
