@@ -60,6 +60,7 @@ export class SessionApiService {
 }
 
 export function accessError(error: HttpErrorResponse): string {
+  if (error.status === 413) return 'La carpeta supera el tamaño máximo permitido para subirla.';
   if (error.status === 503 && typeof error.error?.detail === 'string') return error.error.detail;
   if (error.status === 0 || error.status >= 500) return 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
   if (error.status === 429) return 'Has realizado demasiados intentos. Espera un minuto e inténtalo de nuevo.';

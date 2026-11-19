@@ -44,6 +44,10 @@ springdoc:
   swagger-ui:
     enabled: false
 server:
+  tomcat:
+    max-part-count: 4001
+    max-connections: 100
+    max-http-form-post-size: 4MB
   servlet:
     session:
       timeout: ${SESSION_TIMEOUT:30m}
@@ -56,6 +60,8 @@ server:
     include-message: never
     include-stacktrace: never
 app:
+  local-repositories:
+    storage-root: ${LOCAL_REPOSITORY_STORAGE_ROOT:./data/repositories}
   github:
     app:
       enabled: ${GITHUB_APP_ENABLED:false}
