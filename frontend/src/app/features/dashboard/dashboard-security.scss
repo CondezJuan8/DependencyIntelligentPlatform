@@ -1,0 +1,35 @@
+.security-panel { margin: 0 0 1.5rem; }
+.security-title { align-items: flex-end; }
+.security-title .eyebrow { margin: 0 0 4px; }
+.security-intro { margin: 12px 0 18px; max-width: 900px; color: var(--di-text-secondary); font-size: 14px; line-height: 1.6; }
+.risk-categories { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.risk-category { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 11px; row-gap: 2px; min-width: 0; padding: 13px 15px; border: 1px solid var(--di-border); border-left: 4px solid; border-radius: 10px; }
+.risk-category strong { grid-row: span 2; font-size: 27px; line-height: 1; }
+.risk-category span { font-size: 14px; font-weight: 700; }
+.risk-category small { color: var(--di-text-secondary); font-size: 12px; line-height: 1.4; }
+.risk-category.critical { color: var(--di-critical-text); border-left-color: var(--di-critical); background: var(--di-critical-background); }
+.risk-category.high { color: var(--di-high-risk-text); border-left-color: var(--di-high-risk); background: var(--di-high-risk-background); }
+.risk-category.warning { color: var(--di-warning-text); border-left-color: var(--di-warning); background: var(--di-warning-background); }
+.risk-category.clear { color: var(--di-success-text); border-left-color: var(--di-success); background: var(--di-success-background); }
+.assessment-pending,.security-empty { margin: 14px 0 0; padding: 12px 14px; border-radius: 9px; background: var(--di-info-background); color: var(--di-info-text); font-size: 14px; line-height: 1.55; }
+.finding-list { display: grid; gap: 10px; margin-top: 16px; }
+.finding-row { display: flex; gap: 12px; min-width: 0; padding: 13px 14px; border: 1px solid var(--di-border); border-radius: 10px; background: var(--di-surface); }
+.finding-marker { flex: 0 0 9px; width: 9px; height: 9px; margin-top: 6px; border-radius: 50%; background: var(--di-warning); }
+.finding-row.critical .finding-marker { background: var(--di-critical); }
+.finding-row.high .finding-marker { background: var(--di-high-risk); }
+.finding-copy { min-width: 0; }
+.finding-meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--di-text-secondary); font-size: 12px; }
+.finding-category { color: var(--di-text); font-weight: 700; }
+.finding-copy h3 { margin: 5px 0; font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; }
+.finding-copy code { font-size: 0.9em; }
+.finding-copy p { margin: 0 0 5px; color: var(--di-text-secondary); font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+.finding-copy a { color: var(--di-link); font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (max-width: 720px) {
+  .risk-categories { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .risk-category { padding: 11px; column-gap: 8px; }
+  .risk-category strong { font-size: 23px; }
+  .risk-category span { font-size: 13px; }
+  .risk-category small { font-size: 11px; }
+  .security-title { align-items: flex-start; flex-direction: column; }
+}

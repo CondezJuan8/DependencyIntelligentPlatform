@@ -28,6 +28,36 @@
     @if (!loading()) { <div class="compact-empty"><p>Todavía no hay repositorios con acceso para tu cuenta.</p><button mat-stroked-button (click)="manage.emit()">Conectar o importar repositorio</button></div> }
   }
 </section>
+<section class="panel security-panel" aria-labelledby="security-heading" aria-live="polite">
+  <div class="panel-title security-title">
+    <div><p class="eyebrow">SEGURIDAD · OSV</p><h2 id="security-heading">Vulnerabilidades de tus repositorios</h2></div>
+    <span class="di-tag">{{ findings.length }} avisos detectados</span>
+  </div>
+  <p class="security-intro">Los avisos se agrupan por la categoría de mayor riesgo encontrada en cada versión. «Sin avisos conocidos» solo cuenta versiones consultadas correctamente por OSV.</p>
+  <div class="risk-categories" aria-label="Resumen de versiones por categoría de riesgo">
+    <article class="risk-category critical"><strong>{{ riskCounts.critical }}</strong><span>Crítico</span><small>Atender de inmediato</small></article>
+    <article class="risk-category high"><strong>{{ riskCounts.high }}</strong><span>Riesgo alto</span><small>Priorizar corrección</small></article>
+    <article class="risk-category warning"><strong>{{ riskCounts.warning }}</strong><span>Advertencia</span><small>Revisar el aviso</small></article>
+    <article class="risk-category clear"><strong>{{ riskCounts.clear }}</strong><span>Sin avisos conocidos</span><small>Según la consulta OSV</small></article>
+  </div>
+  @if (pendingAssessmentCount > 0) { <p class="assessment-pending" role="status">{{ pendingAssessmentCount }} versiones aún no tienen una evaluación completa. No se cuentan como seguras.</p> }
+  @if (unavailableVulnerabilityRepositories() > 0) { <p class="assessment-pending" role="status">No se pudo cargar la evaluación OSV de {{ unavailableVulnerabilityRepositories() }} repositorios. Recarga el Dashboard para volver a consultar.</p> }
+  <div class="finding-list">
+    @for (finding of findings.slice(0, 6); track finding.repositoryName + finding.packageName + finding.version + finding.advisory.id) {
+      <article class="finding-row" [class]="'finding-row ' + finding.category">
+        <span class="finding-marker" aria-hidden="true"></span>
+        <div class="finding-copy"><div class="finding-meta"><span class="finding-category">{{ finding.category === 'critical' ? 'Crítico' : finding.category === 'high' ? 'Riesgo alto' : 'Advertencia' }}</span><span>{{ finding.repositoryName }}</span></div>
+          <h3>{{ finding.packageName }} <code>{{ finding.version }}</code></h3>
+          <p>{{ finding.advisory.summary || 'Aviso de seguridad publicado por OSV' }}</p>
+          <a [href]="finding.advisory.url" target="_blank" rel="noopener noreferrer">{{ finding.advisory.id }} · Ver fuente oficial <span class="visually-hidden">(abre en una pestaña nueva)</span></a>
+        </div>
+      </article>
+    } @empty {
+      @if (!loading() && hasAssessedVersions) { <p class="security-empty">OSV no reporta avisos conocidos en las versiones evaluadas. Esto no garantiza ausencia de vulnerabilidades.</p> }
+      @else if (!loading()) { <p class="security-empty">Todavía no hay resultados OSV guardados. Analiza un repositorio desde Inventario para consultar sus versiones.</p> }
+    }
+  </div>
+</section>
 <section class="panel" style="margin:0 0 1.5rem">
   <div class="panel-title"><h2>Análisis recientes</h2><span class="di-tag">{{ analyses().length }}</span></div>
   @for (analysis of analyses().slice(0,5); track analysis.scanId) {
