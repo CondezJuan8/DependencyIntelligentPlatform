@@ -28,6 +28,12 @@
     @if (!loading()) { <div class="compact-empty"><p>Todavía no hay repositorios con acceso para tu cuenta.</p><button mat-stroked-button (click)="manage.emit()">Conectar o importar repositorio</button></div> }
   }
 </section>
+<section class="panel" style="margin:0 0 1.5rem">
+  <div class="panel-title"><h2>Análisis recientes</h2><span class="di-tag">{{ analyses().length }}</span></div>
+  @for (analysis of analyses().slice(0,5); track analysis.scanId) {
+    <article class="organization-row"><span class="organization-avatar"><app-di-icon name="analysis" /></span><span>{{ analysis.repositoryName }}<small>{{ analysis.organizationName }} · Maven · {{ analysis.dependencies.length }} dependencias · {{ analysis.analyzedAt | date:'short' }}</small></span></article>
+  } @empty { @if (!loading()) { <div class="compact-empty"><p>Aún no hay análisis Maven registrados.</p></div> } }
+</section>
 <div class="primary-grid">
   <section class="panel">
     <div class="panel-title">

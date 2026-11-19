@@ -18,7 +18,7 @@
   <article>
     <div>
       <p>Dependencias</p>
-      <strong>{{ dependencies() === null ? '—' : dependencies() }}</strong><small>{{ dependencies() === null ? 'Sin análisis disponibles' : 'Dependencias declaradas' }}</small>
+      <strong>{{ loading() ? '…' : dependencies() === null ? '—' : dependencies() }}</strong><small>{{ loading() ? 'Consultando análisis' : dependencies() === null ? 'Sin análisis disponibles' : 'Dependencias declaradas en Maven' }}</small>
     </div>
     <span class="metric-icon purple"><app-di-icon name="graph" /></span>
   </article>
