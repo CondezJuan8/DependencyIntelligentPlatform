@@ -917,3 +917,5 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 **Herramientas/verificación:** Angular/TypeScript y Docker Compose. Build del frontend correcto; frontend recreado y `http://localhost:8089/` responde HTTP 200. No se inventaron totales de dependencias ni niveles de riesgo; esas métricas permanecen vacías hasta conectar sus datos.
 
 **Siguiente paso:** aceptar visualmente el dashboard y luego ampliar su lectura de snapshots Maven para mostrar dependencias analizadas con agregación real.
+
+**Continuación:** el dashboard consulta el último snapshot Maven de cada repositorio accesible, muestra total agregado de dependencias directas y hasta cinco análisis recientes con fecha y conteo por repositorio. No representa riesgo ni transitivas. Frontend recompilado, desplegado y HTTP 200.
