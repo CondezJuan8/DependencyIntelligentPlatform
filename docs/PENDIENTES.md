@@ -1,6 +1,6 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 19 de noviembre de 2026, bloque 30 (configuración local de GitHub App).
+Actualizado: 19 de noviembre de 2026, bloque 31 (activación local de GitHub App).
 
 **Instrucción vigente del usuario:** conservar aquí los pendientes y trabajarlos juntos cuando él lo indique. El usuario autorizó comenzar la integración de repositorios GitHub; las demás tareas siguen sin iniciarse hasta que se acuerden.
 
@@ -21,7 +21,7 @@ Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organiza
 - Paleta del usuario aplicada mediante tokens y Angular Material a las pantallas existentes.
 - Invitaciones SMTP, aceptación, gestión de membresías/roles, equipos y permisos por repositorio en backend/Angular. Probados con PostgreSQL y Mailpit; revisión visual conjunta pendiente. [Recorrido y contratos](INVITACIONES_EQUIPOS_PERMISOS.md).
 - Rediseño según las tres imágenes del usuario: acceso/registro, shell lateral, dashboard con estados vacíos y organización con tabla, filtros, pestañas y diálogos. Build correcto; falta aceptación visual del usuario. [Diseño](DISENO_FRONTEND.md).
-- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. App creada bajo `CondezJuan8`; slug, App ID, Client ID y llave privada preparados en `.env` local ignorado por Git. La App sigue desactivada hasta agregar el Client Secret y completar el consentimiento real.
+- Integración de GitHub App: instalación y verificación de pertenencia mediante autorización OAuth/PKCE, selección e importación de repositorios, interfaz responsive móvil/escritorio. App creada bajo `CondezJuan8`; credenciales locales completas en `.env` ignorado por Git y autenticación de aplicación comprobada con `GET /app` (HTTP 200). Falta instalarla en una cuenta/organización y probar consentimiento e importación dentro de la plataforma.
 
 El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.md). Las tablas creadas y las pruebas con proveedores simulados no significan que el producto esté listo para usar en su totalidad.
 
@@ -32,7 +32,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
-- [ ] **GitHub App real:** agregar el Client Secret al `.env` local, activar y recrear el backend; completar instalación/importación real y comprobar el acceso desde móvil y escritorio según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md). La configuración local actual permanece desactivada y no se probaron llamadas reales.
+- [ ] **GitHub App real:** instalarla en la cuenta/organización deseada con repositorios seleccionados; completar consentimiento OAuth/PKCE e importación real y comprobar el acceso desde móvil y escritorio según [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md). La autenticación de la App fue validada; el flujo de instalación de usuario todavía no.
 - [x] **Arranque Compose y migraciones:** Flyway valida V1-V19; version V19 con 127 tablas, 90 FORCE RLS y 225 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 

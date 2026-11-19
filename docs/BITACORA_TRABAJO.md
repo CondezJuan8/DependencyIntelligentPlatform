@@ -823,3 +823,12 @@ El usuario puede revisar la pantalla Organización → permisos directos; la ace
 **Herramientas/verificación:** PowerShell y .NET para validar encabezado/cierre PEM RSA, codificar el archivo y actualizar `.env` sin imprimir su contenido. Se confirmó en `.gitignore` que `.env` está excluido. La llave codificada tiene 2.240 caracteres; no se ejecutaron pruebas ni se reiniciaron servicios, porque falta Client Secret y la integración sigue desactivada.
 
 **Siguiente paso:** generar el Client Secret en los ajustes de la GitHub App y agregarlo localmente a `GITHUB_APP_CLIENT_SECRET`; después habilitar `GITHUB_APP_ENABLED=true`, recrear únicamente el backend y probar instalación/selección de repositorios.
+## Bloque 31 - Activación local y validación de GitHub App
+
+**Petición:** continuar después de agregar el Client Secret a `.env` y habilitar la conexión de la App creada.
+
+**Cambios:** se verificó la presencia de las seis variables requeridas sin imprimir sus valores, se cambió `GITHUB_APP_ENABLED=true` y se recreó únicamente el servicio `backend` con Compose (`--no-deps --force-recreate`). Se actualizaron esta bitácora, pendientes y guía GitHub. `.env` permanece excluido por Git.
+
+**Herramientas/verificación:** Docker Compose; logs de Spring Boot/JDK 21; consulta autenticada de solo lectura con JWT RS256 a `GET https://api.github.com/app`. GitHub respondió HTTP 200 y devolvió el App ID/slug esperados. El backend inició, conectó a PostgreSQL, validó 19 migraciones y no requirió nuevas migraciones; frontend en `localhost:8089` responde HTTP 200. No se completaron instalación en cuenta/organización, consentimiento OAuth/PKCE ni importación de repositorios porque requieren una sesión/organización de plataforma y selección de repositorios en GitHub. No se ejecutaron suites de pruebas.
+
+**Siguiente paso:** iniciar sesión con una cuenta propietaria/administradora de organización, instalar la App con acceso solo a repositorios seleccionados y completar consentimiento; después validar listado/importación real. El acceso puede revisarse en `http://localhost:8089`.
