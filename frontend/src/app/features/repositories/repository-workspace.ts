@@ -129,7 +129,11 @@ export class RepositoryWorkspace implements OnInit {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     const ignored = new Set(['.git', 'node_modules', 'target', 'dist', 'build', '.angular']);
-    const included = files.filter(file => !file.webkitRelativePath.split('/').slice(1, -1).some(part => ignored.has(part.toLowerCase())));
+    const included = files.filter(file => {
+      const parts = file.webkitRelativePath.split('/');
+      return !parts.slice(1, -1).some(part => ignored.has(part.toLowerCase()))
+        && !this.isSensitiveFile(parts[parts.length - 1].toLowerCase());
+    });
     const root = included[0]?.webkitRelativePath.split('/')[0] ?? '';
     this.localName.set(root);
     this.error.set('');
@@ -137,7 +141,14 @@ export class RepositoryWorkspace implements OnInit {
     if (!included.length) { this.localFiles.set([]); this.error.set('No se encontraron archivos para importar.'); this.message.set(''); }
     else if (included.length > 2_000 || bytes > 100 * 1024 * 1024) {
       this.localFiles.set([]); this.error.set('La carpeta supera el límite de 2.000 archivos o 100 MiB.'); this.message.set('');
-    } else { this.localFiles.set(included); this.message.set(''); }
+    } else { this.localFiles.set(included); this.message.set(files.length > included.length ? 'Se omitieron archivos de credenciales y carpetas generadas.' : ''); }
+  }
+
+  private isSensitiveFile(name: string): boolean {
+    if (['.env.example', '.env.sample', '.env.template'].includes(name)) return false;
+    return name === '.env' || name.startsWith('.env.')
+      || ['.npmrc', '.pypirc', 'id_rsa', 'id_ed25519', 'credentials.json'].includes(name)
+      || ['.pem', '.key', '.p12', '.pfx'].some(extension => name.endsWith(extension));
   }
 
   uploadLocalFolder(): void {

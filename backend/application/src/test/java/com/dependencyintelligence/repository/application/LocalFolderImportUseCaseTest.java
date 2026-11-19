@@ -53,6 +53,14 @@ class LocalFolderImportUseCaseTest {
         assertNull(repositories.saved);
     }
 
+    @Test void rejectsCredentialFilesButAllowsExampleConfiguration() {
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(command("project", "project/.env", 1)));
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(command("project", "project/secrets/private.pem", 1)));
+        assertNull(repositories.saved);
+        var result = useCase.execute(command("project", "project/.env.example", 1));
+        assertEquals("project", result.name());
+    }
+
     private LocalFolderImportCommand command(String name, String path, long size) {
         return new LocalFolderImportCommand(organization, user, name, List.of(file(path, size)));
     }

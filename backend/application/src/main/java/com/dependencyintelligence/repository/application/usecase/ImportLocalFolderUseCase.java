@@ -74,6 +74,17 @@ public final class ImportLocalFolderUseCase implements ImportLocalFolder {
             if (java.util.Set.of(".git", "node_modules", "target", "dist", "build", ".angular").contains(parts[i].toLowerCase(Locale.ROOT)))
                 throw new IllegalArgumentException("Quita .git, node_modules y carpetas de compilación antes de importar el proyecto.");
         }
+        String filename = parts[parts.length - 1].toLowerCase(Locale.ROOT);
+        if (isSensitive(filename))
+            throw new IllegalArgumentException("La carpeta contiene un archivo de credenciales. Quítalo antes de importar.");
         return String.join("/", java.util.Arrays.copyOfRange(parts, 1, parts.length));
+    }
+
+    private static boolean isSensitive(String filename) {
+        if (java.util.Set.of(".env.example", ".env.sample", ".env.template").contains(filename)) return false;
+        return filename.equals(".env") || filename.startsWith(".env.")
+            || java.util.Set.of(".npmrc", ".pypirc", "id_rsa", "id_ed25519", "credentials.json").contains(filename)
+            || filename.endsWith(".pem") || filename.endsWith(".key")
+            || filename.endsWith(".p12") || filename.endsWith(".pfx");
     }
 }
