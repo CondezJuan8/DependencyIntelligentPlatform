@@ -2,6 +2,122 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 52 — filtros de seguridad, grafo en red y flujo de invitación
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y cambios
+
+- Inventario incorpora un filtro de estado de seguridad: todos, versiones con avisos, sin avisos conocidos, y sin evaluar/con revisión. El filtro opera a nivel de versión y oculta paquetes sin versiones coincidentes; los contadores directos/transitivos se recalculan con lo visible.
+- El grafo ahora conserva el mapa por capas y agrega una vista de red force-directed con Cytoscape `cose`, etiquetas que aparecen al acercar/buscar/seleccionar, nodos compactos diferenciados por directas/transitivas y aristas discretas. Para proteger la respuesta, la red renderiza hasta 350 paquetes y mantiene el catálogo accesible completo; el mapa por capas conserva el tope de 1.000.
+- Se corrigió el texto de estado OSV «OSV no reporta avisos para esta versión» y se conecta a traducciones. Se añadió explicación de que SHA-256 identifica el ZIP exacto analizado; no es el hash de un paquete ni una puntuación de riesgo.
+- El diálogo de invitación selecciona inicialmente un equipo que tenga al menos un repositorio con `Consultar repositorio`. Al cambiar el equipo, se selecciona su primer repositorio elegible. Si no hay acceso configurado, el selector se deshabilita, explica cómo conceder el permiso y ofrece ir a Equipos y permisos. Se muestra el flujo: verificación/aceptación de invitación y aprobación final del propietario.
+
+### Herramientas utilizadas e implementadas
+
+| Herramienta/tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Angular signals, TypeScript y templates | Filtro de versiones, alternancia del grafo y estado inicial coherente para la invitación | No |
+| Cytoscape.js ya instalado (`cose`) | Distribución de red acotada, etiquetas por zoom/foco y relación visible entre paquetes | No |
+| Traducciones existentes | Etiquetas nuevas para español e inglés | No |
+| SCSS y tokens de tema | Leyenda de red, botones de modo, explicación SHA y flujo responsive | No |
+
+### Verificación y límites
+
+- TypeScript de la aplicación: 0 diagnósticos.
+- Parser de templates Angular: Inventario, grafo y gestión de organización, 0 errores.
+- No se modificaron API, políticas de autorización, esquemas ni datos. El servidor Compose 8089/8088 no se reinició y no se validó con los repositorios Omega/Bot de WhatsApp ni con un recorrido real de invitación.
+- La red `cose` con hasta 350 paquetes está limitada para reducir el coste de repulsión; el resto permanece en lista completa. Falta revisar visualmente distribución y legibilidad con esos repositorios, desktop/móvil y ambos temas, además de observar el comportamiento de la selección elegible con datos reales.
+- Build de Angular completado correctamente. Generó advertencias de presupuesto de bundle y estilos; se ajustó el límite de error del estilo del grafo a 12 KB, dejando las advertencias visibles.
+- Se levantó una vista actualizada en `http://localhost:8090/?view=inventory`, con la API redirigida al backend de `localhost:8089`. Los servicios existentes en 8088 y 8089 siguen activos.
+- Se crearon tres commits separados para inventario, grafo e invitaciones/documentación. No se afirma una revisión visual completa ni pruebas conductuales con los repositorios del usuario.
+
+### Siguiente paso
+
+Abrir Inventario en el puerto 8090, usar «Con vulnerabilidades» y «Sin evaluar o requiere revisión» en Omega/Bot de WhatsApp; alternar «Por capas»/«Red libre» y comprobar búsqueda, zoom y selección. Después confirmar el diálogo de invitación con un equipo que tenga acceso al repositorio deseado. Ajustar el grafo según el recorrido visual real.
+
+## Bloque 51 — grafo estético y entendible por capas
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y cambios
+
+El usuario eligió el mapa por capas y pidió más detalle visual sin degradar el rendimiento. El proyecto queda en la primera columna; las directas en nivel 1 y las transitivas en las columnas siguientes según la menor distancia al proyecto. Los nodos son tarjetas compactas con nombre/versión, borde azul para directas y cian para transitivas; el fondo usa una retícula discreta y las flechas conservan la dirección real.
+
+La vista consolida ocurrencias iguales por ecosistema, paquete y versión; mezcla sus rutas/ámbitos en el detalle y conserva una relación compartida como un solo nodo. El detalle separa lo que declara y quién usa el paquete. La búsqueda resalta el camino de dependencias. Para grafos mayores, el canvas dibuja hasta 1.000 nodos y prioriza los niveles próximos o el camino buscado/seleccionado; la lista conserva el inventario completo y carga 100 filas por tanda. El cálculo de niveles es BFS O(V+E), y se quitaron redibujos completos provocados solo por redimensionar.
+
+### Herramientas utilizadas e implementadas
+
+| Herramienta/tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Angular signals/computed y TypeScript | Normalizar entidades visibles, agrupar ocurrencias, filtrar y mantener estadísticas derivadas | No |
+| Cytoscape.js ya instalado | Tarjetas, aristas, posicionamiento `preset`, BFS y foco de rutas | No |
+| SCSS y tokens de tema existentes | Guía de capas, tarjeta/leyenda y respuesta móvil con paleta de producto | No |
+| Traducciones existentes | Nuevas leyendas y panel de relaciones en español/inglés | No |
+
+### Verificación y límites
+
+- Revisión estática del flujo Angular y cálculo por capas; no se cambiaron API, backend, migraciones ni datos.
+- TypeScript type-check de 44 archivos correcto con la API del compilador; el parser de template Angular también pasó. La build Angular completa no se ejecutó.
+- No se ejecutaron pruebas conductuales ni revisión visual en Chrome; Node/npm CLI y el host de navegador no estaban disponibles. La carga del compilador Sass se detuvo en su módulo nativo antes de compilar por un error de export `sass.node.js` del runtime.
+- No se añadió una biblioteca de layout. La visibilidad de grafos reales npm/transitivos y la aceptación visual responsive quedan pendientes.
+- No pude crear commit: `git.exe` no está disponible en el PATH de este entorno.
+
+### Siguiente paso
+
+Cuando esté disponible Node/npm, compilar el frontend y revisar el grafo con seis dependencias Maven y una muestra npm transitiva, en tema claro/oscuro y móvil. Ajustar separaciones si esos datos muestran cruces o etiquetas pequeñas.
+## Bloque 50 — carpeta npm lista para probar en la plataforma
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y cambios
+
+El usuario indicó que no puede probar npm. La sesión de Chrome muestra que Inventario todavía solo conoce `Formula1Simulator · local`; el parser npm no tiene un scan real en esa instancia. Se creó `samples/npm-axios-demo`, una carpeta lista para importar con `package.json` y `package-lock.json` v3: Axios 1.7.9 como dependencia directa y ocho paquetes transitivos. No se incluyeron scripts ni `node_modules`; el análisis no ejecuta código del proyecto.
+
+### Herramientas utilizadas
+
+| Herramienta | Uso | Dependencia nueva |
+| --- | --- | --- |
+| PowerShell y `System.Web.Extensions` | Crear archivos y validar JSON/estructura del fixture | No |
+| Inspección de Angular/API y `BoundedNpmLockReader` | Confirmar importación local y soporte de lockfile v2/v3 | No |
+| Chrome/CUA | Revisar selector y estado npm; el control no permitió completar la importación | No |
+
+### Verificación y límites
+
+- Validación local: JSON válido, lockfile v3, una dependencia directa y nueve entradas instaladas (Axios más ocho transitivas esperadas).
+- El fixture aún no está importado ni analizado en Compose; está disponible en `samples/npm-axios-demo`.
+- No corrí Node/npm, Docker ni pruebas Java: esos ejecutables no están disponibles en este entorno de comandos. No se modificó código del escáner ni datos de la base.
+- No pude crear commit porque `git.exe` no está disponible en el PATH de este entorno.
+
+### Siguiente paso
+
+En localhost:8089 abre Mis repositorios → Importar carpeta local → elige `C:\Users\yazst\DependencyIntelligentPlatform\samples\npm-axios-demo` → Subir a la organización. Luego Inventario → selecciona `npm-axios-demo` → Analizar repositorio. El resultado esperado es Axios directo, ocho transitivas y sus relaciones del lockfile. Si la pantalla muestra error, usar ese mensaje y los logs backend para corregirlo.
+## Bloque 49 — diagnóstico de Inventario npm sin resultados
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y diagnóstico
+
+El usuario reportó que Inventario no muestra dependencias npm. En la pantalla real de `localhost:8089`, el selector solo contiene `Formula1Simulator · local`; el estado Maven indica seis paquetes y npm indica «Aún sin analizar». El repositorio Axios recomendado en el bloque anterior no aparece en el espacio, por lo que no hay todavía un lockfile npm real importado ni un scan npm guardado. Con la evidencia actual no se concluye que el parser tenga un error.
+
+### Herramientas utilizadas
+
+| Herramienta | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Chrome y la vista Inventario de Angular | Verificar repositorio seleccionado, estado Maven/npm y catálogo | No |
+| Inspección de Angular/API y parser npm | Seguir el flujo de carga/análisis; parser admite lockfiles v2/v3 | No |
+| Docker Compose/PostgreSQL | Confirmar servicios activos; la consulta sin contexto de tenant no entregó filas y no se usó como evidencia | No |
+
+### Verificación y límites
+
+- Observación real: solo aparece el repositorio local Java; el estado npm figura «Aún sin analizar».
+- No se ejecutó un análisis, no se alteraron scans ni datos, y no se modificó código.
+- La prueba focal existente del parser cubre relaciones directas/transitivas sintéticas, pero falta validar un repositorio npm real dentro de Inventario.
+
+### Siguiente paso
+
+Importar Axios (`axios/axios`, rama `v1.x`) a la organización, ya sea habilitando su acceso GitHub o descargando/descomprimiendo el ZIP y usando «Importar carpeta local». Seleccionarlo en Inventario, pulsar «Analizar repositorio» y comprobar el estado/npm y los paquetes. Si aparece un error, usar ese resultado concreto para corregir el parser o la persistencia.
+
 ## Bloque 48 — Lectura visual más clara del grafo
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.

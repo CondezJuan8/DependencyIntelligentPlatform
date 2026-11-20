@@ -1,6 +1,8 @@
 :host {
   display: block;
 }
+.di-invite-flow { margin: 0 0 14px; padding: 11px 14px 11px 34px; border: 1px solid var(--di-border); border-radius: 9px; background: var(--di-surface-muted); color: var(--di-text-secondary); font-size: 13px; line-height: 1.6; }
+.di-invite-flow li + li { margin-top: 4px; }
 .access-nav {
   display: flex;
   justify-content: space-between;

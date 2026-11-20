@@ -10,6 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { finalize } from 'rxjs';
 import { A11yModule } from '@angular/cdk/a11y';
 import { DiIcon } from '../../shared/di-icon';
+import { TranslatePipe } from '../../core/translate.pipe';
 import { accessError, Organization, SessionApiService } from '../../core/session-api.service';
 
 type Role = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
@@ -51,6 +52,7 @@ interface Overview {
   imports: [
     A11yModule,
     DiIcon,
+    TranslatePipe,
     DatePipe,
     FormsModule,
     MatButtonModule,
@@ -162,7 +164,7 @@ export class OrganizationAccess implements OnChanges {
       });
   }
   invite(): void {
-    if (!this.invitationEmail.trim()) return;
+    if (!this.invitationEmail.trim() || !this.invitationTeamId || !this.invitationRepositoryId || !this.invitationRepositories().some(repo => repo.id === this.invitationRepositoryId)) return;
     this.mutate(
       '/invitations',
       { email: this.invitationEmail, role: this.invitationRole,teamId:this.invitationTeamId,repositoryId:this.invitationRepositoryId },
@@ -335,7 +337,12 @@ export class OrganizationAccess implements OnChanges {
   }
   openDialog(kind: 'invite' | 'team'): void {
     this.error.set('');
-    this.dialog.set(kind);if(kind==='invite')this.selectInvitationTeam(this.invitationTeamId||this.data()?.teams[0]?.id||'');
+    this.dialog.set(kind);
+    if (kind === 'invite') {
+      const teams = this.data()?.teams ?? [];
+      const firstEligible = teams.find(team => team.grants.some(grant => grant.permission === 'repository.read' && this.data()?.repositories.some(repo => repo.id === grant.repositoryId)));
+      this.selectInvitationTeam(firstEligible?.id ?? teams[0]?.id ?? '');
+    }
   }
   editMember(member: Member): void {
     this.error.set('');
@@ -369,6 +376,22 @@ export class OrganizationAccess implements OnChanges {
   }
 
  approve(invitation:Invitation):void{this.mutate(`/invitations/${invitation.id}/approve`,{},'Acceso aprobado para el equipo y repositorio indicados.',()=>this.approvalConfirmation.set(null));}
- invitationRepositories(){return this.data()?.repositories.filter(repo=>this.data()?.teams.find(team=>team.id===this.invitationTeamId)?.grants.some(grant=>grant.repositoryId===repo.id&&grant.permission==='repository.read'))??[];}
- selectInvitationTeam(id:string):void{this.invitationTeamId=id;this.invitationRepositoryId=this.invitationRepositories()[0]?.id??'';}
+ invitationRepositories(){
+   const team = this.data()?.teams.find(item => item.id === this.invitationTeamId);
+   const allowed = new Set(team?.grants.filter(grant => grant.permission === 'repository.read').map(grant => grant.repositoryId) ?? []);
+   return this.data()?.repositories.filter(repo => allowed.has(repo.id)) ?? [];
+ }
+ selectInvitationTeam(id:string):void{
+   this.invitationTeamId=id;
+   this.invitationRepositoryId='';
+   const repositories = this.invitationRepositories();
+   this.invitationRepositoryId = repositories[0]?.id ?? '';
+ }
+ openTeamsForInvite():void{
+   const team = this.data()?.teams.find(item => item.id === this.invitationTeamId) ?? this.data()?.teams[0] ?? null;
+   this.selectTeam(team);
+   this.selectRepository(this.data()?.repositories[0]?.id ?? '');
+   this.closeDialogs();
+   this.tab.set('permissions');
+ }
 }

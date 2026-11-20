@@ -454,8 +454,9 @@
             <h2 id="dialog-title">Invita a tu equipo</h2>
             <p>
               Envía un enlace para unirse a {{ organization.name }}. La persona necesitará verificar
-              su correo.
+              su correo, aceptar la invitación y esperar la aprobación final del propietario.
             </p>
+            <ol class="di-invite-flow"><li>{{ 'Elige el equipo y el repositorio que ese equipo ya puede consultar.' | t }}</li><li>{{ 'La persona verifica su correo y acepta el enlace recibido.' | t }}</li><li>{{ 'El propietario aprueba el acceso; entonces se activa la membresía.' | t }}</li></ol>
             <form #inviteForm="ngForm" (ngSubmit)="invite()">
               <mat-form-field appearance="outline"
                 ><mat-label>Correo electrónico</mat-label
@@ -469,8 +470,8 @@
                   maxlength="320"
                   [disabled]="pending()" /></mat-form-field
               ><mat-form-field appearance="outline"><mat-label>Equipo de destino</mat-label><mat-select name="invitationTeam" [ngModel]="invitationTeamId" (ngModelChange)="selectInvitationTeam($event)" required [disabled]="pending()">@for(item of access.teams;track item.id){<mat-option [value]="item.id">{{item.name}}</mat-option>}</mat-select></mat-form-field>
-<mat-form-field appearance="outline"><mat-label>Repositorio autorizado</mat-label><mat-select name="invitationRepository" [(ngModel)]="invitationRepositoryId" required [disabled]="pending()">@for(repo of invitationRepositories();track repo.id){<mat-option [value]="repo.id">{{repo.fullName}}</mat-option>}</mat-select></mat-form-field>
-@if(!invitationRepositories().length){<p>Configura primero un equipo con permiso de lectura sobre un repositorio habilitado.</p>}
+<mat-form-field appearance="outline"><mat-label>Repositorio autorizado</mat-label><mat-select name="invitationRepository" [(ngModel)]="invitationRepositoryId" required [disabled]="pending() || !invitationRepositories().length">@for(repo of invitationRepositories();track repo.id){<mat-option [value]="repo.id">{{repo.fullName}}</mat-option>}</mat-select></mat-form-field>
+@if(!access.teams.length){<p>{{ 'No hay equipos. Crea primero un equipo para invitar a alguien con acceso limitado.' | t }}</p>} @else if(!invitationRepositories().length){<p>{{ 'El equipo seleccionado todavía no tiene acceso de lectura a ningún repositorio. Abre Equipos y permisos, elige un repositorio y concede «Consultar repositorio» al equipo.' | t }}</p><button mat-stroked-button type="button" (click)="openTeamsForInvite()" [disabled]="pending()">{{ 'Ir a configurar permisos' | t }}</button>}
 <mat-form-field appearance="outline"
                 ><mat-label>Rol de la persona</mat-label
                 ><mat-select

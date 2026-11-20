@@ -1,8 +1,16 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 48 (lectura visual radial del grafo).
+Actualizado: 20 de noviembre de 2026, bloque 52.
 
-**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. La carga local mantiene 100 MiB totales y acepta ahora hasta 50.000 archivos; V24 actualiza el CHECK de base de datos y las capas multipart/proxy soportan esa cantidad. Sigue pendiente medir una carga real grande. El grafo (bloques 45, 47 y 48) muestra en navegador el proyecto y seis dependencias Maven de `Formula1Simulator`: 6 directas, 0 transitivas y 6 relaciones declaradas. El proyecto queda centrado, directas en el anillo interior, transitivas en el exterior; nombres completos y detalle siguen en la lista inferior. Falta validar npm con relaciones transitivas y la escala móvil/grafos grandes. Maven transitivo sigue pendiente, sin inferir relaciones. Ver [bitácora](BITACORA_TRABAJO.md).
+**Bloque 52 implementado, revisión pendiente:** Inventario ya filtra versiones con vulnerabilidades/estado de evaluación; el grafo ofrece modo por capas y modo red limitado a 350 nodos, con catálogo completo; el estado OSV y la explicación del SHA-256 del ZIP fueron corregidos; el diálogo de invitación explica el flujo y cómo habilitar un repositorio para el equipo. El usuario aún debe probarlo con Omega y bot de WhatsApp y verificar el selector/invitación en los datos activos. Ver [bitácora](BITACORA_TRABAJO.md).
+
+**Próxima comprobación prioritaria:** revisión interactiva del bloque 52 con esos dos repositorios, tema claro/oscuro y móvil/escritorio. Confirmar también que el equipo elegido tiene «Consultar repositorio» sobre el repositorio autorizado. El build Angular pasó; falta revisión visual interactiva y pruebas conductuales con datos reales.
+
+Actualizado: 20 de noviembre de 2026, bloque 51 (mapa de dependencias por capas).
+
+**Estado del entorno y datos:** no se consultó la base de datos activa durante el bloque 52, por lo que el contenido actual de repositorios/scans debe confirmarse en la instancia local al abrir la plataforma. La muestra de npm permanece en `samples/npm-axios-demo` (Axios directo + ocho paquetes transitivos en lockfile v3); no se afirma que Omega/Bot de WhatsApp estén importados o analizados desde esta sesión.
+
+**Estado del grafo e Inventario:** el bloque 52 conserva el mapa por capas (hasta 1.000 nodos), agrega una red force-directed (hasta 350 nodos), mantiene lista/búsqueda completas y filtros de seguridad por versión. TypeScript, parseo de templates y build Angular pasan; falta revisión visual con Omega/Bot de WhatsApp, temas claro/oscuro y móvil/escritorio. La vista actualizada está en `http://localhost:8090/?view=inventory`; la API usa el backend activo de 8089. Ver [diseño](DISENO_FRONTEND.md) y [bitácora](BITACORA_TRABAJO.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
