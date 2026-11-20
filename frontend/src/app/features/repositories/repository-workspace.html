@@ -44,7 +44,7 @@
       </section>
     }
     <section class="repo-section local-upload">
-      <div><h2>{{ 'Importar carpeta local' | t }}</h2><p>{{ 'Sube el proyecto desde tu equipo a la organización. Límite: 100 MiB y 2.000 archivos. Se omiten .git, node_modules, carpetas de compilación y archivos de credenciales.' | t }}</p></div>
+      <div><h2>{{ 'Importar carpeta local' | t }}</h2><p>{{ 'Sube el proyecto desde tu equipo a la organización. Límite: 100 MiB y 50.000 archivos. Se omiten .git, node_modules, carpetas de compilación y archivos de credenciales.' | t }}</p></div>
       <label class="folder-picker" for="local-project-folder">{{ 'Selecciona una carpeta de proyecto' | t }}</label>
       <input id="local-project-folder" type="file" webkitdirectory directory multiple (change)="selectLocalFolder($event)" [disabled]="pending()" />
       @if (localFiles().length) {
