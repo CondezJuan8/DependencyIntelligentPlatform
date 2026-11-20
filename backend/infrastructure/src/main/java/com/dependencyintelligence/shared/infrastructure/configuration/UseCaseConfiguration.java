@@ -27,6 +27,9 @@ import com.dependencyintelligence.scan.application.usecase.AnalyzeMavenRepositor
 import com.dependencyintelligence.scan.application.port.in.AnalyzeNpmRepository;
 import com.dependencyintelligence.scan.application.port.out.NpmLockfileReader;
 import com.dependencyintelligence.scan.application.usecase.AnalyzeNpmRepositoryUseCase;
+import com.dependencyintelligence.dependencygraph.application.port.in.GetRepositoryDependencyGraph;
+import com.dependencyintelligence.dependencygraph.application.port.out.RepositoryDependencyGraphReader;
+import com.dependencyintelligence.dependencygraph.application.usecase.GetRepositoryDependencyGraphUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
@@ -90,4 +93,9 @@ public class UseCaseConfiguration {
         return new AnalyzeMavenRepositoryUseCase(source, reader, store, clock);
     }
     @Bean AnalyzeNpmRepository analyzeNpmRepository(RepositoryAnalysisSource source,NpmLockfileReader reader,MavenAnalysisStore store,Clock clock){return new AnalyzeNpmRepositoryUseCase(source,reader,store,clock);}
+
+    @Bean GetRepositoryDependencyGraph getRepositoryDependencyGraph(RepositoryDependencyGraphReader reader, TenantTransactions transactions) {
+        var useCase = new GetRepositoryDependencyGraphUseCase(reader);
+        return (organizationId, repositoryId) -> transactions.execute(organizationId, () -> useCase.execute(organizationId, repositoryId));
+    }
 }

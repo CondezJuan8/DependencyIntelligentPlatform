@@ -25,6 +25,7 @@
 @case ('administration') { @defer(on immediate){<app-platform-administration/>}@loading{<p role="status">Cargando administración…</p>} }
 @case ('repositories') { @defer(on immediate){<app-invitation-acceptance/><app-repository-workspace/>}@loading{<p role="status">Cargando repositorios…</p>} }
 @case ('inventory') { @defer(on immediate){<app-inventory-workspace/>}@loading{<p role="status">Cargando inventario…</p>} }
+@case ('dependencies') { @defer(on immediate){<app-dependency-graph-workspace/>}@loading{<p role="status">Cargando grafo de dependencias…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
             <app-dashboard (manage)="go('organization')" />

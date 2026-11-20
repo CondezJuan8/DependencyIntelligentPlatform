@@ -1,0 +1,74 @@
+<section class="graph-page" aria-labelledby="graph-title">
+  <header class="page-heading">
+    <div><p class="eyebrow">DEPENDENCY GRAPH</p><h1 id="graph-title">{{ 'Grafo de dependencias' | t }}</h1>
+      <p>{{ 'Explora qué paquetes introduce el proyecto y qué dependencias aparecen dentro de cada paquete.' | t }}</p></div>
+  </header>
+
+  @if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+  @if (loading()) { <section class="graph-empty" role="status"><span class="loading-mark"></span><h2>{{ 'Cargando repositorios' | t }}</h2></section> }
+  @else if (repositories().length === 0) {
+    <section class="graph-empty"><h2>{{ 'Aún no tienes repositorios' | t }}</h2><p>{{ 'Conecta GitHub o importa una carpeta local para empezar a generar un inventario.' | t }}</p></section>
+  } @else {
+    <section class="graph-controls" aria-label="{{ 'Filtros del grafo' | t }}">
+      <div class="control-field"><label for="graph-repository">{{ 'Repositorio' | t }}</label>
+        <select id="graph-repository" [value]="repository()?.id ?? ''" (change)="onRepositoryChange($event)">
+          @for (item of repositories(); track item.id) { <option [value]="item.id">{{ item.fullName }} · {{ item.source | t }}</option> }
+        </select>
+      </div>
+      <div class="control-field"><label for="graph-ecosystem">{{ 'Ecosistema' | t }}</label>
+        <select id="graph-ecosystem" [value]="ecosystem()" (change)="onEcosystemChange($event)">
+          <option value="ALL">{{ 'Todos' | t }}</option><option value="maven">Maven</option><option value="npm">npm</option>
+        </select>
+      </div>
+      <div class="control-field search-field"><label for="graph-search">{{ 'Buscar paquetes' | t }}</label>
+        <input id="graph-search" type="search" [value]="search()" (input)="onSearch($event)" [placeholder]="'Nombre, namespace o versión' | t" />
+      </div>
+    </section>
+
+    @if (graphLoading()) { <p class="graph-progress" role="status">{{ 'Cargando relaciones respaldadas por el análisis…' | t }}</p> }
+    @else if (graph(); as currentGraph) {
+      @if (currentGraph.sources.length === 0) {
+        <section class="graph-empty"><h2>{{ 'Todavía no hay relaciones para mostrar' | t }}</h2><p>{{ 'Ejecuta el análisis del repositorio desde Inventario. El grafo se construye con sus resultados Maven y package-lock.' | t }}</p></section>
+      } @else if (currentGraph.nodes.length === 0) {
+        <section class="graph-empty"><h2>{{ 'El análisis no encontró dependencias compatibles' | t }}</h2><p>{{ 'Revisa que el repositorio contenga un POM con dependencias o un package-lock v2 o v3 y vuelve a analizarlo desde Inventario.' | t }}</p></section>
+      } @else {
+        <section class="graph-summary" aria-label="{{ 'Resumen del grafo' | t }}">
+          <article><span>{{ 'Paquetes' | t }}</span><strong>{{ packageCount }}</strong></article>
+          <article><span>{{ 'Directas' | t }}</span><strong>{{ directCount }}</strong></article>
+          <article><span>{{ 'Transitivas' | t }}</span><strong>{{ transitiveCount }}</strong></article>
+          <article><span>{{ 'Relaciones observadas' | t }}</span><strong>{{ edgeCount }}</strong></article>
+        </section>
+        @if (currentGraph.unresolvedCount > 0) { <p class="graph-warning" role="status">{{ currentGraph.unresolvedCount }} {{ 'declaraciones o relaciones no se pudieron resolver desde los archivos analizados; no se dibujan conexiones supuestas.' | t }}</p> }
+
+        <section class="graph-panel" aria-labelledby="visual-graph-heading">
+          <div class="graph-toolbar"><div><h2 id="visual-graph-heading">{{ 'Relaciones del snapshot' | t }}</h2><p>{{ 'Las flechas apuntan desde el proyecto o paquete que declara la dependencia hacia el paquete requerido.' | t }}</p></div>
+            <div class="graph-actions"><button type="button" [attr.aria-label]="'Acercar grafo' | t" (click)="zoomIn()">+</button><button type="button" [attr.aria-label]="'Alejar grafo' | t" (click)="zoomOut()">−</button><button type="button" (click)="fitGraph()">{{ 'Ajustar' | t }}</button></div>
+          </div>
+          <div #graphHost class="graph-canvas" role="img" [attr.aria-label]="'Grafo interactivo de dependencias. También puedes recorrer los paquetes en la lista accesible inferior.' | t"></div>
+          <div class="graph-legend" aria-label="{{ 'Leyenda del grafo' | t }}"><span><i class="legend-project"></i>{{ 'Proyecto' | t }}</span><span><i class="legend-direct"></i>{{ 'Dependencia directa' | t }}</span><span><i class="legend-transitive"></i>{{ 'Dependencia transitiva' | t }}</span><span><i class="legend-edge"></i>{{ 'Depende de' | t }}</span></div>
+        </section>
+
+        <section class="graph-lower-grid">
+          <div class="node-list-panel"><div class="section-title"><h2>{{ 'Paquetes del grafo' | t }}</h2><span>{{ packageNodes.length }}</span></div>
+            <ul class="node-list">
+              @for (node of packageNodes; track node.id) { <li><button type="button" [class.selected]="selectedNode()?.id === node.id" (click)="selectNode(node.id)" [attr.aria-pressed]="selectedNode()?.id === node.id"><span class="node-type" [class.transitive]="node.dependencyType === 'TRANSITIVE'">{{ node.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t) }}</span><strong>{{ node.label }}</strong><small>{{ node.ecosystem }} · {{ node.scope | t }} · {{ node.manifestPath }}</small></button></li> }
+              @empty { <li class="list-empty">{{ 'No hay paquetes que coincidan con el filtro.' | t }}</li> }
+            </ul>
+          </div>
+          <aside class="node-detail" aria-live="polite">
+            @if (selectedNode(); as selected) {
+              <p class="eyebrow">{{ 'DETALLE DEL PAQUETE' | t }}</p><h2>{{ selected.label }}</h2>
+              <dl><dt>{{ 'Ecosistema' | t }}</dt><dd>{{ selected.ecosystem }}</dd><dt>{{ 'Tipo de dependencia' | t }}</dt><dd>{{ selected.dependencyType | t }}</dd><dt>{{ 'Ámbito' | t }}</dt><dd>{{ selected.scope | t }}</dd><dt>{{ 'Declarada en' | t }}</dt><dd><code>{{ selected.manifestPath }}</code></dd></dl>
+              <h3>{{ 'Paquetes conectados' | t }}</h3><ul>@for (node of adjacentNodes; track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }}</button></li> } @empty { <li>{{ 'No se observaron relaciones adicionales para este paquete.' | t }}</li> }</ul>
+            } @else { <p class="eyebrow">{{ 'DETALLE' | t }}</p><h2>{{ 'Selecciona un paquete' | t }}</h2><p>{{ 'Abre un nodo del gráfico o usa la lista accesible para revisar su ruta y procedencia.' | t }}</p> }
+          </aside>
+        </section>
+
+        <section class="source-panel" aria-labelledby="graph-source-heading"><h2 id="graph-source-heading">{{ 'Fuentes de este grafo' | t }}</h2>
+          @for (source of currentGraph.sources; track source.scanId) { <article><div><strong>{{ source.ecosystem | t }}</strong><span>{{ source.analyzedAt | date:'medium' }}</span></div><p>{{ 'Commit' | t }}: <code>{{ source.commitSha || ('No disponible' | t) }}</code></p><p>SHA-256: <code>{{ source.sha256 }}</code></p></article> }
+        </section>
+        <p class="graph-note">{{ 'npm muestra relaciones declaradas en package-lock. Maven muestra solo las dependencias directas declaradas en POM; la resolución transitiva Maven todavía no forma parte de este grafo.' | t }}</p>
+      }
+    }
+  }
+</section>

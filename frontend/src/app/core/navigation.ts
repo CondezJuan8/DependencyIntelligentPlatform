@@ -28,9 +28,8 @@ export const navigation = [
     id: 'dependencies',
     label: 'Dependencias',
     icon: 'graph',
-    ready: false,
-    description:
-      'Explora las relaciones entre componentes y el alcance de sus cambios. Pendiente de datos del scanner.',
+    ready: true,
+    description: 'Explora las relaciones de dependencia observadas en los análisis Maven y npm.',
   },
   {
     id: 'analysis',
