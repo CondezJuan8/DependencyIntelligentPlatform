@@ -1,5 +1,11 @@
 # Arquitectura del backend
 
+## Bloque 44 — evidencia estática de código y repositorios
+
+Application incorpora `FindRepositoryVulnerabilityEvidenceUseCase` detrás de `FindRepositoryVulnerabilityEvidence` y `RepositoryCodeArchive`. El caso de uso lee el ZIP como stream sin extraerlo, acepta Java/Kotlin/Groovy/Scala y limita la entrada expandida a 128 MiB, 10.000 entradas, 1 MiB por archivo y ocho coincidencias. Para dos IDs GHSA conocidos busca patrones del aviso y devuelve ruta, línea, extracto y motivo, con hash SHA-256/commit/proveedor del snapshot. No sigue datos entre métodos o archivos y sus resultados son pistas de revisión, nunca un veredicto de explotación. El controlador comprueba `repository.read` en contexto tenant antes de solicitar/leer el snapshot. No se persiste código ni se añade migración.
+
+`DeleteRepositoryUseCase` deshabilita el registro para conservar scans e historial; el adaptador elimina además ZIP y metadatos de fuente local. La sincronización de GitHub compara cada instalación con los repositorios autorizados, deshabilita los retirados y deshabilita los vinculados cuando una instalación se clasifica REVOKED. Se ejecuta al cargar o sincronizar el espacio; no hay webhooks ni tarea periódica. HTTP DELETE requiere `repository.manage`. Fuentes y descargas ya no consideran repositorios deshabilitados.
+
 ## Bloque 43 — presentación del resultado OSV
 
 Dashboard consulta el endpoint de evaluación existente para cada repositorio al que tiene acceso y combina resultados Maven/npm con los snapshots de vulnerabilidades. La clasificación de presentación usa la severidad de OSV: CRITICAL, HIGH y MEDIUM/LOW/UNKNOWN como advertencia; «sin avisos conocidos» solo se asigna al estado `NO_KNOWN_ADVISORIES`. `INCOMPLETE`, `UNAVAILABLE`, `STALE` y `NOT_ASSESSED` se contabilizan como pendientes. Si hay varias alertas para la misma versión, el resumen usa la de mayor severidad. No hay cambios a Domain, Application, Infrastructure, contratos, permisos o base de datos.

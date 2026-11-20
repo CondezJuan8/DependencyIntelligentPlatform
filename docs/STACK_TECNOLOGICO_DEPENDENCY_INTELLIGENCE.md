@@ -2,6 +2,10 @@
 
 **Versión:** 1.0  
 
+### Bloque 44 — evidencia, sincronización de GitHub y favicon
+
+Se reutilizan ZIP/`ZipInputStream`, límites de lectura, SHA-256 y snapshots local/GitHub existentes en Java 21. Los puertos y el caso de uso viven en Application; Infrastructure adapta almacenamiento, GitHub REST y HTTP. Angular/TypeScript/SCSS muestra coincidencias por advisory. No se añadieron librerías, migraciones ni paquetes npm. La gestión usa HTTP DELETE/CSRF y los endpoints de GitHub App existentes; la sincronización se ejecuta al cargar o solicitarla, sin webhook. `/brand-mark.svg` reemplaza el favicon anterior.
+
 ### Bloque 43 — Dashboard de seguridad y legibilidad
 
 El frontend Angular existente consulta snapshots OSV por repositorio junto con los snapshots Maven y npm; presenta categorías en SCSS reutilizando los tokens semánticos del tema. Inventario muestra guías de explicación deterministas para dos advisories Jackson conocidos, sus versiones corregidas y el texto original en secciones desplegables. RxJS y TypeScript existentes; ninguna dependencia nueva, llamada a Gemini ni servicio backend adicional. Build y disponibilidad del frontend se registran en la bitácora.

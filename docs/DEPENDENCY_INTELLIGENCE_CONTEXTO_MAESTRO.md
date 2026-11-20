@@ -1,6 +1,12 @@
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 
+### Bloque 44 — evidencia de código y ciclo de vida del repositorio (20 de noviembre de 2026)
+
+Inventario permite abrir cada aviso y ver su significado, acción sugerida, versiones corregidas publicadas por OSV, referencia oficial y detalle técnico. Para los dos advisories Jackson conocidos, la API revisa de forma acotada los archivos Java/Kotlin/Groovy/Scala del ZIP actual y devuelve archivo, línea, fragmento y motivo de revisión; la respuesta incluye proveedor, commit si existe y SHA-256. Es una pista estática y no determina explotabilidad. La procedencia del manifiesto queda expandida y legible, y la pestaña usa el SVG de marca.
+
+El propietario puede retirar repositorios con `repository.manage`: los de GitHub se deshabilitan localmente y conservan historial; los locales también eliminan ZIP privado y metadatos fuente. «Sincronizar acceso con GitHub» vuelve a consultar los repositorios autorizados; los retirados se deshabilitan y una instalación que ya no autoriza el token se marca REVOKED. La comprobación ocurre al abrir o sincronizar la vista, no por webhook ni en segundo plano. Sin migraciones ni dependencias externas. Build y servicio local validados; revisión visual y con advisories reales pendiente. Detalle en [arquitectura](ARQUITECTURA_BACKEND.md), [diseño](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
+
 ### Bloque 43 — vulnerabilidades legibles en Dashboard e Inventario
 
 El Dashboard consulta los snapshots Maven, npm y OSV de cada repositorio accesible. Resume versiones por cuatro categorías semánticas: crítico, riesgo alto, advertencia y sin avisos conocidos. Una versión solo puede aparecer como «sin avisos conocidos» con respuesta OSV exitosa; consultas parciales, vencidas o fallidas se informan como pendientes. Se muestran avisos con repositorio, paquete, versión e hipervínculo a la fuente OSV. Inventario añade explicación sencilla y acción sugerida para GHSA-wjgm-6hv5-3cvf y GHSA-wv8q-qhhj-9h54, las versiones corregidas publicadas y secciones desplegables para la descripción técnica y referencias. Tipografía y espacio aumentan para facilitar lectura. Sin cambios backend, DB ni dependencias. Build/deploy y estado de `localhost:8089` documentados en [bitácora](BITACORA_TRABAJO.md); pendientes actualizados en [PENDIENTES](PENDIENTES.md).

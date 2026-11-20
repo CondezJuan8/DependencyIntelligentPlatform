@@ -1,5 +1,11 @@
 # Paleta y criterios de revisión del frontend
 
+## Bloque 44 — avisos expandibles, procedencia y ciclo de repositorio
+
+Cada aviso es una tarjeta desplegable con GHSA/severidad, escenario, acción, versiones corregidas, detalle técnico y fuentes oficiales. «Buscar dónde revisar en el código» muestra ruta/línea y extracto; commit/SHA identifican el archivo fuente revisado. Los estados sin coincidencias o con límites explican sus alcances; la UI no presenta un patrón textual como prueba de explotabilidad. La procedencia por ocurrencia queda abierta y ocupa todo el ancho disponible para origen, commit y hash. El favicon carga el SVG de marca.
+
+El propietario puede retirar un repositorio con confirmación; se explica que GitHub no borra el remoto y el historial local queda conservado. «Sincronizar acceso con GitHub» refresca autorización. Build y despliegue en `localhost:8089` completados; la revisión visual manual en escritorio/móvil y con avisos reales queda pendiente.
+
 ## Bloque 43 — lectura de vulnerabilidades
 
 Dashboard presenta cuatro categorías con texto, color semántico y conteo de versiones por repositorio; muestra hasta seis avisos con paquete@versión, repositorio y enlace a OSV. Las evaluaciones pendientes o con error llevan un mensaje separado y no se presentan como seguras. Tipografía, alturas de línea, tamaño de texto y aire de paneles aumentan para aprovechar el espacio. En Inventario las explicaciones y recomendaciones aparecen antes del detalle técnico desplegable; referencias largas ocupan varias líneas sin estrechar el contenido. El diseño reutiliza tokens de modo claro/oscuro. Revisión visual responsive y aceptación del usuario siguen pendientes.
