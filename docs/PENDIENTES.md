@@ -1,10 +1,10 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 52.
+Actualizado: 20 de noviembre de 2026, bloque 53.
 
-**Bloque 52 implementado, revisión pendiente:** Inventario ya filtra versiones con vulnerabilidades/estado de evaluación; el grafo ofrece modo por capas y modo red limitado a 350 nodos, con catálogo completo; el estado OSV y la explicación del SHA-256 del ZIP fueron corregidos; el diálogo de invitación explica el flujo y cómo habilitar un repositorio para el equipo. El usuario aún debe probarlo con Omega y bot de WhatsApp y verificar el selector/invitación en los datos activos. Ver [bitácora](BITACORA_TRABAJO.md).
+**Bloque 53 implementado, revisión pendiente:** el grafo estilo Obsidian conserva posiciones, destaca vecinos al pasar el cursor/seleccionar y escala nodos por conectividad; el bloque 52 previo añadió filtros de riesgo en inventario y mejoras de lectura. Falta revisar el resultado con Omega y bot de WhatsApp, especialmente repositorios de más de 200 dependencias, tema claro/oscuro y móvil/escritorio. Ver [bitácora](BITACORA_TRABAJO.md).
 
-**Próxima comprobación prioritaria:** revisión interactiva del bloque 52 con esos dos repositorios, tema claro/oscuro y móvil/escritorio. Confirmar también que el equipo elegido tiene «Consultar repositorio» sobre el repositorio autorizado. El build Angular pasó; falta revisión visual interactiva y pruebas conductuales con datos reales.
+**Próxima comprobación prioritaria:** revisión interactiva del bloque 53 con esos dos repositorios, tema claro/oscuro y móvil/escritorio. Confirmar también que el equipo elegido tiene «Consultar repositorio» sobre el repositorio autorizado. El build Angular pasó; falta revisión visual interactiva y pruebas conductuales con datos reales.
 
 Actualizado: 20 de noviembre de 2026, bloque 51 (mapa de dependencias por capas).
 

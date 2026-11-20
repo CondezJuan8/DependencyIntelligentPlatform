@@ -35,13 +35,14 @@
 .layer-connector { color: var(--di-text-subtle); font-size: 17px; }
 .layer-hint { flex: 1 1 230px; margin-left: auto; color: var(--di-text-secondary); font-size: 11px; line-height: 1.45; text-align: right; }
 .graph-canvas { width: 100%; height: clamp(480px, 66vh, 760px); background-color: var(--di-background); background-image: linear-gradient(90deg, color-mix(in srgb, var(--di-border) 52%, transparent) 1px, transparent 1px), linear-gradient(180deg, color-mix(in srgb, var(--di-border) 30%, transparent) 1px, transparent 1px); background-size: 276px 100%, 100% 86px; }
-.graph-canvas.network-mode { background-image: radial-gradient(color-mix(in srgb, var(--di-text-subtle) 36%, transparent) 1px, transparent 1.5px); background-size: 22px 22px; }
-.network-guide { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 11px 18px; border-bottom: 1px solid var(--di-border); color: var(--di-text-secondary); font-size: 12px; }
-.network-guide > span:last-child { margin-left: auto; }
+.graph-canvas.network-mode { cursor: grab; background-image: radial-gradient(color-mix(in srgb, var(--di-text-subtle) 38%, transparent) 1px, transparent 1.5px); background-size: 20px 20px; }
+.graph-canvas.network-mode:active { cursor: grabbing; }
+.network-guide { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; padding: 12px 18px; border-bottom: 1px solid var(--di-border); background: var(--di-surface-muted); color: var(--di-text-secondary); font-size: 12px; }
+.network-hint { flex: 1 1 100%; margin-top: 2px; color: var(--di-text-subtle); font-size: 11px; line-height: 1.5; }
 .network-dot { width: 11px; height: 11px; border: 2px solid; border-radius: 50%; }
-.project-dot { background: var(--di-navy); border-color: var(--di-accent); }
-.direct-dot { background: var(--di-primary); border-color: #93C5FD; }
-.transitive-dot { background: var(--di-accent); border-color: #A5F3FC; }
+.project-dot { background: var(--di-navy); border-color: var(--di-accent); box-shadow: 0 0 8px color-mix(in srgb, var(--di-accent) 55%, transparent); }
+.direct-dot { background: var(--di-primary); border-color: #93C5FD; box-shadow: 0 0 7px color-mix(in srgb, var(--di-primary) 42%, transparent); }
+.transitive-dot { background: var(--di-accent); border-color: #A5F3FC; box-shadow: 0 0 7px color-mix(in srgb, var(--di-accent) 38%, transparent); }
 .graph-legend { display: flex; flex-wrap: wrap; gap: 9px 20px; padding: 12px 18px 15px; border-top: 1px solid var(--di-border); color: var(--di-text-secondary); font-size: 12px; }
 .graph-legend span { display: inline-flex; align-items: center; gap: 7px; }
 .graph-legend i { display: inline-block; width: 18px; height: 11px; border: 2px solid var(--di-border); border-radius: 3px; background: var(--di-surface); }

@@ -1199,3 +1199,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación:** prueba focal `LocalFolderImportUseCaseTest`: 6/6 correctas, cubre 50.000 aceptados, 50.001 rechazados y archivo mayor de 100 MiB rechazado. Build Angular correcto (avisos preexistentes de bundle/SCSS); build Docker backend/frontend correcto, tests omitidos en ese build. Se recrearon solo backend y frontend; PostgreSQL/Mailpit no se reiniciaron. Backend inició, `/health` respondió `{"status":"UP"}` y Flyway aplicó V24. Consulta a PostgreSQL confirmó `CHECK (file_count >= 1 AND file_count <= 50000)`. `localhost:8089/` respondió 200; la instancia nativa no se alteró. No se probó una subida real con 50.000 partes ni el límite de 100 MiB mediante navegador; la prueba del use case verifica este último en Application. La carga masiva puede requerir espacio temporal adicional para partes multipart y el ZIP final.
 
 **Siguiente paso:** probar en la pantalla de repositorios una carpeta representativa con muchos archivos, sin superar 100 MiB. Confirmar progreso y uso de almacenamiento del host; mantener volumen libre para multipart temporal y el ZIP privado final.
+
+## Bloque 53 — grafo de dependencias estilo Obsidian
+
+**Petición:** hacer que el grafo recuerde a Obsidian: más visual, legible y exploratorio, sin penalizar de forma desproporcionada los repositorios grandes. El usuario aclaró que los errores «Bad Request» reportados eran de mis tareas/ejecuciones, no de la plataforma.
+
+**Cambios:** la vista de red conserva posiciones al filtrar o redibujar nodos; colorea y escala los nodos según tipo y número de relaciones; al pasar el cursor o seleccionar un paquete resalta sus conexiones y reduce el contraste del resto. Las etiquetas aparecen para el nodo central y su vecindad, o al acercar, para mantener legible la red amplia. Se agregaron instrucciones visibles y traducibles, cursor de desplazamiento y leyenda más clara. Reutiliza Cytoscape.js y tokens de tema ya presentes; no agrega dependencias, endpoints ni tablas.
+
+**Herramientas y tecnologías utilizadas:** TypeScript, Angular 22, Cytoscape.js existente, HTML/SCSS y diccionario de traducciones; Node.js local para el build; PowerShell para la verificación HTTP y documentación.
+
+**Verificación:** `node.exe node_modules/@angular/cli/bin/ng.js build` terminó correctamente. Angular reporta advertencias de presupuesto: bundle inicial 581,91 kB/500 kB y `dependency-graph-workspace.scss` 11,35 kB/4 kB; no impiden compilar. `http://localhost:8090/?view=graph` respondió HTTP 200. No hice un recorrido visual autenticado ni medí un grafo real grande; siguen pendientes la revisión del usuario con Omega y bot de WhatsApp, temas claro/oscuro y móvil/escritorio. Los servicios 8088/8089 se mantuvieron intactos.
+
+**Siguiente paso:** abrir la vista de grafo en localhost:8090 y revisar la exploración de un repositorio de más de 200 dependencias; confirmar agrupación, legibilidad y rendimiento en escritorio/móvil antes de ajustar más.
