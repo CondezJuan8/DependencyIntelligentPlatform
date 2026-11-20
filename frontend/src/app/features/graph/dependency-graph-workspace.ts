@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import cytoscape, { Core, ElementDefinition } from 'cytoscape';
+import cytoscape, { Core, ElementDefinition, NodeSingular } from 'cytoscape';
 import { finalize } from 'rxjs';
 import { SessionApiService, accessError } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
@@ -116,12 +116,16 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
       maxZoom: 3,
       wheelSensitivity: 0.18,
       style: [
-        { selector: 'node', style: { 'background-color': '#2563EB', 'border-width': 2, 'border-color': '#FFFFFF', color: '#0F172A', label: 'data(label)', 'font-family': 'IBM Plex Sans, sans-serif', 'font-size': 12, 'font-weight': 600, 'text-wrap': 'wrap', 'text-max-width': '170px', width: 28, height: 28, 'text-valign': 'bottom', 'text-margin-y': 8 } },
+        { selector: 'node', style: { 'background-color': '#2563EB', 'border-width': 2, 'border-color': '#FFFFFF', color: '#0F172A', label: 'data(label)', 'font-family': 'IBM Plex Sans, sans-serif', 'font-size': 10, 'font-weight': 600, 'text-wrap': 'wrap', 'text-max-width': '145px', width: 30, height: 30, 'text-valign': 'bottom', 'text-margin-y': 8 } },
+        { selector: 'node.label-right', style: { 'text-halign': 'left', 'text-valign': 'center', 'text-margin-x': 10, 'text-margin-y': 0 } },
+        { selector: 'node.label-left', style: { 'text-halign': 'right', 'text-valign': 'center', 'text-margin-x': -10, 'text-margin-y': 0 } },
+        { selector: 'node.label-top', style: { 'text-halign': 'center', 'text-valign': 'top', 'text-margin-x': 0, 'text-margin-y': -10 } },
+        { selector: 'node.label-bottom', style: { 'text-halign': 'center', 'text-valign': 'bottom', 'text-margin-x': 0, 'text-margin-y': 10 } },
         { selector: 'node.project', style: { 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 4, shape: 'round-rectangle', width: 48, height: 48, color: '#0F172A', 'font-size': 14, 'font-weight': 700 } },
         { selector: 'node[ecosystem = "npm"]:not([project])', style: { 'background-color': '#06B6D4' } },
         { selector: 'node[dependencyType = "TRANSITIVE"]', style: { 'background-color': '#64748B', width: 22, height: 22, 'font-size': 11 } },
         { selector: 'node:selected', style: { 'border-color': '#F97316', 'border-width': 4, 'overlay-opacity': 0.12, 'overlay-color': '#F97316' } },
-        { selector: 'edge', style: { width: 2, 'line-color': '#94A3B8', 'target-arrow-color': '#64748B', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'arrow-scale': 1.1, label: 'data(relationship)', 'font-size': 9, color: '#475569', 'text-background-color': '#FFFFFF', 'text-background-opacity': 0.8, 'text-background-padding': '2px' } },
+        { selector: 'edge', style: { width: 2, 'line-color': '#94A3B8', 'target-arrow-color': '#64748B', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'arrow-scale': 1.15 } },
         { selector: 'edge[relationship = "declares"]', style: { 'line-color': '#2563EB', 'target-arrow-color': '#2563EB', 'line-style': 'dashed' } },
         { selector: '.dimmed', style: { opacity: 0.14 } },
       ],
@@ -176,18 +180,41 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     ];
     this.cy.elements().remove();
     this.cy.add(elements);
-    if (this.cy.elements().length) this.cy.layout({
-      name: 'concentric',
-      concentric: node => node.hasClass('project') ? 3 : node.data('dependencyType') === 'DIRECT' ? 2 : 1,
-      levelWidth: () => 1,
-      minNodeSpacing: 230,
-      startAngle: -Math.PI / 2,
-      sweep: Math.PI * 2,
-      animate: false,
-      fit: true,
-      padding: 68,
-    }).run();
+    this.positionGraph();
     this.highlightMatches();
+  }
+
+  private positionGraph(): void {
+    if (!this.cy) return;
+    const width = this.cy.width();
+    const height = this.cy.height();
+    if (!width || !height) return;
+    const center = { x: width / 2, y: height / 2 };
+    const radiusLimit = Math.min(width, height);
+    const directRadius = Math.min(radiusLimit * 0.41, 270);
+    const transitiveRadius = Math.min(radiusLimit * 0.48, 330);
+    const project = this.cy.nodes('.project');
+    project.positions(center);
+    const direct = this.cy.nodes('[dependencyType = "DIRECT"]:not(.project)')
+      .toArray().sort((left, right) => String(left.data('searchLabel')).localeCompare(String(right.data('searchLabel'))));
+    const transitive = this.cy.nodes('[dependencyType = "TRANSITIVE"]')
+      .toArray().sort((left, right) => String(left.data('searchLabel')).localeCompare(String(right.data('searchLabel'))));
+    this.placeOnRing(direct, directRadius, center);
+    this.placeOnRing(transitive, transitiveRadius, center);
+    this.cy.fit(undefined, 72);
+  }
+
+  private placeOnRing(nodes: NodeSingular[], radius: number, center: { x: number; y: number }): void {
+    if (!nodes.length || !this.cy) return;
+    nodes.forEach((node, index) => {
+      const angle = -Math.PI / 2 + (Math.PI * 2 * index) / nodes.length;
+      const x = center.x + Math.cos(angle) * radius;
+      const y = center.y + Math.sin(angle) * radius;
+      node.position({ x, y });
+      node.removeClass('label-left label-right label-top label-bottom');
+      const horizontal = Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle));
+      node.addClass(horizontal ? (Math.cos(angle) > 0 ? 'label-right' : 'label-left') : (Math.sin(angle) > 0 ? 'label-bottom' : 'label-top'));
+    });
   }
 
   private highlightMatches(): void {

@@ -28,6 +28,7 @@
 .graph-legend .legend-direct { background: #2563eb; }
 .graph-legend .legend-transitive { background: #64748b; }
 .graph-legend .legend-edge { width: 26px; height: 0; border-top: 2px solid #94a3b8; border-radius: 0; background: transparent; }
+.graph-reading-guide { margin: 0; padding: 0 18px 14px; color: var(--di-text-secondary); font-size: 13px; line-height: 1.55; }
 .graph-lower-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr); gap: 14px; align-items: start; }
 .node-list-panel, .node-detail { overflow: hidden; }
 .section-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 15px 17px; border-bottom: 1px solid var(--di-border); }

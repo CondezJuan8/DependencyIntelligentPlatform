@@ -45,7 +45,8 @@
             <div class="graph-actions"><button type="button" [attr.aria-label]="'Acercar grafo' | t" (click)="zoomIn()">+</button><button type="button" [attr.aria-label]="'Alejar grafo' | t" (click)="zoomOut()">−</button><button type="button" (click)="fitGraph()">{{ 'Ajustar' | t }}</button></div>
           </div>
           <div #graphHost class="graph-canvas" role="img" [attr.aria-label]="'Grafo interactivo de dependencias. También puedes recorrer los paquetes en la lista accesible inferior.' | t"></div>
-          <div class="graph-legend" aria-label="{{ 'Leyenda del grafo' | t }}"><span><i class="legend-project"></i>{{ 'Proyecto' | t }}</span><span><i class="legend-direct"></i>{{ 'Dependencia directa' | t }}</span><span><i class="legend-transitive"></i>{{ 'Dependencia transitiva' | t }}</span><span><i class="legend-edge"></i>{{ 'Depende de' | t }}</span></div>
+          <div class="graph-legend" aria-label="{{ 'Leyenda del grafo' | t }}"><span><i class="legend-project"></i>{{ 'Proyecto' | t }}</span><span><i class="legend-direct"></i>{{ 'Dependencia directa · anillo interior' | t }}</span><span><i class="legend-transitive"></i>{{ 'Dependencia transitiva · anillo exterior' | t }}</span><span><i class="legend-edge"></i>{{ 'La flecha termina en el paquete requerido' | t }}</span></div>
+          <p class="graph-reading-guide">{{ 'Selecciona un nodo para consultar versión, archivo y ámbito. Los nombres completos también aparecen en la lista inferior.' | t }}</p>
         </section>
 
         <section class="graph-lower-grid">
