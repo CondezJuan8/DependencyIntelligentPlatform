@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 47 (renderizado del grafo verificado).
+Actualizado: 20 de noviembre de 2026, bloque 48 (lectura visual radial del grafo).
 
-**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. La carga local mantiene 100 MiB totales y acepta ahora hasta 50.000 archivos; V24 actualiza el CHECK de base de datos y las capas multipart/proxy soportan esa cantidad. Sigue pendiente medir una carga real grande. El grafo (bloques 45 y 47) ya muestra en navegador el proyecto y seis dependencias Maven de `Formula1Simulator`: 6 directas, 0 transitivas y 6 relaciones declaradas. npm transitivo y Maven transitivo continúan por validar/implementar según evidencia; no se inventan relaciones. Ver [bitácora](BITACORA_TRABAJO.md).
+**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. La carga local mantiene 100 MiB totales y acepta ahora hasta 50.000 archivos; V24 actualiza el CHECK de base de datos y las capas multipart/proxy soportan esa cantidad. Sigue pendiente medir una carga real grande. El grafo (bloques 45, 47 y 48) muestra en navegador el proyecto y seis dependencias Maven de `Formula1Simulator`: 6 directas, 0 transitivas y 6 relaciones declaradas. El proyecto queda centrado, directas en el anillo interior, transitivas en el exterior; nombres completos y detalle siguen en la lista inferior. Falta validar npm con relaciones transitivas y la escala móvil/grafos grandes. Maven transitivo sigue pendiente, sin inferir relaciones. Ver [bitácora](BITACORA_TRABAJO.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 

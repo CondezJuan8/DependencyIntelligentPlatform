@@ -1,6 +1,14 @@
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 
+### Bloque 48 — legibilidad del grafo (20 de noviembre de 2026)
+
+La vista usa distribución radial determinista: proyecto al centro, dependencias directas en anillo interior y transitivas en anillo exterior. Las etiquetas se orientan al exterior del anillo; el canvas usa nombres compactos y la lista conserva coordenadas completas, archivo y ámbito. La punta de flecha identifica el paquete requerido y una guía explica cómo leerlo. Verificación visual con los seis paquetes Maven directos de `Formula1Simulator` en Compose. No se añadieron relaciones: el snapshot no tiene transitivas. Pendientes: probar npm transitivo, vista móvil y grafos grandes; ver [diseño frontend](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
+
+### Bloque 47 — visibilidad y ciclo de vida del canvas (20 de noviembre de 2026)
+
+Angular monta el contenedor Cytoscape cuando llega la respuesta del grafo. `ViewChild` y `ResizeObserver` inicializan/dimensionan el canvas al aparecer; la revisión real confirmó nodo raíz y seis directas. Verificación y commits en [bitácora](BITACORA_TRABAJO.md).
+
 ### Bloque 46 — ampliación del límite de archivos locales (20 de noviembre de 2026)
 
 El usuario pidió conservar el tamaño máximo y ampliar la cantidad de archivos por carpeta. Se mantienen **100 MiB de contenido total** y **50.000 archivos** como nuevo límite. El navegador, el caso de uso Application, el controlador y el CHECK de `local_repository_sources.file_count` se alinean; V24 cambia únicamente esa restricción. Spring/Tomcat aceptan 100.001 partes/parámetros (nombre + ruta + archivo por entrada) y 200 MiB de cuerpo multipart para los metadatos/rutas sin elevar el contenido de archivos permitido; Nginx queda en el mismo máximo de cuerpo. Pruebas focales cubren el borde de 50.000 y el rechazo de 50.001; el test existente conserva el rechazo por encima de 100 MiB. La descarga de ZIP GitHub mantiene su límite separado. Ver [bitácora](BITACORA_TRABAJO.md), [arquitectura](ARQUITECTURA_BACKEND.md), [base de datos](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [pendientes](PENDIENTES.md).

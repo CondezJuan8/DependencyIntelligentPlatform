@@ -2,6 +2,38 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 48 — Lectura visual más clara del grafo
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y cambios
+
+El usuario pidió que el grafo se entienda mejor y no se vea tan simple. Se sustituyó el layout automático por posiciones radiales deterministas: proyecto al centro, dependencias directas en el primer anillo y transitivas en el anillo exterior. Las etiquetas de nodos se orientan hacia fuera según su posición, usan un tamaño más compacto y mantienen el nombre completo en la lista/detalle. Se quitaron los rótulos repetidos de cada arista; la punta de flecha y la leyenda indican hacia dónde va la dependencia. Se añadió una guía debajo del canvas, traducida a inglés/español.
+
+### Herramientas utilizadas e implementadas
+
+| Herramienta / tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Angular y Cytoscape.js | Posicionar nodos por nivel, orientar etiquetas y conservar selección, zoom y búsqueda | No; Cytoscape ya estaba instalado |
+| SCSS y tokens de tema existentes | Dar jerarquía a leyenda y guía de lectura | No |
+| Docker Compose | Compilar y actualizar solo el frontend | Herramienta de despliegue local |
+| Chrome | Revisar el layout en `localhost:8089` con el snapshot de Maven | Herramienta de revisión |
+
+### Verificación y límites
+
+- `docker compose build frontend`: correcto. Se mantienen avisos previos de presupuesto de bundle/SCSS.
+- Compose recreó solo el servicio frontend; backend, PostgreSQL, Mailpit y entorno nativo no se reiniciaron.
+- La revisión visual muestra `Formula1Simulator` al centro y sus seis dependencias Maven directas distribuidas alrededor, con etiquetas legibles y selección conectada al panel de detalle. El dataset no tiene transitivas; el anillo exterior queda vacío y no se simulan nodos.
+- No se agregaron paquetes, cambios de API ni migraciones. La adaptación de grafos grandes y la revisión móvil siguen pendientes.
+
+### Siguiente paso
+
+Validar esta lectura con un repositorio npm que tenga relaciones transitivas y revisar la escala en móvil/grafos grandes.
+
+### Commits
+
+Se guardan dos commits: layout/interacción visual y documentación de diseño/estado, ambos con emoji y Conventional Commits en español.
+
 ## Bloque 47 — Corrección de visualización del grafo
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.

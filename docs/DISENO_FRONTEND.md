@@ -1,5 +1,9 @@
 # Paleta y criterios de revisión del frontend
 
+## Bloque 48 — grafo legible por niveles
+
+El canvas representa el proyecto en el centro, las dependencias directas en el anillo interior y las transitivas en el exterior. Las etiquetas se orientan hacia fuera, se resumen en el dibujo y conservan su nombre completo en la lista y el detalle. Las aristas no repiten texto: flecha y leyenda explican el sentido. La guía está localizada en inglés/español y conserva la alternativa de lista accesible, selección, búsqueda, zoom y ajuste. Verificado visualmente con un snapshot Maven de seis dependencias directas; el anillo transitivo se llena solo con relaciones observadas. Sigue pendiente la revisión responsive con un lockfile npm/transitivas y datos grandes.
+
 ## Bloque 45 — grafo interactivo responsive y accesible
 
 Inventario añade controles etiquetados para repositorio, ecosistema y búsqueda; la visualización permite zoom y ajuste. El canvas se presenta como imagen interactiva y se acompaña de una lista HTML de paquetes con botones operables por teclado, estado seleccionado anunciado, panel de detalle y rutas/fuente legibles. Los colores de etiqueta/superficie/borde Cytoscape se vuelven a leer cuando cambia `data-theme`, además del fondo SCSS basado en tokens. En móvil, filtros y leyenda se apilan, los contadores pasan a dos columnas y la lista/detalle usan una columna. Se comunica un estado vacío útil si no hay fuentes o dependencias soportadas. Revisar en móvil/escritorio, tema claro/oscuro y un lockfile grande: la generación/revisión visual automática no se hizo.
