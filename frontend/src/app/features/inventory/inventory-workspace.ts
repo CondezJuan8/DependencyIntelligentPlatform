@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { catchError, finalize, forkJoin, map, of } from 'rxjs';
 import { SessionApiService, accessError } from '../../core/session-api.service';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 type Ecosystem = 'MAVEN' | 'NPM';
 type DependencyKind = 'DIRECT' | 'TRANSITIVE' | string;
@@ -83,10 +84,14 @@ interface InventoryAssessment {
   generatedAt: string; assessedVersions: number; affectedVersions: number; advisoryCount: number;
   unavailableVersions: number; staleVersions: number; assessments: VersionAssessment[];
 }
+interface RepositoryCodeEvidence {
+  advisoryId: string; status: 'POTENTIAL_MATCHES'|'NO_MATCH'|'LIMIT_REACHED'; sourceProvider: string; sourceSha256: string;
+  sourceCommit: string|null; scannedFiles: number; matches: {filePath:string;lineNumber:number;excerpt:string;reason:string}[];
+}
 
 @Component({
   selector: 'app-inventory-workspace',
-  imports: [DatePipe],
+  imports: [DatePipe, TranslatePipe],
   templateUrl: './inventory-workspace.html',
   styleUrls: ['./inventory-workspace.scss', './inventory-catalog.scss', './inventory-advisories.scss'],
 })
@@ -101,6 +106,9 @@ export class InventoryWorkspace implements OnInit {
   readonly vulnerabilityAssessment = signal<InventoryAssessment | null>(null);
   readonly assessmentError = signal('');
   readonly assessingVulnerabilities = signal(false);
+  readonly codeEvidence = signal<Record<string, RepositoryCodeEvidence>>({});
+  readonly codeEvidenceLoading = signal(new Set<string>());
+  readonly codeEvidenceErrors = signal<Record<string, string>>({});
   readonly search = signal('');
   readonly ecosystemFilter = signal<'ALL' | Ecosystem>('ALL');
   readonly dependencyFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE'>('ALL');
@@ -195,6 +203,7 @@ export class InventoryWorkspace implements OnInit {
     this.occurrences.set([]);
     this.scanResults.set([]);
     this.vulnerabilityAssessment.set(null);
+    this.codeEvidence.set({}); this.codeEvidenceErrors.set({}); this.codeEvidenceLoading.set(new Set());
     this.assessmentError.set('');
     this.clearFilters();
     this.error.set('');
@@ -327,6 +336,20 @@ export class InventoryWorkspace implements OnInit {
     } catch {
       return [];
     }
+  }
+
+  loadCodeEvidence(advisoryId: string): void {
+    const repository = this.repository();
+    const id = advisoryId.toUpperCase();
+    if (!repository || this.codeEvidence()[id] || this.codeEvidenceLoading().has(id)) return;
+    this.codeEvidenceLoading.update(current => new Set(current).add(id));
+    this.codeEvidenceErrors.update(current => { const next={...current};delete next[id];return next; });
+    this.api.get<RepositoryCodeEvidence>(`/api/organizations/${repository.organizationId}/repositories/${repository.id}/vulnerability-analysis/${id}/code-evidence`)
+      .pipe(finalize(()=>this.codeEvidenceLoading.update(current=>{const next=new Set(current);next.delete(id);return next;})))
+      .subscribe({
+        next: result => this.codeEvidence.update(current=>({...current,[id]:result})),
+        error: failure => this.codeEvidenceErrors.update(current=>({...current,[id]:accessError(failure)})),
+      });
   }
 
   private assessVulnerabilities(repository: Repository): void {

@@ -149,16 +149,29 @@
                           @if (assessment.advisories.length > 0) {
                             <ul class="advisory-list">
                               @for (advisory of assessment.advisories; track advisory.id) {
-                                <li><a [href]="advisory.url" target="_blank" rel="noopener noreferrer">{{ advisory.id }}<span class="visually-hidden"> (abre en una pestaña nueva)</span></a>
-                                  <span class="severity" [class]="'severity severity-' + advisory.severity.toLowerCase()">{{ advisory.severity }}</span>
-                                  @if (advisory.summary) { <p>{{ advisory.summary }}</p> }
-                                  <div class="advisory-explanation"><strong>En palabras simples</strong><p>{{ advisoryExplanation(advisory) }}</p><strong>Qué puedes hacer</strong><p>{{ advisoryAction(advisory) }}</p>
-                                    @if (fixedVersions(advisory); as fixes) { @if (fixes.length > 0) { <p class="fixed-versions"><strong>Versiones corregidas publicadas:</strong> <code>{{ fixes.join(', ') }}</code></p> } }
+                                <li class="advisory-item"><details class="advisory-card"><summary><span class="advisory-heading"><strong>{{ advisory.id }}</strong><span class="severity" [class]="'severity severity-' + advisory.severity.toLowerCase()">{{ advisory.severity }}</span></span><span class="advisory-title">{{ advisory.summary || 'Aviso de seguridad publicado por OSV' }}</span><span class="advisory-open-label">Ver detalles</span></summary>
+                                  <div class="advisory-card-content">
+                                    <div class="advisory-explanation"><strong>{{ 'Qué significa este aviso' | t }}</strong><p>{{ advisoryExplanation(advisory) }}</p><strong>{{ 'Qué revisar en tu código' | t }}</strong><p>{{ advisoryAction(advisory) }}</p>
+                                      @if (fixedVersions(advisory); as fixes) { @if (fixes.length > 0) { <p class="fixed-versions"><strong>{{ 'Versiones corregidas publicadas:' | t }}</strong> <code>{{ fixes.join(', ') }}</code></p> } }
+                                    </div>
+                                    <button class="code-evidence-button" type="button" [disabled]="codeEvidenceLoading().has(advisory.id.toUpperCase())" (click)="loadCodeEvidence(advisory.id)">{{ codeEvidenceLoading().has(advisory.id.toUpperCase()) ? ('Buscando en los archivos…' | t) : ('Buscar dónde revisar en el código' | t) }}</button>
+                                    <p class="evidence-caveat">{{ 'La búsqueda señala coincidencias textuales con el patrón del aviso. No demuestra que el flujo sea explotable ni sustituye revisar cómo llegan y se validan los datos.' | t }}</p>
+                                    @if (codeEvidenceErrors()[advisory.id.toUpperCase()]; as evidenceError) { <p class="evidence-error" role="alert">{{ evidenceError }}</p> }
+                                    @if (codeEvidenceLoading().has(advisory.id.toUpperCase())) { <p class="evidence-loading" role="status">{{ 'Revisando de forma aislada los archivos Java del ZIP actual del repositorio…' | t }}</p> }
+                                    @if (codeEvidence()[advisory.id.toUpperCase()]; as evidence) {
+                                      <section class="code-evidence" [attr.aria-label]="'Coincidencias encontradas en el código' | t">
+                                        <p class="evidence-source"><span>{{ 'Fuente revisada:' | t }}</span> <strong>{{ evidence.sourceProvider | t }}</strong> · {{ evidence.scannedFiles }} {{ 'archivos Java/Kotlin analizados' | t }}@if(evidence.sourceCommit){ · commit <code>{{ evidence.sourceCommit }}</code>} · SHA-256 <code>{{ evidence.sourceSha256 }}</code></p>
+                                        @if (evidence.status === 'LIMIT_REACHED') { <p class="evidence-limited" role="status">{{ 'Se alcanzó el límite de lectura segura. Las coincidencias mostradas pueden estar incompletas.' | t }}</p> }
+                                        @if (evidence.matches.length > 0) { @for (match of evidence.matches; track match.filePath + match.lineNumber) { <article class="code-match"><h4><code>{{ match.filePath }}:{{ match.lineNumber }}</code></h4><p>{{ match.reason | t }}</p><pre><code>{{ match.excerpt }}</code></pre></article> } }
+                                        @else { <p class="evidence-none" role="status">{{ 'No se encontró el patrón estático de este aviso en los archivos revisados. Eso no descarta la vulnerabilidad: el escaneo está limitado a Java, Kotlin, Groovy y Scala, y no sigue datos entre archivos ni detecta todas las formas de configuración.' | t }}</p> }
+                                      </section>
+                                    }
+                                    @if (advisory.cvssVector) { <p class="cvss-detail"><strong>{{ 'Puntuación técnica CVSS:' | t }}</strong> <code>{{ advisory.cvssVector }}</code></p> }
+                                    @if (advisory.details) { <details class="technical-details"><summary>Ver descripción técnica original</summary><p>{{ advisory.details }}</p></details> }
+                                    <a class="official-advisory-link" [href]="advisory.url" target="_blank" rel="noopener noreferrer">Abrir aviso y fuente oficial {{ advisory.id }}<span class="visually-hidden"> (abre en una pestaña nueva)</span></a>
+                                    @if (advisory.references.length > 0) { <details class="reference-details"><summary>Fuentes y referencias oficiales</summary><ul>@for (reference of advisory.references; track reference) { <li><a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a></li> }</ul></details> }
                                   </div>
-                                  @if (advisory.cvssVector) { <p class="cvss-detail"><strong>Puntuación técnica CVSS:</strong> <code>{{ advisory.cvssVector }}</code></p> }
-                                  @if (advisory.details) { <details class="technical-details"><summary>Ver descripción técnica original</summary><p>{{ advisory.details }}</p></details> }
-                                  @if (advisory.references.length > 0) { <details class="reference-details"><summary>Fuentes y referencias oficiales</summary><ul>@for (reference of advisory.references; track reference) { <li><a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a></li> }</ul></details> }
-                                </li>
+                                </details></li>
                               }
                             </ul>
                           }
@@ -173,7 +186,7 @@
                             <span class="occurrence-detail"><strong>Archivo</strong><code data-no-translate>{{ occurrence.dependency.manifestPath }}</code></span>
                             <span class="occurrence-detail"><strong>Ámbito</strong><span data-no-translate>{{ occurrence.dependency.scope }}</span></span>
                             <span class="occurrence-detail"><strong>Analizado</strong><time [attr.datetime]="occurrence.analyzedAt">{{ occurrence.analyzedAt | date:'medium' }}</time></span>
-                            <details class="provenance"><summary>Procedencia de la fuente</summary><div><span>Origen: <strong data-no-translate>{{ occurrence.source }}</strong></span>@if (occurrence.commitSha) { <span>Commit: <code data-no-translate>{{ occurrence.commitSha }}</code></span> }<span>SHA-256: <code [title]="occurrence.sourceSha256" data-no-translate>{{ occurrence.sourceSha256 }}</code></span></div></details>
+                            <details class="provenance" open><summary>Procedencia de la fuente</summary><div><span>Origen: <strong data-no-translate>{{ occurrence.source }}</strong></span>@if (occurrence.commitSha) { <span>Commit: <code data-no-translate>{{ occurrence.commitSha }}</code></span> }<span>SHA-256: <code [title]="occurrence.sourceSha256" data-no-translate>{{ occurrence.sourceSha256 }}</code></span></div></details>
                           </li>
                         }
                       </ul>
