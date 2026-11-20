@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 45 (grafo inicial Maven/npm).
+Actualizado: 20 de noviembre de 2026, bloque 46 (importación local hasta 50.000 archivos).
 
-**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. Inventario analiza Maven/npm, muestra snapshots OSV, versiones corregidas y búsqueda estática para dos advisories Jackson. El bloque 45 añade API y vista Cytoscape por repositorio: npm guarda relaciones del package-lock v2/v3; Maven muestra solo dependencias directas declaradas con versión en POM. Se conserva la procedencia por snapshot; no se dibujan transitivas Maven supuestas. Build Angular/backend y una prueba focal npm correctos. Backend y frontend se recrearon en Compose, con PostgreSQL y Mailpit preservados; la vista cargó HTTP 200 y Spring Boot arrancó con V23 al día. La base está vacía, así que no hay nodos reales que revisar todavía. Hay que importar/reanalizar repositorios para ver el grafo y guardar nuevas aristas npm; quedan pendientes Maven transitivo, riesgo dentro del grafo, límites/UX para repositorios con muchos nodos, más ecosistemas y revisión real del usuario. Límites OSV: [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md); recorrido: [bitácora](BITACORA_TRABAJO.md).
+**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. La carga local mantiene 100 MiB totales y acepta ahora hasta 50.000 archivos; V24 actualiza el CHECK de base de datos y las capas multipart/proxy ya soportan la cantidad de partes del formulario. El test focal cubre 50.000 aceptados, 50.001 rechazados y el límite de bytes existente. V24 y las imágenes nuevas ya están desplegadas en Compose; queda pendiente probar una carga real con muchos archivos para evaluar rendimiento/espacio temporal. Inventario también tiene la vista de grafo (bloque 45); sus límites se describen abajo. Ver [bitácora](BITACORA_TRABAJO.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -17,7 +17,7 @@ Tema e idioma compartidos implementados de extremo a extremo: V18 crea `organiza
 
 - Bootstrap inicial seguro implementado: comando interactivo local sin endpoint HTTP, transaccion de un solo uso, restriccion a base sin usuarios/organizaciones/admins, hash PBKDF2, cuenta OWNER aprobada/verificada y auditoria. Compose ya cuenta con un administrador activo. Ver [ACCESO_LOCAL](ACCESO_LOCAL.md).
 
-- Backend separado en Domain, Application e Infrastructure; database V1-V23 aplicada y verificada en PostgreSQL local: 128 tablas de negocio, 91 con FORCE RLS y 227 FK. V16-V17 cubren permisos por equipo y miembro/repositorio; V18 guarda tema/idioma compartido; V19 registra ZIP privado; V22/V23 guardan evidencia OSV append-only.
+- Backend separado en Domain, Application e Infrastructure; database V1-V24 aplicada y verificada en PostgreSQL Compose: 128 tablas de negocio, 91 con FORCE RLS y 227 FK. V24 permite registrar hasta 50.000 archivos por fuente local, preservando el máximo de 100 MiB del contenido.
 - Acceso local, sesiones/CSRF, creación/listado de organizaciones y autorización de repositorios/scans por rol/equipo.
 - Verificación de correo y recuperación de contraseña con SMTP/Mailpit, tokens de un uso y revocación de sesiones.
 - Admisión de responsables: aviso individual a los administradores verificados con aprobar/rechazar inmediato, tokens de un uso y caducidad. La pantalla persistente «Esperando confirmación» se mantiene. Verificar el recorrido en Mailpit.
@@ -39,7 +39,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
 - [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
 - [x] **GitHub App real en escritorio local:** OAuth/PKCE completado en `localhost:8089`, instalación de `CondezJuan8` activa en Dinamita, dos repositorios importados y descarga ZIP confirmada por el usuario. Queda pendiente revisión en móvil/otro dispositivo y automatizar sincronización ante cambios de selección en GitHub.
-- [x] **Arranque Compose y migraciones:** Flyway valida V1-V23; V23 con 128 tablas, 91 FORCE RLS y 227 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
+- [x] **Arranque Compose y migraciones:** Flyway valida V1-V24; V24 aplicada. 128 tablas, 91 FORCE RLS, 227 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
 
 Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acceso en [ACCESO_LOCAL](ACCESO_LOCAL.md), correo en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md) y revisión de colores en [DISENO_FRONTEND](DISENO_FRONTEND.md). Nunca escribir secretos en este archivo ni enviarlos por chat.
@@ -47,7 +47,7 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 ## Funciones por implementar
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
-- [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build/credenciales conocidas, límite de 100 MiB/2.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes. Una carpeta real de 446 archivos se importó y descargó correctamente en Dinamita.
+- [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build/credenciales conocidas, límite de 100 MiB/50.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes. La carga histórica de 446 archivos se confirmó antes de V24; el nuevo borde de 50.000 está cubierto por test focal y queda pendiente validación de carga real.
 - [ ] Análisis de repositorios: Maven lee declaraciones directas concretas; npm lee paquetes del lockfile v2/v3 con tipo directo/transitivo. Falta validación real del usuario, aristas padre-hijo, Maven transitivo/herencia/BOM, npm v1 y jobs aislados/progreso/reintentos.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.

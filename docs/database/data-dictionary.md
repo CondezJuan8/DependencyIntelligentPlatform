@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V23. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V24. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -2109,7 +2109,7 @@ Módulo: **integration**. Ámbito: **tenant**. RLS: True; FORCE: True.
 
 Restricciones:
 
-- `local_repository_sources_file_count_check`: `CHECK (((file_count >= 1) AND (file_count <= 2000)))`. Validada: True.
+- `local_repository_sources_file_count_check`: `CHECK (((file_count >= 1) AND (file_count <= 50000)))`. Validada: True.
 - `local_repository_sources_organization_id_repository_id_fkey`: `FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT`. Validada: True.
 - `local_repository_sources_organization_id_uploaded_by_membe_fkey`: `FOREIGN KEY (organization_id, uploaded_by_membership_id) REFERENCES organization_memberships(organization_id, id) ON DELETE RESTRICT`. Validada: True.
 - `local_repository_sources_pkey`: `PRIMARY KEY (organization_id, repository_id)`. Validada: True.

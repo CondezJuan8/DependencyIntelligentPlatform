@@ -80,7 +80,7 @@ pgvector ni a pagar un proveedor de IA para ejecutar el núcleo inicial.
 
 ### Estado aplicado V19 — importación de carpetas locales
 
-V19 agrega `local_repository_sources`, ligada por FK compuesta al tenant/repositorio/membresía y protegida con ENABLE+FORCE RLS. `integration_providers` agrega el proveedor `local`; el repositorio conserva identidad y asignaciones RBAC existentes. La metadata del ZIP privado registra hash SHA-256, bytes, cantidad de archivos, almacenamiento y membresía que lo cargó. Los bytes viven en el volumen de aplicación `repository_data`, fuera de PostgreSQL y del webroot. El caso de uso limita a 100 MiB/2.000 archivos, sanea rutas y excluye `.git`, `node_modules` y carpetas de compilación. Esta entrega no implementa análisis.
+V19 agrega `local_repository_sources`, ligada por FK compuesta al tenant/repositorio/membresía y protegida con ENABLE+FORCE RLS. `integration_providers` agrega el proveedor `local`; el repositorio conserva identidad y asignaciones RBAC existentes. La metadata del ZIP privado registra hash SHA-256, bytes, cantidad de archivos, almacenamiento y membresía que lo cargó. Los bytes viven en el volumen de aplicación `repository_data`, fuera de PostgreSQL y del webroot. V24 amplía el CHECK de `file_count` a 50.000 sin añadir tabla/columna; el caso de uso mantiene el límite de 100 MiB y sanea rutas/excluye `.git`, `node_modules` y carpetas de compilación. Esta entrega no implementa análisis.
 
 Codex debe tomar como fuente los tres archivos del proyecto:
 

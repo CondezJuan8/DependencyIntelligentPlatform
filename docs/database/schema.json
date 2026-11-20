@@ -8981,7 +8981,7 @@
                     ],
                     "on_delete": null,
                     "validated": true,
-                    "definition": "CHECK (((file_count >= 1) AND (file_count <= 2000)))",
+                    "definition": "CHECK (((file_count >= 1) AND (file_count <= 50000)))",
                     "referenced_table": null,
                     "referenced_columns": null
                 },
@@ -19689,5 +19689,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "23"
+    "latest_migration": "24"
 }

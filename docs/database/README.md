@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V23**, con **128 tablas de negocio, 91 con RLS forzado y 227 FK**. Flyway se excluye del conteo. V22 agrega `scan_vulnerability_assessments`, snapshots OSV por versión y scan, con evidencia/hash y RLS tenant-scoped; V23 limita esa tabla a inserción y lectura para el rol runtime. Catálogo, diccionario y diagramas se exportan del PostgreSQL local migrado.
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V24**, con **128 tablas de negocio, 91 con RLS forzado y 227 FK**; V24 solo amplía el CHECK del conteo de archivos y no cambia tablas ni totales. El catálogo y el diccionario reflejan el límite consultado en la base migrada.
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,9 +16,9 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint crea dependency_app. Flyway aplica V1-V23; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
+El entrypoint crea dependency_app. Flyway aplica V1-V24; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
 
-Las cargas locales se limitan a 100 MiB y 2.000 archivos por carpeta. Los originales empaquetados viven fuera de la base; conserva y respalda también el volumen `repository_data` para poder recuperar los repositorios importados.
+Las cargas locales se limitan a 100 MiB totales y 50.000 archivos por carpeta. El cuerpo multipart puede medir hasta 200 MiB por rutas/cabeceras; el contenido agregado de archivos continúa limitado a 100 MiB. Los originales empaquetados viven fuera de la base; conserva y respalda también el volumen `repository_data` para poder recuperar los repositorios importados.
 
 **Volumen existente:** los scripts initdb solo se ejecutan al inicializarlo. Añadir `POSTGRES_APP_PASSWORD` a `.env`, recrear el servicio de base para recibir la variable y aprovisionar antes del backend:
 

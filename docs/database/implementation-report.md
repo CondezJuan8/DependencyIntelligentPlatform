@@ -7,6 +7,10 @@
 Build backend y Angular correctos. La IT focalizada no se completo: el contenedor Maven no pudo resolver Maven Central por DNS. Requiere repeticion cuando la red Maven funcione. Compose backend/frontend activos y health UP; base, volumen y Mailpit no se reiniciaron.
 # Estado real de implementación de la base de datos
 
+## Límite de carpetas locales V24, bloque 46
+
+20 de noviembre de 2026. Flyway aplicó V24 al Compose local. `local_repository_sources.file_count` acepta de 1 a 50.000, sin tabla/columna nueva ni cambio en 128 tablas, 91 FORCE RLS o 227 FK. El CHECK de V24 fue consultado en PostgreSQL después del arranque del backend. El contenido agregado permanece limitado a 100 MiB en Application; esta migración solo cambia la cantidad de archivos. No se alteraron diagramas de relaciones.
+
 ## Evaluación OSV por versión V22/V23, bloque 42
 
 19 de noviembre de 2026. Flyway aplicó V22 y V23 al PostgreSQL local sin reiniciar la base ni tocar sus volúmenes. El catálogo actual contiene 128 tablas de negocio, 91 con ENABLE+FORCE RLS y 227 FK. `scan_vulnerability_assessments` queda tenant-scoped y enlazada a `scan_components`; la nueva tabla confirma ambos flags RLS activos. V22 conserva snapshots de respuesta y error por componente/versión; V23 deja al runtime solo leer e insertar y mantiene el catálogo público separado. La evaluación y la API se describen en [OSV_VULNERABILIDADES](../OSV_VULNERABILIDADES.md).
