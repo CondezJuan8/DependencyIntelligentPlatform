@@ -13,7 +13,7 @@ interface GraphEdge { id: string; source: string; target: string; relationship: 
 interface RepositoryGraph { repositoryId: string; repositoryName: string; sources: GraphSource[]; nodes: GraphNode[]; edges: GraphEdge[]; unresolvedCount: number; }
 interface DisplayGraph { nodes: DisplayNode[]; edges: GraphEdge[]; }
 const MAX_MAP_NODES = 1000;
-const MAX_NETWORK_NODES = 350;
+const MAX_NETWORK_NODES = 500;
 const PACKAGE_LIST_PAGE_SIZE = 100;
 
 @Component({
@@ -51,7 +51,13 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   readonly selectedNode = signal<DisplayNode | null>(null);
   readonly search = signal('');
   readonly ecosystem = signal('ALL');
-  readonly layoutMode = signal<'LAYERS' | 'NETWORK'>('LAYERS');
+  readonly layoutMode = signal<'LAYERS' | 'NETWORK'>('NETWORK');
+  readonly viewMode = signal<'OVERVIEW' | 'LOCAL'>('OVERVIEW');
+  readonly localDepth = signal(1);
+  readonly localDirection = signal<'BOTH' | 'OUTGOING' | 'INCOMING'>('BOTH');
+  readonly dependencyTypeFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE'>('ALL');
+  readonly moduleFilter = signal('ALL');
+  readonly scopeFilter = signal('ALL');
   readonly loading = signal(true);
   readonly graphLoading = signal(false);
   readonly error = signal('');
@@ -76,6 +82,14 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     this.selectedNode.set(null);
     this.networkPositions.clear();
     this.hoveredNodeId = null;
+    this.viewMode.set('OVERVIEW');
+    this.moduleFilter.set('ALL');
+    this.scopeFilter.set('ALL');
+    this.dependencyTypeFilter.set('ALL');
+    this.ecosystem.set('ALL');
+    this.search.set('');
+    this.localDepth.set(1);
+    this.localDirection.set('BOTH');
     this.listLimit.set(PACKAGE_LIST_PAGE_SIZE);
     this.error.set('');
     if (!selected) { this.draw(); return; }
@@ -97,9 +111,42 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   onEcosystemChange(event: Event): void {
     this.ecosystem.set((event.target as HTMLSelectElement).value);
     this.listLimit.set(PACKAGE_LIST_PAGE_SIZE);
+    if (!this.moduleGroups().some(group => group.name === this.moduleFilter())) this.moduleFilter.set('ALL');
+    if (!this.availableScopes().includes(this.scopeFilter())) this.scopeFilter.set('ALL');
     const selected = this.selectedNode();
     if (selected && !this.visibleEcosystem(selected)) this.selectedNode.set(null);
     this.draw();
+  }
+
+  onDependencyTypeChange(event: Event): void { this.dependencyTypeFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'DIRECT' | 'TRANSITIVE'); this.clearHiddenSelection(); this.draw(); }
+  onModuleChange(event: Event): void { this.moduleFilter.set((event.target as HTMLSelectElement).value); this.clearHiddenSelection(); this.draw(); }
+  onScopeChange(event: Event): void { this.scopeFilter.set((event.target as HTMLSelectElement).value); this.clearHiddenSelection(); this.draw(); }
+  onDepthChange(event: Event): void { this.localDepth.set(Number((event.target as HTMLSelectElement).value) || 1); this.draw(); }
+  onDirectionChange(event: Event): void { this.localDirection.set((event.target as HTMLSelectElement).value as 'BOTH' | 'OUTGOING' | 'INCOMING'); this.draw(); }
+
+  setModuleFilter(module: string): void { this.moduleFilter.set(module); this.clearHiddenSelection(); this.draw(); }
+  clearFilters(): void {
+    this.ecosystem.set('ALL');
+    this.dependencyTypeFilter.set('ALL');
+    this.moduleFilter.set('ALL');
+    this.scopeFilter.set('ALL');
+    this.search.set('');
+    this.draw();
+  }
+
+  showOverview(): void { this.viewMode.set('OVERVIEW'); this.draw(); }
+  showLocalView(): void {
+    const node = this.selectedNode();
+    if (!node || node.project) return;
+    this.viewMode.set('LOCAL');
+    this.localDepth.set(1);
+    this.localDirection.set('BOTH');
+    this.draw();
+  }
+
+  private clearHiddenSelection(): void {
+    const selected = this.selectedNode();
+    if (selected && !this.filteredGraph()?.nodes.some(node => node.id === selected.id)) this.selectedNode.set(null);
   }
 
   setLayoutMode(mode: 'LAYERS' | 'NETWORK'): void {
@@ -132,8 +179,27 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   fitGraph(): void { this.cy?.fit(undefined, 44); }
   loadMorePackages(): void { this.listLimit.update(limit => limit + PACKAGE_LIST_PAGE_SIZE); }
 
-  readonly packageNodes = computed(() => (this.displayGraph()?.nodes ?? [])
+  readonly candidatePackageNodes = computed(() => (this.displayGraph()?.nodes ?? [])
     .filter(node => !node.project && this.visibleEcosystem(node)));
+  readonly packageNodes = computed(() => (this.filteredGraph()?.nodes ?? []).filter(node => !node.project));
+  readonly moduleGroups = computed(() => {
+    const groups = new Map<string, number>();
+    for (const node of this.candidatePackageNodes()) {
+      const module = this.moduleOf(node);
+      groups.set(module, (groups.get(module) ?? 0) + 1);
+    }
+    return [...groups].map(([name, count]) => ({ name, count })).sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
+  });
+  readonly availableScopes = computed(() => [...new Set(this.candidatePackageNodes().flatMap(node => node.scopes))].filter(Boolean).sort());
+  readonly filteredGraph = computed(() => this.createFilteredGraph());
+  readonly filteredPackageCount = computed(() => (this.filteredGraph()?.nodes ?? []).filter(node => !node.project).length);
+  readonly activeFilters = computed(() => [
+    this.ecosystem() !== 'ALL' ? this.ecosystem() : '',
+    this.dependencyTypeFilter() !== 'ALL' ? (this.dependencyTypeFilter() === 'DIRECT' ? 'Directas' : 'Transitivas') : '',
+    this.moduleFilter() !== 'ALL' ? this.moduleFilter() : '',
+    this.scopeFilter() !== 'ALL' ? this.scopeFilter() : '',
+    this.search().trim() ? `«${this.search().trim()}»` : '',
+  ].filter(Boolean));
   readonly filteredPackageNodes = computed(() => {
     const query = this.search().trim().toLocaleLowerCase();
     if (!query) return this.packageNodes();
@@ -141,28 +207,22 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   });
   readonly visiblePackageNodes = computed(() => this.filteredPackageNodes().slice(0, this.listLimit()));
   readonly hasMorePackages = computed(() => this.filteredPackageNodes().length > this.visiblePackageNodes().length);
-  readonly packageCount = computed(() => this.packageNodes().length);
+  readonly packageCount = computed(() => this.candidatePackageNodes().length);
   readonly renderLimit = computed(() => this.layoutMode() === 'NETWORK' ? MAX_NETWORK_NODES : MAX_MAP_NODES);
-  readonly renderLimited = computed(() => this.packageNodes().length + 1 > this.renderLimit());
+  readonly renderLimited = computed(() => this.filteredPackageCount() + 1 > this.renderLimit());
   readonly directCount = computed(() => this.packageNodes().filter(node => node.dependencyType === 'DIRECT').length);
   readonly transitiveCount = computed(() => this.packageNodes().filter(node => node.dependencyType === 'TRANSITIVE').length);
-  readonly edgeCount = computed(() => {
-    const graph = this.displayGraph();
-    if (!graph) return 0;
-    if (this.ecosystem() === 'ALL') return graph.edges.length;
-    const byId = new Map(graph.nodes.map(node => [node.id, node]));
-    return graph.edges.filter(edge => byId.get(edge.target)?.ecosystem === this.ecosystem()).length;
-  });
+  readonly edgeCount = computed(() => this.filteredGraph()?.edges.length ?? 0);
   readonly outgoingNodes = computed(() => {
     const selected = this.selectedNode();
-    const graph = this.displayGraph();
+    const graph = this.filteredGraph();
     if (!selected || !graph) return [];
     const ids = new Set(graph.edges.filter(edge => edge.source === selected.id).map(edge => edge.target));
     return graph.nodes.filter(node => ids.has(node.id));
   });
   readonly incomingNodes = computed(() => {
     const selected = this.selectedNode();
-    const graph = this.displayGraph();
+    const graph = this.filteredGraph();
     if (!selected || !graph) return [];
     const ids = new Set(graph.edges.filter(edge => edge.target === selected.id).map(edge => edge.source));
     return graph.nodes.filter(node => ids.has(node.id));
@@ -247,7 +307,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
 
   private draw(): void {
     if (!this.cy || !this.graphHost) return;
-    const graph = this.displayGraph();
+    const graph = this.filteredGraph();
     if (!graph) { this.cy.elements().remove(); return; }
     const nodes = this.nodesForCanvas(graph);
     const nodeIds = new Set(nodes.map(node => node.id));
@@ -282,7 +342,13 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
         const position = this.networkPositions.get(node.id());
         if (position) node.position(position);
       });
-      this.cy.layout({ name: 'cose', animate: false, randomize: !hasSavedPositions, fit: false, numIter: hasSavedPositions ? 110 : 220,
+      if (nodes.length > 0 && nodes.every(node => this.networkPositions.has(node.id()))) {
+        this.cy.elements().unselect();
+        this.cy.fit(undefined, 52);
+        return;
+      }
+      this.cy.layout({ name: 'cose', animate: false, randomize: !hasSavedPositions, fit: false,
+        numIter: hasSavedPositions ? 80 : nodes.length > 120 ? 120 : 220,
         nodeRepulsion: 6200, idealEdgeLength: 104, edgeElasticity: 82, nestingFactor: 1.15,
         gravity: 0.12, componentSpacing: 116, padding: 56, initialTemp: 150, coolingFactor: 0.94, minTemp: 1 }).run();
       this.cy.nodes().forEach(node => { this.networkPositions.set(node.id(), node.position()); });
@@ -309,7 +375,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   }
 
   private nodesForCanvas(graph: DisplayGraph): DisplayNode[] {
-    const visible = graph.nodes.filter(node => this.visibleEcosystem(node));
+    const visible = graph.nodes;
     const maxNodes = this.layoutMode() === 'NETWORK' ? MAX_NETWORK_NODES : MAX_MAP_NODES;
     if (visible.length <= maxNodes) return visible;
     const root = visible.find(node => node.project);
@@ -349,6 +415,59 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
       selected.add(node.id);
     }
     return visible.filter(node => selected.has(node.id));
+  }
+
+  private createFilteredGraph(): DisplayGraph | null {
+    const graph = this.displayGraph();
+    if (!graph) return null;
+    const ecosystemNodes = graph.nodes.filter(node => this.visibleEcosystem(node));
+    const ecosystemIds = new Set(ecosystemNodes.map(node => node.id));
+    const ecosystemEdges = graph.edges.filter(edge => ecosystemIds.has(edge.source) && ecosystemIds.has(edge.target));
+    let allowedIds = new Set(ecosystemNodes.map(node => node.id));
+
+    if (this.viewMode() === 'LOCAL') {
+      const anchor = this.selectedNode();
+      if (!anchor || anchor.project || !ecosystemIds.has(anchor.id)) return { nodes: [], edges: [] };
+      allowedIds = new Set([anchor.id]);
+      const projectIds = new Set(ecosystemNodes.filter(node => node.project).map(node => node.id));
+      let frontier = new Set([anchor.id]);
+      for (let level = 0; level < this.localDepth(); level++) {
+        const next = new Set<string>();
+        for (const edge of ecosystemEdges) {
+          if (projectIds.has(edge.source) || projectIds.has(edge.target)) continue;
+          if (this.localDirection() !== 'INCOMING' && frontier.has(edge.source) && !allowedIds.has(edge.target)) next.add(edge.target);
+          if (this.localDirection() !== 'OUTGOING' && frontier.has(edge.target) && !allowedIds.has(edge.source)) next.add(edge.source);
+        }
+        next.forEach(id => allowedIds.add(id));
+        frontier = next;
+        if (!frontier.size) break;
+      }
+    }
+
+    const module = this.moduleFilter();
+    const type = this.dependencyTypeFilter();
+    const scope = this.scopeFilter();
+    const anchorId = this.viewMode() === 'LOCAL' ? this.selectedNode()?.id : null;
+    const filteredNodes = ecosystemNodes.filter(node => {
+      if (!allowedIds.has(node.id)) return false;
+      if (node.project) return this.viewMode() === 'OVERVIEW';
+      if (anchorId === node.id) return true;
+      if (type !== 'ALL' && node.dependencyType !== type) return false;
+      if (module !== 'ALL' && this.moduleOf(node) !== module) return false;
+      if (scope !== 'ALL' && !node.scopes.includes(scope)) return false;
+      return true;
+    });
+    const filteredIds = new Set(filteredNodes.map(node => node.id));
+    // Keep only observed edges whose two endpoints remain visible; never bridge a hidden node.
+    const filteredEdges = ecosystemEdges.filter(edge => filteredIds.has(edge.source) && filteredIds.has(edge.target));
+    return { nodes: filteredNodes, edges: filteredEdges };
+  }
+
+  private moduleOf(node: DisplayNode): string {
+    const identity = node.label.endsWith(`@${node.version}`) ? node.label.slice(0, -(node.version.length + 1)) : node.label;
+    if (node.ecosystem === 'maven') return identity.includes(':') ? identity.slice(0, identity.lastIndexOf(':')) : 'Maven · sin namespace';
+    if (identity.startsWith('@')) return identity.split('/')[0] || 'npm · sin namespace';
+    return 'npm · sin scope';
   }
 
   private toDisplayGraph(graph: RepositoryGraph): DisplayGraph {
@@ -422,7 +541,18 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
       this.highlightFrame = 0;
       if (this.renderLimited()) this.draw();
       else this.highlightMatches();
+      this.centerSearchMatch();
     });
+  }
+
+  private centerSearchMatch(): void {
+    const query = this.search().trim().toLocaleLowerCase();
+    if (!query || !this.cy) return;
+    const nodes = this.filteredGraph()?.nodes.filter(node => !node.project && `${node.label} ${node.version} ${node.manifestPaths.join(' ')}`.toLocaleLowerCase().includes(query)) ?? [];
+    if (!nodes.length) return;
+    const exact = nodes.find(node => node.label.toLocaleLowerCase() === query || node.label.toLocaleLowerCase().startsWith(`${query}@`));
+    const target = this.cy.$id((exact ?? nodes[0]).id);
+    if (target.length) this.cy.center(target);
   }
 
   private highlightMatches(): void {
@@ -465,14 +595,16 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   private updateNetworkLabels(): void {
     if (!this.cy || this.layoutMode() !== 'NETWORK') return;
     const zoom = this.cy.zoom();
+    const smallGraph = this.filteredPackageCount() <= 36;
+    const fewDirect = this.directCount() <= 50;
     const query = this.search().trim().toLocaleLowerCase();
     const contextId = this.hoveredNodeId ?? this.selectedNode()?.id ?? null;
     const neighbors = contextId ? new Set(this.cy.$id(contextId).closedNeighborhood().nodes().map(node => node.id())) : new Set<string>();
     this.cy.nodes().forEach(node => {
       const matches = !!query && String(node.data('searchLabel') ?? '').toLocaleLowerCase().includes(query);
-      const visible = node.data('project') || node.selected() || matches || neighbors.has(node.id())
-        || (node.data('dependencyType') === 'DIRECT' && zoom >= 1.05)
-        || (node.data('dependencyType') === 'TRANSITIVE' && zoom >= 1.5);
+      const visible = node.data('project') || smallGraph || node.selected() || matches || neighbors.has(node.id())
+        || (node.data('dependencyType') === 'DIRECT' && (fewDirect || zoom >= 1.05))
+        || (node.data('dependencyType') === 'TRANSITIVE' && zoom >= 1.35);
       node.toggleClass('label-visible', visible);
     });
   }
