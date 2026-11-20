@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import cytoscape, { Core, ElementDefinition } from 'cytoscape';
 import { finalize } from 'rxjs';
@@ -17,11 +17,23 @@ interface RepositoryGraph { repositoryId: string; repositoryName: string; source
   templateUrl: './dependency-graph-workspace.html',
   styleUrl: './dependency-graph-workspace.scss',
 })
-export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestroy {
+export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   private readonly api = inject(SessionApiService);
-  @ViewChild('graphHost') private graphHost?: ElementRef<HTMLDivElement>;
+  private graphHost?: ElementRef<HTMLDivElement>;
   private cy?: Core;
   private themeObserver?: MutationObserver;
+  private graphResizeObserver?: ResizeObserver;
+
+  @ViewChild('graphHost')
+  set graphCanvas(host: ElementRef<HTMLDivElement> | undefined) {
+    if (this.graphHost?.nativeElement === host?.nativeElement) return;
+    this.themeObserver?.disconnect();
+    this.graphResizeObserver?.disconnect();
+    this.cy?.destroy();
+    this.cy = undefined;
+    this.graphHost = host;
+    if (host) this.initializeGraph();
+  }
 
   readonly repositories = signal<Repository[]>([]);
   readonly repository = signal<Repository | null>(null);
@@ -43,8 +55,7 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
     });
   }
 
-  ngAfterViewInit(): void { this.initializeGraph(); }
-  ngOnDestroy(): void { this.themeObserver?.disconnect(); this.cy?.destroy(); }
+  ngOnDestroy(): void { this.themeObserver?.disconnect(); this.graphResizeObserver?.disconnect(); this.cy?.destroy(); }
 
   selectRepository(id: string): void {
     const selected = this.repositories().find(repository => repository.id === id) ?? null;
@@ -106,7 +117,7 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
       wheelSensitivity: 0.18,
       style: [
         { selector: 'node', style: { 'background-color': '#2563EB', 'border-width': 2, 'border-color': '#FFFFFF', color: '#0F172A', label: 'data(label)', 'font-family': 'IBM Plex Sans, sans-serif', 'font-size': 12, 'font-weight': 600, 'text-wrap': 'wrap', 'text-max-width': '170px', width: 28, height: 28, 'text-valign': 'bottom', 'text-margin-y': 8 } },
-        { selector: 'node[project]', style: { 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 4, shape: 'round-rectangle', width: 48, height: 48, color: '#0F172A', 'font-size': 14, 'font-weight': 700 } },
+        { selector: 'node.project', style: { 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 4, shape: 'round-rectangle', width: 48, height: 48, color: '#0F172A', 'font-size': 14, 'font-weight': 700 } },
         { selector: 'node[ecosystem = "npm"]:not([project])', style: { 'background-color': '#06B6D4' } },
         { selector: 'node[dependencyType = "TRANSITIVE"]', style: { 'background-color': '#64748B', width: 22, height: 22, 'font-size': 11 } },
         { selector: 'node:selected', style: { 'border-color': '#F97316', 'border-width': 4, 'overlay-opacity': 0.12, 'overlay-color': '#F97316' } },
@@ -114,13 +125,26 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
         { selector: 'edge[relationship = "declares"]', style: { 'line-color': '#2563EB', 'target-arrow-color': '#2563EB', 'line-style': 'dashed' } },
         { selector: '.dimmed', style: { opacity: 0.14 } },
       ],
-      layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.25, padding: 42, animate: false },
+      layout: { name: 'preset', fit: false },
     });
     this.cy.on('tap', 'node', event => this.selectNode(event.target.id()));
     this.cy.on('tap', event => { if (event.target === this.cy) { this.cy?.$('node:selected').unselect(); this.selectedNode.set(null); } });
     this.applyGraphTheme();
     this.themeObserver = new MutationObserver(() => this.applyGraphTheme());
     this.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    this.graphResizeObserver = new ResizeObserver(entries => {
+      const size = entries[0]?.contentRect;
+      if (!size || size.width === 0 || size.height === 0 || !this.cy) return;
+      this.cy.resize();
+      this.draw();
+    });
+    this.graphResizeObserver.observe(this.graphHost.nativeElement);
+    requestAnimationFrame(() => {
+      if (!this.cy || !this.graphHost) return;
+      this.cy.resize();
+      this.draw();
+      this.cy.fit(undefined, 44);
+    });
     this.draw();
   }
 
@@ -133,7 +157,7 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
     const secondary = theme.getPropertyValue('--di-text-secondary').trim() || '#536784';
     this.cy.style()
       .selector('node').style({ color: text, 'border-color': surface })
-      .selector('node[project]').style({ color: '#FFFFFF', 'border-color': '#06B6D4' })
+      .selector('node.project').style({ color: '#FFFFFF', 'border-color': '#06B6D4' })
       .selector('edge').style({ color: secondary, 'text-background-color': surface, 'line-color': border, 'target-arrow-color': secondary })
       .selector('edge[relationship = "declares"]').style({ 'line-color': '#2563EB', 'target-arrow-color': '#2563EB' })
       .update();
@@ -147,13 +171,22 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
     const nodeIds = new Set(nodes.map(node => node.id));
     const edges = graph.edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
     const elements: ElementDefinition[] = [
-      ...nodes.map(node => ({ data: { id: node.id, label: node.label, project: node.project, ecosystem: node.ecosystem, dependencyType: node.dependencyType } })),
+      ...nodes.map(node => ({ data: { id: node.id, label: this.visualLabel(node), searchLabel: node.label, project: node.project, ecosystem: node.ecosystem, dependencyType: node.dependencyType }, classes: node.project ? 'project' : '' })),
       ...edges.map(edge => ({ data: { id: edge.id, source: edge.source, target: edge.target, relationship: edge.relationship } })),
     ];
     this.cy.elements().remove();
     this.cy.add(elements);
-    const roots = this.cy.nodes('[project]').map(node => node.id());
-    if (this.cy.elements().length) this.cy.layout({ name: 'breadthfirst', directed: true, roots, spacingFactor: 1.25, padding: 42, animate: false }).run();
+    if (this.cy.elements().length) this.cy.layout({
+      name: 'concentric',
+      concentric: node => node.hasClass('project') ? 3 : node.data('dependencyType') === 'DIRECT' ? 2 : 1,
+      levelWidth: () => 1,
+      minNodeSpacing: 230,
+      startAngle: -Math.PI / 2,
+      sweep: Math.PI * 2,
+      animate: false,
+      fit: true,
+      padding: 68,
+    }).run();
     this.highlightMatches();
   }
 
@@ -161,7 +194,7 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
     if (!this.cy) return;
     const query = this.search().trim().toLocaleLowerCase();
     this.cy.nodes().forEach(node => {
-      const matches = !query || String(node.data('label')).toLocaleLowerCase().includes(query);
+      const matches = !query || String(node.data('searchLabel') ?? node.data('label')).toLocaleLowerCase().includes(query);
       node.toggleClass('dimmed', !matches && !node.data('project'));
     });
     this.cy.edges().forEach(edge => {
@@ -172,6 +205,11 @@ export class DependencyGraphWorkspace implements OnInit, AfterViewInit, OnDestro
 
   private visibleEcosystem(node: GraphNode): boolean {
     return this.ecosystem() === 'ALL' || node.ecosystem === this.ecosystem();
+  }
+  private visualLabel(node: GraphNode): string {
+    if (node.ecosystem !== 'maven') return node.label;
+    const separator = node.label.lastIndexOf(':');
+    return separator >= 0 ? node.label.slice(separator + 1) : node.label;
   }
   private visibleEdge(edge: GraphEdge): boolean {
     const graph = this.graph();
