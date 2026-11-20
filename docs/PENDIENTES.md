@@ -1,8 +1,8 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 46 (importación local hasta 50.000 archivos).
+Actualizado: 20 de noviembre de 2026, bloque 47 (renderizado del grafo verificado).
 
-**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. La carga local mantiene 100 MiB totales y acepta ahora hasta 50.000 archivos; V24 actualiza el CHECK de base de datos y las capas multipart/proxy ya soportan la cantidad de partes del formulario. El test focal cubre 50.000 aceptados, 50.001 rechazados y el límite de bytes existente. V24 y las imágenes nuevas ya están desplegadas en Compose; queda pendiente probar una carga real con muchos archivos para evaluar rendimiento/espacio temporal. Inventario también tiene la vista de grafo (bloque 45); sus límites se describen abajo. Ver [bitácora](BITACORA_TRABAJO.md).
+**Estado actual:** GitHub y carpetas locales se importan y descargan en `localhost:8089`. La carga local mantiene 100 MiB totales y acepta ahora hasta 50.000 archivos; V24 actualiza el CHECK de base de datos y las capas multipart/proxy soportan esa cantidad. Sigue pendiente medir una carga real grande. El grafo (bloques 45 y 47) ya muestra en navegador el proyecto y seis dependencias Maven de `Formula1Simulator`: 6 directas, 0 transitivas y 6 relaciones declaradas. npm transitivo y Maven transitivo continúan por validar/implementar según evidencia; no se inventan relaciones. Ver [bitácora](BITACORA_TRABAJO.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 

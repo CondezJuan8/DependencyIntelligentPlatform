@@ -2,6 +2,38 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 47 — Corrección de visualización del grafo
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y cambios
+
+El usuario informó que la pantalla del grafo no mostraba nada. La inspección confirmó que había datos visibles en el resumen/lista (seis paquetes Maven), pero Cytoscape creaba su contenedor después de `ngAfterViewInit`; por eso el canvas no llegaba a dibujarse. Se inicializa al aparecer el `ViewChild`, se redibuja cuando el tamaño del canvas queda disponible y al cambiar de repositorio. El layout radial distribuye el proyecto y sus dependencias; los nodos se distinguen por clase para evitar que el booleano `project=false` active el estilo del proyecto. Las etiquetas Maven del canvas muestran el artefacto y versión; la lista conserva la coordenada completa y la búsqueda sigue usando el nombre completo.
+
+### Herramientas utilizadas e implementadas
+
+| Herramienta / tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Angular `ViewChild`, `requestAnimationFrame`, `ResizeObserver` | Inicializar y redimensionar el canvas cuando el DOM está listo | No |
+| Cytoscape.js | Dibujar layout radial y relaciones del snapshot | No; ya estaba instalado |
+| Docker Compose | Compilar y recrear únicamente el frontend | Herramienta de despliegue local |
+| Chrome | Revisar el grafo con los datos reales de `Formula1Simulator` | Herramienta de revisión |
+
+### Verificación y límites
+
+- `docker compose build frontend`: correcto. Conserva avisos de presupuesto de bundle/SCSS existentes; no bloquean el build.
+- Frontend actualizado en `http://localhost:8089`; no se reiniciaron backend, PostgreSQL, Mailpit ni el entorno nativo.
+- Revisión visual confirmada: aparecen el nodo del proyecto y seis paquetes Maven; resumen de 6 paquetes, 6 directas, 0 transitivas y 6 relaciones. Estas relaciones son declaraciones directas; no se añadieron transitivas Maven ni se infirieron.
+- No se añadieron dependencias ni cambios de base de datos.
+
+### Siguiente paso
+
+Comprobar con el usuario que el trazado/etiquetas se entienden en su pantalla y, después, revisar un repositorio npm con lockfile para validar el grafo transitivo.
+
+### Commits
+
+Se guardan dos commits: corrección visual/vida del canvas y actualización documental, ambos con emoji y Conventional Commits en español.
+
 ## Bloque 20 — Aprobación y rechazo inmediatos desde el correo
 
 Fecha: 18 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.

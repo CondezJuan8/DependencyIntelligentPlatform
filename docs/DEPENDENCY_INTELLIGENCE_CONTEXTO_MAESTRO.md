@@ -519,6 +519,8 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 
 **Estado de entrega — bloque 45:** se implementa el recorrido inicial para repositorios con snapshots Maven/npm completados, con evidencia por scan y sin inferir relaciones. npm usa las referencias declaradas en el lockfile y sus paths instalados; Maven cubre solo las dependencias explícitas resueltas con versión en POM. El modelo de `dependency_edges` enlaza ocurrencias del mismo scan. La interfaz muestra los nodos raíz por separado (virtuales), dependencias directas/transitivas según el parser, filtros, búsqueda, detalle, procedencia y alternativa textual navegable. Riesgo en nodos y rutas de impacto aún no están integrados. No reemplaza todos los RF-047–052.
 
+**Estado de visualización — bloque 47:** corregida la inicialización diferida del canvas Angular/Cytoscape y el redimensionamiento al montarse/cambiar el host. Revisión visual en Compose confirma un grafo visible para `Formula1Simulator` con seis dependencias Maven directas. Etiquetas Maven resumidas en el canvas y nombres completos disponibles en lista/detalle/búsqueda. La muestra actual tiene cero transitivas; no afirmar cobertura transitiva Maven. Sigue pendiente validar un snapshot npm con lockfile y ajustar presentación según revisión del usuario.
+
 - **RF-047:** visualizar relaciones de dependencias.
 - **RF-048:** mostrar nodos de repositorios.
 - **RF-049:** mostrar nodos de paquetes/componentes.
