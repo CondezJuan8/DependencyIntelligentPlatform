@@ -112,6 +112,7 @@ export class InventoryWorkspace implements OnInit {
   readonly search = signal('');
   readonly ecosystemFilter = signal<'ALL' | Ecosystem>('ALL');
   readonly dependencyFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE'>('ALL');
+  readonly securityFilter = signal<'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW'>('ALL');
   readonly scopeFilter = signal('ALL');
   readonly loading = signal(true);
   readonly loadingScans = signal(false);
@@ -155,7 +156,16 @@ export class InventoryWorkspace implements OnInit {
     }
 
     return [...packages.values()]
-      .map((group) => ({ ...group, versions: group.versions.sort((left, right) => left.version.localeCompare(right.version, undefined, { numeric: true })) }))
+      .map((group) => {
+        const versions = group.versions.filter(version => this.matchesSecurityFilter(group, version));
+        return {
+          ...group,
+          versions: versions.sort((left, right) => left.version.localeCompare(right.version, undefined, { numeric: true })),
+          directCount: versions.reduce((sum, version) => sum + version.directCount, 0),
+          transitiveCount: versions.reduce((sum, version) => sum + version.transitiveCount, 0),
+        };
+      })
+      .filter(group => group.versions.length > 0)
       .sort((left, right) => left.name.localeCompare(right.name));
   }
 
@@ -233,11 +243,25 @@ export class InventoryWorkspace implements OnInit {
     this.scopeFilter.set((event.target as HTMLSelectElement).value);
   }
 
+  updateSecurityFilter(event: Event): void {
+    this.securityFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW');
+  }
+
+  private matchesSecurityFilter(group: PackageGroup, version: VersionGroup): boolean {
+    const filter = this.securityFilter();
+    if (filter === 'ALL') return true;
+    const status = this.assessmentFor(group, version)?.status;
+    if (filter === 'VULNERABLE') return status === 'MATCHED';
+    if (filter === 'NO_KNOWN') return status === 'NO_KNOWN_ADVISORIES';
+    return status !== 'MATCHED' && status !== 'NO_KNOWN_ADVISORIES';
+  }
+
   clearFilters(): void {
     this.search.set('');
     this.ecosystemFilter.set('ALL');
     this.dependencyFilter.set('ALL');
     this.scopeFilter.set('ALL');
+    this.securityFilter.set('ALL');
   }
 
   analyzeRepository(): void {
@@ -291,11 +315,11 @@ export class InventoryWorkspace implements OnInit {
   assessmentLabel(status: AssessmentStatus): string {
     switch (status) {
       case 'MATCHED': return 'Avisos encontrados';
-      case 'NO_KNOWN_ADVISORIES': return 'OSV no reporta avisos para esta versiÃ³n';
+      case 'NO_KNOWN_ADVISORIES': return 'OSV no reporta avisos para esta versión';
       case 'INCOMPLETE': return 'Resultado parcial; revisa los detalles';
       case 'UNAVAILABLE': return 'No se pudo consultar OSV';
       case 'STALE': return 'Resultado desactualizado';
-      default: return 'AÃºn sin evaluar';
+      default: return 'Aún sin evaluar';
     }
   }
 

@@ -115,6 +115,12 @@
               <option value="ALL">Todas</option><option value="DIRECT">Directas</option><option value="TRANSITIVE">Transitivas</option>
             </select>
           </div>
+          <div class="filter">
+            <label for="security-filter">{{ 'Estado de seguridad' | t }}</label>
+            <select id="security-filter" [value]="securityFilter()" (change)="updateSecurityFilter($event)">
+              <option value="ALL">{{ 'Todos los estados' | t }}</option><option value="VULNERABLE">{{ 'Con vulnerabilidades' | t }}</option><option value="NO_KNOWN">{{ 'Sin avisos conocidos' | t }}</option><option value="REVIEW">{{ 'Sin evaluar o requiere revisión' | t }}</option>
+            </select>
+          </div>
           @if (scopes.length > 0) {
             <div class="filter">
               <label for="scope-filter">Ámbito</label>
@@ -143,7 +149,7 @@
                       <header class="version-heading"><h3>Versión <code data-no-translate>{{ version.version }}</code></h3><div class="kind-tags"><span class="tag direct">{{ version.directCount }} directas</span><span class="tag transitive">{{ version.transitiveCount }} transitivas</span></div></header>
                       @if (assessmentFor(group, version); as assessment) {
                         <section class="version-assessment" [class]="'version-assessment state-' + assessment.status.toLowerCase()" [attr.aria-label]="assessmentLabel(assessment.status)">
-                          <strong>{{ assessmentLabel(assessment.status) }}</strong>
+                          <strong>{{ assessmentLabel(assessment.status) | t }}</strong>
                           @if (assessment.checkedAt) { <span>Consultado {{ assessment.checkedAt | date:'medium' }}</span> }
                           @if (assessment.failureCode) { <span>La consulta no fue completa ({{ assessment.failureCode }}).</span> }
                           @if (assessment.advisories.length > 0) {
@@ -160,7 +166,7 @@
                                     @if (codeEvidenceLoading().has(advisory.id.toUpperCase())) { <p class="evidence-loading" role="status">{{ 'Revisando de forma aislada los archivos Java del ZIP actual del repositorio…' | t }}</p> }
                                     @if (codeEvidence()[advisory.id.toUpperCase()]; as evidence) {
                                       <section class="code-evidence" [attr.aria-label]="'Coincidencias encontradas en el código' | t">
-                                        <p class="evidence-source"><span>{{ 'Fuente revisada:' | t }}</span> <strong>{{ evidence.sourceProvider | t }}</strong> · {{ evidence.scannedFiles }} {{ 'archivos Java/Kotlin analizados' | t }}@if(evidence.sourceCommit){ · commit <code>{{ evidence.sourceCommit }}</code>} · SHA-256 <code>{{ evidence.sourceSha256 }}</code></p>
+                                        <p class="evidence-source"><span>{{ 'Fuente revisada:' | t }}</span> <strong>{{ evidence.sourceProvider | t }}</strong> · {{ evidence.scannedFiles }} {{ 'archivos Java/Kotlin analizados' | t }}@if(evidence.sourceCommit){ · commit <code>{{ evidence.sourceCommit }}</code>} · SHA-256 <code>{{ evidence.sourceSha256 }}</code></p><p class="hash-explanation">{{ 'Es la huella criptográfica del ZIP exacto usado en el análisis. Sirve para identificar qué fuente se revisó; no es el hash de una dependencia ni una señal de riesgo.' | t }}</p>
                                         @if (evidence.status === 'LIMIT_REACHED') { <p class="evidence-limited" role="status">{{ 'Se alcanzó el límite de lectura segura. Las coincidencias mostradas pueden estar incompletas.' | t }}</p> }
                                         @if (evidence.matches.length > 0) { @for (match of evidence.matches; track match.filePath + match.lineNumber) { <article class="code-match"><h4><code>{{ match.filePath }}:{{ match.lineNumber }}</code></h4><p>{{ match.reason | t }}</p><pre><code>{{ match.excerpt }}</code></pre></article> } }
                                         @else { <p class="evidence-none" role="status">{{ 'No se encontró el patrón estático de este aviso en los archivos revisados. Eso no descarta la vulnerabilidad: el escaneo está limitado a Java, Kotlin, Groovy y Scala, y no sigue datos entre archivos ni detecta todas las formas de configuración.' | t }}</p> }
@@ -177,7 +183,7 @@
                           }
                         </section>
                       } @else {
-                        <p class="version-assessment state-not_assessed">Aún sin evaluar con OSV.</p>
+                        <p class="version-assessment state-not_assessed">{{ 'Aún sin evaluar con OSV.' | t }}</p>
                       }
                       <ul class="occurrence-list">
                         @for (occurrence of version.occurrences; track occurrence.scanId + occurrence.dependency.manifestPath + occurrence.dependency.scope) {
@@ -186,7 +192,7 @@
                             <span class="occurrence-detail"><strong>Archivo</strong><code data-no-translate>{{ occurrence.dependency.manifestPath }}</code></span>
                             <span class="occurrence-detail"><strong>Ámbito</strong><span data-no-translate>{{ occurrence.dependency.scope }}</span></span>
                             <span class="occurrence-detail"><strong>Analizado</strong><time [attr.datetime]="occurrence.analyzedAt">{{ occurrence.analyzedAt | date:'medium' }}</time></span>
-                            <details class="provenance" open><summary>Procedencia de la fuente</summary><div><span>Origen: <strong data-no-translate>{{ occurrence.source }}</strong></span>@if (occurrence.commitSha) { <span>Commit: <code data-no-translate>{{ occurrence.commitSha }}</code></span> }<span>SHA-256: <code [title]="occurrence.sourceSha256" data-no-translate>{{ occurrence.sourceSha256 }}</code></span></div></details>
+                            <details class="provenance" open><summary>{{ 'Procedencia de la fuente' | t }}</summary><div><span>{{ 'Origen:' | t }} <strong data-no-translate>{{ occurrence.source }}</strong></span>@if (occurrence.commitSha) { <span>{{ 'Commit:' | t }} <code data-no-translate>{{ occurrence.commitSha }}</code></span> }<span>{{ 'SHA-256 de la fuente analizada:' | t }} <code [title]="occurrence.sourceSha256" data-no-translate>{{ occurrence.sourceSha256 }}</code></span><p class="hash-explanation">{{ 'Es la huella criptográfica del ZIP exacto usado en el análisis. Sirve para identificar qué fuente se revisó; no es el hash de una dependencia ni una señal de riesgo.' | t }}</p></div></details>
                           </li>
                         }
                       </ul>
