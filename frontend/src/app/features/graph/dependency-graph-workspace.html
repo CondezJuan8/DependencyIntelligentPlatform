@@ -1,6 +1,6 @@
 <section class="graph-page" aria-labelledby="graph-title">
   <header class="page-heading">
-    <div><p class="eyebrow">DEPENDENCY GRAPH</p><h1 id="graph-title">{{ 'Grafo de dependencias' | t }}</h1>
+    <div><p class="eyebrow">{{ 'VISTA DE DEPENDENCIAS' | t }}</p><h1 id="graph-title">{{ 'Grafo de dependencias' | t }}</h1>
       <p>{{ 'Explora qué paquetes introduce el proyecto y qué dependencias aparecen dentro de cada paquete.' | t }}</p></div>
   </header>
 
@@ -33,34 +33,45 @@
         <section class="graph-empty"><h2>{{ 'El análisis no encontró dependencias compatibles' | t }}</h2><p>{{ 'Revisa que el repositorio contenga un POM con dependencias o un package-lock v2 o v3 y vuelve a analizarlo desde Inventario.' | t }}</p></section>
       } @else {
         <section class="graph-summary" aria-label="{{ 'Resumen del grafo' | t }}">
-          <article><span>{{ 'Paquetes' | t }}</span><strong>{{ packageCount }}</strong></article>
-          <article><span>{{ 'Directas' | t }}</span><strong>{{ directCount }}</strong></article>
-          <article><span>{{ 'Transitivas' | t }}</span><strong>{{ transitiveCount }}</strong></article>
-          <article><span>{{ 'Relaciones observadas' | t }}</span><strong>{{ edgeCount }}</strong></article>
+          <article><span>{{ 'Paquetes' | t }}</span><strong>{{ packageCount() }}</strong></article>
+          <article><span>{{ 'Directas' | t }}</span><strong>{{ directCount() }}</strong></article>
+          <article><span>{{ 'Transitivas' | t }}</span><strong>{{ transitiveCount() }}</strong></article>
+          <article><span>{{ 'Relaciones observadas' | t }}</span><strong>{{ edgeCount() }}</strong></article>
         </section>
         @if (currentGraph.unresolvedCount > 0) { <p class="graph-warning" role="status">{{ currentGraph.unresolvedCount }} {{ 'declaraciones o relaciones no se pudieron resolver desde los archivos analizados; no se dibujan conexiones supuestas.' | t }}</p> }
+        @if (renderLimited()) { <p class="graph-progress" role="status">{{ layoutMode() === 'NETWORK' ? ('La red muestra como máximo 350 paquetes para que el cálculo se mantenga ágil. Filtra por ecosistema o busca un paquete; la lista conserva el inventario completo.' | t) : ('El mapa visual limita el renderizado a 1.000 nodos para mantener la respuesta ágil. Busca o selecciona un paquete para enfocarlo; la lista conserva el inventario completo.' | t) }}</p> }
 
         <section class="graph-panel" aria-labelledby="visual-graph-heading">
-          <div class="graph-toolbar"><div><h2 id="visual-graph-heading">{{ 'Relaciones del snapshot' | t }}</h2><p>{{ 'Las flechas apuntan desde el proyecto o paquete que declara la dependencia hacia el paquete requerido.' | t }}</p></div>
-            <div class="graph-actions"><button type="button" [attr.aria-label]="'Acercar grafo' | t" (click)="zoomIn()">+</button><button type="button" [attr.aria-label]="'Alejar grafo' | t" (click)="zoomOut()">−</button><button type="button" (click)="fitGraph()">{{ 'Ajustar' | t }}</button></div>
+          <div class="graph-toolbar"><div><h2 id="visual-graph-heading">{{ 'Mapa de dependencias' | t }}</h2><p>{{ layoutMode() === 'NETWORK' ? ('Red libre: los paquetes cercanos tienen relaciones observadas; acerca el zoom para leer etiquetas o busca un paquete.' | t) : ('El recorrido comienza en el proyecto y avanza hacia la derecha: directas primero, transitivas después.' | t) }}</p></div>
+            <div class="toolbar-actions"><div class="layout-switch" role="group" [attr.aria-label]="'Distribución del grafo' | t"><button type="button" [attr.aria-pressed]="layoutMode() === 'LAYERS'" [class.active]="layoutMode() === 'LAYERS'" (click)="setLayoutMode('LAYERS')">{{ 'Por capas' | t }}</button><button type="button" [attr.aria-pressed]="layoutMode() === 'NETWORK'" [class.active]="layoutMode() === 'NETWORK'" (click)="setLayoutMode('NETWORK')">{{ 'Red libre' | t }}</button></div>
+            <div class="graph-actions"><button type="button" [attr.aria-label]="'Acercar grafo' | t" (click)="zoomIn()">+</button><button type="button" [attr.aria-label]="'Alejar grafo' | t" (click)="zoomOut()">−</button><button type="button" (click)="fitGraph()">{{ 'Ajustar' | t }}</button></div></div>
           </div>
-          <div #graphHost class="graph-canvas" role="img" [attr.aria-label]="'Grafo interactivo de dependencias. También puedes recorrer los paquetes en la lista accesible inferior.' | t"></div>
-          <div class="graph-legend" aria-label="{{ 'Leyenda del grafo' | t }}"><span><i class="legend-project"></i>{{ 'Proyecto' | t }}</span><span><i class="legend-direct"></i>{{ 'Dependencia directa · anillo interior' | t }}</span><span><i class="legend-transitive"></i>{{ 'Dependencia transitiva · anillo exterior' | t }}</span><span><i class="legend-edge"></i>{{ 'La flecha termina en el paquete requerido' | t }}</span></div>
-          <p class="graph-reading-guide">{{ 'Selecciona un nodo para consultar versión, archivo y ámbito. Los nombres completos también aparecen en la lista inferior.' | t }}</p>
+          @if (layoutMode() === 'LAYERS') { <div class="layer-guide" aria-label="{{ 'Capas del grafo' | t }}">
+            <span class="layer-step project-step"><b>01</b><span>{{ 'Proyecto raíz' | t }}</span></span><span class="layer-connector" aria-hidden="true">→</span>
+            <span class="layer-step direct-step"><b>02</b><span>{{ 'Dependencias directas' | t }}</span></span><span class="layer-connector" aria-hidden="true">→</span>
+            <span class="layer-step transitive-step"><b>03+</b><span>{{ 'Dependencias transitivas' | t }}</span></span>
+            <span class="layer-hint">{{ 'Cada paquete y versión aparece una sola vez; la búsqueda resalta sus rutas.' | t }}</span>
+          </div> } @else { <div class="network-guide"><span class="network-dot project-dot"></span>{{ 'Proyecto' | t }}<span class="network-dot direct-dot"></span>{{ 'Dependencia directa' | t }}<span class="network-dot transitive-dot"></span>{{ 'Dependencia transitiva' | t }}<span>{{ 'Busca para revelar y centrar una etiqueta.' | t }}</span></div> }
+          <div #graphHost class="graph-canvas" [class.network-mode]="layoutMode() === 'NETWORK'" role="img" [attr.aria-label]="'Grafo interactivo de dependencias. También puedes recorrer los paquetes en la lista accesible inferior.' | t"></div>
+          @if (layoutMode() === 'LAYERS') { <div class="graph-legend" aria-label="{{ 'Leyenda del grafo' | t }}"><span><i class="legend-direct"></i>{{ 'Directa · borde azul' | t }}</span><span><i class="legend-transitive"></i>{{ 'Transitiva · borde cian' | t }}</span><span><i class="legend-edge"></i>{{ 'La flecha señala el paquete requerido' | t }}</span></div> }
+          <p class="graph-reading-guide">{{ 'Cada tarjeta muestra el paquete y su versión. Selecciónalo para ver el nivel, los archivos de origen y qué declara o utiliza.' | t }}</p>
         </section>
 
         <section class="graph-lower-grid">
-          <div class="node-list-panel"><div class="section-title"><h2>{{ 'Paquetes del grafo' | t }}</h2><span>{{ packageNodes.length }}</span></div>
+          <div class="node-list-panel"><div class="section-title"><h2>{{ 'Paquetes del grafo' | t }}</h2><span>{{ packageNodes().length }}</span></div>
             <ul class="node-list">
-              @for (node of packageNodes; track node.id) { <li><button type="button" [class.selected]="selectedNode()?.id === node.id" (click)="selectNode(node.id)" [attr.aria-pressed]="selectedNode()?.id === node.id"><span class="node-type" [class.transitive]="node.dependencyType === 'TRANSITIVE'">{{ node.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t) }}</span><strong>{{ node.label }}</strong><small>{{ node.ecosystem }} · {{ node.scope | t }} · {{ node.manifestPath }}</small></button></li> }
+              @for (node of visiblePackageNodes(); track node.id) { <li><button type="button" [class.selected]="selectedNode()?.id === node.id" (click)="selectNode(node.id)" [attr.aria-pressed]="selectedNode()?.id === node.id"><span class="node-type" [class.transitive]="node.dependencyType === 'TRANSITIVE'">{{ node.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t) }}</span><strong>{{ node.label }}</strong><small>{{ node.ecosystem }} · {{ node.scope | t }} · {{ node.manifestPath }}</small>@if (node.occurrences > 1) { <span class="occurrence-count">{{ node.occurrences }} {{ 'Ubicaciones agrupadas' | t }}</span> }</button></li> }
               @empty { <li class="list-empty">{{ 'No hay paquetes que coincidan con el filtro.' | t }}</li> }
             </ul>
+            @if (hasMorePackages()) { <div class="list-pagination"><span>{{ visiblePackageNodes().length }} / {{ filteredPackageNodes().length }}</span><button type="button" (click)="loadMorePackages()">{{ 'Mostrar más paquetes' | t }}</button></div> }
           </div>
           <aside class="node-detail" aria-live="polite">
             @if (selectedNode(); as selected) {
               <p class="eyebrow">{{ 'DETALLE DEL PAQUETE' | t }}</p><h2>{{ selected.label }}</h2>
-              <dl><dt>{{ 'Ecosistema' | t }}</dt><dd>{{ selected.ecosystem }}</dd><dt>{{ 'Tipo de dependencia' | t }}</dt><dd>{{ selected.dependencyType | t }}</dd><dt>{{ 'Ámbito' | t }}</dt><dd>{{ selected.scope | t }}</dd><dt>{{ 'Declarada en' | t }}</dt><dd><code>{{ selected.manifestPath }}</code></dd></dl>
-              <h3>{{ 'Paquetes conectados' | t }}</h3><ul>@for (node of adjacentNodes; track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }}</button></li> } @empty { <li>{{ 'No se observaron relaciones adicionales para este paquete.' | t }}</li> }</ul>
+              @if (selected.project) { <p class="project-detail-copy">{{ 'Las conexiones muestran las dependencias directas de este proyecto.' | t }}</p> }
+              <dl><dt>{{ 'Ecosistema' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : selected.ecosystem }}</dd><dt>{{ 'Tipo de dependencia' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : (selected.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t)) }}</dd>@if (!selected.project) { <dt>{{ 'Nivel en el mapa' | t }}</dt><dd>{{ selected.level }}</dd><dt>{{ 'Ámbito' | t }}</dt><dd>{{ selected.scope | t }}</dd><dt>{{ 'Archivos de origen' | t }}</dt><dd><code>{{ selected.manifestPath }}</code></dd><dt>{{ 'Ubicaciones agrupadas' | t }}</dt><dd>{{ selected.occurrences }}</dd> }</dl>
+              <h3>{{ 'Declara estas dependencias' | t }}</h3><ul>@for (node of outgoingNodes(); track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }} <small>{{ node.version }}</small></button></li> } @empty { <li>{{ 'No se observaron dependencias salientes.' | t }}</li> }</ul>
+              <h3>{{ 'Es utilizada por' | t }}</h3><ul>@for (node of incomingNodes(); track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }} <small>{{ node.version }}</small></button></li> } @empty { <li>{{ 'No se observaron paquetes que dependan de este nodo.' | t }}</li> }</ul>
             } @else { <p class="eyebrow">{{ 'DETALLE' | t }}</p><h2>{{ 'Selecciona un paquete' | t }}</h2><p>{{ 'Abre un nodo del gráfico o usa la lista accesible para revisar su ruta y procedencia.' | t }}</p> }
           </aside>
         </section>
