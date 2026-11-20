@@ -1,5 +1,9 @@
 # Dependency Intelligence — Stack tecnológico oficial propuesto
 
+### Bloque 45 — grafo inicial
+
+Se reutiliza Cytoscape.js 3.35 ya presente en Angular para navegar nodos/relaciones; no se añade paquete npm. El backend usa Java 21, Application ports/use case y lectura JDBC de PostgreSQL. `package-lock` npm v2/v3 aporta paths instalados y relaciones resolubles; el parser POM existente solo respalda dependencias directas con versión explícita. La tabla `dependency_edges` guarda las aristas observadas del scan. El grafo se consulta con autorización `repository.read`, organiza una fuente por cada último scan completado y deja visibles SHA-256/commit. Los colores del canvas se adaptan a los tokens CSS de tema. Compilación frontend y backend y prueba focal del parser registradas en la [bitácora](BITACORA_TRABAJO.md). Límite pendiente: resolver Maven transitivo sin inferir paquetes.
+
 **Versión:** 1.0  
 
 ### Bloque 44 — evidencia, sincronización de GitHub y favicon

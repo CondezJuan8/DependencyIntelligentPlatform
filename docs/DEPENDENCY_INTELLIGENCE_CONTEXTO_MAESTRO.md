@@ -1,6 +1,10 @@
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 
+### Bloque 45 — grafo de dependencias Maven/npm (20 de noviembre de 2026)
+
+Inventario incorpora una vista navegable de grafo por repositorio, filtro por ecosistema, búsqueda, zoom, detalle de paquete y lista accesible. La API tenant-scoped lee los últimos snapshots completados y las aristas guardadas por scan en `dependency_edges`; la raíz del proyecto es un nodo virtual de presentación. npm reconstruye relaciones alcanzables desde `package-lock` v2/v3 y conserva paths exactos, incluidos paquetes anidados. Maven representa únicamente dependencias explícitas con versión presentes en POM: el enlace proyecto→paquete es evidencia de `DIRECT`; no se afirman transitivas. La fuente, hash, commit y conteo sin resolver quedan visibles. Cytoscape.js ya estaba instalado; no se agregaron paquetes ni migraciones. Build Angular y backend, más la prueba focal del parser npm (1/1), correctos. Se recrearon backend/frontend de Compose sin tocar PostgreSQL/Mailpit; `localhost:8089/?view=dependencies` responde 200 y Spring Boot inició con Flyway V23 al día. La base Compose sigue vacía según el estado operativo, así que falta cargar y reanalizar un repo para revisar nodos reales; para nuevos resultados npm hay que generar aristas con un análisis nuevo. Resolución Maven transitiva, riesgo sobre nodos, visualización de grafos muy grandes y revisión real siguen pendientes. Ver [bitácora](BITACORA_TRABAJO.md), [arquitectura](ARQUITECTURA_BACKEND.md), [diseño](DISENO_FRONTEND.md) y [pendientes](PENDIENTES.md).
+
 ### Bloque 44 — evidencia de código y ciclo de vida del repositorio (20 de noviembre de 2026)
 
 Inventario permite abrir cada aviso y ver su significado, acción sugerida, versiones corregidas publicadas por OSV, referencia oficial y detalle técnico. Para los dos advisories Jackson conocidos, la API revisa de forma acotada los archivos Java/Kotlin/Groovy/Scala del ZIP actual y devuelve archivo, línea, fragmento y motivo de revisión; la respuesta incluye proveedor, commit si existe y SHA-256. Es una pista estática y no determina explotabilidad. La procedencia del manifiesto queda expandida y legible, y la pestaña usa el SVG de marca.
@@ -508,6 +512,8 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 - **RF-046:** mostrar múltiples versiones del mismo paquete.
 
 ## 4.7 Grafo de dependencias
+
+**Estado de entrega — bloque 45:** se implementa el recorrido inicial para repositorios con snapshots Maven/npm completados, con evidencia por scan y sin inferir relaciones. npm usa las referencias declaradas en el lockfile y sus paths instalados; Maven cubre solo las dependencias explícitas resueltas con versión en POM. El modelo de `dependency_edges` enlaza ocurrencias del mismo scan. La interfaz muestra los nodos raíz por separado (virtuales), dependencias directas/transitivas según el parser, filtros, búsqueda, detalle, procedencia y alternativa textual navegable. Riesgo en nodos y rutas de impacto aún no están integrados. No reemplaza todos los RF-047–052.
 
 - **RF-047:** visualizar relaciones de dependencias.
 - **RF-048:** mostrar nodos de repositorios.

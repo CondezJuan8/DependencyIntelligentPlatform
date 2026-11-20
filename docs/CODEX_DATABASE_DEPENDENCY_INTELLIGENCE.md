@@ -660,6 +660,8 @@ todas las rutas posibles en una tabla salvo necesidad demostrada. -
 `bom_ref` es una referencia dentro de un SBOM, no necesariamente un PURL
 ni un ID global.
 
+**Uso implementado en el bloque 45 (sin cambios de esquema):** las aristas npm se guardan en la tabla existente `dependency_edges`, enlazando los `scan_components` de origen y destino que tienen el mismo `scan_id`; `relationship_type` se registra como `depends_on`. `bom_ref` conserva el path del paquete instalado en `package-lock` para resolver cada extremo de forma exacta, incluso con versiones duplicadas/anidadas. El nodo proyecto no se inserta en `scan_components`; la API lo proyecta virtualmente y enlaza con las ocurrencias clasificadas `DIRECT`. Para Maven solo se crean esos enlaces a dependencias explícitas del POM. Una nueva ejecución npm es necesaria para producir aristas en los scans anteriores a este cambio. No se añadieron tablas, columnas, migraciones, diagramas físicos ni índices.
+
 ### 3.7 Vulnerability Intelligence
 
   -------------------------------------------------------------------------------

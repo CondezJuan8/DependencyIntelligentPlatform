@@ -1,5 +1,11 @@
 # Arquitectura del backend
 
+## Bloque 45 — consulta tenant-scoped del grafo
+
+Application agrega `GetRepositoryDependencyGraph` y su puerto `RepositoryDependencyGraphReader`, con DTO inmutable para fuentes, nodos y aristas. Infrastructure implementa una lectura JDBC con la organización establecida por `TenantTransactions`, consulta los últimos scans completados de `maven-manifest` y `npm-lockfile`, construye nodos de ocurrencias y lee `dependency_edges` del mismo scan. La raíz virtual y sus enlaces a ocurrencias `DIRECT` se construyen en la proyección de lectura; no se persiste como paquete ficticio. El controlador REST aplica `repository.read` antes del caso de uso. No hay dependencia del framework en Application ni cambios al esquema.
+
+`JdbcMavenAnalysisAdapter` traduce paths npm del lockfile a `scan_components` y persiste sus relaciones como `depends_on`. Maven continúa registrando las declaraciones directas que el parser reconoce; las transitivas solo estarán disponibles al implementar una resolución Maven verificable. Endpoint: `GET /api/organizations/{organizationId}/repositories/{repositoryId}/dependency-graph`.
+
 ## Bloque 44 — evidencia estática de código y repositorios
 
 Application incorpora `FindRepositoryVulnerabilityEvidenceUseCase` detrás de `FindRepositoryVulnerabilityEvidence` y `RepositoryCodeArchive`. El caso de uso lee el ZIP como stream sin extraerlo, acepta Java/Kotlin/Groovy/Scala y limita la entrada expandida a 128 MiB, 10.000 entradas, 1 MiB por archivo y ocho coincidencias. Para dos IDs GHSA conocidos busca patrones del aviso y devuelve ruta, línea, extracto y motivo, con hash SHA-256/commit/proveedor del snapshot. No sigue datos entre métodos o archivos y sus resultados son pistas de revisión, nunca un veredicto de explotación. El controlador comprueba `repository.read` en contexto tenant antes de solicitar/leer el snapshot. No se persiste código ni se añade migración.
