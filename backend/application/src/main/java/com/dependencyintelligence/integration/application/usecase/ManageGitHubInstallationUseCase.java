@@ -3,6 +3,7 @@ package com.dependencyintelligence.integration.application.usecase;
 import com.dependencyintelligence.integration.application.dto.GitHubModels.*;
 import com.dependencyintelligence.integration.application.port.in.ManageGitHubInstallation;
 import com.dependencyintelligence.integration.application.port.out.GitHubAppGateway;
+import com.dependencyintelligence.integration.application.exception.GitHubInstallationRevokedException;
 import com.dependencyintelligence.integration.application.port.out.GitHubInstallationStateStore;
 import com.dependencyintelligence.integration.application.port.out.GitHubInstallationStateStore.Pending;
 import com.dependencyintelligence.integration.application.port.out.GitHubInstallationStore;
@@ -87,9 +88,20 @@ public final class ManageGitHubInstallationUseCase implements ManageGitHubInstal
     }
 
     @Override public Workspace workspace(UUID organization, UUID user) {
-        var items = installations.connected(organization, user).stream().map(installation -> new Installation(
-            installation.id(), installation.accountLogin(), installation.accountType(), app.repositories(installation.id()))).toList();
-        return new Workspace(items, installations.importedRepositoryIds(organization, user));
+        var items = new java.util.ArrayList<Installation>();
+        int unavailable = 0;
+        int revoked = 0;
+        for (var installation : installations.connected(organization, user)) {
+            try {
+                var liveRepositories = app.repositories(installation.id());
+                unavailable += installations.synchronizeRepositories(organization, user, installation.id(), liveRepositories);
+                items.add(new Installation(installation.id(), installation.accountLogin(), installation.accountType(), liveRepositories));
+            } catch (GitHubInstallationRevokedException removed) {
+                unavailable += installations.revokeInstallation(organization, user, installation.id());
+                revoked++;
+            }
+        }
+        return new Workspace(items, installations.importedRepositoryIds(organization, user), unavailable, revoked);
     }
 
     @Override public ImportResult importRepositories(UUID organization, UUID user, List<String> selectedIds) {

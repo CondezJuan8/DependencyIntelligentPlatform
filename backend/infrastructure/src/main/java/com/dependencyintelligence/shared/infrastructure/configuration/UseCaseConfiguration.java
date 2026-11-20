@@ -5,11 +5,16 @@ import com.dependencyintelligence.repository.application.port.in.FindRepository;
 import com.dependencyintelligence.repository.application.port.in.RegisterRepository;
 import com.dependencyintelligence.repository.application.port.in.ImportLocalFolder;
 import com.dependencyintelligence.repository.application.port.in.ListLocalRepositories;
+import com.dependencyintelligence.repository.application.port.in.DeleteRepository;
+import com.dependencyintelligence.repository.application.port.in.FindRepositoryVulnerabilityEvidence;
+import com.dependencyintelligence.repository.application.port.out.RepositoryCodeArchive;
 import com.dependencyintelligence.repository.application.port.out.RepositoryStore;
 import com.dependencyintelligence.repository.application.port.out.LocalRepositorySourceStore;
 import com.dependencyintelligence.repository.application.usecase.FindRepositoryUseCase;
 import com.dependencyintelligence.repository.application.usecase.ImportLocalFolderUseCase;
 import com.dependencyintelligence.repository.application.usecase.ListLocalRepositoriesUseCase;
+import com.dependencyintelligence.repository.application.usecase.DeleteRepositoryUseCase;
+import com.dependencyintelligence.repository.application.usecase.FindRepositoryVulnerabilityEvidenceUseCase;
 import com.dependencyintelligence.repository.application.usecase.RegisterRepositoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
@@ -63,6 +68,15 @@ public class UseCaseConfiguration {
     @Bean FindRepository findRepository(RepositoryStore repositories, TenantTransactions transactions) {
         var useCase = new FindRepositoryUseCase(repositories);
         return (organizationId, repositoryId) -> transactions.execute(organizationId, () -> useCase.execute(organizationId, repositoryId));
+    }
+
+    @Bean DeleteRepository deleteRepository(RepositoryStore repositories, LocalRepositorySourceStore sources, TenantTransactions transactions) {
+        var useCase = new DeleteRepositoryUseCase(repositories, sources);
+        return (organizationId, repositoryId) -> transactions.execute(organizationId, () -> { useCase.execute(organizationId, repositoryId); return null; });
+    }
+
+    @Bean FindRepositoryVulnerabilityEvidence findRepositoryVulnerabilityEvidence(RepositoryCodeArchive archives) {
+        return new FindRepositoryVulnerabilityEvidenceUseCase(archives);
     }
 
     @Bean RequestScan requestScan(RepositoryStore repositories, ScanStore scans,

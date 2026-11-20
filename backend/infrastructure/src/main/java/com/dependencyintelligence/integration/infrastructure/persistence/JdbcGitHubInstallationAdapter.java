@@ -60,7 +60,7 @@ public class JdbcGitHubInstallationAdapter implements GitHubInstallationStore {
     @Override public List<String> importedRepositoryIds(UUID organization, UUID user) {
         return tenants.execute(organization, () -> {
             authorization.check(user, organization, null, "repository.manage");
-            return jdbc.queryForList("select external_id from repositories where organization_id=? and provider='github' order by full_name", String.class, organization);
+            return jdbc.queryForList("select external_id from repositories where organization_id=? and provider='github' and is_enabled order by full_name", String.class, organization);
         });
     }
 
@@ -82,7 +82,7 @@ public class JdbcGitHubInstallationAdapter implements GitHubInstallationStore {
                       integration_id=excluded.integration_id, full_name=excluded.full_name,
                       default_branch=excluded.default_branch, html_url=excluded.html_url,
                       visibility=excluded.visibility, is_archived=excluded.is_archived,
-                      last_synced_at=excluded.last_synced_at
+                      last_synced_at=excluded.last_synced_at, is_enabled=true
                     """, UUID.randomUUID(), organization, integration, repository.externalId(), repository.fullName(),
                     repository.defaultBranch().isBlank() ? "main" : repository.defaultBranch(), repository.htmlUrl(),
                     repository.visibility(), repository.archived(), Timestamp.from(clock.instant()));
@@ -90,6 +90,41 @@ public class JdbcGitHubInstallationAdapter implements GitHubInstallationStore {
             }
             }
             return inserted;
+        });
+    }
+
+    @Override public int synchronizeRepositories(UUID organization, UUID user, long installationId, List<Candidate> repositories) {
+        return tenants.execute(organization, () -> {
+            authorization.check(user, organization, null, "repository.manage");
+            UUID integration = jdbc.query("select integration_id from github_installations where organization_id=? and installation_external_id=?",
+                (row,index)->row.getObject(1,UUID.class),organization,installationId).stream().findFirst()
+                .orElseThrow(()->new IllegalStateException("GitHub installation is no longer connected."));
+            var ids = repositories.stream().map(Candidate::externalId).distinct().toList();
+            String sql = "update repositories set is_enabled=false where organization_id=? and integration_id=? and provider='github' and is_enabled";
+            Object[] args;
+            if (ids.isEmpty()) args = new Object[]{organization,integration};
+            else {
+                sql += " and external_id not in (" + String.join(",", java.util.Collections.nCopies(ids.size(), "?")) + ")";
+                var values = new java.util.ArrayList<Object>(); values.add(organization); values.add(integration); values.addAll(ids); args=values.toArray();
+            }
+            int disabled = jdbc.update(sql,args);
+            for (Candidate repository : repositories) jdbc.update("""
+                update repositories set full_name=?, default_branch=?, html_url=?, visibility=?, is_archived=?, last_synced_at=?
+                 where organization_id=? and integration_id=? and provider='github' and external_id=? and is_enabled
+                """,repository.fullName(),repository.defaultBranch(),repository.htmlUrl(),repository.visibility(),repository.archived(),
+                Timestamp.from(clock.instant()),organization,integration,repository.externalId());
+            return disabled;
+        });
+    }
+
+    @Override public int revokeInstallation(UUID organization, UUID user, long installationId) {
+        return tenants.execute(organization, () -> {
+            authorization.check(user, organization, null, "repository.manage");
+            UUID integration = jdbc.query("select integration_id from github_installations where organization_id=? and installation_external_id=?",
+                (row,index)->row.getObject(1,UUID.class),organization,installationId).stream().findFirst()
+                .orElseThrow(()->new IllegalStateException("GitHub installation is no longer connected."));
+            jdbc.update("update integrations set status='REVOKED', disconnected_at=clock_timestamp() where organization_id=? and id=? and status<>'REVOKED'",organization,integration);
+            return jdbc.update("update repositories set is_enabled=false where organization_id=? and integration_id=? and provider='github' and is_enabled",organization,integration);
         });
     }
 }

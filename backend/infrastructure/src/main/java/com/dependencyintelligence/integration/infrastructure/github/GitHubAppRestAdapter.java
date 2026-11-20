@@ -2,6 +2,7 @@ package com.dependencyintelligence.integration.infrastructure.github;
 
 import com.dependencyintelligence.integration.application.dto.GitHubModels.Candidate;
 import com.dependencyintelligence.integration.application.port.out.GitHubAppGateway;
+import com.dependencyintelligence.integration.application.exception.GitHubInstallationRevokedException;
 import com.dependencyintelligence.integration.infrastructure.configuration.GitHubAppProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -105,6 +107,9 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
             String kind = "Organization".equalsIgnoreCase(result.account().type()) ? "ORGANIZATION" : "User".equalsIgnoreCase(result.account().type()) ? "USER" : "";
             if (kind.isEmpty()) throw new IllegalArgumentException("GitHub account type is not supported.");
             return new InstallationInfo(result.id(), result.account().login(), kind);
+        } catch (RestClientResponseException exception) {
+            if (exception.getStatusCode() == HttpStatus.NOT_FOUND) throw new GitHubInstallationRevokedException();
+            throw upstreamFailure(exception);
         } catch (RestClientException exception) {
             throw upstreamFailure(exception);
         }
@@ -208,6 +213,9 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
                 .body(Map.of()).retrieve().body(InstallationToken.class);
             if (token == null || token.token() == null || token.token().isBlank()) throw upstreamFailure(null);
             return token.token();
+        } catch (RestClientResponseException exception) {
+            if (exception.getStatusCode() == HttpStatus.NOT_FOUND) throw new GitHubInstallationRevokedException();
+            throw upstreamFailure(exception);
         } catch (RestClientException exception) { throw upstreamFailure(exception); }
     }
 

@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface LocalRepositorySourceStore {
     StoredSource store(UUID organizationId, UUID repositoryId, UUID uploadedByUser, List<ProjectFile> files);
     List<LocalRepositorySummary> list(UUID organizationId);
+    default void remove(UUID organizationId, UUID repositoryId) { }
 
     record StoredSource(int fileCount, long sizeBytes) { }
 }

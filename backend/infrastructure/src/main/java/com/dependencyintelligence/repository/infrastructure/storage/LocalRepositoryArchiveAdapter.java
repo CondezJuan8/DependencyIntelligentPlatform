@@ -72,4 +72,16 @@ public class LocalRepositoryArchiveAdapter implements LocalRepositorySourceStore
             """, (row, index) -> new LocalRepositorySummary(row.getObject(1, UUID.class), row.getString(2),
                 row.getInt(3), row.getLong(4), row.getTimestamp(5).toInstant()), organizationId);
     }
+
+    @Override public void remove(UUID organizationId, UUID repositoryId) {
+        var keys = jdbc.queryForList("select storage_key from local_repository_sources where organization_id=? and repository_id=?", String.class, organizationId, repositoryId);
+        jdbc.update("delete from local_repository_sources where organization_id=? and repository_id=?", organizationId, repositoryId);
+        for (String key : keys) {
+            if (key == null || !key.matches("[0-9a-f-]{36}/[0-9a-f-]{36}\\.zip")) continue;
+            Path archive = root.resolve(key).normalize();
+            if (!archive.startsWith(root)) throw new IllegalStateException("Invalid private repository storage key.");
+            try { Files.deleteIfExists(archive); }
+            catch (Exception failure) { throw new IllegalStateException("No se pudo eliminar el ZIP privado del repositorio.", failure); }
+        }
+    }
 }

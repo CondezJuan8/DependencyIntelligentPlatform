@@ -10,7 +10,8 @@ public final class GitHubModels {
     public record Installation(long id, String accountLogin, String accountType, List<Candidate> repositories) {
         public Installation { repositories = List.copyOf(repositories); }
     }
-    public record Workspace(List<Installation> installations, List<String> importedRepositoryIds) {
+    public record Workspace(List<Installation> installations, List<String> importedRepositoryIds,
+                            int unavailableRepositoryCount, int revokedInstallationCount) {
         public Workspace { installations = List.copyOf(installations); importedRepositoryIds = List.copyOf(importedRepositoryIds); }
     }
     public record ImportResult(int importedCount) { }

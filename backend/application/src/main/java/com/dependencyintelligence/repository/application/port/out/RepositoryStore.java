@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface RepositoryStore {
     Repository add(Repository repository);
     Optional<Repository> find(OrganizationId organizationId, RepositoryId repositoryId);
+    default boolean disable(OrganizationId organizationId, RepositoryId repositoryId) { throw new UnsupportedOperationException("Repository removal is not implemented."); }
 }

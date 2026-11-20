@@ -4,11 +4,12 @@ import { finalize } from 'rxjs';
 import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
 import { DiIcon } from '../../shared/di-icon';
 import { TranslatePipe } from '../../core/translate.pipe';
+import { PreferencesService } from '../../core/preferences.service';
 
 interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; defaultBranch: string; source: string; }
 interface Candidate { externalId: string; fullName: string; defaultBranch: string; htmlUrl: string; visibility: string; archived: boolean; }
 interface Installation { id: number; accountLogin: string; accountType: 'USER' | 'ORGANIZATION'; repositories: Candidate[]; }
-interface Workspace { installations: Installation[]; importedRepositoryIds: string[]; }
+interface Workspace { installations: Installation[]; importedRepositoryIds: string[]; unavailableRepositoryCount: number; revokedInstallationCount: number; }
 interface GitHubSetupStatus { configured: boolean; canManage: boolean; detail: string; }
 interface LocalRepository { id: string; name: string; fileCount: number; sizeBytes: number; uploadedAt: string; }
 interface LocalFolderImportResult { id: string; name: string; fileCount: number; sizeBytes: number; }
@@ -17,6 +18,7 @@ interface LocalFolderImportResult { id: string; name: string; fileCount: number;
 })
 export class RepositoryWorkspace implements OnInit {
   readonly api = inject(SessionApiService);
+  private readonly preferences = inject(PreferencesService);
   readonly organizations = signal<Organization[]>([]);
   readonly organizationId = signal('');
   readonly githubStatus = signal<GitHubSetupStatus | null>(null);
@@ -243,7 +245,33 @@ export class RepositoryWorkspace implements OnInit {
   private applyWorkspace(data: Workspace): void {
     const imported = new Set(data.importedRepositoryIds);
     this.installations.set(data.installations); this.importedIds.set(imported);
+    if (data.unavailableRepositoryCount || data.revokedInstallationCount) {
+      this.message.set('GitHub se sincronizó. Los repositorios sin autorización ya no están disponibles; se conserva su historial.');
+    }
     this.loadAccessibleRepositories();
+  }
+
+  deleteRepository(repositoryId: string, source: string, name: string): void {
+    const organizationId = this.organizationId();
+    if (!organizationId || this.pending() || !this.githubStatus()?.canManage) return;
+    const confirmation = `${this.preferences.text(source === 'local'
+      ? '¿Eliminar este repositorio local? Se borrará su ZIP privado; el historial de análisis se conserva.'
+      : '¿Eliminar este repositorio del espacio? Su acceso local se deshabilitará; GitHub no borrará el repositorio remoto.')}\n\n${name}`;
+    if (!window.confirm(confirmation)) return;
+    this.pending.set(true); this.error.set(''); this.message.set('Eliminando repositorio del espacio…');
+    this.api.delete<void>(`/api/organizations/${organizationId}/repositories/${repositoryId}`)
+      .pipe(finalize(()=>this.pending.set(false)))
+      .subscribe({
+        next: () => {
+          this.repositories.update(items=>items.filter(item=>item.id!==repositoryId));
+          this.localRepositories.update(items=>items.filter(item=>item.id!==repositoryId));
+          this.importedIds.update(items=>{const next=new Set(items);next.delete(repositoryId);return next;});
+          this.message.set('Repositorio eliminado del espacio; su historial quedó conservado.');
+          if (source==='local') this.loadLocalRepositories(organizationId); else this.loadWorkspace();
+          this.loadAccessibleRepositories();
+        },
+        error: failure => { this.message.set(''); this.error.set(accessError(failure)); },
+      });
   }
 
   private loadAccessibleRepositories(): void {

@@ -44,4 +44,11 @@ public class JpaRepositoryAdapter implements RepositoryStore {
             return results.findFirst().map(RepositoryEntity::toDomain);
         }
     }
+
+    @Override
+    @Transactional
+    public boolean disable(OrganizationId organizationId, RepositoryId repositoryId) {
+        return entityManager.createNativeQuery("update repositories set is_enabled=false where organization_id=:organizationId and id=:id and is_enabled=true")
+            .setParameter("organizationId", organizationId.value()).setParameter("id", repositoryId.value()).executeUpdate() == 1;
+    }
 }

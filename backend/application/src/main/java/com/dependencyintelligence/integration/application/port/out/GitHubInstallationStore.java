@@ -10,4 +10,6 @@ public interface GitHubInstallationStore {
     List<GitHubAppGateway.InstallationInfo> connected(UUID organizationId, UUID userId);
     List<String> importedRepositoryIds(UUID organizationId, UUID userId);
     int importRepositories(UUID organizationId, UUID userId, Map<Long, List<Candidate>> repositories);
+    int synchronizeRepositories(UUID organizationId, UUID userId, long installationId, List<Candidate> repositories);
+    int revokeInstallation(UUID organizationId, UUID userId, long installationId);
 }

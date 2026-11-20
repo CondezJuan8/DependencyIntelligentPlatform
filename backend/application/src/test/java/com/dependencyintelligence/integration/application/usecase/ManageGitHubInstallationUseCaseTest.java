@@ -101,5 +101,7 @@ class ManageGitHubInstallationUseCaseTest {
         @Override public List<GitHubAppGateway.InstallationInfo> connected(UUID org, UUID actor) { return List.copyOf(connected); }
         @Override public List<String> importedRepositoryIds(UUID org, UUID actor) { return List.of(); }
         @Override public int importRepositories(UUID org, UUID actor, Map<Long, List<Candidate>> repositories) { return repositories.values().stream().mapToInt(List::size).sum(); }
+        @Override public int synchronizeRepositories(UUID org, UUID actor, long installationId, List<Candidate> repositories) { return 0; }
+        @Override public int revokeInstallation(UUID org, UUID actor, long installationId) { return 0; }
     }
 }
