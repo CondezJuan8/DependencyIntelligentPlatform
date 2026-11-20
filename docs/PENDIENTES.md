@@ -1,10 +1,10 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 53.
+Actualizado: 20 de noviembre de 2026, bloque 54.
 
-**Bloque 53 implementado, revisión pendiente:** el grafo estilo Obsidian conserva posiciones, destaca vecinos al pasar el cursor/seleccionar y escala nodos por conectividad; el bloque 52 previo añadió filtros de riesgo en inventario y mejoras de lectura. Falta revisar el resultado con Omega y bot de WhatsApp, especialmente repositorios de más de 200 dependencias, tema claro/oscuro y móvil/escritorio. Ver [bitácora](BITACORA_TRABAJO.md).
+**Bloque 54 implementado, revisión de UI pendiente:** el grafo ya ofrece vista general/local, profundidad y dirección, búsqueda centrada, filtros combinables por ecosistema/módulo/tipo/ámbito, grupos por namespace y contador de nodos/aristas observadas. No se crean aristas que atraviesen dependencias ocultas. El DTO del grafo todavía no incluye severidad de vulnerabilidad. Con datos reales se midió `OMEGA-main` (277 paquetes; 492 relaciones de paquete) y `Bot-de-Whatsapp-plantilla--main` (284 paquetes consolidados; 411 relaciones de paquete); el layout Cytoscape headless tomó 297 ms y 306 ms. El caso de seis paquetes fue solo un fixture derivado de OMEGA, porque no existe un repo de ese tamaño en la base activa. Falta recorrido visual en navegador; la sesión CUA no pudo verificar la URL de Chrome. Ver [bitácora](BITACORA_TRABAJO.md).
 
-**Próxima comprobación prioritaria:** revisión interactiva del bloque 53 con esos dos repositorios, tema claro/oscuro y móvil/escritorio. Confirmar también que el equipo elegido tiene «Consultar repositorio» sobre el repositorio autorizado. El build Angular pasó; falta revisión visual interactiva y pruebas conductuales con datos reales.
+**Próxima comprobación prioritaria:** recorrido interactivo del bloque 54 con los dos repositorios reales y un repositorio independiente de seis paquetes cuando esté disponible; revisar búsqueda, filtros, vista local, zoom, ajuste, tema y tamaños móvil/escritorio. El build actualizado está servido en `localhost:8089` (página y chunk del grafo HTTP 200); no se hizo una prueba visual ni de bloqueo de interfaz en esta sesión.
 
 Actualizado: 20 de noviembre de 2026, bloque 51 (mapa de dependencias por capas).
 
