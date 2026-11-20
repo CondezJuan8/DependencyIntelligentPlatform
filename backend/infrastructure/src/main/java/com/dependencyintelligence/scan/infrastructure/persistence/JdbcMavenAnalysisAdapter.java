@@ -1,28 +1,134 @@
 package com.dependencyintelligence.scan.infrastructure.persistence;
 
-import com.dependencyintelligence.scan.application.dto.*;
+import com.dependencyintelligence.component.domain.PackageCoordinates;
+import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
+import com.dependencyintelligence.scan.application.dto.ManifestDependency;
+import com.dependencyintelligence.scan.application.dto.ManifestDependencyEdge;
+import com.dependencyintelligence.scan.application.dto.MavenInventory;
 import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
 import java.sql.Timestamp;
-import java.util.*;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
-  private final JdbcTemplate jdbc; private final TenantTransactions tenants;
-  public JdbcMavenAnalysisAdapter(JdbcTemplate jdbc, TenantTransactions tenants){this.jdbc=jdbc;this.tenants=tenants;}
-  public MavenInventory save(String scannerName,UUID scan,UUID org,UUID repo,String provider,String sha,String commit,java.time.Instant at,ManifestAnalysis data){
-    return tenants.execute(org,()->{
-      jdbc.update("""
-        insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
-          origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count)
-        values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,'1','MANUAL',?,?,?)
-        """,scan,org,repo,commit,Timestamp.from(at),Timestamp.from(at),Timestamp.from(at),"local".equals(provider)?"LOCAL_UPLOAD_SCAN":"REPOSITORY_SCAN",scannerName,sha,data.manifestCount(),data.unresolvedCount());
-      if(commit!=null){jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",org,repo,commit);jdbc.update("update scans set repository_commit_id=(select id from repository_commits where organization_id=? and repository_id=? and commit_sha=?) where organization_id=? and id=?",org,repo,commit,org,scan);}
-      for(var d:data.dependencies()){var c=d.coordinates();UUID eco=jdbc.queryForObject("select id from package_ecosystems where code=?",UUID.class,c.ecosystem());UUID pkg=jdbc.queryForObject("insert into components(organization_id,package_ecosystem_id,namespace,name) values(?,?,?,?) on conflict on constraint uq_component_identity do update set id=components.id returning id",UUID.class,org,eco,c.namespace(),c.name());UUID ver=jdbc.queryForObject("insert into component_versions(organization_id,component_id,version) values(?,?,?) on conflict(organization_id,component_id,version) do update set id=component_versions.id returning id",UUID.class,org,pkg,c.version());jdbc.update("insert into component_identifiers(organization_id,component_version_id,identifier_type,value) values(?,?,'PURL',?) on conflict do nothing",org,ver,c.purl());String ref=d.manifestPath()+"#"+c.namespace()+":"+c.name()+":"+c.version();jdbc.update("insert into scan_components(organization_id,scan_id,bom_ref,component_version_id,dependency_type,dependency_scope_id) values(?,?,?,?,?,(select id from dependency_scopes where code=?)) on conflict do nothing",org,scan,ref,ver,d.dependencyType(),d.scope());}
-      return latest0(scannerName,org,repo).orElseThrow();});
-  }
-  public Optional<MavenInventory> latest(String scannerName,UUID org,UUID repo){return tenants.execute(org,()->latest0(scannerName,org,repo));}
-  private Optional<MavenInventory> latest0(String scannerName,UUID org,UUID repo){var rows=jdbc.query("select id,origin,source_sha256,git_reference,finished_at,manifest_count,unresolved_count from scans where organization_id=? and repository_id=? and scanner_name=? and status='COMPLETED' order by finished_at desc limit 1",(r,n)->new Object[]{r.getObject(1,UUID.class),r.getString(2),r.getString(3),r.getString(4),r.getTimestamp(5).toInstant(),r.getInt(6),r.getInt(7)},org,repo,scannerName);if(rows.isEmpty())return Optional.empty();Object[] s=rows.getFirst();UUID scan=(UUID)s[0];var deps=jdbc.query("select sc.bom_ref,pe.code,c.namespace,c.name,cv.version,ds.code,sc.dependency_type from scan_components sc join component_versions cv on cv.organization_id=sc.organization_id and cv.id=sc.component_version_id join components c on c.organization_id=cv.organization_id and c.id=cv.component_id join package_ecosystems pe on pe.id=c.package_ecosystem_id join dependency_scopes ds on ds.id=sc.dependency_scope_id where sc.organization_id=? and sc.scan_id=? order by c.name",(r,n)->{String ref=r.getString(1);int i=ref.indexOf('#');String eco=r.getString(2),ns=r.getString(3),name=r.getString(4),version=r.getString(5);String purl="npm".equals(eco)?"pkg:npm/"+name+"@"+version:"pkg:maven/"+ns+"/"+name+"@"+version;return new ManifestDependency(i<0?"package-lock.json":ref.substring(0,i),new com.dependencyintelligence.component.domain.PackageCoordinates(eco,ns,name,version,purl),r.getString(6),r.getString(7));},org,scan);return Optional.of(new MavenInventory(scan,"LOCAL_UPLOAD_SCAN".equals(s[1])?"local":"github",(String)s[2],(String)s[3],(java.time.Instant)s[4],(int)s[5],(int)s[6],deps));}
+    private final JdbcTemplate jdbc;
+    private final TenantTransactions tenants;
+
+    public JdbcMavenAnalysisAdapter(JdbcTemplate jdbc, TenantTransactions tenants) {
+        this.jdbc = jdbc;
+        this.tenants = tenants;
+    }
+
+    @Override public MavenInventory save(String scannerName, UUID scanId, UUID organizationId, UUID repositoryId,
+            String provider, String sourceSha256, String commitSha, Instant analyzedAt, ManifestAnalysis analysis) {
+        return tenants.execute(organizationId, () -> {
+            jdbc.update("""
+                insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
+                  origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count)
+                values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,'1','MANUAL',?,?,?)
+                """, scanId, organizationId, repositoryId, commitSha, Timestamp.from(analyzedAt), Timestamp.from(analyzedAt),
+                Timestamp.from(analyzedAt), "local".equals(provider) ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN", scannerName,
+                sourceSha256, analysis.manifestCount(), analysis.unresolvedCount());
+            if (commitSha != null) {
+                jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
+                    organizationId, repositoryId, commitSha);
+                jdbc.update("update scans set repository_commit_id=(select id from repository_commits where organization_id=? and repository_id=? and commit_sha=?) where organization_id=? and id=?",
+                    organizationId, repositoryId, commitSha, organizationId, scanId);
+            }
+
+            Map<String, UUID> occurrences = new HashMap<>();
+            Map<String, String> refsByPath = new HashMap<>();
+            for (ManifestDependency dependency : analysis.dependencies()) {
+                PackageCoordinates coordinates = dependency.coordinates();
+                UUID ecosystemId = jdbc.queryForObject("select id from package_ecosystems where code=?", UUID.class, coordinates.ecosystem());
+                UUID componentId = jdbc.queryForObject("""
+                    insert into components(organization_id,package_ecosystem_id,namespace,name) values(?,?,?,?)
+                    on conflict on constraint uq_component_identity do update set id=components.id returning id
+                    """, UUID.class, organizationId, ecosystemId, coordinates.namespace(), coordinates.name());
+                UUID versionId = jdbc.queryForObject("""
+                    insert into component_versions(organization_id,component_id,version) values(?,?,?)
+                    on conflict(organization_id,component_id,version) do update set id=component_versions.id returning id
+                    """, UUID.class, organizationId, componentId, coordinates.version());
+                jdbc.update("insert into component_identifiers(organization_id,component_version_id,identifier_type,value) values(?,?,'PURL',?) on conflict do nothing",
+                    organizationId, versionId, coordinates.purl());
+                String bomRef = bomRef(dependency);
+                jdbc.update("""
+                    insert into scan_components(organization_id,scan_id,bom_ref,component_version_id,dependency_type,dependency_scope_id)
+                    values(?,?,?,?,?,(select id from dependency_scopes where code=?)) on conflict do nothing
+                    """, organizationId, scanId, bomRef, versionId, dependency.dependencyType(), dependency.scope());
+                UUID scanComponentId = jdbc.queryForObject("select id from scan_components where organization_id=? and scan_id=? and bom_ref=?",
+                    UUID.class, organizationId, scanId, bomRef);
+                occurrences.put(bomRef, scanComponentId);
+                refsByPath.put(dependency.manifestPath(), bomRef);
+            }
+
+            UUID relationTypeId = null;
+            if (!analysis.edges().isEmpty()) {
+                relationTypeId = jdbc.queryForObject("select id from dependency_relationship_types where code='depends_on'", UUID.class);
+            }
+            for (ManifestDependencyEdge edge : analysis.edges()) {
+                String sourceRef = refsByPath.get(edge.parentManifestPath());
+                String targetRef = refsByPath.get(edge.childManifestPath());
+                UUID sourceId = sourceRef == null ? null : occurrences.get(sourceRef);
+                UUID targetId = targetRef == null ? null : occurrences.get(targetRef);
+                if (sourceId == null || targetId == null || sourceId.equals(targetId)) continue;
+                jdbc.update("""
+                    insert into dependency_edges(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id)
+                    values(?,?,?,?,?) on conflict(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id) do nothing
+                    """, organizationId, scanId, sourceId, targetId, relationTypeId);
+            }
+            return latest0(scannerName, organizationId, repositoryId).orElseThrow();
+        });
+    }
+
+    @Override public Optional<MavenInventory> latest(String scannerName, UUID organizationId, UUID repositoryId) {
+        return tenants.execute(organizationId, () -> latest0(scannerName, organizationId, repositoryId));
+    }
+
+    private Optional<MavenInventory> latest0(String scannerName, UUID organizationId, UUID repositoryId) {
+        var scans = jdbc.query("""
+            select id,origin,source_sha256,git_reference,finished_at,manifest_count,unresolved_count
+            from scans where organization_id=? and repository_id=? and scanner_name=? and status='COMPLETED'
+            order by finished_at desc limit 1
+            """, (row, index) -> new ScanRow(row.getObject(1, UUID.class), row.getString(2), row.getString(3),
+                row.getString(4), row.getTimestamp(5).toInstant(), row.getInt(6), row.getInt(7)),
+            organizationId, repositoryId, scannerName);
+        if (scans.isEmpty()) return Optional.empty();
+        ScanRow scan = scans.getFirst();
+        var dependencies = jdbc.query("""
+            select sc.bom_ref,pe.code,c.namespace,c.name,cv.version,ds.code,sc.dependency_type
+            from scan_components sc
+            join component_versions cv on cv.organization_id=sc.organization_id and cv.id=sc.component_version_id
+            join components c on c.organization_id=cv.organization_id and c.id=cv.component_id
+            join package_ecosystems pe on pe.id=c.package_ecosystem_id
+            join dependency_scopes ds on ds.id=sc.dependency_scope_id
+            where sc.organization_id=? and sc.scan_id=? order by c.name
+            """, (row, index) -> {
+                String ref = row.getString(1);
+                int marker = ref.indexOf('#');
+                String ecosystem = row.getString(2), namespace = row.getString(3), name = row.getString(4), version = row.getString(5);
+                String purl = "npm".equals(ecosystem) ? "pkg:npm/" + name + "@" + version
+                    : "pkg:maven/" + namespace + "/" + name + "@" + version;
+                return new ManifestDependency(marker < 0 ? "package-lock.json" : ref.substring(0, marker),
+                    new PackageCoordinates(ecosystem, namespace, name, version, purl), row.getString(6), row.getString(7));
+            }, organizationId, scan.id());
+        return Optional.of(new MavenInventory(scan.id(), "LOCAL_UPLOAD_SCAN".equals(scan.origin()) ? "local" : "github",
+            scan.sourceSha256(), scan.commitSha(), scan.analyzedAt(), scan.manifestCount(), scan.unresolvedCount(), dependencies));
+    }
+
+    private static String bomRef(ManifestDependency dependency) {
+        PackageCoordinates coordinates = dependency.coordinates();
+        return dependency.manifestPath() + "#" + coordinates.namespace() + ":" + coordinates.name() + ":" + coordinates.version();
+    }
+
+    private record ScanRow(UUID id, String origin, String sourceSha256, String commitSha, Instant analyzedAt,
+                           int manifestCount, int unresolvedCount) { }
 }
