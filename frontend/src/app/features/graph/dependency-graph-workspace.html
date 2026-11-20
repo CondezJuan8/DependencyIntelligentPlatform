@@ -20,10 +20,27 @@
           <option value="ALL">{{ 'Todos' | t }}</option><option value="maven">Maven</option><option value="npm">npm</option>
         </select>
       </div>
+      <div class="control-field"><label for="graph-module">{{ 'Módulo o namespace' | t }}</label>
+        <select id="graph-module" [value]="moduleFilter()" (change)="onModuleChange($event)">
+          <option value="ALL">{{ 'Todos los módulos' | t }}</option>
+          @for (group of moduleGroups(); track group.name) { <option [value]="group.name">{{ group.name }} · {{ group.count }}</option> }
+        </select>
+      </div>
+      <div class="control-field"><label for="graph-type">{{ 'Tipo de dependencia' | t }}</label>
+        <select id="graph-type" [value]="dependencyTypeFilter()" (change)="onDependencyTypeChange($event)">
+          <option value="ALL">{{ 'Directas y transitivas' | t }}</option><option value="DIRECT">{{ 'Solo directas' | t }}</option><option value="TRANSITIVE">{{ 'Solo transitivas' | t }}</option>
+        </select>
+      </div>
+      <div class="control-field"><label for="graph-scope">{{ 'Ámbito' | t }}</label>
+        <select id="graph-scope" [value]="scopeFilter()" (change)="onScopeChange($event)" [disabled]="availableScopes().length === 0">
+          <option value="ALL">{{ 'Todos los ámbitos' | t }}</option>@for (scope of availableScopes(); track scope) { <option [value]="scope">{{ scope | t }}</option> }
+        </select>
+      </div>
       <div class="control-field search-field"><label for="graph-search">{{ 'Buscar paquetes' | t }}</label>
         <input id="graph-search" type="search" [value]="search()" (input)="onSearch($event)" [placeholder]="'Nombre, namespace o versión' | t" />
       </div>
     </section>
+    @if (activeFilters().length) { <div class="active-filters" aria-live="polite"><span>{{ 'Filtros activos' | t }}:</span>@for (filter of activeFilters(); track filter) { <span class="filter-chip">{{ filter }}</span> }<button type="button" (click)="clearFilters()">{{ 'Limpiar filtros' | t }}</button></div> }
 
     @if (graphLoading()) { <p class="graph-progress" role="status">{{ 'Cargando relaciones respaldadas por el análisis…' | t }}</p> }
     @else if (graph(); as currentGraph) {
@@ -32,20 +49,23 @@
       } @else if (currentGraph.nodes.length === 0) {
         <section class="graph-empty"><h2>{{ 'El análisis no encontró dependencias compatibles' | t }}</h2><p>{{ 'Revisa que el repositorio contenga un POM con dependencias o un package-lock v2 o v3 y vuelve a analizarlo desde Inventario.' | t }}</p></section>
       } @else {
+        <p class="visible-count" aria-live="polite"><strong>{{ filteredPackageCount() }} / {{ packageCount() }}</strong> {{ 'dependencias visibles' | t }} · {{ edgeCount() }} {{ 'relaciones reales' | t }}</p>
+        @if (viewMode() === 'OVERVIEW' && packageCount() > 200 && moduleGroups().length > 1) { <section class="module-groups" aria-label="{{ 'Explorar por módulo' | t }}"><h2>{{ 'Explorar por módulo o namespace' | t }}</h2><p>{{ 'Elige un grupo para desplegar sus paquetes; solo se dibujan relaciones presentes en el análisis.' | t }}</p><div>@for (group of moduleGroups(); track group.name) { <button type="button" [class.selected]="moduleFilter() === group.name" (click)="setModuleFilter(moduleFilter() === group.name ? 'ALL' : group.name)">{{ group.name }} <span>{{ group.count }}</span></button> }</div></section> }
         <section class="graph-summary" aria-label="{{ 'Resumen del grafo' | t }}">
-          <article><span>{{ 'Paquetes' | t }}</span><strong>{{ packageCount() }}</strong></article>
+          <article><span>{{ 'Paquetes visibles' | t }}</span><strong>{{ filteredPackageCount() }}</strong></article>
           <article><span>{{ 'Directas' | t }}</span><strong>{{ directCount() }}</strong></article>
           <article><span>{{ 'Transitivas' | t }}</span><strong>{{ transitiveCount() }}</strong></article>
           <article><span>{{ 'Relaciones observadas' | t }}</span><strong>{{ edgeCount() }}</strong></article>
         </section>
         @if (currentGraph.unresolvedCount > 0) { <p class="graph-warning" role="status">{{ currentGraph.unresolvedCount }} {{ 'declaraciones o relaciones no se pudieron resolver desde los archivos analizados; no se dibujan conexiones supuestas.' | t }}</p> }
-        @if (renderLimited()) { <p class="graph-progress" role="status">{{ layoutMode() === 'NETWORK' ? ('La red muestra como máximo 350 paquetes para que el cálculo se mantenga ágil. Filtra por ecosistema o busca un paquete; la lista conserva el inventario completo.' | t) : ('El mapa visual limita el renderizado a 1.000 nodos para mantener la respuesta ágil. Busca o selecciona un paquete para enfocarlo; la lista conserva el inventario completo.' | t) }}</p> }
+        @if (renderLimited()) { <p class="graph-progress" role="status">{{ layoutMode() === 'NETWORK' ? ('La red muestra como máximo 500 paquetes para mantener el cálculo ágil. Filtra por módulo, tipo, ámbito o busca un paquete; el listado conserva el inventario completo.' | t) : ('El mapa visual limita el renderizado a 1.000 nodos para mantener la respuesta ágil. Busca o selecciona un paquete para enfocarlo; la lista conserva el inventario completo.' | t) }}</p> }
 
         <section class="graph-panel" aria-labelledby="visual-graph-heading">
           <div class="graph-toolbar"><div><h2 id="visual-graph-heading">{{ 'Mapa de dependencias' | t }}</h2><p>{{ layoutMode() === 'NETWORK' ? ('Red libre: los paquetes cercanos tienen relaciones observadas; acerca el zoom para leer etiquetas o busca un paquete.' | t) : ('El recorrido comienza en el proyecto y avanza hacia la derecha: directas primero, transitivas después.' | t) }}</p></div>
-            <div class="toolbar-actions"><div class="layout-switch" role="group" [attr.aria-label]="'Distribución del grafo' | t"><button type="button" [attr.aria-pressed]="layoutMode() === 'LAYERS'" [class.active]="layoutMode() === 'LAYERS'" (click)="setLayoutMode('LAYERS')">{{ 'Por capas' | t }}</button><button type="button" [attr.aria-pressed]="layoutMode() === 'NETWORK'" [class.active]="layoutMode() === 'NETWORK'" (click)="setLayoutMode('NETWORK')">{{ 'Red libre' | t }}</button></div>
+            <div class="toolbar-actions"><div class="layout-switch" role="group" [attr.aria-label]="'Contexto del grafo' | t"><button type="button" [attr.aria-pressed]="viewMode() === 'OVERVIEW'" [class.active]="viewMode() === 'OVERVIEW'" (click)="showOverview()">{{ 'Vista general' | t }}</button><button type="button" [disabled]="!selectedNode() || selectedNode()?.project" [attr.aria-pressed]="viewMode() === 'LOCAL'" [class.active]="viewMode() === 'LOCAL'" (click)="showLocalView()">{{ 'Vista local' | t }}</button></div><div class="layout-switch" role="group" [attr.aria-label]="'Distribución del grafo' | t"><button type="button" [attr.aria-pressed]="layoutMode() === 'LAYERS'" [class.active]="layoutMode() === 'LAYERS'" (click)="setLayoutMode('LAYERS')">{{ 'Por capas' | t }}</button><button type="button" [attr.aria-pressed]="layoutMode() === 'NETWORK'" [class.active]="layoutMode() === 'NETWORK'" (click)="setLayoutMode('NETWORK')">{{ 'Red libre' | t }}</button></div>
             <div class="graph-actions"><button type="button" [attr.aria-label]="'Acercar grafo' | t" (click)="zoomIn()">+</button><button type="button" [attr.aria-label]="'Alejar grafo' | t" (click)="zoomOut()">−</button><button type="button" (click)="fitGraph()">{{ 'Ajustar' | t }}</button></div></div>
           </div>
+          @if (viewMode() === 'LOCAL') { <div class="local-controls"><span><strong>{{ 'Vista local de' | t }}</strong> {{ selectedNode()?.label }}</span><label>{{ 'Profundidad' | t }} <select [value]="localDepth()" (change)="onDepthChange($event)"><option value="1">1 {{ 'salto' | t }}</option><option value="2">2 {{ 'saltos' | t }}</option><option value="3">3 {{ 'saltos' | t }}</option><option value="4">4 {{ 'saltos' | t }}</option><option value="5">5 {{ 'saltos' | t }}</option></select></label><label>{{ 'Relaciones' | t }} <select [value]="localDirection()" (change)="onDirectionChange($event)"><option value="BOTH">{{ 'Ambas direcciones' | t }}</option><option value="OUTGOING">{{ 'Depende de' | t }}</option><option value="INCOMING">{{ 'Usada por' | t }}</option></select></label><button type="button" (click)="showOverview()">{{ 'Volver a vista general' | t }}</button></div> }
           @if (layoutMode() === 'LAYERS') { <div class="layer-guide" aria-label="{{ 'Capas del grafo' | t }}">
             <span class="layer-step project-step"><b>01</b><span>{{ 'Proyecto raíz' | t }}</span></span><span class="layer-connector" aria-hidden="true">→</span>
             <span class="layer-step direct-step"><b>02</b><span>{{ 'Dependencias directas' | t }}</span></span><span class="layer-connector" aria-hidden="true">→</span>
@@ -72,6 +92,7 @@
               <dl><dt>{{ 'Ecosistema' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : selected.ecosystem }}</dd><dt>{{ 'Tipo de dependencia' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : (selected.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t)) }}</dd>@if (!selected.project) { <dt>{{ 'Nivel en el mapa' | t }}</dt><dd>{{ selected.level }}</dd><dt>{{ 'Ámbito' | t }}</dt><dd>{{ selected.scope | t }}</dd><dt>{{ 'Archivos de origen' | t }}</dt><dd><code>{{ selected.manifestPath }}</code></dd><dt>{{ 'Ubicaciones agrupadas' | t }}</dt><dd>{{ selected.occurrences }}</dd> }</dl>
               <h3>{{ 'Declara estas dependencias' | t }}</h3><ul>@for (node of outgoingNodes(); track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }} <small>{{ node.version }}</small></button></li> } @empty { <li>{{ 'No se observaron dependencias salientes.' | t }}</li> }</ul>
               <h3>{{ 'Es utilizada por' | t }}</h3><ul>@for (node of incomingNodes(); track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }} <small>{{ node.version }}</small></button></li> } @empty { <li>{{ 'No se observaron paquetes que dependan de este nodo.' | t }}</li> }</ul>
+              @if (!selected.project) { <button class="local-view-button" type="button" (click)="showLocalView()">{{ 'Explorar conexiones de este paquete' | t }}</button> }
             } @else { <p class="eyebrow">{{ 'DETALLE' | t }}</p><h2>{{ 'Selecciona un paquete' | t }}</h2><p>{{ 'Abre un nodo del gráfico o usa la lista accesible para revisar su ruta y procedencia.' | t }}</p> }
           </aside>
         </section>
