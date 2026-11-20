@@ -29,6 +29,8 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   private themeObserver?: MutationObserver;
   private graphResizeObserver?: ResizeObserver;
   private highlightFrame = 0;
+  private hoveredNodeId: string | null = null;
+  private readonly networkPositions = new Map<string, { x: number; y: number }>();
   private readonly listLimit = signal(PACKAGE_LIST_PAGE_SIZE);
 
   @ViewChild('graphHost')
@@ -72,6 +74,8 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     this.graph.set(null);
     this.displayGraph.set(null);
     this.selectedNode.set(null);
+    this.networkPositions.clear();
+    this.hoveredNodeId = null;
     this.listLimit.set(PACKAGE_LIST_PAGE_SIZE);
     this.error.set('');
     if (!selected) { this.draw(); return; }
@@ -177,22 +181,32 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
         { selector: 'node.direct', style: { 'border-color': '#2563EB', 'border-width': 2 } },
         { selector: 'node.transitive', style: { 'border-color': '#06B6D4', 'border-width': 1.5 } },
         { selector: 'node.project', style: { 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 2, color: '#FFFFFF', 'font-size': 12, 'font-weight': 700, width: 232, height: 72 } },
-        { selector: 'node.network', style: { width: 13, height: 13, shape: 'ellipse', label: '', 'border-width': 2, 'text-halign': 'left', 'text-valign': 'center', 'text-margin-x': 10, 'font-size': 10, 'font-weight': 600, 'text-wrap': 'ellipsis', 'text-max-width': '180px', 'text-background-opacity': 0.88, 'text-background-padding': '3px', 'text-background-shape': 'roundrectangle' } },
-        { selector: 'node.network.direct', style: { width: 16, height: 16, 'background-color': '#2563EB', 'border-color': '#93C5FD', 'border-width': 2 } },
-        { selector: 'node.network.transitive', style: { width: 11, height: 11, 'background-color': '#06B6D4', 'border-color': '#A5F3FC', 'border-width': 1.5 } },
-        { selector: 'node.network.project', style: { width: 22, height: 22, shape: 'ellipse', 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 3, label: 'data(label)', 'font-size': 11, 'font-weight': 700, color: '#FFFFFF' } },
+        { selector: 'node.network', style: { width: 'data(size)', height: 'data(size)', shape: 'ellipse', label: '', 'background-opacity': 0.94, 'border-width': 1.5, 'text-halign': 'left', 'text-valign': 'center', 'text-margin-x': 11, 'font-size': 10, 'font-weight': 600, 'text-wrap': 'ellipsis', 'text-max-width': '180px', 'text-background-opacity': 0.9, 'text-background-padding': '4px', 'text-background-shape': 'roundrectangle', 'overlay-padding': 4, 'overlay-opacity': 0.1, 'overlay-color': '#2563EB' } },
+        { selector: 'node.network.direct', style: { 'background-color': '#2563EB', 'border-color': '#93C5FD', 'border-width': 2, 'overlay-color': '#2563EB', 'overlay-opacity': 0.18 } },
+        { selector: 'node.network.transitive', style: { 'background-color': '#06B6D4', 'border-color': '#A5F3FC', 'border-width': 1.5, 'overlay-color': '#06B6D4', 'overlay-opacity': 0.13 } },
+        { selector: 'node.network.project', style: { width: 26, height: 26, shape: 'ellipse', 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 3, label: 'data(label)', 'font-size': 11, 'font-weight': 700, color: '#FFFFFF', 'overlay-color': '#06B6D4', 'overlay-padding': 9, 'overlay-opacity': 0.32, 'text-background-opacity': 0 } },
         { selector: 'node.network.label-visible', style: { label: 'data(label)' } },
         { selector: 'node:selected', style: { 'border-color': '#06B6D4', 'border-width': 3, 'overlay-opacity': 0.08, 'overlay-color': '#2563EB' } },
         { selector: 'edge', style: { width: 1.5, opacity: 0.6, 'line-color': '#94A3B8', 'target-arrow-color': '#64748B', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'arrow-scale': 0.85 } },
         { selector: 'edge[relationship = "declares"]', style: { 'line-color': '#2563EB', 'target-arrow-color': '#2563EB', 'line-style': 'solid' } },
         { selector: 'edge.path-active', style: { width: 2.5, opacity: 1, 'line-color': '#06B6D4', 'target-arrow-color': '#06B6D4', 'z-index': 2 } },
-        { selector: 'edge.network', style: { width: 1, opacity: 0.32, 'curve-style': 'haystack', 'haystack-radius': 0.5, 'target-arrow-shape': 'none', 'line-color': '#94A3B8' } },
+        { selector: 'edge.network', style: { width: 1, opacity: 0.24, 'curve-style': 'haystack', 'haystack-radius': 0.5, 'target-arrow-shape': 'none', 'line-color': '#94A3B8' } },
         { selector: 'edge.network.path-active', style: { width: 2, opacity: 0.95, 'curve-style': 'bezier', 'target-arrow-shape': 'triangle', 'target-arrow-color': '#06B6D4', 'line-color': '#06B6D4' } },
         { selector: '.dimmed', style: { opacity: 0.12 } },
       ],
       layout: { name: 'preset', fit: false },
     });
     this.cy.on('tap', 'node', event => this.selectNode(event.target.id()));
+    this.cy.on('mouseover', 'node', event => {
+      if (this.layoutMode() !== 'NETWORK') return;
+      this.hoveredNodeId = event.target.id();
+      this.highlightMatches();
+    });
+    this.cy.on('mouseout', 'node', () => {
+      if (!this.hoveredNodeId) return;
+      this.hoveredNodeId = null;
+      this.highlightMatches();
+    });
     this.cy.on('zoom', () => this.updateNetworkLabels());
     this.cy.on('tap', event => { if (event.target === this.cy) { this.cy?.$('node:selected').unselect(); this.selectedNode.set(null); } });
     this.applyGraphTheme();
@@ -238,8 +252,14 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     const nodes = this.nodesForCanvas(graph);
     const nodeIds = new Set(nodes.map(node => node.id));
     const edges = graph.edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+    if (this.layoutMode() === 'NETWORK') this.cy.nodes().forEach(node => { this.networkPositions.set(node.id(), node.position()); });
+    const degrees = new Map<string, number>();
+    for (const edge of edges) {
+      degrees.set(edge.source, (degrees.get(edge.source) ?? 0) + 1);
+      degrees.set(edge.target, (degrees.get(edge.target) ?? 0) + 1);
+    }
     const elements: ElementDefinition[] = [
-      ...nodes.map(node => ({ data: { id: node.id, label: this.visualLabel(node), searchLabel: `${node.label} ${node.version} ${node.manifestPaths.join(' ')}`, project: node.project, ecosystem: node.ecosystem, dependencyType: node.dependencyType, level: node.level }, classes: `${node.project ? 'project' : node.dependencyType === 'DIRECT' ? 'direct' : 'transitive'}${this.layoutMode() === 'NETWORK' ? ' network' : ''}` })),
+      ...nodes.map(node => ({ data: { id: node.id, label: this.visualLabel(node), searchLabel: `${node.label} ${node.version} ${node.manifestPaths.join(' ')}`, project: node.project, ecosystem: node.ecosystem, dependencyType: node.dependencyType, level: node.level, size: this.networkNodeSize(node, degrees.get(node.id) ?? 0) }, classes: `${node.project ? 'project' : node.dependencyType === 'DIRECT' ? 'direct' : 'transitive'}${this.layoutMode() === 'NETWORK' ? ' network' : ''}` })),
       ...edges.map(edge => ({ data: { id: edge.id, source: edge.source, target: edge.target, relationship: edge.relationship }, classes: this.layoutMode() === 'NETWORK' ? 'network' : '' })),
     ];
     this.cy.elements().remove();
@@ -257,9 +277,15 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     const project = nodes.find(node => node.data('project'));
     if (!project) return;
     if (this.layoutMode() === 'NETWORK') {
-      this.cy.layout({ name: 'cose', animate: false, randomize: true, fit: false, numIter: 240,
-        nodeRepulsion: 5200, idealEdgeLength: 88, edgeElasticity: 90, nestingFactor: 1.2,
-        gravity: 0.18, componentSpacing: 92, padding: 48, initialTemp: 160, coolingFactor: 0.94, minTemp: 1 }).run();
+      const hasSavedPositions = nodes.some(node => this.networkPositions.has(node.id()));
+      nodes.forEach(node => {
+        const position = this.networkPositions.get(node.id());
+        if (position) node.position(position);
+      });
+      this.cy.layout({ name: 'cose', animate: false, randomize: !hasSavedPositions, fit: false, numIter: hasSavedPositions ? 110 : 220,
+        nodeRepulsion: 6200, idealEdgeLength: 104, edgeElasticity: 82, nestingFactor: 1.15,
+        gravity: 0.12, componentSpacing: 116, padding: 56, initialTemp: 150, coolingFactor: 0.94, minTemp: 1 }).run();
+      this.cy.nodes().forEach(node => { this.networkPositions.set(node.id(), node.position()); });
       this.cy.elements().unselect();
       this.cy.fit(undefined, 52);
       return;
@@ -402,6 +428,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   private highlightMatches(): void {
     if (!this.cy) return;
     const query = this.search().trim().toLocaleLowerCase();
+    const contextId = this.layoutMode() === 'NETWORK' ? (this.hoveredNodeId ?? this.selectedNode()?.id ?? null) : null;
     const matched = new Set<string>();
     const incoming = new Map<string, string[]>();
     this.cy.edges().forEach(edge => {
@@ -420,13 +447,17 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
         if (!active.has(source)) { active.add(source); pending.push(source); }
       }
     }
+    if (!query && contextId) {
+      this.cy.$id(contextId).closedNeighborhood().nodes().forEach(node => { active.add(node.id()); });
+    }
     this.cy.nodes().forEach(node => {
-      node.toggleClass('dimmed', !active.has(node.id()));
+      node.toggleClass('dimmed', (!!query || !!contextId) && !active.has(node.id()));
     });
     this.cy.edges().forEach(edge => {
       const inRoute = active.has(edge.source().id()) && active.has(edge.target().id());
-      edge.toggleClass('path-active', !!query && inRoute);
-      edge.toggleClass('dimmed', !!query && !inRoute);
+      const inNeighborhood = !!contextId && (edge.source().id() === contextId || edge.target().id() === contextId);
+      edge.toggleClass('path-active', (!!query && inRoute) || inNeighborhood);
+      edge.toggleClass('dimmed', (!!query || !!contextId) && !(!!query && inRoute) && !inNeighborhood);
     });
     this.updateNetworkLabels();
   }
@@ -435,13 +466,21 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     if (!this.cy || this.layoutMode() !== 'NETWORK') return;
     const zoom = this.cy.zoom();
     const query = this.search().trim().toLocaleLowerCase();
+    const contextId = this.hoveredNodeId ?? this.selectedNode()?.id ?? null;
+    const neighbors = contextId ? new Set(this.cy.$id(contextId).closedNeighborhood().nodes().map(node => node.id())) : new Set<string>();
     this.cy.nodes().forEach(node => {
       const matches = !!query && String(node.data('searchLabel') ?? '').toLocaleLowerCase().includes(query);
-      const visible = node.data('project') || node.selected() || matches
-        || (node.data('dependencyType') === 'DIRECT' && zoom >= 0.75)
-        || (node.data('dependencyType') === 'TRANSITIVE' && zoom >= 1.15);
+      const visible = node.data('project') || node.selected() || matches || neighbors.has(node.id())
+        || (node.data('dependencyType') === 'DIRECT' && zoom >= 1.05)
+        || (node.data('dependencyType') === 'TRANSITIVE' && zoom >= 1.5);
       node.toggleClass('label-visible', visible);
     });
+  }
+
+  private networkNodeSize(node: DisplayNode, degree: number): number {
+    if (node.project) return 26;
+    const base = node.dependencyType === 'DIRECT' ? 12 : 9;
+    return Math.min(23, Math.round(base + Math.sqrt(degree) * 3));
   }
 
   private visibleEcosystem(node: GraphNode): boolean {
