@@ -40,8 +40,8 @@ public class LocalRepositoryImportController {
     public LocalFolderImportResult upload(@org.springframework.web.bind.annotation.PathVariable UUID organizationId,
             Principal principal, @RequestParam("name") String name, @RequestParam("paths") List<String> paths,
             @RequestParam("files") List<MultipartFile> files) {
-        if (files.isEmpty() || files.size() != paths.size() || files.size() > 2_000)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona una carpeta con hasta 2.000 archivos.");
+        if (files.isEmpty() || files.size() != paths.size() || files.size() > 50_000)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona una carpeta con hasta 50.000 archivos.");
         var projectFiles = new ArrayList<LocalFolderImportCommand.ProjectFile>(files.size());
         for (int index = 0; index < files.size(); index++) {
             var file = files.get(index);

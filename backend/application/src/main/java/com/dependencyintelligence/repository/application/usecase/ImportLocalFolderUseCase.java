@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public final class ImportLocalFolderUseCase implements ImportLocalFolder {
-    private static final int MAX_FILES = 2_000;
+    private static final int MAX_FILES = 50_000;
     private static final long MAX_BYTES = 100L * 1024 * 1024;
     private static final int MAX_PATH_LENGTH = 1_024;
     private final OrganizationLookup organizations;
@@ -34,7 +34,7 @@ public final class ImportLocalFolderUseCase implements ImportLocalFolder {
         var organizationId = new OrganizationId(command.organizationId());
         if (!organizations.exists(organizationId)) throw new ResourceNotFoundException("Organization");
         String name = validateName(command.name());
-        if (command.files().isEmpty() || command.files().size() > MAX_FILES) throw new IllegalArgumentException("Selecciona entre 1 y 2.000 archivos.");
+        if (command.files().isEmpty() || command.files().size() > MAX_FILES) throw new IllegalArgumentException("Selecciona entre 1 y 50.000 archivos.");
         long total = 0;
         var paths = new HashSet<String>();
         var normalizedFiles = new java.util.ArrayList<LocalFolderImportCommand.ProjectFile>(command.files().size());

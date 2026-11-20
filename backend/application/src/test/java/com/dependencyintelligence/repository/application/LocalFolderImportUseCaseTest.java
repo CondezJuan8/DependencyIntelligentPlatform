@@ -42,6 +42,23 @@ class LocalFolderImportUseCaseTest {
         assertFalse(sources.called);
     }
 
+    @Test void acceptsFoldersWithFiftyThousandFiles() {
+        var files = java.util.stream.IntStream.range(0, 50_000)
+            .mapToObj(index -> file("project/file-" + index + ".txt", 1)).toList();
+        var result = useCase.execute(new LocalFolderImportCommand(organization, user, "project", files));
+        assertEquals(50_000, result.fileCount());
+        assertEquals(50_000, sources.paths.size());
+    }
+
+    @Test void rejectsFoldersAboveFiftyThousandFilesBeforePersistence() {
+        var files = java.util.stream.IntStream.range(0, 50_001)
+            .mapToObj(index -> file("project/file-" + index + ".txt", 1)).toList();
+        assertThrows(IllegalArgumentException.class,
+            () -> useCase.execute(new LocalFolderImportCommand(organization, user, "project", files)));
+        assertNull(repositories.saved);
+        assertFalse(sources.called);
+    }
+
     @Test void rejectsGeneratedDirectoriesAndOversizedFolders() {
         assertThrows(IllegalArgumentException.class, () -> useCase.execute(command("project", "project/node_modules/x", 1)));
         assertNull(repositories.saved);
