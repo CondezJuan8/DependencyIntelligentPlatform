@@ -1,5 +1,8 @@
 # Dependency Intelligence — Stack tecnológico oficial propuesto
 
+### Bloque 51 — mapa de dependencias por capas
+
+El grafo de Inventario ahora distribuye proyecto, directas y transitivas de izquierda a derecha por profundidad. Angular consolida ocurrencias con la misma identidad de paquete, versión y ecosistema en una tarjeta y conserva rutas/ámbitos para el detalle; las relaciones compartidas convergen en ese nodo. Las tarjetas muestran nombre/versión, los bordes identifican tipo, y búsqueda resalta coincidencias con su ruta de padres. El panel separa dependencias declaradas y paquetes que utilizan el nodo. El listado accesible mantiene todas las entradas; el canvas limita a 1.000 nodos por respuesta, prioriza niveles cercanos y enfoca búsquedas/selecciones grandes. Cytoscape usa layout preset y cálculo BFS O(V+E); no se añadió biblioteca ni se cambió API/base de datos. La revisión de tipos de TypeScript (44 archivos) y el parseo del template pasan; build completa y revisión visual en Compose quedan pendientes porque Node/npm CLI y el host de navegador no están disponibles. Ver [diseño](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
 ### Bloque 48 — distribución y lectura del grafo
 
 Cytoscape.js 3.35 usa posiciones radiales controladas por Angular: raíz del repositorio al centro; directas y transitivas en anillos por nivel. Los nombres del canvas se orientan hacia fuera y se reducen para evitar cruces; detalle/lista conservan la identidad completa. No se agrega paquete. Build y revisión visual en Compose: ver [bitácora](BITACORA_TRABAJO.md) y [diseño frontend](DISENO_FRONTEND.md).

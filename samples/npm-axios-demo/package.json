@@ -1,0 +1,9 @@
+﻿{
+  "name": "dependency-intelligence-npm-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fixture pequeno para probar Inventario npm sin instalar ni ejecutar dependencias.",
+  "dependencies": {
+    "axios": "1.7.9"
+  }
+}
