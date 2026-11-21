@@ -65,4 +65,15 @@ class CycloneDxManifestMapperTest {
         assertEquals(1, analysis.unresolvedCount());
         assertEquals("PARTIAL", analysis.coverageStatus());
     }
+
+    @Test void doesNotReportCompleteCoverageWhenDetectedLockfileHasNoComponents() {
+        String bom = """
+            {"bomFormat":"CycloneDX","specVersion":"1.6","metadata":{"component":{"bom-ref":"root"},"properties":[{"name":"dependency-intelligence:source-manifest-count","value":"1"}]},"components":[],"dependencies":[]}
+            """;
+        var analysis = mapper.map(bom.getBytes(java.nio.charset.StandardCharsets.UTF_8), "NPM");
+
+        assertTrue(analysis.dependencies().isEmpty());
+        assertEquals("PARTIAL", analysis.coverageStatus());
+        assertTrue(analysis.coverageMessage().contains("no devolvió componentes"));
+    }
 }

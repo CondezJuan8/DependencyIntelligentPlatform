@@ -99,8 +99,11 @@ public final class CycloneDxManifestMapper {
             int manifests = manifestCount(root);
             boolean mavenResolutionIsPartial = "MAVEN".equals(ecosystem);
             boolean missingManifest = manifests == 0;
-            boolean partial = unresolved > 0 || mavenResolutionIsPartial || missingManifest;
-            String message = mavenResolutionIsPartial
+            boolean emptyDetectedProject = manifests > 0 && dependencies.isEmpty();
+            boolean partial = unresolved > 0 || mavenResolutionIsPartial || missingManifest || emptyDetectedProject;
+            String message = emptyDetectedProject
+                ? "Se detectó un manifiesto, pero cdxgen no devolvió componentes; no se marcará este inventario como completo."
+                : mavenResolutionIsPartial
                 ? "Cobertura Maven parcial: el modo seguro lee POM y SBOM sin ejecutar Maven; no confirma todas las dependencias transitivas."
                 : unresolved > 0 ? "Hay componentes o relaciones del SBOM sin versión o vínculo verificable." : null;
             if (message == null && missingManifest)
