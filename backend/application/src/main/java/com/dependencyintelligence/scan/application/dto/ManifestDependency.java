@@ -12,6 +12,7 @@ public record ManifestDependency(String manifestPath, PackageCoordinates coordin
             throw new IllegalArgumentException("Invalid manifest path");
         if (coordinates == null) throw new IllegalArgumentException("Package coordinates are required");
         if (scope == null || scope.isBlank()) throw new IllegalArgumentException("Dependency scope is required");
-        if (!"DIRECT".equals(dependencyType) && !"TRANSITIVE".equals(dependencyType)) throw new IllegalArgumentException("Invalid dependency type");
+        if (!"DIRECT".equals(dependencyType) && !"TRANSITIVE".equals(dependencyType) && !"UNKNOWN".equals(dependencyType))
+            throw new IllegalArgumentException("Invalid dependency type");
     }
 }

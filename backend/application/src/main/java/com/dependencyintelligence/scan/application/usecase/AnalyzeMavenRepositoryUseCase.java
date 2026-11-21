@@ -25,16 +25,15 @@ public final class AnalyzeMavenRepositoryUseCase implements AnalyzeMavenReposito
     @Override public MavenInventory run(UUID organizationId, UUID repositoryId) {
         try (var source = sources.open(organizationId, repositoryId)) {
             var analysis = manifests.read(source.content());
-            if (analysis.manifestCount() == 0)
-                throw new IllegalArgumentException("Este repositorio no contiene pom.xml. El análisis npm llegará después.");
-            return store.save("maven-manifest", UUID.randomUUID(), organizationId, repositoryId, source.provider(),
-                source.sha256(), source.commitSha(), clock.instant().truncatedTo(ChronoUnit.MICROS), analysis);
-        } catch (IOException exception) {
-            throw new IllegalStateException("No se pudo cerrar el archivo de código fuente.", exception);
+            if (analysis.manifestCount() == 0) throw new IllegalArgumentException("Este repositorio no contiene un proyecto Maven compatible.");
+            return store.save("cdxgen-maven", UUID.randomUUID(), organizationId, repositoryId,
+                source.provider(), source.sha256(), source.commitSha(), clock.instant().truncatedTo(ChronoUnit.MICROS), analysis);
+        } catch (IOException failure) {
+            throw new IllegalStateException("No se pudo cerrar el archivo de código fuente.", failure);
         }
     }
 
     @Override public Optional<MavenInventory> latest(UUID organizationId, UUID repositoryId) {
-        return store.latest("maven-manifest", organizationId, repositoryId);
+        return store.latest("cdxgen-maven", organizationId, repositoryId);
     }
 }

@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public record MavenInventory(UUID scanId, String source, String sourceSha256, String commitSha,
                              Instant analyzedAt, int manifestCount, int unresolvedCount,
-                             List<ManifestDependency> dependencies) {
+                             String coverageStatus, String coverageMessage, List<ManifestDependency> dependencies) {
     public MavenInventory { dependencies = List.copyOf(dependencies); }
 }

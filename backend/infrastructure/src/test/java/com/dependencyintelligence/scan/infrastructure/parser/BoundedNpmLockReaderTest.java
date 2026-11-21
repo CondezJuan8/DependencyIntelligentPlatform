@@ -30,6 +30,24 @@ class BoundedNpmLockReaderTest {
         assertEquals(0, analysis.unresolvedCount());
     }
 
+    @Test void preservesScopedPackageNamesAndCanonicalPackageUrls() throws Exception {
+        String lock = """
+            {"lockfileVersion":3,"packages":{
+              "":{"dependencies":{"@scope/widget":"^2.0.0"}},
+              "node_modules/@scope/widget":{"name":"@scope/widget","version":"2.3.0","dependencies":{"axios":"^1.7.0"}},
+              "node_modules/axios":{"version":"1.7.9"}
+            }}
+            """;
+        var analysis = new BoundedNpmLockReader().read(zip(lock));
+        var scoped = analysis.dependencies().stream().filter(item -> item.coordinates().name().equals("@scope/widget"))
+            .findFirst().orElseThrow();
+        assertEquals("@scope", scoped.coordinates().namespace());
+        assertEquals("pkg:npm/%40scope/widget@2.3.0", scoped.coordinates().purl());
+        assertEquals("DIRECT", scoped.dependencyType());
+        assertEquals(1, analysis.edges().size());
+        assertEquals(0, analysis.unresolvedCount());
+    }
+
     private static ByteArrayInputStream zip(String lock) throws Exception {
         var bytes = new ByteArrayOutputStream();
         try (var archive = new ZipOutputStream(bytes)) {

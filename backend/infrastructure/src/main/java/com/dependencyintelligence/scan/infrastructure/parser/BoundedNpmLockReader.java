@@ -60,8 +60,9 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
                 String name = packageName(path, node);
                 String versionText = node.path("version").asText();
                 if (name.isBlank() || name.length() > 512 || versionText.isBlank() || versionText.length() > 255) continue;
-                String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
-                var coordinates = new PackageCoordinates("npm", null, name, versionText,
+                String encodedName = purlName(name);
+                String namespace = name.startsWith("@") && name.contains("/") ? name.substring(0, name.indexOf('/')) : null;
+                var coordinates = new PackageCoordinates("npm", namespace, name, versionText,
                     "pkg:npm/" + encodedName + "@" + versionText);
                 String scope = node.path("optional").asBoolean(false) ? "optional"
                     : node.path("dev").asBoolean(false) ? "development" : "runtime";
@@ -155,6 +156,12 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
         int marker = path.lastIndexOf("node_modules/");
         if (marker < 0) return "";
         return path.substring(marker + "node_modules/".length());
+    }
+
+    private static String purlName(String name) {
+        return Arrays.stream(name.split("/", -1))
+            .map(part -> URLEncoder.encode(part, StandardCharsets.UTF_8).replace("+", "%20"))
+            .reduce((left, right) -> left + "/" + right).orElse("");
     }
 
     private static byte[] readLock(InputStream input) {

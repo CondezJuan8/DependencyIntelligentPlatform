@@ -32,11 +32,12 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
         return tenants.execute(organizationId, () -> {
             jdbc.update("""
                 insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
-                  origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count)
-                values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,'1','MANUAL',?,?,?)
+                  origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,coverage_status,coverage_message)
+                values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,?,'MANUAL',?,?,?,?,?)
                 """, scanId, organizationId, repositoryId, commitSha, Timestamp.from(analyzedAt), Timestamp.from(analyzedAt),
                 Timestamp.from(analyzedAt), "local".equals(provider) ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN", scannerName,
-                sourceSha256, analysis.manifestCount(), analysis.unresolvedCount());
+                scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, analysis.manifestCount(), analysis.unresolvedCount(),
+                analysis.coverageStatus(), analysis.coverageMessage());
             if (commitSha != null) {
                 jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
                     organizationId, repositoryId, commitSha);
@@ -95,12 +96,12 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
 
     private Optional<MavenInventory> latest0(String scannerName, UUID organizationId, UUID repositoryId) {
         var scans = jdbc.query("""
-            select id,origin,source_sha256,git_reference,finished_at,manifest_count,unresolved_count
-            from scans where organization_id=? and repository_id=? and scanner_name=? and status='COMPLETED'
+            select id,origin,source_sha256,git_reference,finished_at,manifest_count,unresolved_count,coverage_status,coverage_message
+            from scans where organization_id=? and repository_id=? and scanner_name in (?,?) and status='COMPLETED'
             order by finished_at desc limit 1
             """, (row, index) -> new ScanRow(row.getObject(1, UUID.class), row.getString(2), row.getString(3),
-                row.getString(4), row.getTimestamp(5).toInstant(), row.getInt(6), row.getInt(7)),
-            organizationId, repositoryId, scannerName);
+                row.getString(4), row.getTimestamp(5).toInstant(), row.getInt(6), row.getInt(7), row.getString(8), row.getString(9)),
+            organizationId, repositoryId, scannerName, legacyScannerName(scannerName));
         if (scans.isEmpty()) return Optional.empty();
         ScanRow scan = scans.getFirst();
         var dependencies = jdbc.query("""
@@ -115,13 +116,14 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
                 String ref = row.getString(1);
                 int marker = ref.indexOf('#');
                 String ecosystem = row.getString(2), namespace = row.getString(3), name = row.getString(4), version = row.getString(5);
-                String purl = "npm".equals(ecosystem) ? "pkg:npm/" + name + "@" + version
+                String purl = "npm".equals(ecosystem) ? npmPurl(name, version)
                     : "pkg:maven/" + namespace + "/" + name + "@" + version;
                 return new ManifestDependency(marker < 0 ? "package-lock.json" : ref.substring(0, marker),
                     new PackageCoordinates(ecosystem, namespace, name, version, purl), row.getString(6), row.getString(7));
             }, organizationId, scan.id());
         return Optional.of(new MavenInventory(scan.id(), "LOCAL_UPLOAD_SCAN".equals(scan.origin()) ? "local" : "github",
-            scan.sourceSha256(), scan.commitSha(), scan.analyzedAt(), scan.manifestCount(), scan.unresolvedCount(), dependencies));
+            scan.sourceSha256(), scan.commitSha(), scan.analyzedAt(), scan.manifestCount(), scan.unresolvedCount(),
+            scan.coverageStatus(), scan.coverageMessage(), dependencies));
     }
 
     private static String bomRef(ManifestDependency dependency) {
@@ -129,6 +131,21 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
         return dependency.manifestPath() + "#" + coordinates.namespace() + ":" + coordinates.name() + ":" + coordinates.version();
     }
 
+    private static String npmPurl(String name, String version) {
+        String path = java.util.Arrays.stream(name.split("/", -1))
+            .map(part -> java.net.URLEncoder.encode(part, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20"))
+            .reduce((left, right) -> left + "/" + right).orElse("");
+        return "pkg:npm/" + path + "@" + version;
+    }
+
+    private static String legacyScannerName(String scannerName) {
+        return switch (scannerName) {
+            case "cdxgen-maven" -> "maven-manifest";
+            case "cdxgen-npm" -> "npm-lockfile";
+            default -> scannerName;
+        };
+    }
+
     private record ScanRow(UUID id, String origin, String sourceSha256, String commitSha, Instant analyzedAt,
-                           int manifestCount, int unresolvedCount) { }
+                           int manifestCount, int unresolvedCount, String coverageStatus, String coverageMessage) { }
 }

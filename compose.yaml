@@ -67,16 +67,83 @@ services:
       OSV_READ_TIMEOUT: ${OSV_READ_TIMEOUT:-PT15S}
       OSV_ASSESSMENT_MAX_AGE: ${OSV_ASSESSMENT_MAX_AGE:-PT24H}
       OSV_BATCH_SIZE: ${OSV_BATCH_SIZE:-100}
+      DEPENDENCY_INTELLIGENCE_SCANNER_CDXGEN_URL: http://cdxgen-scanner:9090
+      DEPENDENCY_INTELLIGENCE_SCANNER_WORKSPACE: /app/scanner-work
       OAUTH_AUTHORIZATION_LIFETIME: ${OAUTH_AUTHORIZATION_LIFETIME:-PT5M}
       OAUTH_REAUTHENTICATION_WINDOW: ${OAUTH_REAUTHENTICATION_WINDOW:-PT10M}
       INVITATION_LIFETIME: ${INVITATION_LIFETIME:-PT72H}
+    volumes:
+      - repository_data:/var/lib/dependency-intelligence/repositories
+      - scanner_work:/app/scanner-work
+    networks:
+      - default
+      - scanner_internal
     depends_on:
       database:
         condition: service_healthy
       mailpit:
         condition: service_started
+      scanner-work-init:
+        condition: service_completed_successfully
+      cdxgen-scanner:
+        condition: service_healthy
+  scanner-work-init:
+    image: dependency-intelligence-backend
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["mkdir -p /app/scanner-work && chown app:app /app/scanner-work && chmod 0755 /app/scanner-work"]
+    network_mode: none
     volumes:
-      - repository_data:/var/lib/dependency-intelligence/repositories
+      - scanner_work:/app/scanner-work
+    restart: "no"
+  cdxgen-scanner:
+    image: ghcr.io/cdxgen/cdxgen-secure:13.8.0@sha256:3a59d95320b5d70f7b369af4ed4ad92c0fe931a426374e0f9df942129e23b8ad
+    environment:
+      CDXGEN_SECURE_MODE: "true"
+      CDXGEN_SERVER_ALLOWED_PATHS: /app/scanner-work
+      CDXGEN_ALLOWED_PATHS: /app/scanner-work
+      CDXGEN_GIT_ALLOWED_HOSTS: invalid.invalid
+      CDXGEN_GIT_ALLOW_PROTOCOL: https
+      CDXGEN_INSTALL_DEPS: "false"
+      CDXGEN_SERVER_TIMEOUT_MS: "300000"
+      NODE_OPTIONS: >-
+        --permission
+        --allow-fs-read="/app/*"
+        --allow-fs-read="/opt/*"
+        --allow-fs-read="/home/cyclonedx/*"
+        --allow-fs-read="/tmp/cdxgen-temp/*"
+        --allow-fs-write="/tmp/cdxgen-temp/*"
+        --allow-fs-write="/app/*.json"
+        --allow-child-process
+        --allow-net
+        --trace-warnings
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["unset SWIFT_SIGNING_KEY; exec cdxgen --server --server-host cdxgen-scanner --server-port 9090"]
+    expose:
+      - "9090"
+    volumes:
+      - scanner_work:/app/scanner-work:ro
+    networks:
+      - scanner_internal
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=512m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 2g
+    cpus: 2.0
+    pids_limit: 256
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://cdxgen-scanner:9090/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      scanner-work-init:
+        condition: service_completed_successfully
   platform-admin-bootstrap:
     profiles: ["bootstrap"]
     build:
@@ -112,3 +179,7 @@ services:
 volumes:
   postgres_data:
   repository_data:
+  scanner_work:
+networks:
+  scanner_internal:
+    internal: true
