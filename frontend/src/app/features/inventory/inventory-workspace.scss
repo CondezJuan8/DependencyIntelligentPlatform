@@ -89,6 +89,7 @@ select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-v
 .assessment-summary h2 { margin: 0; font-size: 17px; }
 .assessment-summary p:not(.eyebrow) { max-width: 780px; margin: 6px 0 0; color: var(--di-text-secondary); font-size: 13px; line-height: 1.55; }
 .assessment-summary .eyebrow { margin-bottom: 5px; }
+.assessment-refresh { justify-self: start; }
 .assessment-progress { display: inline-flex; align-items: center; gap: 8px; color: var(--di-info-text); font-size: 12px; font-weight: 650; }
 .assessment-metrics { display: flex; flex-wrap: wrap; gap: 8px; }
 .assessment-metrics span { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid var(--di-border); border-radius: 8px; color: var(--di-text-secondary); font-size: 11px; }

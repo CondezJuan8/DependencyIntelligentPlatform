@@ -2,6 +2,14 @@
 
 Actualizado: 20 de noviembre de 2026, bloque 55.
 
+## Bloque 56 — restaurar Inventario y separar scanner de OSV (implementado; reanálisis autenticado pendiente)
+
+La inspección agregada de la base activa encontró tres scans `cdxgen-npm` guardados como completos con un manifiesto y cero componentes. Además, la consulta OSV solo seleccionaba `maven-manifest`/`npm-lockfile`, por lo que dejaba fuera los scans actuales `cdxgen-maven`/`cdxgen-npm`. Se añadió recuperación npm acotada desde `package-lock.json` si cdxgen detecta el lockfile pero emite cero componentes; esa recuperación se marca parcial. Se cambió la consulta OSV para tomar el scan más reciente por ecosistema entre scanner actual e histórico, sin duplicarlos. La UI muestra errores del endpoint, informa si falta respuesta OSV y ofrece **Consultar OSV** sin volver a ejecutar cdxgen.
+
+**Verificado:** 11 pruebas focales (scanner, mapper y OSV) pasan; el IT con PostgreSQL desechable confirma selección de scans legacy/nuevos y evita duplicados. Build Angular y build Docker backend/frontend correctos; `localhost:8089` responde HTTP 200 y cdxgen sigue healthy. Base de datos, Mailpit y volúmenes no se reiniciaron ni modificaron.
+
+**Pendiente:** volver a ejecutar **Analizar repositorio** en los repositorios afectados para reemplazar los snapshots npm vacíos ya guardados. La sesión autenticada del usuario no se usó para lanzar análisis ni se consultó OSV en vivo. Scanner genera/guarda el inventario; OSV evalúa las versiones ya guardadas y puede volver a consultarse de forma independiente.
+
 ## Bloque 55 — scanner de dependencias y cobertura OSV (implementado; recorrido autenticado pendiente)
 
 Se conectó el flujo usado por el botón de Inventario a cdxgen secure 13.8.0 mediante un sidecar Docker aislado. Los readers Maven/npm convierten SBOM CycloneDX en el mismo modelo de inventario y grafo; V25 registra cobertura `COMPLETE/PARTIAL`; el importador CycloneDX ahora admite Maven/npm y guarda las aristas declaradas. El análisis Maven se marca parcial porque el modo seguro no ejecuta Maven y no verifica el árbol transitivo completo. Se añadieron regresiones focales de mapper, extracción aislada, paquete scoped y paginación/fallo OSV.

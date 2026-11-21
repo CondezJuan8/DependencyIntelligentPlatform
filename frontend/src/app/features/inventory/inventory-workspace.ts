@@ -206,7 +206,7 @@ export class InventoryWorkspace implements OnInit {
   }
 
   get hasCompletedScan(): boolean {
-    return this.scanResults().some((result) => result.status === 'complete');
+    return this.scanResults().some((result) => result.status === 'complete' || result.status === 'partial');
   }
 
   ngOnInit(): void {
@@ -286,7 +286,7 @@ export class InventoryWorkspace implements OnInit {
     forkJoin([
       this.runScanner(repository, 'MAVEN'),
       this.runScanner(repository, 'NPM'),
-    ]).subscribe((results) => {
+    ]).subscribe({ next: (results) => {
       this.scanResults.set(results);
       this.occurrences.set(this.toOccurrences(results));
       const available = results.filter((result) => result.scan !== null).length;
@@ -296,7 +296,7 @@ export class InventoryWorkspace implements OnInit {
       else this.error.set(results.find((result) => result.status === 'error')?.message ?? 'No encontramos manifiestos compatibles para Maven ni npm en este repositorio.');
       if (available > 0) this.assessVulnerabilities(repository);
       else this.busy.set(false);
-    });
+    }, error: (failure) => { this.error.set(accessError(failure)); this.busy.set(false); } });
   }
 
   private loadScans(repository: Repository, requestSequence: number): void {
@@ -400,7 +400,17 @@ export class InventoryWorkspace implements OnInit {
   }
 
   private loadVulnerabilityAssessment(repository: Repository) {
-    return this.api.get<InventoryAssessment>(this.vulnerabilityEndpoint(repository)).pipe(catchError(() => of(null)));
+    return this.api.get<InventoryAssessment>(this.vulnerabilityEndpoint(repository)).pipe(catchError((failure: HttpErrorResponse) => {
+      this.assessmentError.set(accessError(failure));
+      return of(null);
+    }));
+  }
+
+  assessCurrentRepository(): void {
+    const repository = this.repository();
+    if (!repository || this.assessingVulnerabilities()) return;
+    this.assessmentError.set('');
+    this.assessVulnerabilities(repository);
   }
 
   private vulnerabilityEndpoint(repository: Repository): string {
@@ -423,12 +433,13 @@ export class InventoryWorkspace implements OnInit {
     return this.api.post<Scan>(this.endpoint(repository, ecosystem), {}).pipe(
       map((scan): ScanResult => ({ ecosystem, scan, status: scan.coverageStatus === 'PARTIAL' ? 'partial' : 'complete', message: scan.coverageMessage ?? 'Analizado' })),
       catchError((failure: HttpErrorResponse) => {
-        const unavailable = failure.status === 400 || failure.status === 404;
+        const detail = typeof failure.error?.detail === 'string' ? failure.error.detail : '';
+        const noManifest = failure.status === 404 || (failure.status === 400 && /manifest|package-lock|pom\.xml|proyecto Maven/i.test(detail));
         return of({
           ecosystem,
           scan: null,
-          status: unavailable ? 'unavailable' as const : 'error' as const,
-          message: unavailable ? 'No se encontró un manifiesto compatible' : accessError(failure),
+          status: noManifest ? 'unavailable' as const : 'error' as const,
+          message: detail || (noManifest ? 'No se encontró un manifiesto compatible' : accessError(failure)),
         });
       }),
     );

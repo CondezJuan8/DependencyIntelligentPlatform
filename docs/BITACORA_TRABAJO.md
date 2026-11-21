@@ -2,6 +2,40 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 56 — restaurar Inventario y separar scanner de OSV
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y causa comprobada
+
+- El usuario reportó que Inventario dejó de responder con claridad y recordó que scanner y OSV son servicios distintos que se complementan.
+- Consulta agregada de la base activa: tres filas de scanner `cdxgen-npm` tenían `manifest_count=1`, `unresolved_count=0`, `coverage_status=COMPLETE` y cero filas en `scan_components`. El mapper permitía reportar cobertura completa cuando cdxgen emitía un SBOM válido vacío aunque hubiera detectado el lockfile.
+- `JdbcVulnerabilityAssessmentAdapter` filtraba `LATEST_SCANS` a `maven-manifest` y `npm-lockfile`, excluyendo `cdxgen-maven`/`cdxgen-npm`; por eso OSV no recibía los componentes de los análisis nuevos.
+- La carga GET de la evaluación OSV convertía cualquier error en `null` sin mostrarlo. El formulario de análisis además reemplazaba errores 400 con un mensaje genérico de manifiesto ausente.
+
+### Cambios
+
+- npm vuelve a leer el ZIP de forma acotada (máximo 100 MiB) y, si cdxgen no produjo componentes, recupera versiones y relaciones desde el `package-lock.json` con el parser existente. La cobertura queda `PARTIAL` y explica el fallback; si el lockfile tampoco se puede resolver, devuelve un mensaje accionable.
+- CycloneDX ya no marca completo un proyecto con manifiesto detectado y cero componentes.
+- OSV ahora consulta el último scan completado por ecosistema, admitiendo nombres legacy y cdxgen y eligiendo solo uno si existen ambos. Sus resultados se asocian a los IDs de componente del scan seleccionado.
+- Inventario tiene acción **Consultar OSV** separada del botón de análisis. Los errores de lectura/consulta se muestran por separado, y el frontend conserva los detalles ProblemDetail que entrega la API.
+
+### Herramientas y verificaciones
+
+| Herramienta/tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Maven/JDK 21 | 11 pruebas focales de scanner, mapper y OSV | No |
+| Testcontainers/PostgreSQL 17 | IT de nombres de scanner actuales/históricos y deduplicación por ecosistema (1 pasó) | No |
+| Angular CLI/Node 24 | Build frontend | No |
+| Docker Compose | Build y recreación exclusiva de backend/frontend | No |
+| PostgreSQL activo | Lecturas agregadas de scans/componentes y OSV para diagnóstico; sin cambios | No |
+
+Pasaron las 11 pruebas focales, el IT, el build Angular y el build Docker. El backend/frontend se recrearon sin reiniciar PostgreSQL, Mailpit ni cdxgen; frontend HTTP 200 y scanner healthy. Los tres snapshots vacíos históricos no se alteraron: requieren ejecutar de nuevo el análisis desde una sesión autenticada. No se hizo consulta real a OSV ni recorrido autenticado de la UI.
+
+### Siguiente paso
+
+En localhost:8089, volver a ejecutar **Analizar repositorio** en los proyectos afectados. El scanner guardará el inventario; OSV consultará sus versiones después y también podrá ejecutarse con **Consultar OSV** sin repetir el análisis.
+
 ## Bloque 55 — integración del scanner cdxgen y diagnóstico OSV
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.

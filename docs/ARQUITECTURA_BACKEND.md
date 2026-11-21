@@ -1,5 +1,11 @@
 # Arquitectura del backend
 
+## Bloque 56 — Inventario y evaluación OSV independientes
+
+Los endpoints `POST /maven-analysis` y `POST /npm-analysis` generan CycloneDX con cdxgen y persisten scans/componentes/relaciones. OSV no ejecuta ese scanner: `POST/GET /vulnerability-analysis` lee el último scan completado por ecosistema (`cdxgen-*` o los nombres legacy), consulta versiones exactas y persiste los resultados vinculados a `scan_component_id`. Una respuesta OSV fallida no borra ni revierte el inventario; queda indicada como `UNAVAILABLE`/`INCOMPLETE` y la UI permite volver a consultar OSV sin repetir cdxgen.
+
+Cuando cdxgen detecta `package-lock.json` pero emite cero componentes, el lector npm reabre el archivo con el parser de lockfile ya existente; el resultado recuperado queda con cobertura parcial y procedencia clara. Los archives se reproducen desde un temporal limitado a 100 MiB, borrado al terminar. No se lanzan npm ni scripts del proyecto. Ver [guía del scanner](../infra/scanner/README.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
+
 ## Bloque 45 — consulta tenant-scoped del grafo
 
 Application agrega `GetRepositoryDependencyGraph` y su puerto `RepositoryDependencyGraphReader`, con DTO inmutable para fuentes, nodos y aristas. Infrastructure implementa una lectura JDBC con la organización establecida por `TenantTransactions`, consulta los últimos scans completados de `maven-manifest` y `npm-lockfile`, construye nodos de ocurrencias y lee `dependency_edges` del mismo scan. La raíz virtual y sus enlaces a ocurrencias `DIRECT` se construyen en la proyección de lectura; no se persiste como paquete ficticio. El controlador REST aplica `repository.read` antes del caso de uso. No hay dependencia del framework en Application ni cambios al esquema.

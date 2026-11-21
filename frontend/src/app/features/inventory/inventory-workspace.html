@@ -76,6 +76,7 @@
         <div><p class="eyebrow">SEGURIDAD · OSV</p><h2 id="assessment-heading">Evaluación de vulnerabilidades</h2>
           <p>Comparamos versiones exactas con avisos publicados en OSV. Un resultado sin avisos conocidos no garantiza que una versión esté libre de vulnerabilidades.</p></div>
         @if (assessingVulnerabilities()) { <span class="assessment-progress" role="status"><span class="button-spinner" aria-hidden="true"></span> Consultando OSV…</span> }
+        <button class="secondary assessment-refresh" type="button" [disabled]="assessingVulnerabilities() || busy()" (click)="assessCurrentRepository()">Consultar OSV</button>
         @if (vulnerabilityAssessment(); as assessment) {
           <div class="assessment-metrics">
             <span><strong>{{ assessment.affectedVersions }}</strong> versiones con avisos</span>
@@ -85,6 +86,7 @@
         }
       </section>
       @if (assessmentError()) { <p class="notice warning" role="status">No se pudo completar la consulta de vulnerabilidades: {{ assessmentError() }}</p> }
+      @if (!vulnerabilityAssessment() && !assessmentError() && !assessingVulnerabilities()) { <p class="notice warning" role="status">Aún no hay una respuesta de OSV para este inventario. Puedes consultar OSV sin volver a ejecutar el scanner.</p> }
       @if (vulnerabilityAssessment()?.staleVersions; as staleCount) {
         @if (staleCount > 0) { <p class="notice warning" role="status">{{ staleCount }} versiones tienen resultados desactualizados. Vuelve a analizar para consultar OSV de nuevo.</p> }
       }
