@@ -55,7 +55,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   readonly viewMode = signal<'OVERVIEW' | 'LOCAL'>('OVERVIEW');
   readonly localDepth = signal(1);
   readonly localDirection = signal<'BOTH' | 'OUTGOING' | 'INCOMING'>('BOTH');
-  readonly dependencyTypeFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE'>('ALL');
+  readonly dependencyTypeFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN'>('ALL');
   readonly moduleFilter = signal('ALL');
   readonly scopeFilter = signal('ALL');
   readonly loading = signal(true);
@@ -118,7 +118,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     this.draw();
   }
 
-  onDependencyTypeChange(event: Event): void { this.dependencyTypeFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'DIRECT' | 'TRANSITIVE'); this.clearHiddenSelection(); this.draw(); }
+  onDependencyTypeChange(event: Event): void { this.dependencyTypeFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN'); this.clearHiddenSelection(); this.draw(); }
   onModuleChange(event: Event): void { this.moduleFilter.set((event.target as HTMLSelectElement).value); this.clearHiddenSelection(); this.draw(); }
   onScopeChange(event: Event): void { this.scopeFilter.set((event.target as HTMLSelectElement).value); this.clearHiddenSelection(); this.draw(); }
   onDepthChange(event: Event): void { this.localDepth.set(Number((event.target as HTMLSelectElement).value) || 1); this.draw(); }
@@ -195,7 +195,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   readonly filteredPackageCount = computed(() => (this.filteredGraph()?.nodes ?? []).filter(node => !node.project).length);
   readonly activeFilters = computed(() => [
     this.ecosystem() !== 'ALL' ? this.ecosystem() : '',
-    this.dependencyTypeFilter() !== 'ALL' ? (this.dependencyTypeFilter() === 'DIRECT' ? 'Directas' : 'Transitivas') : '',
+    this.dependencyTypeFilter() !== 'ALL' ? (this.dependencyTypeFilter() === 'DIRECT' ? 'Directas' : this.dependencyTypeFilter() === 'TRANSITIVE' ? 'Transitivas' : 'Relación sin resolver') : '',
     this.moduleFilter() !== 'ALL' ? this.moduleFilter() : '',
     this.scopeFilter() !== 'ALL' ? this.scopeFilter() : '',
     this.search().trim() ? `«${this.search().trim()}»` : '',
@@ -212,6 +212,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
   readonly renderLimited = computed(() => this.filteredPackageCount() + 1 > this.renderLimit());
   readonly directCount = computed(() => this.packageNodes().filter(node => node.dependencyType === 'DIRECT').length);
   readonly transitiveCount = computed(() => this.packageNodes().filter(node => node.dependencyType === 'TRANSITIVE').length);
+  readonly unknownCount = computed(() => this.packageNodes().filter(node => node.dependencyType === 'UNKNOWN').length);
   readonly edgeCount = computed(() => this.filteredGraph()?.edges.length ?? 0);
   readonly outgoingNodes = computed(() => {
     const selected = this.selectedNode();
@@ -240,10 +241,12 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
         { selector: 'node', style: { 'background-color': '#FFFFFF', 'background-opacity': 1, 'border-width': 1, 'border-color': '#CBD5E1', color: '#0F172A', label: 'data(label)', 'font-family': 'IBM Plex Sans, sans-serif', 'font-size': 11, 'font-weight': 600, 'text-wrap': 'wrap', 'text-max-width': '194px', width: 224, height: 62, shape: 'round-rectangle', 'text-valign': 'center', 'text-halign': 'center', 'text-margin-y': 0, 'text-outline-width': 0 } },
         { selector: 'node.direct', style: { 'border-color': '#2563EB', 'border-width': 2 } },
         { selector: 'node.transitive', style: { 'border-color': '#06B6D4', 'border-width': 1.5 } },
+        { selector: 'node.unknown', style: { 'border-color': '#EAB308', 'border-width': 2, 'border-style': 'dashed' } },
         { selector: 'node.project', style: { 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 2, color: '#FFFFFF', 'font-size': 12, 'font-weight': 700, width: 232, height: 72 } },
         { selector: 'node.network', style: { width: 'data(size)', height: 'data(size)', shape: 'ellipse', label: '', 'background-opacity': 0.94, 'border-width': 1.5, 'text-halign': 'left', 'text-valign': 'center', 'text-margin-x': 11, 'font-size': 10, 'font-weight': 600, 'text-wrap': 'ellipsis', 'text-max-width': '180px', 'text-background-opacity': 0.9, 'text-background-padding': '4px', 'text-background-shape': 'roundrectangle', 'overlay-padding': 4, 'overlay-opacity': 0.1, 'overlay-color': '#2563EB' } },
         { selector: 'node.network.direct', style: { 'background-color': '#2563EB', 'border-color': '#93C5FD', 'border-width': 2, 'overlay-color': '#2563EB', 'overlay-opacity': 0.18 } },
         { selector: 'node.network.transitive', style: { 'background-color': '#06B6D4', 'border-color': '#A5F3FC', 'border-width': 1.5, 'overlay-color': '#06B6D4', 'overlay-opacity': 0.13 } },
+        { selector: 'node.network.unknown', style: { 'background-color': '#EAB308', 'border-color': '#FEF08A', 'border-width': 2, 'overlay-color': '#EAB308', 'overlay-opacity': 0.16 } },
         { selector: 'node.network.project', style: { width: 26, height: 26, shape: 'ellipse', 'background-color': '#101827', 'border-color': '#06B6D4', 'border-width': 3, label: 'data(label)', 'font-size': 11, 'font-weight': 700, color: '#FFFFFF', 'overlay-color': '#06B6D4', 'overlay-padding': 9, 'overlay-opacity': 0.32, 'text-background-opacity': 0 } },
         { selector: 'node.network.label-visible', style: { label: 'data(label)' } },
         { selector: 'node:selected', style: { 'border-color': '#06B6D4', 'border-width': 3, 'overlay-opacity': 0.08, 'overlay-color': '#2563EB' } },
@@ -319,7 +322,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
       degrees.set(edge.target, (degrees.get(edge.target) ?? 0) + 1);
     }
     const elements: ElementDefinition[] = [
-      ...nodes.map(node => ({ data: { id: node.id, label: this.visualLabel(node), searchLabel: `${node.label} ${node.version} ${node.manifestPaths.join(' ')}`, project: node.project, ecosystem: node.ecosystem, dependencyType: node.dependencyType, level: node.level, size: this.networkNodeSize(node, degrees.get(node.id) ?? 0) }, classes: `${node.project ? 'project' : node.dependencyType === 'DIRECT' ? 'direct' : 'transitive'}${this.layoutMode() === 'NETWORK' ? ' network' : ''}` })),
+      ...nodes.map(node => ({ data: { id: node.id, label: this.visualLabel(node), searchLabel: `${node.label} ${node.version} ${node.manifestPaths.join(' ')}`, project: node.project, ecosystem: node.ecosystem, dependencyType: node.dependencyType, level: node.level, size: this.networkNodeSize(node, degrees.get(node.id) ?? 0) }, classes: `${node.project ? 'project' : node.dependencyType === 'DIRECT' ? 'direct' : node.dependencyType === 'TRANSITIVE' ? 'transitive' : 'unknown'}${this.layoutMode() === 'NETWORK' ? ' network' : ''}` })),
       ...edges.map(edge => ({ data: { id: edge.id, source: edge.source, target: edge.target, relationship: edge.relationship }, classes: this.layoutMode() === 'NETWORK' ? 'network' : '' })),
     ];
     this.cy.elements().remove();
@@ -487,6 +490,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
       }
       display.occurrences++;
       if (node.dependencyType === 'DIRECT') display.dependencyType = 'DIRECT';
+      else if (node.dependencyType === 'TRANSITIVE' && display.dependencyType !== 'DIRECT') display.dependencyType = 'TRANSITIVE';
       if (node.manifestPath && !display.manifestPaths.includes(node.manifestPath)) display.manifestPaths.push(node.manifestPath);
       if (node.scope && !display.scopes.includes(node.scope)) display.scopes.push(node.scope);
       display.manifestPath = display.manifestPaths.join(', ');

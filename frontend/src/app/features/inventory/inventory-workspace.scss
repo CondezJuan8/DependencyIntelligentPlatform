@@ -67,8 +67,10 @@ select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-v
 .status-item { display: flex; align-items: center; gap: 11px; min-width: 0; padding: 11px 12px; border: 1px solid var(--di-border); border-radius: 10px; background: var(--di-surface-muted); }
 .status-item h3 { margin: 0; font-size: 13px; }
 .status-item p { margin: 3px 0 0; color: var(--di-text-secondary); font-size: 12px; line-height: 1.4; }
+.status-item .coverage-warning { color: var(--di-warning); font-weight: 600; }
 .status-dot { flex: 0 0 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--di-warning); }
 .status-item.complete .status-dot { background: var(--di-success); }
+.status-item.partial .status-dot { background: var(--di-warning); }
 .status-item.failed .status-dot { background: var(--di-critical); }
 .status-count { flex: none; margin-left: auto; color: var(--di-text-secondary); font-size: 12px; font-weight: 600; }
 

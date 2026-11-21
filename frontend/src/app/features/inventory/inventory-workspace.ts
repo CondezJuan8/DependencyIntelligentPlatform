@@ -6,7 +6,7 @@ import { SessionApiService, accessError } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 
 type Ecosystem = 'MAVEN' | 'NPM';
-type DependencyKind = 'DIRECT' | 'TRANSITIVE' | string;
+type DependencyKind = 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN' | string;
 
 interface Repository {
   id: string;
@@ -31,13 +31,15 @@ interface Scan {
   analyzedAt: string;
   manifestCount: number;
   unresolvedCount: number;
+  coverageStatus: 'COMPLETE' | 'PARTIAL';
+  coverageMessage: string | null;
   dependencies: Dependency[];
 }
 
 interface ScanResult {
   ecosystem: Ecosystem;
   scan: Scan | null;
-  status: 'complete' | 'unavailable' | 'error';
+  status: 'complete' | 'partial' | 'unavailable' | 'error';
   message: string;
 }
 
@@ -57,6 +59,7 @@ interface VersionGroup {
   version: string;
   directCount: number;
   transitiveCount: number;
+  unknownCount: number;
   occurrences: Occurrence[];
 }
 
@@ -68,6 +71,7 @@ interface PackageGroup {
   versions: VersionGroup[];
   directCount: number;
   transitiveCount: number;
+  unknownCount: number;
 }
 
 type AssessmentStatus = 'NOT_ASSESSED' | 'MATCHED' | 'NO_KNOWN_ADVISORIES' | 'INCOMPLETE' | 'UNAVAILABLE' | 'STALE';
@@ -111,7 +115,7 @@ export class InventoryWorkspace implements OnInit {
   readonly codeEvidenceErrors = signal<Record<string, string>>({});
   readonly search = signal('');
   readonly ecosystemFilter = signal<'ALL' | Ecosystem>('ALL');
-  readonly dependencyFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE'>('ALL');
+  readonly dependencyFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN'>('ALL');
   readonly securityFilter = signal<'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW'>('ALL');
   readonly scopeFilter = signal('ALL');
   readonly loading = signal(true);
@@ -137,21 +141,24 @@ export class InventoryWorkspace implements OnInit {
       const key = JSON.stringify([occurrence.ecosystem, namespace, name]);
       let group = packages.get(key);
       if (!group) {
-        group = { key, ecosystem: occurrence.ecosystem, namespace, name, versions: [], directCount: 0, transitiveCount: 0 };
+        group = { key, ecosystem: occurrence.ecosystem, namespace, name, versions: [], directCount: 0, transitiveCount: 0, unknownCount: 0 };
         packages.set(key, group);
       }
       let versionGroup = group.versions.find((candidate) => candidate.version === version);
       if (!versionGroup) {
-        versionGroup = { version, directCount: 0, transitiveCount: 0, occurrences: [] };
+        versionGroup = { version, directCount: 0, transitiveCount: 0, unknownCount: 0, occurrences: [] };
         group.versions.push(versionGroup);
       }
       versionGroup.occurrences.push(occurrence);
       if (occurrence.dependency.dependencyType === 'DIRECT') {
         versionGroup.directCount++;
         group.directCount++;
-      } else {
+      } else if (occurrence.dependency.dependencyType === 'TRANSITIVE') {
         versionGroup.transitiveCount++;
         group.transitiveCount++;
+      } else {
+        versionGroup.unknownCount++;
+        group.unknownCount++;
       }
     }
 
@@ -163,6 +170,7 @@ export class InventoryWorkspace implements OnInit {
           versions: versions.sort((left, right) => left.version.localeCompare(right.version, undefined, { numeric: true })),
           directCount: versions.reduce((sum, version) => sum + version.directCount, 0),
           transitiveCount: versions.reduce((sum, version) => sum + version.transitiveCount, 0),
+          unknownCount: versions.reduce((sum, version) => sum + version.unknownCount, 0),
         };
       })
       .filter(group => group.versions.length > 0)
@@ -183,6 +191,10 @@ export class InventoryWorkspace implements OnInit {
 
   get transitiveCount(): number {
     return this.occurrences().filter((occurrence) => occurrence.dependency.dependencyType === 'TRANSITIVE').length;
+  }
+
+  get unknownCount(): number {
+    return this.occurrences().filter((occurrence) => occurrence.dependency.dependencyType === 'UNKNOWN').length;
   }
 
   get scopes(): string[] {
@@ -236,7 +248,7 @@ export class InventoryWorkspace implements OnInit {
   }
 
   updateDependencyKind(event: Event): void {
-    this.dependencyFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'DIRECT' | 'TRANSITIVE');
+    this.dependencyFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN');
   }
 
   updateScope(event: Event): void {
@@ -277,11 +289,12 @@ export class InventoryWorkspace implements OnInit {
     ]).subscribe((results) => {
       this.scanResults.set(results);
       this.occurrences.set(this.toOccurrences(results));
-      const complete = results.filter((result) => result.status === 'complete').length;
-      if (complete === 2) this.notice.set('Análisis completado para Maven y npm.');
-      else if (complete === 1) this.notice.set('El inventario se actualizó parcialmente; revisa el estado de cada ecosistema.');
+      const available = results.filter((result) => result.scan !== null).length;
+      if (available === 2 && results.some((result) => result.status === 'partial')) this.notice.set('Análisis completado con cobertura parcial; revisa qué dependencias quedaron por resolver.');
+      else if (available === 2) this.notice.set('Análisis completado para Maven y npm.');
+      else if (available === 1) this.notice.set('El inventario se actualizó parcialmente; revisa el estado de cada ecosistema.');
       else this.error.set(results.find((result) => result.status === 'error')?.message ?? 'No encontramos manifiestos compatibles para Maven ni npm en este repositorio.');
-      if (complete > 0) this.assessVulnerabilities(repository);
+      if (available > 0) this.assessVulnerabilities(repository);
       else this.busy.set(false);
     });
   }
@@ -396,7 +409,7 @@ export class InventoryWorkspace implements OnInit {
 
   private loadScanner(repository: Repository, ecosystem: Ecosystem) {
     return this.api.get<Scan | null>(this.endpoint(repository, ecosystem)).pipe(
-      map((scan) => ({ ecosystem, scan, status: scan ? 'complete' as const : 'unavailable' as const, message: scan ? 'Análisis disponible' : 'Aún sin analizar' })),
+      map((scan) => ({ ecosystem, scan, status: !scan ? 'unavailable' as const : scan.coverageStatus === 'PARTIAL' ? 'partial' as const : 'complete' as const, message: !scan ? 'Aún sin analizar' : scan.coverageMessage ?? 'Análisis disponible' })),
       catchError((failure: HttpErrorResponse) => of({
         ecosystem,
         scan: null,
@@ -408,7 +421,7 @@ export class InventoryWorkspace implements OnInit {
 
   private runScanner(repository: Repository, ecosystem: Ecosystem) {
     return this.api.post<Scan>(this.endpoint(repository, ecosystem), {}).pipe(
-      map((scan): ScanResult => ({ ecosystem, scan, status: 'complete', message: 'Analizado' })),
+      map((scan): ScanResult => ({ ecosystem, scan, status: scan.coverageStatus === 'PARTIAL' ? 'partial' : 'complete', message: scan.coverageMessage ?? 'Analizado' })),
       catchError((failure: HttpErrorResponse) => {
         const unavailable = failure.status === 400 || failure.status === 404;
         return of({

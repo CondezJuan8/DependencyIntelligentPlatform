@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JdbcSbomImportAdapter implements SbomImportStore {
@@ -31,6 +33,7 @@ public class JdbcSbomImportAdapter implements SbomImportStore {
             insert into sbom_documents(organization_id, scan_id, format, specification_version, serial_number, sha256)
             values (?, ?, ?, ?, ?, ?)
             """, organizationId, snapshot.id(), sbom.format(), sbom.specificationVersion(), sbom.serialNumber(), sha256);
+        Map<String, UUID> occurrences = new HashMap<>();
         for (var occurrence : sbom.components()) {
             var coordinates = occurrence.coordinates();
             var existing = jdbc.query("""
@@ -69,9 +72,23 @@ public class JdbcSbomImportAdapter implements SbomImportStore {
                 if (identifiers.isEmpty()) { throw new ConflictingPackageException(); }
             }
             jdbc.update("""
-                insert into scan_components(organization_id, scan_id, bom_ref, component_version_id, dependency_type)
-                values (?, ?, ?, ?, 'UNKNOWN')
-                """, organizationId, snapshot.id(), occurrence.bomRef(), versionId);
+                insert into scan_components(organization_id, scan_id, bom_ref, component_version_id, dependency_type, dependency_scope_id)
+                values (?, ?, ?, ?, ?, (select id from dependency_scopes where code=?))
+                """, organizationId, snapshot.id(), occurrence.bomRef(), versionId, occurrence.dependencyType(), occurrence.scope());
+            occurrences.put(occurrence.bomRef(), jdbc.queryForObject(
+                "select id from scan_components where organization_id=? and scan_id=? and bom_ref=?",
+                UUID.class, organizationId, snapshot.id(), occurrence.bomRef()));
+        }
+        if (!sbom.edges().isEmpty()) {
+            UUID relationshipType = jdbc.queryForObject("select id from dependency_relationship_types where code='depends_on'", UUID.class);
+            for (var edge : sbom.edges()) {
+                UUID parent = occurrences.get(edge.parentBomRef()), child = occurrences.get(edge.childBomRef());
+                if (parent == null || child == null || parent.equals(child)) continue;
+                jdbc.update("""
+                    insert into dependency_edges(organization_id, scan_id, source_scan_component_id, target_scan_component_id, relationship_type_id)
+                    values (?, ?, ?, ?, ?) on conflict(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id) do nothing
+                    """, organizationId, snapshot.id(), parent, child, relationshipType);
+            }
         }
     }
 

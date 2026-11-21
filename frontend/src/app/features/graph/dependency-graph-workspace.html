@@ -28,7 +28,7 @@
       </div>
       <div class="control-field"><label for="graph-type">{{ 'Tipo de dependencia' | t }}</label>
         <select id="graph-type" [value]="dependencyTypeFilter()" (change)="onDependencyTypeChange($event)">
-          <option value="ALL">{{ 'Directas y transitivas' | t }}</option><option value="DIRECT">{{ 'Solo directas' | t }}</option><option value="TRANSITIVE">{{ 'Solo transitivas' | t }}</option>
+          <option value="ALL">{{ 'Directas y transitivas' | t }}</option><option value="DIRECT">{{ 'Solo directas' | t }}</option><option value="TRANSITIVE">{{ 'Solo transitivas' | t }}</option><option value="UNKNOWN">{{ 'Relación sin resolver' | t }}</option>
         </select>
       </div>
       <div class="control-field"><label for="graph-scope">{{ 'Ámbito' | t }}</label>
@@ -55,6 +55,7 @@
           <article><span>{{ 'Paquetes visibles' | t }}</span><strong>{{ filteredPackageCount() }}</strong></article>
           <article><span>{{ 'Directas' | t }}</span><strong>{{ directCount() }}</strong></article>
           <article><span>{{ 'Transitivas' | t }}</span><strong>{{ transitiveCount() }}</strong></article>
+          <article><span>{{ 'Relación sin resolver' | t }}</span><strong>{{ unknownCount() }}</strong></article>
           <article><span>{{ 'Relaciones observadas' | t }}</span><strong>{{ edgeCount() }}</strong></article>
         </section>
         @if (currentGraph.unresolvedCount > 0) { <p class="graph-warning" role="status">{{ currentGraph.unresolvedCount }} {{ 'declaraciones o relaciones no se pudieron resolver desde los archivos analizados; no se dibujan conexiones supuestas.' | t }}</p> }
@@ -80,7 +81,7 @@
         <section class="graph-lower-grid">
           <div class="node-list-panel"><div class="section-title"><h2>{{ 'Paquetes del grafo' | t }}</h2><span>{{ packageNodes().length }}</span></div>
             <ul class="node-list">
-              @for (node of visiblePackageNodes(); track node.id) { <li><button type="button" [class.selected]="selectedNode()?.id === node.id" (click)="selectNode(node.id)" [attr.aria-pressed]="selectedNode()?.id === node.id"><span class="node-type" [class.transitive]="node.dependencyType === 'TRANSITIVE'">{{ node.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t) }}</span><strong>{{ node.label }}</strong><small>{{ node.ecosystem }} · {{ node.scope | t }} · {{ node.manifestPath }}</small>@if (node.occurrences > 1) { <span class="occurrence-count">{{ node.occurrences }} {{ 'Ubicaciones agrupadas' | t }}</span> }</button></li> }
+              @for (node of visiblePackageNodes(); track node.id) { <li><button type="button" [class.selected]="selectedNode()?.id === node.id" (click)="selectNode(node.id)" [attr.aria-pressed]="selectedNode()?.id === node.id"><span class="node-type" [class.transitive]="node.dependencyType === 'TRANSITIVE'" [class.unknown]="node.dependencyType === 'UNKNOWN'">{{ node.dependencyType === 'DIRECT' ? ('Directa' | t) : node.dependencyType === 'TRANSITIVE' ? ('Transitiva' | t) : ('Relación sin resolver' | t) }}</span><strong>{{ node.label }}</strong><small>{{ node.ecosystem }} · {{ node.scope | t }} · {{ node.manifestPath }}</small>@if (node.occurrences > 1) { <span class="occurrence-count">{{ node.occurrences }} {{ 'Ubicaciones agrupadas' | t }}</span> }</button></li> }
               @empty { <li class="list-empty">{{ 'No hay paquetes que coincidan con el filtro.' | t }}</li> }
             </ul>
             @if (hasMorePackages()) { <div class="list-pagination"><span>{{ visiblePackageNodes().length }} / {{ filteredPackageNodes().length }}</span><button type="button" (click)="loadMorePackages()">{{ 'Mostrar más paquetes' | t }}</button></div> }
@@ -89,7 +90,7 @@
             @if (selectedNode(); as selected) {
               <p class="eyebrow">{{ 'DETALLE DEL PAQUETE' | t }}</p><h2>{{ selected.label }}</h2>
               @if (selected.project) { <p class="project-detail-copy">{{ 'Las conexiones muestran las dependencias directas de este proyecto.' | t }}</p> }
-              <dl><dt>{{ 'Ecosistema' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : selected.ecosystem }}</dd><dt>{{ 'Tipo de dependencia' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : (selected.dependencyType === 'DIRECT' ? ('Directa' | t) : ('Transitiva' | t)) }}</dd>@if (!selected.project) { <dt>{{ 'Nivel en el mapa' | t }}</dt><dd>{{ selected.level }}</dd><dt>{{ 'Ámbito' | t }}</dt><dd>{{ selected.scope | t }}</dd><dt>{{ 'Archivos de origen' | t }}</dt><dd><code>{{ selected.manifestPath }}</code></dd><dt>{{ 'Ubicaciones agrupadas' | t }}</dt><dd>{{ selected.occurrences }}</dd> }</dl>
+              <dl><dt>{{ 'Ecosistema' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : selected.ecosystem }}</dd><dt>{{ 'Tipo de dependencia' | t }}</dt><dd>{{ selected.project ? ('Proyecto' | t) : selected.dependencyType === 'DIRECT' ? ('Directa' | t) : selected.dependencyType === 'TRANSITIVE' ? ('Transitiva' | t) : ('Relación sin resolver' | t) }}</dd>@if (!selected.project) { <dt>{{ 'Nivel en el mapa' | t }}</dt><dd>{{ selected.level }}</dd><dt>{{ 'Ámbito' | t }}</dt><dd>{{ selected.scope | t }}</dd><dt>{{ 'Archivos de origen' | t }}</dt><dd><code>{{ selected.manifestPath }}</code></dd><dt>{{ 'Ubicaciones agrupadas' | t }}</dt><dd>{{ selected.occurrences }}</dd> }</dl>
               <h3>{{ 'Declara estas dependencias' | t }}</h3><ul>@for (node of outgoingNodes(); track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }} <small>{{ node.version }}</small></button></li> } @empty { <li>{{ 'No se observaron dependencias salientes.' | t }}</li> }</ul>
               <h3>{{ 'Es utilizada por' | t }}</h3><ul>@for (node of incomingNodes(); track node.id) { <li><button type="button" (click)="selectNode(node.id)">{{ node.label }} <small>{{ node.version }}</small></button></li> } @empty { <li>{{ 'No se observaron paquetes que dependan de este nodo.' | t }}</li> }</ul>
               @if (!selected.project) { <button class="local-view-button" type="button" (click)="showLocalView()">{{ 'Explorar conexiones de este paquete' | t }}</button> }
@@ -100,7 +101,7 @@
         <section class="source-panel" aria-labelledby="graph-source-heading"><h2 id="graph-source-heading">{{ 'Fuentes de este grafo' | t }}</h2>
           @for (source of currentGraph.sources; track source.scanId) { <article><div><strong>{{ source.ecosystem | t }}</strong><span>{{ source.analyzedAt | date:'medium' }}</span></div><p>{{ 'Commit' | t }}: <code>{{ source.commitSha || ('No disponible' | t) }}</code></p><p>SHA-256: <code>{{ source.sha256 }}</code></p></article> }
         </section>
-        <p class="graph-note">{{ 'npm muestra relaciones declaradas en package-lock. Maven muestra solo las dependencias directas declaradas en POM; la resolución transitiva Maven todavía no forma parte de este grafo.' | t }}</p>
+        <p class="graph-note">{{ 'npm conserva las relaciones verificables del package-lock. Maven conserva todos los paquetes detectados en POM/SBOM, pero cuando el SBOM no confirma sus aristas los muestra como relación sin resolver y no dibuja conexiones supuestas.' | t }}</p>
       }
     }
   }

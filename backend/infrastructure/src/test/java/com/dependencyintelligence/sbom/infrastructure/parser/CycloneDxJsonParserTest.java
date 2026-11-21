@@ -42,7 +42,7 @@ class CycloneDxJsonParserTest {
         var result = parser.parse(input(document.toString()));
         assertEquals(2, result.components().size());
         var coordinates = result.components().getFirst().coordinates();
-        assertEquals("Maven", coordinates.ecosystem());
+        assertEquals("maven", coordinates.ecosystem());
         assertEquals("org.example", coordinates.namespace());
         assertEquals("demo-core", coordinates.name());
         assertEquals("1.0.0", coordinates.version());
@@ -70,7 +70,7 @@ class CycloneDxJsonParserTest {
             ((ObjectNode) document.get("components").get(0)).remove(field);
             rejects(document.toString(), INVALID_COMPONENT);
         }
-        for (String purl : new String[]{"pkg:npm/demo-core@1.0.0", "pkg:maven/org.example/demo-core@9.0.0",
+        for (String purl : new String[]{"pkg:npm/other@1.0.0", "pkg:maven/org.example/demo-core@9.0.0",
                 "pkg:maven/org.example/demo-core@1.0.0?type=jar"}) {
             var document = document();
             ((ObjectNode) document.get("components").get(0)).put("purl", purl);
@@ -88,6 +88,27 @@ class CycloneDxJsonParserTest {
         rejects(document.toString(), DUPLICATE_REFERENCE);
     }
 
+    @Test void importsScopedNpmPackagesAndKeepsRootAndTransitiveRelationships() throws Exception {
+        String bom = """
+            {"bomFormat":"CycloneDX","specVersion":"1.7","metadata":{"component":{"bom-ref":"root"}},
+             "components":[
+               {"type":"library","bom-ref":"scoped","name":"@scope/widget","version":"2.3.0","purl":"pkg:npm/%40scope/widget@2.3.0","scope":"required"},
+               {"type":"library","bom-ref":"axios","name":"axios","version":"1.7.9","purl":"pkg:npm/axios@1.7.9","scope":"optional"}],
+             "dependencies":[{"ref":"root","dependsOn":["scoped"]},{"ref":"scoped","dependsOn":["axios"]}]}
+            """;
+        var parsed = parser.parse(input(bom));
+        var scoped = parsed.components().getFirst();
+        assertEquals("npm", scoped.coordinates().ecosystem());
+        assertEquals("@scope", scoped.coordinates().namespace());
+        assertEquals("@scope/widget", scoped.coordinates().name());
+        assertEquals("DIRECT", scoped.dependencyType());
+        assertEquals("optional", parsed.components().get(1).scope());
+        assertEquals("TRANSITIVE", parsed.components().get(1).dependencyType());
+        assertEquals(1, parsed.edges().size());
+        assertEquals("scoped", parsed.edges().getFirst().parentBomRef());
+        assertEquals("axios", parsed.edges().getFirst().childBomRef());
+    }
+
     @Test void enforcesByteAndComponentLimitsAndAllowsEmptyInventory() throws Exception {
         var document = document();
         var components = (ArrayNode) document.get("components");
@@ -99,7 +120,7 @@ class CycloneDxJsonParserTest {
             ((ObjectNode) component).put("bom-ref", "ref-" + i);
             components.add(component);
         }
-        assertEquals(500, parser.parse(input(document.toString())).components().size());
+        assertEquals(SbomLimits.MAX_COMPONENTS, parser.parse(input(document.toString())).components().size());
         components.add(template);
         rejects(document.toString(), LIMIT_EXCEEDED);
         var oversized = new ByteArrayInputStream(new byte[SbomLimits.MAX_BYTES + 1]);

@@ -53,9 +53,9 @@
         <h2 id="scanner-heading">Formatos revisados</h2>
         <div class="status-list">
           @for (result of scanResults(); track result.ecosystem) {
-            <article class="status-item" [class.complete]="result.status === 'complete'" [class.failed]="result.status === 'error'">
+            <article class="status-item" [class.complete]="result.status === 'complete'" [class.partial]="result.status === 'partial'" [class.failed]="result.status === 'error'">
               <span class="status-dot" aria-hidden="true"></span>
-              <div><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><p>{{ result.message }}</p></div>
+              <div><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><p>{{ result.message }}</p>@if (result.scan && result.scan.unresolvedCount > 0) { <p class="coverage-warning">{{ result.scan.unresolvedCount }} componentes o relaciones quedaron sin versión o vínculo verificable.</p> }</div>
               @if (result.scan) { <span class="status-count">{{ result.scan.dependencies.length }} paquetes</span> }
             </article>
           }
@@ -69,6 +69,7 @@
         <article class="summary-card"><span>Versiones</span><strong>{{ versionCount }}</strong><small>Versiones exactas detectadas</small></article>
         <article class="summary-card"><span>Directas</span><strong>{{ directCount }}</strong><small>Declaradas por el proyecto</small></article>
         <article class="summary-card"><span>Transitivas</span><strong>{{ transitiveCount }}</strong><small>Registradas en lockfiles</small></article>
+        <article class="summary-card"><span>{{ 'Relación sin resolver' | t }}</span><strong>{{ unknownCount }}</strong><small>{{ 'Detectadas en el SBOM sin conexión verificable' | t }}</small></article>
       </section>
 
       <section class="assessment-summary" aria-labelledby="assessment-heading" aria-live="polite">
@@ -112,7 +113,7 @@
           <div class="filter">
             <label for="dependency-filter">Tipo de dependencia</label>
             <select id="dependency-filter" [value]="dependencyFilter()" (change)="updateDependencyKind($event)">
-              <option value="ALL">Todas</option><option value="DIRECT">Directas</option><option value="TRANSITIVE">Transitivas</option>
+              <option value="ALL">Todas</option><option value="DIRECT">Directas</option><option value="TRANSITIVE">Transitivas</option><option value="UNKNOWN">{{ 'Relación sin resolver' | t }}</option>
             </select>
           </div>
           <div class="filter">
@@ -140,13 +141,13 @@
                 <summary>
                   <span class="package-symbol" [class.npm]="group.ecosystem === 'NPM'" aria-hidden="true">{{ group.ecosystem === 'MAVEN' ? 'M' : 'N' }}</span>
                   <span class="package-identity"><strong data-no-translate>{{ group.namespace ? group.namespace + ':' : '' }}{{ group.name }}</strong><small>{{ group.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</small></span>
-                  <span class="package-metrics"><span>{{ group.versions.length }} {{ group.versions.length === 1 ? 'versión' : 'versiones' }}</span><span>{{ group.directCount }} directas · {{ group.transitiveCount }} transitivas</span></span>
+                  <span class="package-metrics"><span>{{ group.versions.length }} {{ group.versions.length === 1 ? 'versión' : 'versiones' }}</span><span>{{ group.directCount }} directas · {{ group.transitiveCount }} transitivas · {{ group.unknownCount }} {{ 'sin relación confirmada' | t }}</span></span>
                   <span class="chevron" aria-hidden="true">⌄</span>
                 </summary>
                 <div class="version-list">
                   @for (version of group.versions; track version.version) {
                     <article class="version-card">
-                      <header class="version-heading"><h3>Versión <code data-no-translate>{{ version.version }}</code></h3><div class="kind-tags"><span class="tag direct">{{ version.directCount }} directas</span><span class="tag transitive">{{ version.transitiveCount }} transitivas</span></div></header>
+                      <header class="version-heading"><h3>Versión <code data-no-translate>{{ version.version }}</code></h3><div class="kind-tags"><span class="tag direct">{{ version.directCount }} directas</span><span class="tag transitive">{{ version.transitiveCount }} transitivas</span><span class="tag unknown">{{ version.unknownCount }} {{ 'sin relación confirmada' | t }}</span></div></header>
                       @if (assessmentFor(group, version); as assessment) {
                         <section class="version-assessment" [class]="'version-assessment state-' + assessment.status.toLowerCase()" [attr.aria-label]="assessmentLabel(assessment.status)">
                           <strong>{{ assessmentLabel(assessment.status) | t }}</strong>
@@ -188,7 +189,7 @@
                       <ul class="occurrence-list">
                         @for (occurrence of version.occurrences; track occurrence.scanId + occurrence.dependency.manifestPath + occurrence.dependency.scope) {
                           <li>
-                            <span class="occurrence-type" [class.direct-type]="occurrence.dependency.dependencyType === 'DIRECT'">{{ occurrence.dependency.dependencyType === 'DIRECT' ? 'Directa' : 'Transitiva' }}</span>
+                            <span class="occurrence-type" [class.direct-type]="occurrence.dependency.dependencyType === 'DIRECT'" [class.unknown-type]="occurrence.dependency.dependencyType === 'UNKNOWN'">{{ occurrence.dependency.dependencyType === 'DIRECT' ? ('Directa' | t) : occurrence.dependency.dependencyType === 'TRANSITIVE' ? ('Transitiva' | t) : ('Relación sin resolver' | t) }}</span>
                             <span class="occurrence-detail"><strong>Archivo</strong><code data-no-translate>{{ occurrence.dependency.manifestPath }}</code></span>
                             <span class="occurrence-detail"><strong>Ámbito</strong><span data-no-translate>{{ occurrence.dependency.scope }}</span></span>
                             <span class="occurrence-detail"><strong>Analizado</strong><time [attr.datetime]="occurrence.analyzedAt">{{ occurrence.analyzedAt | date:'medium' }}</time></span>

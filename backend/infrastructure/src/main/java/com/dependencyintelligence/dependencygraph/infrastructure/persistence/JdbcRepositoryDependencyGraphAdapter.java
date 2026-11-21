@@ -36,11 +36,13 @@ public final class JdbcRepositoryDependencyGraphAdapter implements RepositoryDep
             select id,scanner_name,source_sha256,git_reference,finished_at,unresolved_count
             from scans
             where organization_id=? and repository_id=? and status='COMPLETED'
-              and scanner_name in ('maven-manifest','npm-lockfile')
+              and scanner_name in ('maven-manifest','npm-lockfile','cdxgen-maven','cdxgen-npm')
               and id=(select candidate.id from scans candidate
                      where candidate.organization_id=scans.organization_id
                        and candidate.repository_id=scans.repository_id
-                       and candidate.scanner_name=scans.scanner_name and candidate.status='COMPLETED'
+                       and ((candidate.scanner_name in ('maven-manifest','cdxgen-maven') and scans.scanner_name in ('maven-manifest','cdxgen-maven'))
+                         or (candidate.scanner_name in ('npm-lockfile','cdxgen-npm') and scans.scanner_name in ('npm-lockfile','cdxgen-npm')))
+                       and candidate.status='COMPLETED'
                      order by candidate.finished_at desc limit 1)
             order by scanner_name
             """, (row, index) -> new SourceRow(row.getObject(1, UUID.class), ecosystem(row.getString(2)),
@@ -112,7 +114,7 @@ public final class JdbcRepositoryDependencyGraphAdapter implements RepositoryDep
             scans.stream().mapToInt(SourceRow::unresolvedCount).sum());
     }
 
-    private static String ecosystem(String scanner) { return "npm-lockfile".equals(scanner) ? "npm" : "maven"; }
+    private static String ecosystem(String scanner) { return scanner.endsWith("npm") || "npm-lockfile".equals(scanner) ? "npm" : "maven"; }
     private static String manifestPath(String bomRef) {
         int marker = bomRef.indexOf('#');
         return marker < 0 ? bomRef : bomRef.substring(0, marker);
