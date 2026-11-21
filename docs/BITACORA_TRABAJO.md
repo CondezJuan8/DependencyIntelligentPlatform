@@ -2,6 +2,49 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 55 — integración del scanner cdxgen y diagnóstico OSV
+
+Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y diagnóstico comprobado
+
+- La pantalla Inventario ejecuta `POST /maven-analysis` y `POST /npm-analysis`, después solicita `/vulnerability-analysis`. El endpoint genérico `/scans` solo guarda una solicitud; no ejecuta el scanner.
+- Los readers anteriores leían directamente POM/package-lock; CycloneDX aceptaba solo 1.6/Maven, limitaba a 500 componentes y descartaba relaciones. El parser Maven directo no resolvía herencia/`dependencyManagement`/BOM; el lockfile npm ya reconstruía transitivas, pero generaba PURL de scope codificando también la barra.
+- La inspección del adaptador OSV confirma paginación por `next_page_token`, asociación de la fila por índice de consulta, Maven `group:artifact`, npm conserva el nombre scoped y el ID OSV se conserva en detalle mínimo cuando falla la descarga; no encontré una omisión comprobada en ese adaptador.
+
+### Cambios realizados
+
+- Los readers conectados a los endpoints de Inventario ahora invocan cdxgen por HTTP a través de la salida Application `CycloneDxGenerator`; el backend crea una fuente temporal validada, aplica topes y la pone en solo lectura para el scanner. No inicia contenedores ni monta el socket de Docker.
+- `compose.yaml` define cdxgen-secure 13.8.0 como sidecar sin puerto publicado, red interna, filesystem/volumen de fuente read-only, sin capabilities, `no-new-privileges`, límites de memoria/CPU/procesos/tiempo y sin ejecución de instalaciones. La imagen está fijada por digest OCI multi-arquitectura. Se conservan los permisos de Node de la imagen segura, se limita la red a una red Docker interna y se espera su healthcheck antes de iniciar la API.
+- CycloneDX 1.6/1.7 mapea paquetes Maven/npm y sus relaciones respaldadas por el SBOM. Aumenta el límite a 50.000 componentes/25 MiB; PURL npm conserva `@scope/paquete`. Importación manual persiste tipo, ámbito y aristas.
+- V25 agrega estado/mensaje de cobertura. Maven siempre se informa parcial porque el modo seguro no ejecuta Maven ni promete el árbol transitivo; npm se marca parcial cuando el SBOM carece de versión, alcance o relaciones verificables. Inventario histórico se mantiene consultable por nombre de scanner anterior.
+- UI de Inventario muestra la cobertura parcial y el número de componentes/aristas pendientes.
+- Se añadieron tests controlados para mapping Maven/npm, relaciones, `@scope`, paginación/ID OSV sin aliases/severidad y fallo del proveedor; se amplió el IT de importación para validar persistencia de scoped npm y aristas.
+
+### Herramientas y tecnologías
+
+| Herramienta/tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| cdxgen secure 13.8.0 | Generación CycloneDX Maven/npm separada de la API | Imagen de contenedor fijada por digest |
+| Spring `RestClient`, Java NIO/ZIP, Jackson | Cliente sidecar, extracción acotada, metadatos/manifiesto y conversión a modelo existente | No |
+| PostgreSQL/Flyway | Nueva V25 de cobertura; persistencia de las aristas del importador existente | No |
+| Angular/TypeScript | Mostrar cobertura parcial de cada ecosistema | No |
+| JDK 21, Maven 3.9.11 | Compilar y ejecutar pruebas focales/IT | No |
+
+### Verificación y límites
+
+- Leídos AGENTS, contexto maestro, pendientes y README del scanner antes de editar. Contraste del flujo en controller, casos de uso, readers, adaptadores SQL, frontend y OSV.
+- Se ejecutaron en una copia temporal del backend con JDK 21/Maven 3.9.11: 18 pruebas focales de parser CycloneDX (9), lockfile npm (2), adapter cdxgen (2), mapper (3) y OSV (2); 18 pasaron. El intento inicial reveló tres fallos de prueba/conteo; se corrigieron y se repitió la suite limpia.
+- Build Angular ejecutado: correcto. Quedaron advertencias de presupuesto de bundle y SCSS; no se modificaron esos presupuestos.
+- La seguridad del modo cdxgen-secure se contrastó con el Threat Model/CLI/release oficial 13.8.0 y se validó el runtime real del sidecar mediante healthcheck y fixtures Maven/npm.
+- Pasaron 5 pruebas `SbomImportIT` con PostgreSQL desechable. El scanner real encontró el paquete npm scoped directo y el transitivo, incluyendo sus dos aristas verificadas; encontró dos paquetes en el fixture Maven multimódulo y resolvió las versiones locales gestionadas/heredadas, pero no generó relaciones Maven en modo seguro, por lo que quedaron `UNKNOWN` y con cobertura parcial.
+- V25 se aplicó en Compose, backend/frontend fueron actualizados y el frontend respondió HTTP 200. OSV se verificó con respuestas controladas, sin consulta en vivo. Falta un recorrido autenticado de usuario desde Inventario; no se afirma validación de punta a punta en la sesión real.
+- El build Angular fue correcto con advertencias preexistentes de presupuesto de bundle/SCSS. La suite completa del backend no se ejecutó: se corrieron solo las regresiones focales y el IT de persistencia necesarios para este cambio.
+
+### Siguiente paso
+
+Siguiente: hacer el recorrido autenticado desde Inventario con un repositorio real y revisar el resultado recibido en la UI, incluyendo el estado OSV. La cobertura Maven transitiva requiere un resolver compatible con el aislamiento seguro; hasta implementarlo se presenta explícitamente como parcial.
+
 ## Bloque 52 — filtros de seguridad, grafo en red y flujo de invitación
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.

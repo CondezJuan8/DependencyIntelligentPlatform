@@ -1,6 +1,16 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 54.
+Actualizado: 20 de noviembre de 2026, bloque 55.
+
+## Bloque 55 — scanner de dependencias y cobertura OSV (implementado; recorrido autenticado pendiente)
+
+Se conectó el flujo usado por el botón de Inventario a cdxgen secure 13.8.0 mediante un sidecar Docker aislado. Los readers Maven/npm convierten SBOM CycloneDX en el mismo modelo de inventario y grafo; V25 registra cobertura `COMPLETE/PARTIAL`; el importador CycloneDX ahora admite Maven/npm y guarda las aristas declaradas. El análisis Maven se marca parcial porque el modo seguro no ejecuta Maven y no verifica el árbol transitivo completo. Se añadieron regresiones focales de mapper, extracción aislada, paquete scoped y paginación/fallo OSV.
+
+**Verificado:** 18 pruebas focales, 5 pruebas `SbomImportIT` con PostgreSQL desechable, build Angular, runtime cdxgen 13.8.0 en Compose y V25 aplicada. El sidecar encontró npm scoped directo + transitivo y sus dos relaciones. Para Maven multimódulo encontró versiones heredadas/gestionadas en dos módulos, conservó ambos paquetes sin inventar aristas y marcó la cobertura parcial/relación `UNKNOWN`. El frontend y backend de Compose se actualizaron; el frontend responde HTTP 200. OSV se probó con respuestas controladas, no en vivo. No se completó todavía una solicitud autenticada de análisis desde la sesión del usuario.
+
+**Pendiente:** recorrido autenticado desde Inventario sobre repositorios reales; confirmar en la UI que se actualizan inventario, relaciones y vulnerabilidades después del análisis, y observar el comportamiento con un error real de OSV. Maven transitivo sigue limitado por el modo seguro: la cobertura se informa parcial y no se afirman relaciones no emitidas por el SBOM. Ver [scanner](../infra/scanner/README.md) y [bitácora](BITACORA_TRABAJO.md).
+
+Ver [scanner](../infra/scanner/README.md) y [bitácora](BITACORA_TRABAJO.md).
 
 **Bloque 54 implementado, revisión de UI pendiente:** el grafo ya ofrece vista general/local, profundidad y dirección, búsqueda centrada, filtros combinables por ecosistema/módulo/tipo/ámbito, grupos por namespace y contador de nodos/aristas observadas. No se crean aristas que atraviesen dependencias ocultas. El DTO del grafo todavía no incluye severidad de vulnerabilidad. Con datos reales se midió `OMEGA-main` (277 paquetes; 492 relaciones de paquete) y `Bot-de-Whatsapp-plantilla--main` (284 paquetes consolidados; 411 relaciones de paquete); el layout Cytoscape headless tomó 297 ms y 306 ms. El caso de seis paquetes fue solo un fixture derivado de OMEGA, porque no existe un repo de ese tamaño en la base activa. Falta recorrido visual en navegador; la sesión CUA no pudo verificar la URL de Chrome. Ver [bitácora](BITACORA_TRABAJO.md).
 
