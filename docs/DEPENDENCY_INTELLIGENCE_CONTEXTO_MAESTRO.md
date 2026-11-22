@@ -1,3 +1,11 @@
+### Bloque 59 — resolver local Maven y ordenar Inventario (22 de noviembre de 2026)
+
+La instancia real había mostrado que cdxgen detectó un POM, pero no generó componentes. El fallback Maven ahora construye modelos acotados solo con POM incluidos en el ZIP autorizado: lee POM multimódulo, hereda propiedades y `dependencyManagement` del padre local y aplica versiones de BOM importados que también estén presentes en el repositorio. No ejecuta Maven, plugins ni código del proyecto y no descarga fuentes externas. Los paquetes que obtiene se conservan como declaraciones directas; no se inventan transitivas. Las referencias que no se puedan verificar mantienen cobertura parcial y ya no se presentan como errores del inventario: su explicación está plegada en el estado de cobertura del ecosistema y disponible bajo demanda.
+
+Inventario reorganiza análisis, resultados y catálogo: resumen legible por ecosistema, diferencia entre dependencias con versión y elementos por confirmar, buscador, filtros rápidos de seguridad y filtros avanzados plegables, conteo visible y etiquetas explicativas. Se ajustó el mensaje posterior al análisis para que sea neutral y la clasificación desconocida no parezca una alerta crítica. El resultado de cdxgen y OSV conserva estados separados.
+
+Verificación focal: `CdxgenMavenManifestReaderTest` 3/3, `CdxgenNpmLockfileReaderTest` 1/1 y `CdxgenScannerAdapterTest` 2/2; build Angular completado. No se repitió el análisis autenticado de OMEGA, así que la mejora sobre ese repositorio se debe confirmar desde Inventario. Maven remoto, transitivas no aportadas por el SBOM y perfiles complejos siguen fuera de la cobertura confirmada. Ver [bitácora](BITACORA_TRABAJO.md), [scanner](../infra/scanner/README.md) y [pendientes](PENDIENTES.md).
+
 # CONTEXTO MAESTRO — DEPENDENCY INTELLIGENCE
 ## Documento de continuidad para migrar de cuenta de ChatGPT
 

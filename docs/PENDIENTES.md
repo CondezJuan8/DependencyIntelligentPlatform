@@ -1,3 +1,11 @@
+Actualización del bloque 59 (22 de noviembre de 2026): se amplió el fallback Maven a padres, propiedades, gestión de dependencias y BOM locales, y se reorganizó el inventario. El fallback pasó 3 pruebas; lockfile npm y adaptador cdxgen pasaron 1 y 2. El build frontend compila. Falta reanalizar OMEGA desde una sesión autenticada y revisar visualmente el flujo, sobre todo los estados Maven, antes de dar por confirmada la mejora con datos reales.
+
+## Bloque 59 — resolver Maven local y aclarar Inventario
+
+Implementado: lectura estática y acotada de POM padre, propiedades y BOM disponibles en la fuente del repositorio. La UI diferencia alcance de análisis y vulnerabilidades, ofrece filtros rápidos y avanzados, buscador y conteo de resultados. Mensaje neutral de finalización.
+
+Pendiente de validar con usuario: reanalizar OMEGA y confirmar cuántas dependencias aparecen ahora; revisar claro/oscuro y móvil/escritorio. Límites confirmados: POM/BOM remotos, resolución transitiva Maven no incluida en SBOM y perfiles de construcción no resueltos.
+
 # Pendientes de Dependency Intelligence
 
 Actualizado: 22 de noviembre de 2026, bloque 58.

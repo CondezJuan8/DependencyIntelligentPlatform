@@ -1,3 +1,7 @@
+### Actualización del bloque 59 — scanner Maven e Inventario (22/11/2026)
+
+Java 21 / Infrastructure: fallback estático Maven desde POM incluidos, con herencia de propiedades y `dependencyManagement`/BOM local; límites de entrada preservados y sin invocar Maven. Angular/TypeScript/SCSS: resumen de estado por ecosistema, cobertura explicable, filtros rápidos y avanzados y contador de resultados. Sin paquetes nuevos, cambios de esquema ni cambios al adaptador OSV. Build y pruebas focales constan en la bitácora. OMEGA requiere reanálisis desde UI para validar conteos reales.
+
 # Dependency Intelligence — Stack tecnológico oficial propuesto
 
 ### Bloque 51 — mapa de dependencias por capas

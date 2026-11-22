@@ -1,3 +1,11 @@
+## Resolución local Maven y comunicación de cobertura (22/11/2026)
+
+Si cdxgen detecta un POM y entrega un SBOM sin componentes, `BoundedMavenArchiveReader` extrae únicamente bytes de POM con límites de entradas, tamaño y expansión. `MavenPomDependencyResolver` crea un modelo local que resuelve propiedades heredadas, POM padre por ruta relativa, versiones gestionadas y BOM de tipo `pom`/scope `import` incluidos en el mismo archivo fuente. Devuelve declaraciones directas confirmadas y su scope. No se inicia Maven ni se ejecutan wrappers, plugins, compilación o scripts; tampoco hay resolución de dependencias desde Internet.
+
+El inventario presenta primero el estado por ecosistema y las dependencias recuperadas. Los elementos sin versión o vínculo verificable se distinguen de hallazgos de seguridad y la explicación técnica es expandible. OSV recibe solo coordenadas/versiones exactas guardadas por el scanner; su resultado permanece separado.
+
+Verificado con fixtures unitarios de herencia local y BOM importado; OMEGA aún debe reanalizarse en una sesión de usuario para confirmar el conteo resultante en la instancia. No se afirma cobertura de perfiles activados por entorno, BOM/POM remotos ni transitivas Maven no incluidas en el SBOM.
+
 # Scanner de dependencias
 ## Fallback Maven para SBOM vacío (22/11/2026)
 

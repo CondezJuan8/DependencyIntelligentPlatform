@@ -1343,3 +1343,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Herramientas y tecnologías utilizadas:** revisión de controladores/lectores/adaptador, reportes JUnit existentes, JDK 21/Maven 3.9.11, HTTP de solo lectura a OSV y checks HTTP locales. Sin cambios de código de producto ni de base de datos.
 
 **Siguiente paso para cerrar:** con una sesión autenticada en `localhost:8089`, analizar un repositorio Maven y uno npm, confirmar cantidades/estado de cobertura en Inventario, luego usar **Consultar OSV** y verificar estados/hallazgos visibles. Mantener fixtures/repositorios y datos actuales intactos.
+
+## Bloque 59 — resolver Maven local y ordenar Inventario
+
+**Petición:** hacer que el scanner recupere mejor las dependencias verificables y presentar el inventario con una jerarquía que resulte clara para personas nuevas y conserve filtros útiles para perfiles técnicos.
+
+**Cambios:** se añadió `MavenPomDependencyResolver` como fallback estático al SBOM Maven vacío. Lee POMs desde ZIP con límites existentes, resuelve herencia por ruta/GAV local, propiedades y versiones administradas, incluidos BOM locales importados. No descarga Maven/BOM remotos, no ejecuta código del repositorio ni inventa transitivas. Inventario agrupa el estado por ecosistema, aclara qué significa cobertura parcial en un detalle plegable, prioriza catálogo, buscador y filtros rápidos y deja criterios avanzados plegables; conteo indica cuántas dependencias pasan los filtros. El aviso de fin de análisis ya no encabeza el flujo con un mensaje de cobertura parcial.
+
+**Herramientas utilizadas:** Java 21, Maven 3.9.11, JUnit 5, Angular 22, TypeScript, SCSS y diccionario de traducciones existente. No se añadieron dependencias, endpoints ni migraciones.
+
+**Verificación:** `CdxgenMavenManifestReaderTest` 3/3, `CdxgenNpmLockfileReaderTest` 1/1 y `CdxgenScannerAdapterTest` 2/2. `npm run build` finalizó correctamente; se mantienen avisos de presupuesto Angular ya presentes y el bundle inicial queda en 587.53 kB/500 kB. El primer intento de build/test sin permisos no pudo leer fuentes y el repositorio Maven por defecto intentó crear `C:\.m2`; con permisos y caché Maven local del usuario las pruebas focales pasaron. No se reanalizó OMEGA en una sesión autenticada, por lo que su conteo de componentes tras el fix no está verificado. No se tocaron los servicios de datos.
+
+**Siguiente paso:** desde localhost:8089, seleccionar OMEGA, ejecutar análisis y confirmar cantidad de dependencias Maven/OSV; luego revisar filtros y resumen visualmente. Completar Maven remoto/transitivo solo tras acordar el modelo seguro que se aceptará para esas fuentes.

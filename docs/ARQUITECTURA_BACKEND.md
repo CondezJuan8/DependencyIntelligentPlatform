@@ -1,3 +1,7 @@
+## Actualización — scanner Maven y presentación de Inventario (22/11/2026)
+
+Infrastructure incorpora `MavenPomDependencyResolver`, usado como fallback del puerto de lectura Maven solo cuando cdxgen detecta manifiestos pero no componentes. Trabaja sobre POM acotados extraídos del ZIP autorizado y resuelve herencia y gestión local de versiones/BOM sin ejecutar procesos externos. Domain y Application no adquieren dependencias de Spring ni del parser. Las declaraciones se persisten con el flujo existente y OSV continúa como etapa separada basada en versiones exactas. La interfaz presenta resultados por ecosistema y detalle progresivo de cobertura, más búsqueda/filtros del inventario. El runtime real requiere un nuevo análisis autenticado de OMEGA para confirmar la recuperación en datos de usuario.
+
 # Arquitectura del backend
 
 ## Bloque 58 — fallback para inventario Maven sin SBOM
