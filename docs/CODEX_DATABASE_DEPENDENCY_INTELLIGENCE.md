@@ -27,7 +27,7 @@ Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas hist�
 
 - Producto completo listo para usar, por fases: primero local y después servidor. El plan previo de demo de dos semanas/50 horas ya no limita el alcance ni define la aceptación. No hay nueva fecha total comprometida.
 - Correo/contraseña, Google y GitHub como métodos de acceso. Login GitHub y autorización/instalación para acceder a repositorios son flujos distintos. Modelar credenciales locales e identidades externas vinculadas al usuario.
-- Java/Maven y JavaScript/npm. El parser actual solo cubre el subconjunto Maven de ejemplo; npm sigue pendiente.
+- Java/Maven y JavaScript/npm. El scanner aislado cdxgen alimenta ambos inventarios y V25 registra la cobertura en `scans`. V22/V23 preservan la evidencia OSV por scan y componente. Los límites vigentes se detallan en el bloque 64 del [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
 - Primer piloto con equipos y permisos por repositorio, pruebas aisladas de cambios y propuesta de PR sujeta a aprobación. No se dan por confirmados roles personalizados.
 - Gemini dentro de la plataforma y Ollama para embeddings. Modelo, versión, dimensión y límites concretos se verificarán al implementar. No se garantiza gratuidad ni una cuota de proveedor.
 - No integrar ni agendar Codex dentro del producto hasta una nueva instrucción explícita del usuario. Codex como herramienta de desarrollo es independiente de esto.

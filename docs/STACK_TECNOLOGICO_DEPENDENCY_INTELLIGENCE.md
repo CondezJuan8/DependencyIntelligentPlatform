@@ -79,7 +79,7 @@ Actualización del bloque 06, 15 de noviembre de 2026. Acceso local en Spring Se
 Esta nota complementa la propuesta histórica sin convertir todas sus opciones en decisiones aprobadas. El objetivo vigente es el producto completo listo para usar, por fases, primero local y después servidor. El plan anterior de demo/50 horas deja de limitar el alcance o la aceptación. Decisiones y pendientes: `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; diseño database vigente: `CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md`.
 
 - Acceso confirmado: correo/contraseña, Google y GitHub; equipos y permisos por repositorio en el primer piloto. La identidad GitHub no sustituye la autorización/instalación para acceder a repositorios.
-- Ecosistemas de análisis activos en el bloque 42: Java/Maven explícito y JavaScript/npm package-lock v2/v3; sus versiones exactas se evalúan en OSV. Se mantiene pendiente ampliar la resolución y cobertura.
+- Ecosistemas de análisis activos: Java/Maven y JavaScript/npm mediante cdxgen seguro 13.8.0, con lectores de respaldo acotados. OSV evalúa las versiones exactas que guarda el scanner. Maven transitivo mantiene cobertura parcial. Ver el bloque 64 del [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
 - IA de la plataforma: Gemini. Embeddings: Ollama. Modelo, versión, dimensión y límites concretos se verifican al implementar los adaptadores; no se incorporan librerías por anticipado.
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
@@ -94,7 +94,7 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 
 - Flyway tiene credenciales de migración separadas del datasource `dependency_app`, no propietario. Roles capability, grants mínimos, FORCE RLS y guard de privilegios en Infrastructure. Verificados con PostgreSQL nativo temporal 18.6, Maven 3.9.11 y JDK local 25 con destino 21: 31 pruebas distintas pertinentes. Docker/PostgreSQL 17.7 no ejecutados en este bloque. Python estándar genera diccionario/Excalidraw/SVG desde catálogo; Pillow existente genera PNG, sin dependencia de runtime del producto.
 - No se han incorporado microservicios, RabbitMQ, pgvector, RAG ni proveedores de IA.
-- cdxgen, instalación/acceso a repositorios GitHub y OSV siguen pendientes. El login GitHub no completa esas funciones. El parser implementado no demuestra cobertura del scanner ni consulta de vulnerabilidades. El soporte de Maven para este ejemplo no aprueba por sí solo la cobertura de todos los ecosistemas del piloto.
+- cdxgen, GitHub App para repositorios y OSV están integrados. El mapa de aceptación del [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) recoge las validaciones restantes.
 
 El detalle vigente de responsabilidades está en `ARQUITECTURA_BACKEND.md`; los resultados y límites de cada bloque están en `BITACORA_TRABAJO.md`.
 

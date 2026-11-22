@@ -1,3 +1,38 @@
+### Bloque 64 — scanner y OSV (petición 4, 22/11/2026)
+
+#### Flujo actual
+
+1. **Analizar repositorio**, en Inventario, solicita en paralelo `POST /maven-analysis` y `POST /npm-analysis` dentro del repositorio autorizado. Cada endpoint abre la fuente GitHub fijada a un commit o el ZIP local identificado por SHA-256. Los dos endpoints abren la fuente de forma independiente. `POST /scans` tiene su propio contrato de solicitud y el botón actual usa los endpoints por ecosistema.
+2. **Detección y persistencia.** cdxgen 13.8.0 genera CycloneDX en un contenedor aislado con red interna y fuente de solo lectura. Compose desactiva la instalación de dependencias y activa el modo seguro. El mapper conserva coordenadas exactas y aristas observadas. Un componente con identidad válida permanece en el inventario aunque su relación sea `UNKNOWN`. El repositorio, el origen, el hash, el commit cuando existe y la cobertura se guardan junto con los componentes. V25 incorpora `COMPLETE` y `PARTIAL` para el alcance del scanner.
+3. **Evaluación.** Tras obtener un scan, Inventario solicita `POST /vulnerability-analysis`. **Consultar OSV** permite repetir solo la evaluación. El backend toma el último scan completado por ecosistema, incluidos los nombres antiguos de scanner, y consulta las versiones guardadas. Envía `Maven` con `groupId:artifactId` y `npm` con el nombre completo, incluido `@scope/paquete`. La respuesta se asocia por posición en cada lote y se recorren los `next_page_token` por consulta. Se guarda la evidencia por scan y ocurrencia, incluido el ID OSV si faltan alias CVE o severidad. [Contrato oficial de OSV por lotes](https://google.github.io/osv.dev/post-v1-querybatch/)
+
+#### Cobertura por ecosistema
+
+| | Qué puede confirmar hoy | Límite vigente |
+| --- | --- | --- |
+| Maven | Componentes exactos que aporta CycloneDX. Si cdxgen detecta POM pero devuelve cero componentes, la lectura estática recupera declaraciones directas con versiones explícitas o resolubles mediante propiedades, padres y BOM presentes en el ZIP. | La cobertura es parcial. El modo seguro mantiene deshabilitados Maven, plugins y scripts. Padres o BOM remotos y transitivas sin evidencia quedan fuera de la cobertura garantizada. |
+| npm | Versiones resueltas y relaciones verificadas del `package-lock.json`, conservando paquetes con scope. Si cdxgen detecta el lockfile pero devuelve cero componentes, el lector de respaldo usa lockfiles v2/v3 y presenta el resultado recuperado como parcial. | Sin lockfile compatible no se puede confirmar el árbol instalado. Un rango de `package.json` por sí solo no permite evaluar una versión exacta. El respaldo no concilia componentes omitidos por un SBOM que ya trae algún resultado. |
+
+El adaptador cdxgen admite hasta 50.000 entradas, 512 MiB descomprimidos y un SBOM de 25 MiB. Ambos lectores de respaldo tienen un límite de 5.000 entradas y 120 MiB descomprimidos. Maven limita además el respaldo a 64 POM de hasta 1 MiB cada uno. Una carpeta admitida por la carga puede superar el límite del lector de respaldo. El detalle de cobertura debe identificar el límite que se alcanzó.
+
+#### Interpretación en Inventario
+
+| Resultado | Qué indica |
+| --- | --- |
+| Versión o vínculo sin confirmar | El scanner informa referencias pendientes. Una versión sin resolver queda fuera de la consulta. Una versión exacta con vínculo `UNKNOWN` sí puede evaluarse. |
+| `MATCHED` | OSV devolvió al menos un aviso asociado a la versión exacta. La severidad desconocida se muestra como tal. |
+| `NO_KNOWN_ADVISORIES` | OSV devolvió una consulta completa sin avisos para esa versión a la hora registrada. La cobertura de OSV depende de sus fuentes y de cuándo se actualizan. |
+| `INCOMPLETE` / `UNAVAILABLE` | La evaluación quedó incompleta o el proveedor falló. Se preserva el inventario y se muestran los avisos con evidencia disponible. |
+| `STALE` / `NOT_ASSESSED` | Existe evidencia anterior desactualizada o falta evaluar la versión para ese scan. La vigencia local se configura y vale 24 horas por defecto en Compose. |
+
+#### Criterios de aceptación pendientes
+
+1. **Fuente y asociación.** Fijar una única fuente reproducible por acción de análisis y verificar que Inventario muestre OSV para el mismo `scanId`. Hoy Maven y npm pueden tomar cada uno el commit vigente al abrir la fuente. La UI agrupa OSV por coordenadas y versión sin comprobar `scanId`, y un error del nuevo OSV puede dejar visible la evaluación anterior. Mostrar la procedencia de resultados previos cuando se conserven. Las versiones corregidas deben corresponder a la entrada `affected` del paquete y ecosistema seleccionados. Hoy la extracción genérica reúne los `fixed` de todas las entradas del aviso.
+2. **Recuperación.** Diferenciar manifiesto ausente, proyecto compatible sin dependencias, versión sin resolver y fallo del scanner. Cuando falle un reanálisis, mantener visible el último inventario válido con su fecha y su estado. Hoy el backend conserva scans previos, pero el botón puede ocultar el inventario anterior del ecosistema que falló hasta recargar. Evaluar los resultados incompletos de cdxgen y los límites distintos del respaldo con fixtures controlados, sin ejecutar código de repositorios.
+3. **Recorrido autenticado.** Reanalizar un Maven multimódulo y un npm con paquete scoped y transitiva, a través de Inventario. Comparar fuente, manifiestos, componentes, relaciones, respuesta OSV, persistencia y pantalla. Usar respuestas controladas para verificar la versión afectada frente a la corregida para el mismo aviso, paginación, ausencia de alias/severidad, fallo y reintento independiente de OSV. Incluir un repositorio real por ecosistema y registrar los resultados para el scan exacto. Mantener el adaptador OSV y limitar cualquier cambio a fallos comprobados.
+
+**Estado de la petición 4.** Requisitos y límites consolidados mediante revisión estática. Los bloques anteriores registran pruebas focales, un smoke test del contenedor y evidencia de PostgreSQL para OMEGA y Bot de WhatsApp. El recorrido autenticado de extremo a extremo con la versión posterior al bloque 59 sigue pendiente. La siguiente petición define la experiencia de Inventario. [Guía del scanner](../infra/scanner/README.md) · [Estados de OSV](OSV_VULNERABILIDADES.md)
+
 ### Bloque 63 — fuentes GitHub y locales (petición 3, 22/11/2026)
 
 #### Importación y procedencia
@@ -84,7 +119,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 1. **Objetivo y alcance:** misión, usuarios y definición de piloto/producto completo. **Cerrado en el bloque 61.**
 2. **Identidad, roles y ajustes:** acceso, aprobación, matriz de permisos, organización, perfil, preferencias y métodos de acceso. **Requisitos cerrados en el bloque 62.**
 3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente. **Requisitos cerrados en el bloque 63.**
-4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm.
+4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm. **Requisitos cerrados en el bloque 64.**
 5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados.
 6. **Grafo:** relaciones permitidas, vistas, filtros, búsqueda, navegación y límites para repositorios grandes.
 7. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas.
@@ -97,7 +132,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 14. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
 15. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
 
-Primero se fijan datos, acceso y scanner. Después se detallan las pantallas y sus flujos. El plan termina con IA, validación de cambios y operación. La siguiente es la **petición 4**, scanner y OSV.
+Primero se fijan datos, acceso y scanner. Después se detallan las pantallas y sus flujos. El plan termina con IA, validación de cambios y operación. La siguiente es la **petición 5**, Inventario.
 
 ### Bloque 60 — mapa actual del producto y las cuatro pantallas pendientes (22 de noviembre de 2026)
 
@@ -272,8 +307,8 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Identidad, organizaciones y permisos — RF-001–006 | Acceso local, organización, autorización, recuperación/verificación SMTP y proveedores externos con fixture. Bloque 11 entrega invitaciones SMTP, aceptación y gestión HTTP/UI de membresías, roles, equipos y permisos por repositorio | Configurar clientes y probar consentimiento real Google/GitHub; entrega durable, paginación de historiales grandes y revisión visual conjunta | Credenciales externas y operación de correo/sesiones |
 | GitHub — RF-007–014 | Vinculación OAuth/PKCE, importación de repositorios seleccionados y descarga por commit confirmadas en Dinamita. Sincronización bajo demanda y detección de revocación implementadas. | Desconexión explícita, prueba de revocación real, recorrido desde otro dispositivo y webhooks firmados e idempotentes. Ver bloque 63. | GitHub App, credenciales y jobs |
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
-| SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
-| Vulnerabilidades — RF-033–040 | Esquema normalizado de fuentes/rangos/hallazgos; sin OSV funcional | Consulta OSV, coincidencia por versión, ingesta de evidencia y generación de hallazgos | Adaptadores, jobs, snapshots |
+| SBOM/componentes — RF-022–032 | cdxgen aislado integrado en Inventario para Maven y npm. Persiste componentes y relaciones verificadas con estado de cobertura. | Validar el recorrido autenticado y distinguir fallos y cobertura incompleta. Maven transitivo sigue parcial. Ver bloque 64. | Fuente autorizada, scanner, artefactos |
+| Vulnerabilidades — RF-033–040 | OSV integrado por versión exacta. Guarda evaluaciones con evidencia por scan y ocurrencia. | Verificar asociación en UI por scan, mostrar rangos y versiones corregidas del paquete correcto y validar fallo y reintento. Ver bloque 64. | OSV, snapshots de scanner, Inventario |
 | Inventario — RF-041–046 | Escritura de ocurrencias, sin consulta de inventario ni UI | Búsqueda/filtros/paginación, versiones, repositorios y directa/transitiva solo con evidencia | SBOM/grafo y permisos |
 | Grafo — RF-047–052 | Aristas normalizadas con extremos del mismo snapshot | Importar/consultar aristas y navegar rutas/riesgos en UI | Parser/scanner, OSV, permisos |
 | Historial/comparación — RF-053–059 | Snapshots importados con procedencia | Consulta por commit y comparación añadidos/eliminados/actualizados del mismo repositorio | Nuevo modelo, inventario |
