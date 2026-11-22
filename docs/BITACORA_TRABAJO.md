@@ -1379,3 +1379,17 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación:** búsqueda de contradicciones históricas sobre demo de dos semanas en el contexto; el plan antiguo quedó rotulado como histórico. Revisión documental, sin pruebas de código.
 
 **Siguiente:** petición 2 — cerrar identidad, roles, permisos y configuración, contrastando con los flujos ya implementados.
+
+## Bloque 62 — petición 2: auditoría de identidad, roles y configuración
+
+**Petición:** revisar identidad, roles, permisos y configuración contra la implementación y el contexto maestro.
+
+**Hallazgos verificados:** administrador global separado de `account_type` y roles organizacionales; registro abierto crea OWNER en `PENDING_REVIEW`; invitación crea MEMBER aprobado, requiere correo verificado, aceptación y aprobación posterior del OWNER invitante. Roles OWNER/ADMIN/MEMBER/VIEWER. ADMIN tiene permisos organizacionales amplios, pero endpoints de invitación/aprobación/revocación exigen OWNER. MEMBER puede administrar repositorio concreto mediante `repository.manage` + grant directo/de equipo, sin ADMIN organizacional. Autorización exige estado activo/aprobado, membresía activa y la combinación de permiso de rol y grant por repositorio. Configuración distingue perfil, overrides personales y preferencias de espacio editables por OWNER/ADMIN. Google/GitHub soportan login/vinculación, pero el estado operativo de Compose indica proveedores desactivados.
+
+**Decisiones del usuario durante el bloque:** MEMBER debe ver un Dashboard limitado a sus repositorios. Un MEMBER con permiso `repository.manage` en un repo se presentará como «Administradora del repositorio A» sin adquirir permisos de organización. Petición 2 queda cerrada como requisitos; UI aplazada al bloque de pulido.
+
+**Herramientas utilizadas:** inspección de Java Domain/Application/Infrastructure, consultas JDBC de autorización, migraciones Flyway V5/V14/V16/V17/V18, templates/servicios Angular y documentos vigentes. Sin cambios de código o esquema.
+
+**Verificación:** revisión estática; sin pruebas de código ni sesión autenticada. La matriz y las dos decisiones confirmadas están registradas en el bloque 62 del contexto maestro.
+
+**Siguiente paso:** petición 3 — cerrar fuente GitHub/local, importación, sincronización y ciclo de vida de repositorios.
