@@ -1,3 +1,39 @@
+### Bloque 62 — auditoría de identidad, roles y configuración (petición 2, 22/11/2026)
+
+La matriz siguiente se verificó contra los casos de uso de Identity/Organization, controladores, consultas de autorización, componentes Angular y migraciones V5/V14/V16/V17/V18. No representa una propuesta nueva de roles.
+
+#### Identidad y admisión
+
+- `platform_administrators` identifica administradores globales por separado del rol organizacional. La administración de plataforma puede aprobar/rechazar responsables, habilitar/deshabilitar y retirar cuentas, gestionar recursos globales y consultar auditoría. Las acciones administrativas piden motivo; se protege al último administrador activo.
+- `users.account_type` hoy solo distingue `OWNER` y `MEMBER`; `admission_status` es `PENDING_REVIEW`, `APPROVED` o `REJECTED`. El registro abierto crea una cuenta OWNER pendiente; el administrador recibe los enlaces aprobar/rechazar. Aprobar desde el correo habilita la cuenta y confirma el correo. El registro invitado crea MEMBER aprobado, pero debe utilizar el correo de invitación verificado.
+- La admisión de un propietario en la plataforma es distinta de aceptar una invitación de organización. La invitación exige correo coincidente y verificado, aceptación y aprobación manual posterior del propietario que invitó.
+- Google OIDC y GitHub OAuth/PKCE soportan login y vinculación explícita; no fusionan cuentas por correo coincidente. Vincular exige correo verificado y sesión reciente; no se permite retirar el último método de acceso. **Estado del entorno:** según las instrucciones operativas vigentes, las credenciales sociales están desactivadas en Compose; la implementación de proveedor existe, pero el consentimiento real requiere activación/configuración y prueba. OAuth de identidad no sustituye GitHub App para repositorios.
+
+#### Roles y alcance efectivo
+
+| Nivel | Capacidades observadas en el código | Límite |
+| --- | --- | --- |
+| Administrador de plataforma | Acceso global a la vista de administración y acciones registradas con motivo. | No es un rol dentro de cada organización; se controla en tabla aparte. |
+| Propietario de organización (`OWNER`) | Todos los permisos organizacionales/repositorios; crea organización, invita, revoca y aprueba invitaciones; puede asignar roles OWNER/ADMIN; conserva el último propietario. | Solo la persona propietaria que emitió la invitación puede aprobar/revocar esa invitación. |
+| Administrador de organización (`ADMIN`) | Permisos amplios de operación de la organización y repositorios; gestiona miembros, equipos y permisos. | No puede asignar OWNER/ADMIN. La API actual restringe invitar, revocar y aprobar invitaciones al OWNER aunque el rol ADMIN tenga `organization.manage`; documentar este límite como comportamiento vigente. |
+| Miembro (`MEMBER`) | Puede recibir permisos sobre repositorios concretos por equipo o directamente; el rol define el máximo de capacidades disponibles. `repository.manage` se incorporó para que un MEMBER pueda administrar un repositorio que tenga asignado. | No tiene permisos organizacionales globales por ese grant. El acceso efectivo requiere cuenta/correo/admisión/membresía/repositorio activos y un grant para esa operación/repo. |
+| Lector (`VIEWER`) | Lectura del repositorio, scans/documentos e informes según matriz del rol. | No puede crear análisis, gestionar repositorios ni modificar accesos; grants de equipo no elevan capacidades que el rol no concede. |
+
+**Regla de autorización verificada:** cuenta activa, correo verificado, admisión aprobada, organización/membresía activas y repositorio habilitado; para MEMBER/VIEWER además se requiere permiso de rol y grant coincidente del equipo o permiso directo en ese repositorio. `repository_scope` limita a equipos completos o a repositorios explícitamente asignados. Los OWNER/ADMIN organizacionales operan sobre el ámbito organizacional. Los códigos de permiso se presentan en UI como textos legibles.
+
+**Gestión de invitaciones/permisos:** las invitaciones solo asignan MEMBER o VIEWER, seleccionan equipo y repositorio, expiran a 72 horas por defecto, y se guardan mediante hash del token. Tras aceptar la persona, el estado queda `AWAITING_OWNER`; el OWNER invitante aprueba en la plataforma. Para una persona que administre solo un repositorio, hoy se usa MEMBER + permiso `repository.manage` limitado a ese repositorio, no el rol organizacional ADMIN. El OWNER puede asignar administración por equipo o directa. En la tabla, una cuenta MEMBER con `repository.manage` en un repositorio se identificará como «Administradora del repositorio A», conservando el rol MEMBER y sin permisos organizacionales.
+
+#### Configuración y experiencia de miembros
+
+- Perfil: nombre editable con validación personal; correo no editable desde Configuración.
+- Apariencia/idioma personal: override guardado en el navegador; apariencia/idioma del espacio: persistidos para la organización, modificables por OWNER/ADMIN y heredados por miembros.
+- Seguridad: solicitar cambio de contraseña por enlace privado; métodos Google/GitHub vinculables/desvinculables con reautenticación y protección del último método.
+- La navegación actualmente excluye Dashboard y Organización a cuentas `MEMBER`. El usuario ya decidió que **los miembros deben tener Dashboard con datos limitados a sus repositorios asignados**; la navegación todavía no implementa ese cambio. Organización continúa siendo una pantalla de gestión.
+
+#### Estado de la petición 2
+
+La matriz actual y sus límites están comprobados/documentados. Se confirma el Dashboard de MEMBER limitado a sus repositorios y la etiqueta «Administradora del repositorio A» para el permiso `repository.manage` en ese recurso. La petición 2 queda cerrada como requisitos; la implementación de UI queda en la fase de pulido. No se ha cambiado código ni esquema; se continúa con la petición 3.
+
 ### Bloque 61 — alcance del producto y plan de 15 peticiones (22 de noviembre de 2026)
 
 #### Paso 1 — objetivo y alcance vigente: cerrado
