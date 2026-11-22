@@ -1,3 +1,40 @@
+### Bloque 61 — alcance del producto y plan de 15 peticiones (22 de noviembre de 2026)
+
+#### Paso 1 — objetivo y alcance vigente: cerrado
+
+**Propósito:** Dependency Intelligence ayuda a los equipos a saber qué dependencias usan sus repositorios, qué riesgos conocidos se asocian a sus versiones y qué impacto tendría cambiarlas, mostrando evidencia trazable para tomar decisiones.
+
+**Usuarios prioritarios:** responsables de repositorios/líderes técnicos y seguridad/DevSecOps, con la misma prioridad. Administración de plataforma, propietarios, administradores de organización, miembros y lectores tienen funciones y permisos distintos.
+
+**Meta:** construir el producto completo definido en este maestro, entregándolo por fases. Primero debe funcionar localmente; después se prepara el despliegue en servidor. El anterior plazo de dos semanas/50 horas era para una demo local y quedó sustituido: no limita el alcance ni es fecha de aceptación vigente.
+
+**Primer piloto acordado:** autenticación y organización; repositorios GitHub y carpetas locales; Java/Maven y JavaScript/npm; equipos y permisos por repositorio; análisis con inventario y OSV separados; y evaluación aislada de cambios con resultados revisables y propuesta de PR que requiere aprobación. La IA/documentación, reportes y demás capacidades de la visión completa se implementan por fases según el plan, no se declaran terminadas por existir sus tablas o mockups.
+
+**Criterio de producto listo:** recorridos de extremo a extremo con repositorios y datos reales; autorización efectiva por organización/equipo/repositorio; resultados con procedencia y límites explícitos; fallos recuperables que no borren inventario válido; despliegue reproducible; y respaldo/restauración y aceptación de cada módulo. “Pantalla visible” no significa capacidad terminada.
+
+**Límites confirmados:** Gemini será el LLM de la plataforma; Ollama generará embeddings. Codex no se integra al producto sin petición explícita. Las notificaciones comienzan dentro de la aplicación; el correo de notificaciones se deja para después. Modelo, versión, dimensión de embedding y cuotas se decidirán con evidencia al diseñar la fase de IA.
+
+#### Plan de cierre del contexto maestro — 15 peticiones funcionales
+
+Estas peticiones sirven para concretar alcance, decisiones y criterios de aceptación del maestro; no representan quince commits ni prometen que el producto entero quede implementado en quince turnos.
+
+1. **Objetivo y alcance:** misión, usuarios y definición de piloto/producto completo. **Cerrado en el bloque 61.**
+2. **Identidad, roles y ajustes:** acceso, aprobación, matriz de permisos, organización, perfil, preferencias y métodos de acceso.
+3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente.
+4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm.
+5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados.
+6. **Grafo:** relaciones permitidas, vistas, filtros, búsqueda, navegación y límites para repositorios grandes.
+7. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas.
+8. **Pantalla Vulnerabilidades:** agrupación, severidad, filtros, priorización, estados de revisión, versiones corregidas y referencias.
+9. **Pantalla Análisis:** inicio y seguimiento, commit, progreso, estados, errores, reintentos e historial de ejecuciones.
+10. **Centro de documentación:** tipos de archivo, carga, extracción, asociación a repositorios/componentes, versiones, permisos, retención y eliminación.
+11. **Arquitectura de IA documental, explícita:** Ollama y selección verificable de modelo/dimensión para embeddings; pgvector, migración, esquema, índices y aislamiento por organización; recuperación (incluida búsqueda híbrida si se decide); RAG con fragmentos y citas; orquestador; chat asistente con Gemini; permisos en recuperación, respuesta sin evidencia, fallos y evaluación de calidad. No activar pgvector en el núcleo antes de decidir e implementar esta fase documental.
+12. **Historial, comparación y recomendaciones:** snapshots por commit, cambios de paquetes/versiones y recomendación sustentada en fuentes.
+13. **Reportes:** destinatarios, informes técnicos/ejecutivos, filtros, vista previa, formatos exportables y programación.
+14. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
+15. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
+
+El orden propuesto refleja dependencias: primero se fijan datos, acceso y scanner; luego pantallas y flujos; finalmente IA, cambios y operación. El usuario puede cambiar prioridades antes de iniciar cada petición. La siguiente es la **petición 2**.
 ### Bloque 60 — mapa actual del producto y las cuatro pantallas pendientes (22 de noviembre de 2026)
 
 Este apartado refleja el código actual, contrastado con `frontend/src/app/core/navigation.ts`, `application-shell.html` y los componentes de pantalla. Si una capacidad se reutiliza dentro de otra vista, se distingue de tener una pantalla completa propia.
@@ -414,7 +451,7 @@ Una capacidad avanzada podría:
 6. Generar un informe.
 7. Proponer un Pull Request sujeto a aprobación humana.
 
-Esta capacidad no forma parte del MVP de dos semanas.
+Esta capacidad pertenece a la visión completa; la restricción del MVP de dos semanas quedó sustituida por entregas por fases.
 
 ## 3.6 Documentation Center
 
@@ -1169,9 +1206,9 @@ Controles recomendados:
 
 ---
 
-# 11. Plan de MVP en dos semanas
+# 11. Plan de MVP en dos semanas (histórico; no vigente)
 
-El usuario expresó una restricción temporal importante: quiere sacar Dependency Intelligence en aproximadamente dos semanas. Por tanto, no se debe intentar construir toda la visión empresarial en ese plazo.
+Este apartado describe la demo local de dos semanas como antecedente histórico. El objetivo vigente es completar el producto por fases, primero local y después servidor; el plazo anterior no define alcance ni aceptación.
 
 ## 11.1 MVP recomendado
 
@@ -1195,7 +1232,7 @@ Alcance mínimo:
 14. Comparar snapshots de forma básica.
 15. Generar un reporte/exportación básica.
 
-## 11.2 No incluir en las dos semanas
+## 11.2 Exclusiones del plan histórico de dos semanas
 
 Salvo que el MVP ya esté terminado y exista capacidad real:
 
@@ -1448,7 +1485,7 @@ Este contexto ayuda a adaptar futuras explicaciones y planes técnicos:
   - Estrategia de pruebas.
   - Decisiones técnicas justificadas.
 - No quiere propuestas genéricas ni funcionalidades simples sin diferenciación.
-- Tiene un plazo aproximado de dos semanas para producir un primer MVP.
+- La referencia al MVP de dos semanas es histórica y fue sustituida por el objetivo de producto completo por fases.
 - Busca potencial de comercialización B2B, especialmente en Estados Unidos.
 
 ---
@@ -1502,7 +1539,7 @@ Este contexto ayuda a adaptar futuras explicaciones y planes técnicos:
 
 Orden sugerido para no perder tiempo:
 
-## Paso 1 — Cerrar el MVP
+## Paso 1 — Cerrar el MVP (proceso histórico sustituido por el bloque 61)
 
 Confirmar:
 - Ecosistemas iniciales.
@@ -1510,7 +1547,7 @@ Confirmar:
 - Fuente de vulnerabilidades.
 - Tipo de análisis.
 - Alcance del grafo.
-- Qué queda fuera de las dos semanas.
+- Qué quedó fuera del demo histórico de dos semanas.
 
 ## Paso 2 — Investigar las integraciones críticas
 
@@ -1572,7 +1609,7 @@ Al continuar este proyecto, utiliza este archivo como contexto maestro.
 
 1. No vuelvas a empezar la ideación desde cero.
 2. No vuelvas a preguntar qué es Dependency Intelligence: ya está definido en este documento.
-3. Mantén la distinción entre MVP de dos semanas y visión completa.
+3. Trata el MVP de dos semanas como antecedente histórico; el objetivo vigente es el producto completo por fases.
 4. No asumas que las propuestas pendientes ya fueron aprobadas.
 5. Si se necesitan datos actuales de GitHub, OSV, cdxgen, CycloneDX, deps.dev, competidores o precios, investiga fuentes oficiales actualizadas.
 6. No inventes cobertura, límites, endpoints ni capacidades de proveedores.
