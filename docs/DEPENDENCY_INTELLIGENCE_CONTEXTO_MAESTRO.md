@@ -1,3 +1,30 @@
+### Bloque 63 — fuentes GitHub y locales (petición 3, 22/11/2026)
+
+#### Importación y procedencia
+
+| | GitHub | Carpeta local |
+| --- | --- | --- |
+| Alta | El propietario o administrador de la organización vincula una instalación de GitHub App con la misma sesión y OAuth/PKCE. GitHub concede acceso a los repositorios seleccionados y después el responsable elige cuáles agregar al espacio. La API vuelve a verificar la selección y admite hasta 500 por importación. | El responsable selecciona una carpeta desde el navegador. Se aceptan hasta 50.000 archivos y 100 MiB de contenido. Se validan las rutas y se excluyen carpetas generadas, `.git` y archivos de credenciales conocidos. Cada subida crea un repositorio local con ID propio. |
+| Fuente de análisis y descarga | Se verifica el acceso de la instalación, se toma el commit actual de la rama predeterminada y se descarga un ZIP por SHA de commit. El ZIP temporal tiene un límite de 100 MiB. El resultado registra el commit y el SHA-256 del archivo. | Se lee el ZIP privado persistente de la organización y se verifica su SHA-256. La fuente representa los archivos cargados en ese momento y cada análisis referencia ese contenido por hash. |
+| Actualización | Abrir la gestión de repositorios o pulsar «Sincronizar acceso con GitHub» actualiza los metadatos y la disponibilidad. El flujo de importación registra metadatos. Solicitar el análisis es una acción separada. | Los cambios posteriores en el equipo requieren otra carga. La interfaz no ofrece reemplazar el ZIP conservando el ID del repositorio. |
+
+El máximo de la carga local mide el contenido antes de empaquetarlo. El de GitHub mide el ZIP recibido. El permiso de la GitHub App para este flujo es `Contents: Read` y `Metadata: Read`. La lectura para análisis usa la instalación vinculada al espacio. El inicio de sesión con GitHub se gestiona en el flujo de identidad.
+
+#### Permisos, retiro y retención
+
+- **Permisos.** Conectar, importar y sincronizar exige `repository.manage` a nivel de organización. Descargar requiere `repository.read` y solicitar análisis requiere `scan.create` sobre el repositorio. Los miembros y lectores ven los repositorios habilitados a los que pueden acceder por rol y permiso directo o de equipo. La API permite retirar un repositorio concreto con `repository.manage` sobre ese recurso. La interfaz actual muestra esa acción desde el panel de gestión de la organización y oculta dicho panel a cuentas `MEMBER`, incluso si administran un repositorio asignado.
+- **Retirar GitHub del espacio.** Se deshabilita el registro local y se conserva el historial de análisis. El repositorio remoto permanece en GitHub. Si GitHub retira un repositorio de la selección autorizada, la siguiente sincronización lo deshabilita. El adaptador interpreta un 404 al solicitar el token de instalación como revocación y marca la integración `REVOKED` junto con la deshabilitación de sus repositorios vinculados. Los accesos de lectura y análisis dejan de estar disponibles cuando el repositorio queda deshabilitado.
+- **Volver a agregar GitHub.** La sincronización no reactiva altas previas. Una importación explícita reutiliza la fila por organización, proveedor e ID externo, lo que conserva el historial. Los permisos previos pueden volver a surtir efecto porque siguen asociados a esa fila. Queda pendiente mostrar qué accesos se recuperarán para que el responsable pueda revisarlos antes de reactivar el repositorio.
+- **Retirar una carpeta local.** La operación deshabilita el registro y borra el ZIP privado y sus metadatos de fuente. Los resultados anteriores se conservan en la base. La copia permanece en el volumen privado mientras está activa. La política de plazos, copias de seguridad y borrado exigible se define en la petición 15. Para GitHub, el ZIP se elimina al cerrar el recurso temporal y recuperar código histórico depende de que el proveedor mantenga el commit disponible y autorizado.
+
+#### Qué falta para aceptar el ciclo completo
+
+1. Implementar la desconexión explícita desde la plataforma (RF-014). Debe bloquear las nuevas lecturas y análisis de la instalación y conservar historial. La interfaz debe distinguir retirar un repositorio del espacio, desconectar la integración del espacio y desinstalar la App en GitHub.
+2. Implementar recepción de webhooks firmados y procesamiento idempotente (RF-012–013), con sincronización manual como respaldo. Verificar que una revocación real deshabilite solo los repositorios afectados y que un fallo temporal del proveedor deje el último estado conocido disponible para diagnóstico, con una indicación de que no se pudo verificar. Separar la revisión del permiso del disparo de análisis ante eventos configurados.
+3. Validar el recorrido con una cuenta con acceso por equipo y otra sin acceso, tanto para GitHub como para una carpeta local. Verificar descarga, inicio de análisis, retiro, reconexión y revisión de permisos previos. Incluir revisión en móvil u otro dispositivo con una URL accesible y validación de una carpeta cerca del límite de 50.000 archivos.
+
+**Estado de la petición 3.** Requisitos y diferencias entre orígenes consolidados. El código de la aplicación se revisó de forma estática. La evidencia previa en Dinamita acredita importación de dos repositorios GitHub, una carpeta local y descarga ZIP. La automatización, desconexión y aceptación del ciclo de revocación quedan por implementar o validar según los puntos anteriores. La siguiente petición documenta y valida el contrato entre scanner y OSV.
+
 ### Bloque 62 — auditoría de identidad, roles y configuración (petición 2, 22/11/2026)
 
 La matriz siguiente se verificó contra los casos de uso de Identity/Organization, controladores, consultas de autorización, componentes Angular y migraciones V5/V14/V16/V17/V18. No representa una propuesta nueva de roles.
@@ -55,8 +82,8 @@ La matriz actual y sus límites están comprobados/documentados. Se confirma el 
 Estas peticiones sirven para concretar alcance, decisiones y criterios de aceptación del maestro; no representan quince commits ni prometen que el producto entero quede implementado en quince turnos.
 
 1. **Objetivo y alcance:** misión, usuarios y definición de piloto/producto completo. **Cerrado en el bloque 61.**
-2. **Identidad, roles y ajustes:** acceso, aprobación, matriz de permisos, organización, perfil, preferencias y métodos de acceso.
-3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente.
+2. **Identidad, roles y ajustes:** acceso, aprobación, matriz de permisos, organización, perfil, preferencias y métodos de acceso. **Requisitos cerrados en el bloque 62.**
+3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente. **Requisitos cerrados en el bloque 63.**
 4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm.
 5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados.
 6. **Grafo:** relaciones permitidas, vistas, filtros, búsqueda, navegación y límites para repositorios grandes.
@@ -70,7 +97,8 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 14. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
 15. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
 
-El orden propuesto refleja dependencias: primero se fijan datos, acceso y scanner; luego pantallas y flujos; finalmente IA, cambios y operación. El usuario puede cambiar prioridades antes de iniciar cada petición. La siguiente es la **petición 2**.
+Primero se fijan datos, acceso y scanner. Después se detallan las pantallas y sus flujos. El plan termina con IA, validación de cambios y operación. La siguiente es la **petición 4**, scanner y OSV.
+
 ### Bloque 60 — mapa actual del producto y las cuatro pantallas pendientes (22 de noviembre de 2026)
 
 Este apartado refleja el código actual, contrastado con `frontend/src/app/core/navigation.ts`, `application-shell.html` y los componentes de pantalla. Si una capacidad se reutiliza dentro de otra vista, se distingue de tener una pantalla completa propia.
@@ -242,7 +270,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Área / requisitos del maestro | Estado real | Qué falta para aceptarla | Dependencias |
 | --- | --- | --- | --- |
 | Identidad, organizaciones y permisos — RF-001–006 | Acceso local, organización, autorización, recuperación/verificación SMTP y proveedores externos con fixture. Bloque 11 entrega invitaciones SMTP, aceptación y gestión HTTP/UI de membresías, roles, equipos y permisos por repositorio | Configurar clientes y probar consentimiento real Google/GitHub; entrega durable, paginación de historiales grandes y revisión visual conjunta | Credenciales externas y operación de correo/sesiones |
-| GitHub — RF-007–014 | GitHub App: instalación, prueba de pertenencia vía OAuth/PKCE, selección/importación de metadatos y vista responsive. Sin confirmación real con `CondezJuan8` todavía | Configurar credenciales/URLs reales, comprobar recorrido en dispositivos, revocar instalación, descargar commit/archivos y procesar webhooks idempotentes | GitHub App del usuario, credenciales, jobs y scanner |
+| GitHub — RF-007–014 | Vinculación OAuth/PKCE, importación de repositorios seleccionados y descarga por commit confirmadas en Dinamita. Sincronización bajo demanda y detección de revocación implementadas. | Desconexión explícita, prueba de revocación real, recorrido desde otro dispositivo y webhooks firmados e idempotentes. Ver bloque 63. | GitHub App, credenciales y jobs |
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
 | SBOM/componentes — RF-022–032 | Parser Maven acotado, importación atómica y paquete/versión/presencia normalizados | Carga HTTP, scanner aislado, Maven/npm reales y producción de aristas con evidencia | Worker, jobs, artefactos |
 | Vulnerabilidades — RF-033–040 | Esquema normalizado de fuentes/rangos/hallazgos; sin OSV funcional | Consulta OSV, coincidencia por versión, ingesta de evidencia y generación de hallazgos | Adaptadores, jobs, snapshots |
