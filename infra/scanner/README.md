@@ -1,4 +1,9 @@
 # Scanner de dependencias
+## Fallback Maven para SBOM vacío (22/11/2026)
+
+La validación de la instancia detectó un scan `cdxgen-maven` real con un POM y ningún componente en CycloneDX. El reader Maven ahora vuelve a abrir el ZIP autorizado en una copia temporal (límite comprimido de 100 MiB) y, solo cuando el SBOM no aporta dependencias pero informa manifiestos, usa `BoundedMavenArchiveReader` para recuperar declaraciones de POM con versión exacta. Los paquetes recuperados se persisten y pueden pasar a la evaluación OSV por separado.
+
+El fallback no resuelve versiones de BOM o POM padre remoto y no ejecuta Maven; tampoco atribuye relaciones transitivas. La cobertura permanece `PARTIAL`, con un mensaje que explica esos límites. Sin versión exacta, el paquete queda contado como no resuelto y no se consulta OSV con coordenadas inventadas.
 
 ## Flujo conectado
 

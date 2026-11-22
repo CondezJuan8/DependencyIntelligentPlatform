@@ -1,5 +1,8 @@
 # Arquitectura del backend
 
+## Bloque 58 — fallback para inventario Maven sin SBOM
+
+`CdxgenMavenManifestReader` conserva el ZIP autorizado en un temporal limitado y usa `BoundedMavenArchiveReader` si cdxgen informa POM pero no componentes. El fallback solo guarda coordenadas con versiones exactas observadas en POM/propiedades locales, no inventa transitivas, y marca cobertura parcial. Luego OSV evalúa las versiones persistidas por el flujo independiente `VulnerabilityAssessmentController`; la evidencia queda asociada a cada scan y componente.
 ## Bloque 56 — Inventario y evaluación OSV independientes
 
 Los endpoints `POST /maven-analysis` y `POST /npm-analysis` generan CycloneDX con cdxgen y persisten scans/componentes/relaciones. OSV no ejecuta ese scanner: `POST/GET /vulnerability-analysis` lee el último scan completado por ecosistema (`cdxgen-*` o los nombres legacy), consulta versiones exactas y persiste los resultados vinculados a `scan_component_id`. Una respuesta OSV fallida no borra ni revierte el inventario; queda indicada como `UNAVAILABLE`/`INCOMPLETE` y la UI permite volver a consultar OSV sin repetir cdxgen.

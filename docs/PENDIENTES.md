@@ -1,7 +1,14 @@
 # Pendientes de Dependency Intelligence
 
-Actualizado: 20 de noviembre de 2026, bloque 55.
+Actualizado: 22 de noviembre de 2026, bloque 58.
 
+## Bloque 58 — Scanner Maven y OSV (fallback implementado; runtime pendiente)
+
+**Comprobado en Compose:** OMEGA Maven tenía 1 POM detectado pero 0 componentes; npm conserva 270 componentes en OMEGA y 291 en Bot de WhatsApp. OSV guardó evaluaciones asociadas a esos scans; Bot tiene 11 resultados `MATCHED` con avisos ligados a paquetes y versiones, OMEGA no reporta avisos en las 270 versiones evaluadas.
+
+**Implementado y probado:** si cdxgen devuelve SBOM Maven vacío, el backend recupera declaraciones con versión exacta desde POM, informa `PARTIAL` y conserva pendientes sin inventar versiones ni relaciones transitivas. Pasaron las pruebas focales del fallback y de asociación/persistencia OSV.
+
+**Pendiente:** reanalizar OMEGA en Inventario y confirmar que el inventario Maven y su evaluación OSV aparecen en la UI. El backend Compose ya corre el JAR actualizado; PostgreSQL, Mailpit, cdxgen y el entorno nativo siguen activos. Maven transitivo, versiones gestionadas sin evidencia local, Maven v4 y ecosistemas adicionales siguen fuera de cobertura garantizada.
 ## Bloque 56 — restaurar Inventario y separar scanner de OSV (implementado; reanálisis autenticado pendiente)
 
 La inspección agregada de la base activa encontró tres scans `cdxgen-npm` guardados como completos con un manifiesto y cero componentes. Además, la consulta OSV solo seleccionaba `maven-manifest`/`npm-lockfile`, por lo que dejaba fuera los scans actuales `cdxgen-maven`/`cdxgen-npm`. Se añadió recuperación npm acotada desde `package-lock.json` si cdxgen detecta el lockfile pero emite cero componentes; esa recuperación se marca parcial. Se cambió la consulta OSV para tomar el scan más reciente por ecosistema entre scanner actual e histórico, sin duplicarlos. La UI muestra errores del endpoint, informa si falta respuesta OSV y ofrece **Consultar OSV** sin volver a ejecutar cdxgen.

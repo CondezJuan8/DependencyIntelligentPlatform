@@ -2,6 +2,35 @@
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
 
+## Bloque 58 — corregir pérdida del inventario Maven y validar OSV real
+
+Fecha: 22 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
+
+### Petición y causa comprobada
+
+- El usuario autorizó completar la validación y corrección de scanner y OSV.
+- En la base Compose, el scan más reciente de `OMEGA-main` para `cdxgen-maven` detectó 1 POM, terminó `PARTIAL`, pero guardó 0 dependencias. A diferencia del reader npm, el reader Maven no tenía recuperación si el SBOM CycloneDX venía sin componentes.
+- cdxgen reportó SBOM vacío en OMEGA y Bot de WhatsApp para npm; el fallback actual recuperó 270 y 291 paquetes desde sus lockfiles. La base muestra evaluaciones OSV en los IDs de scans recientes: OMEGA 270, Bot 291; Bot con 11 `MATCHED` y avisos GHSA asociados a sus paquetes/versiones; OMEGA sin avisos conocidos para las 270 versiones examinadas.
+
+### Cambios
+
+- Maven conserva el ZIP autorizado en archivo temporal con límite de 100 MiB, ejecuta cdxgen sobre la copia y, si cdxgen detecta POM pero entrega cero componentes, recupera declaraciones Maven con versiones exactas desde los POM mediante `BoundedMavenArchiveReader`.
+- El fallback nunca declara cobertura completa, no asigna versiones gestionadas sin evidencia ni inventa relaciones. Reporta `PARTIAL` y los límites de versiones heredadas, BOM y transitivas. Si no recupera paquetes, deja el POM detectado con mensaje y conteo de elementos sin resolver.
+- Se añadieron dos regresiones Maven (recuperación por propiedad del POM y versión gestionada no resuelta) y una regresión del caso de uso OSV que comprueba que se persiste el ID del aviso con severidad/alias ausentes en la ocurrencia exacta.
+
+### Herramientas y verificaciones
+
+| Herramienta/tecnología | Uso | Dependencia nueva |
+| --- | --- | --- |
+| Maven 3.9.11 / JDK 21 | Pruebas focales reader Maven, cdxgen adapter, npm fallback, OSV adapter y caso de uso OSV (10 pruebas, todas pasaron) | No |
+| Docker Compose / PostgreSQL | Lecturas agregadas de scans, componentes y evaluaciones OSV del entorno activo; datos intactos | No |
+| Git | Revisar cambios y separar commits por función | No |
+
+Los reportes focales confirman 2 pruebas Maven, 1 npm, 2 de adapter cdxgen, 2 de adapter OSV y 3 del caso de uso OSV, sin fallos. En scans recientes de la instancia, OSV guardó 270 evaluaciones para OMEGA y 291 para Bot; 11 del Bot quedaron `MATCHED` con GHSA enlazados a versión. El cambio Maven está probado con fixture controlado y el JAR actualizado corre en el backend de Compose; OMEGA aún no se ha reanalizado tras el despliegue, así que no se afirma ese resultado.
+
+### Siguiente paso
+
+Volver a analizar OMEGA en Inventario. Confirmar que el fallback guarda las declaraciones Maven exactas resolubles y que la fase OSV evalúa esas versiones; cualquier versión gestionada/transitiva que permanezca irresuelta debe seguir marcada parcial. El backend ya fue actualizado y comprobó arranque/migración; PostgreSQL, Mailpit, cdxgen y la instancia nativa no se reiniciaron.
 ## Bloque 56 — restaurar Inventario y separar scanner de OSV
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
@@ -1300,3 +1329,17 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación:** build de producción Angular completado. Advertencias: bundle inicial 583,00 kB/500 kB; SCSS del grafo 13,09 kB/4 kB (máximo de error del componente ajustado de 12 a 14 kB, mantiene advertencia visible). Medición headless de Cytoscape `cose` con nodos/aristas reales: `OMEGA-main`, 277 paquetes, 492 relaciones entre paquetes y 27 declaraciones desde raíz; layout 297 ms. `Bot-de-Whatsapp-plantilla--main`, 284 paquetes consolidados, 411 relaciones entre paquetes y 13 declaraciones desde raíz; layout 306 ms. En ambos, se probaron recorridos locales y aristas inducidas sin extremos ocultos; además se comprobó combinación de filtros por módulo/tipo/ámbito. El caso pequeño fue un fixture de 6 paquetes tomado de OMEGA (6 paquetes, 6 relaciones internas, una declaración raíz, 3 ms), no un repositorio independiente de seis dependencias. No hay un repositorio real de ese tamaño en la base Compose activa. No se pudo hacer revisión visual/navegación automatizada: el host de navegador rechazó la sesión porque no pudo determinar la URL de Chrome con suficiente confianza. `localhost:8088` no respondió. Se actualizó solo el frontend Compose; `localhost:8089/?view=graph` y `chunk-CMkQCyj5.js` respondieron HTTP 200 y el bundle servido contiene el texto «Vista local». Backend, PostgreSQL y Mailpit permanecieron en ejecución. No se afirma que se hayan verificado en UI zoom, responsive o ausencia de bloqueo.
 
 **Siguiente paso:** revisar interactivamente `http://localhost:8089/?view=graph` con el usuario: probar el fixture pequeño de seis paquetes y ambos repositorios reales, incluyendo búsqueda, filtro combinado, vista local, profundidad, dirección, zoom, ajuste y vuelta al mapa general en móvil/escritorio.
+
+## Bloque 57 — validación de scanner y OSV (22 de noviembre de 2026)
+
+**Petición:** validar scanner y OSV como herramientas distintas que se complementan.
+
+**Hallazgo del flujo:** los endpoints Maven/npm ejecutan cdxgen, mapean CycloneDX y guardan los componentes/relaciones del scan. El endpoint OSV lee el último snapshot completado por ecosistema (incluye los nombres históricos), consulta versiones exactas y guarda las evaluaciones ligadas a los componentes. No reescanea; un fallo OSV no debe revertir ni borrar inventario. El lector npm tiene recuperación acotada desde `package-lock.json` y declara `PARTIAL` cuando cdxgen devuelve un BOM vacío. Maven se mantiene parcial en transitivas no resueltas por modo seguro.
+
+**Verificación realizada:** la instancia `localhost:8089/health` respondió `UP`; el health API protegido devolvió 401 sin sesión, y Mailpit `localhost:8026` respondió 200. Reportes existentes del 20/11: `CdxgenScannerAdapterTest` 2/2, `CdxgenNpmLockfileReaderTest` 1/1 y `OsvRestAdapterTest` 2/2, sin fallos. El README registra además smoke tests anteriores de cdxgen 13.8.0 con npm scoped/transitivo y Maven multimódulo, solo en fixtures. Consulta directa de solo lectura a OSV el 22/11: Log4j 2.14.1 incluyó `CVE-2021-44228` y 2.17.1 no; lodash 4.17.20 incluyó `CVE-2021-23337` y 4.17.21 no. Las versiones corregidas aún tuvieron otros avisos OSV, por lo que no se interpretan como limpias en general.
+
+**Límites de esta sesión:** los tests no se repitieron; Maven Central estaba bloqueado en el sandbox y el reintento con red autorizada se detuvo durante la primera descarga de dependencias, antes de ejecutar pruebas. No se completó el recorrido autenticado real en la UI: la automatización de navegador no pudo iniciar porque el runtime Node requerido no estaba disponible; no se usaron credenciales. La consulta directa al proveedor confirma la respuesta actual de OSV, no que la instancia Compose haya procesado y mostrado esa respuesta.
+
+**Herramientas y tecnologías utilizadas:** revisión de controladores/lectores/adaptador, reportes JUnit existentes, JDK 21/Maven 3.9.11, HTTP de solo lectura a OSV y checks HTTP locales. Sin cambios de código de producto ni de base de datos.
+
+**Siguiente paso para cerrar:** con una sesión autenticada en `localhost:8089`, analizar un repositorio Maven y uno npm, confirmar cantidades/estado de cobertura en Inventario, luego usar **Consultar OSV** y verificar estados/hallazgos visibles. Mantener fixtures/repositorios y datos actuales intactos.
