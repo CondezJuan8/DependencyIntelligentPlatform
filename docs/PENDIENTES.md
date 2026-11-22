@@ -1,3 +1,9 @@
+Actualización del bloque 64 (22 de noviembre de 2026). **Petición 4 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) documenta el recorrido, la cobertura y los estados separados del scanner y OSV.
+
+- [ ] Fijar una fuente única por acción de análisis, asociar la evidencia que muestra Inventario al `scanId` correcto y filtrar las versiones corregidas por paquete y ecosistema.
+- [ ] Preservar el último inventario válido en pantalla al fallar un reanálisis. Distinguir los estados sin manifiesto, sin dependencias, con referencias sin resolver y con fallo. Verificar los límites del respaldo y las omisiones cuando CycloneDX contiene resultados parciales.
+- [ ] Validar desde una sesión autenticada un Maven multimódulo y un npm con scope y transitivas. Comprobar el resultado por scan, el fallo y reintento independiente de OSV y su presentación en Inventario. El siguiente bloque de definición es la petición 5, Inventario.
+
 Actualización del bloque 63 (22 de noviembre de 2026). **Petición 3 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) recoge importación, permisos, procedencia y retención de las dos fuentes. La descarga e importación confirmadas en Dinamita corresponden a la validación anterior.
 
 - [ ] Completar la desconexión explícita de GitHub y procesar webhooks firmados e idempotentes. Mantener sincronización manual y mostrar cuándo no se pudo verificar el acceso remoto.
@@ -11,8 +17,6 @@ Confirmado: cuentas MEMBER tendrán Dashboard limitado a repositorios asignados.
 Actualización del bloque 61 (22 de noviembre de 2026): **petición 1 del plan de 15 cerrada**. Propósito del producto, objetivo del producto completo por fases (local primero, servidor después), alcance del primer piloto, exclusión de la antigua demo de dos semanas y criterio de “listo para usar” quedaron consolidados. El público prioritario son por igual responsables/líderes técnicos y seguridad/DevSecOps.
 
 El plan ahora enumera las 15 peticiones y especifica la fase de IA documental: embeddings Ollama, dimensión/modelo por decidir, pgvector con aislamiento tenant, RAG con citas, orquestador y chat asistente Gemini con permisos/evaluación. No se han activado pgvector ni proveedores de IA.
-
-La siguiente petición del plan maestro es la 4, sobre scanner y OSV.
 
 Actualización del bloque 60 (22 de noviembre de 2026): revisión del código confirma cuatro pantallas pendientes, según la confirmación del usuario: Vulnerabilidades, Análisis, Documentación y Reportes. El menú de navegación las envía al fallback “En preparación”. OSV/escaneo sí se usan desde Inventario y Dashboard, pero eso no equivale a completar sus pantallas independientes.
 

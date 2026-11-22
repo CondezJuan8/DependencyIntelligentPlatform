@@ -16,7 +16,7 @@ El inventario consulta OSV para las versiones exactas del último análisis comp
 | --- | --- |
 | `MATCHED` | OSV devolvió uno o más avisos para esa versión exacta. |
 | `NO_KNOWN_ADVISORIES` | OSV no devolvió avisos conocidos en esta consulta; no es garantía de que la versión esté libre de vulnerabilidades. |
-| `INCOMPLETE` | Hubo coincidencias, pero la consulta o el detalle de al menos un aviso quedó incompleto. |
+| `INCOMPLETE` | Quedó sin completar la paginación, una parte de la respuesta o el detalle de un aviso. Los identificadores disponibles se conservan. |
 | `UNAVAILABLE` | La consulta no pudo completarse y no hay evidencia nueva utilizable. |
 | `STALE` | La evidencia anterior superó `OSV_ASSESSMENT_MAX_AGE` (por defecto 24 horas) o un nuevo intento falló tras una evaluación anterior. Se conserva y muestra el resultado exitoso previo. |
 | `NOT_ASSESSED` | Aún no se ha consultado OSV para la versión. |
@@ -27,7 +27,7 @@ Cada aviso presenta el identificador, resumen disponible, severidad disponible, 
 
 V22 agrega `scan_vulnerability_assessments`, snapshots asociados a la organización, scan y componente. La tabla aplica ENABLE+FORCE RLS; V23 deja al rol runtime solo SELECT/INSERT para conservar el historial append-only. El catálogo público de vulnerabilidades y el rol dedicado `dependency_catalog_writer` permanecen aislados: esta primera integración **no** agrega ni modifica registros globales, y tampoco genera recomendaciones, cambios, PR, hallazgos históricos o aristas transitivas.
 
-OSV es una fuente externa susceptible a retrasos, cobertura desigual y fallos de red. Una respuesta vacía significa solamente “sin avisos conocidos según OSV a la hora indicada”. Maven/npm se evalúan por consulta exacta de versión; todavía no se calcula el rango afectado como motor determinista propio ni se contrasta con una segunda fuente. Para repetir la consulta OSV, ejecutar **Analizar repositorio**. Las credenciales GitHub no son necesarias para un repositorio local que ya tenga un análisis guardado.
+OSV es una fuente externa susceptible a retrasos, cobertura desigual y fallos de red. Una consulta completa sin avisos indica “sin avisos conocidos según OSV a la hora indicada”. Maven y npm se evalúan por versión exacta. Para actualizar la evidencia de los scans guardados, pulsa **Consultar OSV** en Inventario. Esta acción usa las coordenadas persistidas. El rango propio y la comparación con una segunda fuente siguen pendientes.
 
 ## Configuración
 

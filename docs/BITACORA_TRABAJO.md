@@ -1405,3 +1405,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** Se siguió la ruta desde `repository-workspace` y `/api/account/workspace` a los controladores de importación, el adaptador de GitHub App, `RepositorySourceService` y los permisos por repositorio. Se confirmó en SQL que volver a importar GitHub reactiva el registro previo, de modo que las asignaciones existentes pueden recuperar efecto. La importación y descarga en Dinamita se citan como evidencia del bloque anterior. No se repitieron pruebas de integración ni se modificó la instancia.
 
 **Siguiente paso.** Petición 4 sobre scanner y OSV. Revisar detección, versiones, cobertura y estados de consulta por separado.
+
+## Bloque 64 — scanner y OSV (petición 4, 22/11/2026)
+
+**Petición.** Contrastar los requisitos de detección y evaluación Maven/npm con el recorrido actual de Inventario.
+
+**Cambios.** El contexto maestro documenta los endpoints, la procedencia, los límites del scanner y sus respaldos, y el significado de los estados OSV. Se registraron los criterios de aceptación pendientes para fijar la fuente, asociar evidencia al scan exacto, acotar versiones corregidas al paquete y conservar inventario al fallar un reanálisis. Se corrigieron referencias históricas que presentaban npm, cdxgen u OSV como pendientes de primera integración.
+
+**Herramientas utilizadas.** `rg`, PowerShell y Git para revisar Angular, casos de uso Java, consultas JDBC, Flyway V22–V25 y Compose. Se contrastó la asociación por posición y la paginación con el contrato oficial de OSV. Los cambios son documentales.
+
+**Verificación.** Revisión estática de `inventory-workspace`, adaptadores cdxgen y OSV, lectores Maven/npm y persistencia por scan y ocurrencia. Se consultaron pruebas existentes y evidencias de los bloques 55–59. No se ejecutaron pruebas nuevas ni un análisis autenticado durante este bloque.
+
+**Siguiente paso.** Petición 5, Inventario. Definir catálogo, alcance, búsqueda, filtros y cómo se muestran la procedencia y la cobertura.
