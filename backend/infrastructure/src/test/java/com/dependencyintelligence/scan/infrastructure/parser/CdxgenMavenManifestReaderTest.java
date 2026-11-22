@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -14,6 +15,44 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CdxgenMavenManifestReaderTest {
+    @Test void resolvesInheritedPropertiesAndAnImportedBomFromTheUploadedProject() throws Exception {
+        CycloneDxGenerator emptyBom = (archive, ecosystem) -> """
+            {"bomFormat":"CycloneDX","specVersion":"1.6",
+             "metadata":{"component":{"type":"application","bom-ref":"root"},
+               "properties":[{"name":"dependency-intelligence:source-manifest-count","value":"1"}]},
+             "components":[],"dependencies":[]}
+            """.getBytes(StandardCharsets.UTF_8);
+        var reader = new CdxgenMavenManifestReader(emptyBom,
+            new CycloneDxManifestMapper(new ObjectMapper()), new BoundedMavenArchiveReader());
+        String parent = """
+            <project><modelVersion>4.0.0</modelVersion><groupId>org.example</groupId><artifactId>parent</artifactId>
+              <version>1.0.0</version><packaging>pom</packaging><properties><lib.version>3.4.5</lib.version></properties>
+            </project>
+            """;
+        String bom = """
+            <project><modelVersion>4.0.0</modelVersion><groupId>org.example</groupId><artifactId>local-bom</artifactId>
+              <version>1.0.0</version><packaging>pom</packaging><dependencyManagement><dependencies>
+                <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId><version>${lib.version}</version></dependency>
+              </dependencies></dependencyManagement></project>
+            """;
+        String module = """
+            <project><modelVersion>4.0.0</modelVersion><parent><groupId>org.example</groupId><artifactId>parent</artifactId>
+              <version>1.0.0</version><relativePath>../pom.xml</relativePath></parent><artifactId>service</artifactId>
+              <dependencyManagement><dependencies><dependency><groupId>org.example</groupId><artifactId>local-bom</artifactId>
+                <version>1.0.0</version><type>pom</type><scope>import</scope></dependency></dependencies></dependencyManagement>
+              <dependencies><dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency></dependencies>
+            </project>
+            """;
+
+        var result = reader.read(zip(Map.of("pom.xml", parent, "service/pom.xml", module, "bom/pom.xml", bom)));
+
+        assertEquals(3, result.manifestCount());
+        assertEquals(1, result.dependencies().size());
+        assertEquals("3.4.5", result.dependencies().getFirst().coordinates().version());
+        assertEquals("service/pom.xml", result.dependencies().getFirst().manifestPath());
+        assertEquals("PARTIAL", result.coverageStatus());
+    }
+
     @Test void recoversExactDirectDeclarationsWhenCdxgenReturnsAnEmptyBom() throws Exception {
         CycloneDxGenerator emptyBom = (archive, ecosystem) -> """
             {"bomFormat":"CycloneDX","specVersion":"1.6",
@@ -42,7 +81,7 @@ class CdxgenMavenManifestReaderTest {
         assertEquals("2.17.2", result.dependencies().getFirst().coordinates().version());
         assertEquals("DIRECT", result.dependencies().getFirst().dependencyType());
         assertEquals("PARTIAL", result.coverageStatus());
-        assertTrue(result.coverageMessage().contains("no incluye transitivas"));
+        assertTrue(result.coverageMessage().contains("dependencias directas"), result.coverageMessage());
     }
 
     @Test void keepsMavenManifestVisibleAsPartialWhenNoExactDependencyCanBeRecovered() throws Exception {
@@ -71,11 +110,17 @@ class CdxgenMavenManifestReaderTest {
     }
 
     private static ByteArrayInputStream zip(String pom) throws Exception {
+        return zip(Map.of("pom.xml", pom));
+    }
+
+    private static ByteArrayInputStream zip(java.util.Map<String, String> poms) throws Exception {
         var bytes = new ByteArrayOutputStream();
         try (var archive = new ZipOutputStream(bytes)) {
-            archive.putNextEntry(new ZipEntry("pom.xml"));
-            archive.write(pom.getBytes(StandardCharsets.UTF_8));
-            archive.closeEntry();
+            for (var entry : poms.entrySet()) {
+                archive.putNextEntry(new ZipEntry(entry.getKey()));
+                archive.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
+                archive.closeEntry();
+            }
         }
         return new ByteArrayInputStream(bytes.toByteArray());
     }

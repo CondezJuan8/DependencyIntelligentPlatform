@@ -45,8 +45,8 @@ public final class CdxgenMavenManifestReader implements MavenManifestReader {
                 fromManifests = manifestFallback.read(input);
             }
             String message = fromManifests.dependencies().isEmpty()
-                ? "Se detectó un POM, pero cdxgen no devolvió componentes y no fue posible resolver declaraciones Maven con versión exacta."
-                : "cdxgen no devolvió componentes; se recuperaron declaraciones Maven con versión exacta desde los POM. Cobertura parcial: no incluye transitivas ni versiones gestionadas que no se pudieron resolver.";
+                ? "Se detectó un POM, pero no se encontró una versión exacta que se pudiera confirmar en los POM del proyecto."
+                : "Se recuperaron dependencias directas con versión confirmada desde los POM, sus propiedades locales y la gestión local de versiones. El análisis estático no descarga BOM o POM remotos ni calcula transitivas.";
             return new ManifestAnalysis(fromManifests.dependencies(), fromManifests.edges(),
                 Math.max(fromSbom.manifestCount(), fromManifests.manifestCount()),
                 fromSbom.unresolvedCount() + fromManifests.unresolvedCount(), "PARTIAL", message);
