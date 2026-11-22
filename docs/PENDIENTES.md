@@ -1,3 +1,9 @@
+Actualización del bloque 60 (22 de noviembre de 2026): revisión del código confirma cuatro pantallas pendientes, según la confirmación del usuario: Vulnerabilidades, Análisis, Documentación y Reportes. El menú de navegación las envía al fallback “En preparación”. OSV/escaneo sí se usan desde Inventario y Dashboard, pero eso no equivale a completar sus pantallas independientes.
+
+El Dashboard, Inventario, Dependencias (grafo), Mis repositorios, Organización, Configuración y Administración ya tienen componentes propios; tienen capacidades de cobertura distinta. Dashboard sigue mostrando placeholders estáticos de grafo y tendencia, y análisis recientes solo Maven. Los textos del sidebar describen etapas ya superadas y requieren corregirse cuando el usuario priorice la pulida visual. El detalle del mapa y los estados por pantalla están en el bloque 60 del contexto maestro.
+
+Siguiente paso cuando se cierre la revisión documental: acordar el orden y los criterios de aceptación de las cuatro pantallas; no iniciar todavía una implementación por inferencia.
+
 Actualización del bloque 59 (22 de noviembre de 2026): se amplió el fallback Maven a padres, propiedades, gestión de dependencias y BOM locales, y se reorganizó el inventario. El fallback pasó 3 pruebas; lockfile npm y adaptador cdxgen pasaron 1 y 2. El build frontend compila. Falta reanalizar OMEGA desde una sesión autenticada y revisar visualmente el flujo, sobre todo los estados Maven, antes de dar por confirmada la mejora con datos reales.
 
 ## Bloque 59 — resolver Maven local y aclarar Inventario

@@ -1355,3 +1355,14 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación:** `CdxgenMavenManifestReaderTest` 3/3, `CdxgenNpmLockfileReaderTest` 1/1 y `CdxgenScannerAdapterTest` 2/2. `npm run build` finalizó correctamente; se mantienen avisos de presupuesto Angular ya presentes y el bundle inicial queda en 587.53 kB/500 kB. El primer intento de build/test sin permisos no pudo leer fuentes y el repositorio Maven por defecto intentó crear `C:\.m2`; con permisos y caché Maven local del usuario las pruebas focales pasaron. No se reanalizó OMEGA en una sesión autenticada, por lo que su conteo de componentes tras el fix no está verificado. No se tocaron los servicios de datos.
 
 **Siguiente paso:** desde localhost:8089, seleccionar OMEGA, ejecutar análisis y confirmar cantidad de dependencias Maven/OSV; luego revisar filtros y resumen visualmente. Completar Maven remoto/transitivo solo tras acordar el modelo seguro que se aceptará para esas fuentes.
+## Bloque 60 — revisión del sidebar y estado real de pantallas
+
+**Petición:** revisar el proyecto y explicar las pantallas y la función de cada opción del sidebar antes de seguir con cuatro pantallas restantes.
+
+**Revisión:** contrasté el array de navegación (`ready`), el switch de `application-shell.html`, los componentes y acciones Angular, y los controladores REST existentes. Confirmé que Vulnerabilidades, Análisis, Documentación y Reportes usan el fallback de “En preparación” y no tienen páginas funcionales propias. OSV se muestra desde Dashboard/Inventario y el scanner se ejecuta desde Inventario. Identifiqué que Dashboard conserva placeholders fijos de grafo/evolución y que su lista de análisis recientes solo lee Maven. Las otras opciones del menú sí cargan sus componentes; el alcance real está descrito en el bloque 60 del contexto maestro.
+
+**Herramientas utilizadas:** búsqueda `rg`, inspección de templates/TypeScript, controladores Spring y documentación del proyecto. Sin cambios de producto.
+
+**Verificación:** revisión estática del código; no se ejecutaron pruebas porque este bloque solo documenta el mapa existente. No se revisó la UI con sesión de navegador.
+
+**Siguiente paso:** cerrar el contexto maestro y luego ordenar las cuatro pantallas pendientes con criterios de aceptación antes de implementarlas; atender por separado textos de navegación obsoletos y placeholders del Dashboard.
