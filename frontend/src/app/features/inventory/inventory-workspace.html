@@ -3,7 +3,7 @@
     <div>
       <p class="eyebrow">INVENTARIO</p>
       <h1 id="inventory-title">Dependencias del proyecto</h1>
-      <p>Consulta paquetes y versiones detectados en los manifiestos del repositorio.</p>
+      <p>{{ 'Revisa qué usa el proyecto, qué sabemos de sus versiones y qué conviene comprobar después.' | t }}</p>
     </div>
   </header>
 
@@ -37,7 +37,7 @@
         </select>
       </div>
       <div class="scan-control">
-        <p>Una acción revisa los formatos compatibles</p>
+        <p>{{ 'Una acción revisa Java/Maven y JavaScript/npm' | t }}</p>
         <button class="primary" type="button" [disabled]="busy() || loadingScans() || !repository()" (click)="analyzeRepository()">
           @if (busy()) { <span class="button-spinner" aria-hidden="true"></span> Analizando… } @else { Analizar repositorio }
         </button>
@@ -50,13 +50,26 @@
 
     @if (scanResults().length > 0) {
       <section class="scanner-status" aria-labelledby="scanner-heading">
-        <h2 id="scanner-heading">Formatos revisados</h2>
+        <header class="section-heading">
+          <div><p class="eyebrow">{{ 'RESUMEN' | t }}</p><h2 id="scanner-heading">{{ 'Estado del análisis' | t }}</h2><p>{{ 'Los paquetes identificados están disponibles abajo. Si falta contexto, te explicamos qué se pudo confirmar.' | t }}</p></div>
+        </header>
         <div class="status-list">
           @for (result of scanResults(); track result.ecosystem) {
             <article class="status-item" [class.complete]="result.status === 'complete'" [class.partial]="result.status === 'partial'" [class.failed]="result.status === 'error'">
-              <span class="status-dot" aria-hidden="true"></span>
-              <div><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><p>{{ result.message }}</p>@if (result.scan && result.scan.unresolvedCount > 0) { <p class="coverage-warning">{{ result.scan.unresolvedCount }} componentes o relaciones quedaron sin versión o vínculo verificable.</p> }</div>
-              @if (result.scan) { <span class="status-count">{{ result.scan.dependencies.length }} paquetes</span> }
+              <span class="status-icon" aria-hidden="true">{{ result.status === 'complete' ? '✓' : result.status === 'error' ? '!' : result.status === 'unavailable' ? '–' : 'i' }}</span>
+              <div class="status-copy">
+                <div class="status-title-row"><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><span class="status-pill">{{ result.status === 'complete' ? ('Inventario listo' | t) : result.status === 'partial' ? ('Listo con datos por confirmar' | t) : result.status === 'error' ? ('No se pudo completar' | t) : ('No se encontró este formato' | t) }}</span></div>
+                @if (result.scan) {
+                  <p><strong>{{ result.scan.dependencies.length }}</strong> {{ 'dependencias identificadas con versión' | t }}</p>
+                  @if (result.scan.unresolvedCount > 0) {
+                    <p class="coverage-summary">{{ 'El inventario está disponible. Hay referencias que necesitan confirmación antes de evaluarse en OSV.' | t }}</p>
+                    <details class="coverage-details"><summary>{{ 'Ver detalles de cobertura' | t }}</summary><p>{{ result.scan.unresolvedCount }} {{ 'elementos por confirmar' | t }}. {{ 'Las dependencias con versión exacta se muestran en el inventario. Las referencias que no pudimos confirmar no se consultan en OSV hasta tener una versión válida.' | t }}</p>@if (result.message) { <details class="technical-details"><summary>{{ 'Ver detalle técnico' | t }}</summary><p>{{ result.message | t }}</p></details> }</details>
+                  } @else if (result.status === 'partial') {
+                    <p class="coverage-summary">{{ 'El inventario está disponible; revisa el alcance técnico antes de asumir que se identificaron todas las dependencias.' | t }}</p>
+                    @if (result.message) { <details class="coverage-details"><summary>{{ 'Ver alcance del análisis' | t }}</summary><p>{{ result.message | t }}</p></details> }
+                  } @else { <p>{{ result.status === 'complete' ? ('Las versiones identificadas ya se pueden revisar en el catálogo.' | t) : ('El análisis de este formato no está disponible.' | t) }}</p> }
+                } @else { <p>{{ result.message | t }}</p> }
+              </div>
             </article>
           }
         </div>
@@ -69,7 +82,6 @@
         <article class="summary-card"><span>Versiones</span><strong>{{ versionCount }}</strong><small>Versiones exactas detectadas</small></article>
         <article class="summary-card"><span>Directas</span><strong>{{ directCount }}</strong><small>Declaradas por el proyecto</small></article>
         <article class="summary-card"><span>Transitivas</span><strong>{{ transitiveCount }}</strong><small>Registradas en lockfiles</small></article>
-        <article class="summary-card"><span>{{ 'Relación sin resolver' | t }}</span><strong>{{ unknownCount }}</strong><small>{{ 'Detectadas en el SBOM sin conexión verificable' | t }}</small></article>
       </section>
 
       <section class="assessment-summary" aria-labelledby="assessment-heading" aria-live="polite">
@@ -91,48 +103,34 @@
         @if (staleCount > 0) { <p class="notice warning" role="status">{{ staleCount }} versiones tienen resultados desactualizados. Vuelve a analizar para consultar OSV de nuevo.</p> }
       }
 
-      @if (unresolvedCount > 0) {
-        <p class="notice warning" role="status">{{ unresolvedCount }} dependencias o versiones no pudieron resolverse desde los manifiestos compatibles.</p>
-      }
-
       <section class="catalog" aria-labelledby="catalog-heading">
         <header class="catalog-heading">
-          <div><h2 id="catalog-heading">Catálogo de paquetes</h2><p>Agrupado por ecosistema y nombre; abre un paquete para revisar sus versiones y procedencia.</p></div>
-          <span class="result-count" aria-live="polite">{{ groups.length }} paquetes</span>
+          <div><p class="eyebrow">{{ 'EXPLORAR' | t }}</p><h2 id="catalog-heading">{{ 'Catálogo de dependencias' | t }}</h2><p>{{ 'Busca un paquete y abre su fila para ver versiones, estado OSV y origen en el proyecto.' | t }}</p></div>
+          <div class="catalog-count" aria-live="polite"><strong>{{ groups.length }} {{ 'de' | t }} {{ uniquePackageCount }}</strong><span>{{ 'paquetes visibles' | t }} · {{ visibleVersionCount }} {{ 'versiones' | t }}</span></div>
         </header>
 
-        <form class="filters" role="search" (submit)="$event.preventDefault()">
-          <div class="filter search-filter">
-            <label for="inventory-search">Buscar paquetes</label>
-            <input id="inventory-search" type="search" autocomplete="off" [value]="search()" (input)="updateSearch($event)" placeholder="Nombre, namespace, versión o archivo" />
+        <div class="catalog-tools">
+          <form class="search-filter" role="search" (submit)="$event.preventDefault()">
+            <label for="inventory-search">{{ 'Buscar por nombre, versión o archivo' | t }}</label>
+            <input id="inventory-search" type="search" autocomplete="off" [value]="search()" (input)="updateSearch($event)" [placeholder]="'Ej. jackson-databind o package-lock.json' | t" />
+          </form>
+          <div class="quick-filters" role="group" [attr.aria-label]="'Filtros rápidos por seguridad' | t">
+            <button type="button" class="filter-chip" [class.selected]="securityFilter() === 'ALL'" [attr.aria-pressed]="securityFilter() === 'ALL'" (click)="setQuickSecurityFilter('ALL')">{{ 'Todas' | t }}</button>
+            <button type="button" class="filter-chip" [class.selected]="securityFilter() === 'VULNERABLE'" [attr.aria-pressed]="securityFilter() === 'VULNERABLE'" (click)="setQuickSecurityFilter('VULNERABLE')">{{ 'Con avisos OSV' | t }}</button>
+            <button type="button" class="filter-chip" [class.selected]="securityFilter() === 'REVIEW'" [attr.aria-pressed]="securityFilter() === 'REVIEW'" (click)="setQuickSecurityFilter('REVIEW')">{{ 'Por revisar' | t }}</button>
+            <button type="button" class="filter-chip" [class.selected]="securityFilter() === 'NO_KNOWN'" [attr.aria-pressed]="securityFilter() === 'NO_KNOWN'" (click)="setQuickSecurityFilter('NO_KNOWN')">{{ 'Sin avisos conocidos' | t }}</button>
+            @if (hasActiveFilters) { <button type="button" class="clear-filters" (click)="clearFilters()">{{ 'Quitar filtros' | t }}</button> }
           </div>
-          <div class="filter">
-            <label for="ecosystem-filter">Ecosistema</label>
-            <select id="ecosystem-filter" [value]="ecosystemFilter()" (change)="updateEcosystem($event)">
-              <option value="ALL">Todos</option><option value="MAVEN">Java · Maven</option><option value="NPM">JavaScript · npm</option>
-            </select>
-          </div>
-          <div class="filter">
-            <label for="dependency-filter">Tipo de dependencia</label>
-            <select id="dependency-filter" [value]="dependencyFilter()" (change)="updateDependencyKind($event)">
-              <option value="ALL">Todas</option><option value="DIRECT">Directas</option><option value="TRANSITIVE">Transitivas</option><option value="UNKNOWN">{{ 'Relación sin resolver' | t }}</option>
-            </select>
-          </div>
-          <div class="filter">
-            <label for="security-filter">{{ 'Estado de seguridad' | t }}</label>
-            <select id="security-filter" [value]="securityFilter()" (change)="updateSecurityFilter($event)">
-              <option value="ALL">{{ 'Todos los estados' | t }}</option><option value="VULNERABLE">{{ 'Con vulnerabilidades' | t }}</option><option value="NO_KNOWN">{{ 'Sin avisos conocidos' | t }}</option><option value="REVIEW">{{ 'Sin evaluar o requiere revisión' | t }}</option>
-            </select>
-          </div>
-          @if (scopes.length > 0) {
-            <div class="filter">
-              <label for="scope-filter">Ámbito</label>
-              <select id="scope-filter" [value]="scopeFilter()" (change)="updateScope($event)">
-                <option value="ALL">Todos</option>@for (scope of scopes; track scope) { <option [value]="scope">{{ scope }}</option> }
-              </select>
+          <details class="advanced-filters">
+            <summary>{{ 'Filtros avanzados' | t }} <span>{{ 'Ecosistema, tipo y ámbito' | t }}</span></summary>
+            <div class="filters">
+              <div class="filter"><label for="ecosystem-filter">Ecosistema</label><select id="ecosystem-filter" [value]="ecosystemFilter()" (change)="updateEcosystem($event)"><option value="ALL">Todos</option><option value="MAVEN">Java · Maven</option><option value="NPM">JavaScript · npm</option></select></div>
+              <div class="filter"><label for="dependency-filter">Tipo de dependencia</label><select id="dependency-filter" [value]="dependencyFilter()" (change)="updateDependencyKind($event)"><option value="ALL">Todas</option><option value="DIRECT">Directas</option><option value="TRANSITIVE">Transitivas</option><option value="UNKNOWN">{{ 'Pendiente de clasificar' | t }}</option></select></div>
+              <div class="filter"><label for="security-filter">{{ 'Estado de seguridad' | t }}</label><select id="security-filter" [value]="securityFilter()" (change)="updateSecurityFilter($event)"><option value="ALL">{{ 'Todos los estados' | t }}</option><option value="VULNERABLE">{{ 'Con avisos OSV' | t }}</option><option value="NO_KNOWN">{{ 'Sin avisos conocidos' | t }}</option><option value="REVIEW">{{ 'Por revisar' | t }}</option></select></div>
+              @if (scopes.length > 0) { <div class="filter"><label for="scope-filter">Ámbito</label><select id="scope-filter" [value]="scopeFilter()" (change)="updateScope($event)"><option value="ALL">Todos</option>@for (scope of scopes; track scope) { <option [value]="scope">{{ scope }}</option> }</select></div> }
             </div>
-          }
-        </form>
+          </details>
+        </div>
 
         @if (groups.length === 0) {
           <div class="filtered-empty"><h3>No hay coincidencias</h3><p>Prueba otra búsqueda o limpia los filtros para ver todos los paquetes.</p><button class="secondary" type="button" (click)="clearFilters()">Limpiar filtros</button></div>
@@ -143,13 +141,13 @@
                 <summary>
                   <span class="package-symbol" [class.npm]="group.ecosystem === 'NPM'" aria-hidden="true">{{ group.ecosystem === 'MAVEN' ? 'M' : 'N' }}</span>
                   <span class="package-identity"><strong data-no-translate>{{ group.namespace ? group.namespace + ':' : '' }}{{ group.name }}</strong><small>{{ group.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</small></span>
-                  <span class="package-metrics"><span>{{ group.versions.length }} {{ group.versions.length === 1 ? 'versión' : 'versiones' }}</span><span>{{ group.directCount }} directas · {{ group.transitiveCount }} transitivas · {{ group.unknownCount }} {{ 'sin relación confirmada' | t }}</span></span>
+                  <span class="package-metrics"><span>{{ group.versions.length }} {{ group.versions.length === 1 ? 'versión' : 'versiones' }}</span><span>{{ group.directCount }} directas · {{ group.transitiveCount }} transitivas · {{ group.unknownCount }} {{ 'por clasificar' | t }}</span></span>
                   <span class="chevron" aria-hidden="true">⌄</span>
                 </summary>
                 <div class="version-list">
                   @for (version of group.versions; track version.version) {
                     <article class="version-card">
-                      <header class="version-heading"><h3>Versión <code data-no-translate>{{ version.version }}</code></h3><div class="kind-tags"><span class="tag direct">{{ version.directCount }} directas</span><span class="tag transitive">{{ version.transitiveCount }} transitivas</span><span class="tag unknown">{{ version.unknownCount }} {{ 'sin relación confirmada' | t }}</span></div></header>
+                      <header class="version-heading"><h3>Versión <code data-no-translate>{{ version.version }}</code></h3><div class="kind-tags"><span class="tag direct">{{ version.directCount }} directas</span><span class="tag transitive">{{ version.transitiveCount }} transitivas</span><span class="tag unknown">{{ version.unknownCount }} {{ 'por clasificar' | t }}</span></div></header>
                       @if (assessmentFor(group, version); as assessment) {
                         <section class="version-assessment" [class]="'version-assessment state-' + assessment.status.toLowerCase()" [attr.aria-label]="assessmentLabel(assessment.status)">
                           <strong>{{ assessmentLabel(assessment.status) | t }}</strong>
@@ -191,7 +189,7 @@
                       <ul class="occurrence-list">
                         @for (occurrence of version.occurrences; track occurrence.scanId + occurrence.dependency.manifestPath + occurrence.dependency.scope) {
                           <li>
-                            <span class="occurrence-type" [class.direct-type]="occurrence.dependency.dependencyType === 'DIRECT'" [class.unknown-type]="occurrence.dependency.dependencyType === 'UNKNOWN'">{{ occurrence.dependency.dependencyType === 'DIRECT' ? ('Directa' | t) : occurrence.dependency.dependencyType === 'TRANSITIVE' ? ('Transitiva' | t) : ('Relación sin resolver' | t) }}</span>
+                            <span class="occurrence-type" [class.direct-type]="occurrence.dependency.dependencyType === 'DIRECT'" [class.unknown-type]="occurrence.dependency.dependencyType === 'UNKNOWN'">{{ occurrence.dependency.dependencyType === 'DIRECT' ? ('Directa' | t) : occurrence.dependency.dependencyType === 'TRANSITIVE' ? ('Transitiva' | t) : ('Pendiente de clasificar' | t) }}</span>
                             <span class="occurrence-detail"><strong>Archivo</strong><code data-no-translate>{{ occurrence.dependency.manifestPath }}</code></span>
                             <span class="occurrence-detail"><strong>Ámbito</strong><span data-no-translate>{{ occurrence.dependency.scope }}</span></span>
                             <span class="occurrence-detail"><strong>Analizado</strong><time [attr.datetime]="occurrence.analyzedAt">{{ occurrence.analyzedAt | date:'medium' }}</time></span>

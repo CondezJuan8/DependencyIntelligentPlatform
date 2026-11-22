@@ -27,7 +27,7 @@ code { overflow-wrap: anywhere; color: var(--di-text); font: 600 12px/1.5 ui-mon
 .tag, .occurrence-type { padding: 4px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .tag.direct, .occurrence-type.direct-type { background: var(--di-success-background); color: var(--di-success-text); }
 .tag.transitive, .occurrence-type { background: var(--di-surface-muted); color: var(--di-text-secondary); }
-.tag.unknown, .occurrence-type.unknown-type { background: var(--di-warning-background); color: var(--di-warning-text); }
+.tag.unknown, .occurrence-type.unknown-type { background: var(--di-info-background); color: var(--di-info-text); }
 .occurrence-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .occurrence-list li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; padding: 12px; border-bottom: 1px solid var(--di-border); }
 .occurrence-list li:last-child { border-bottom: 0; }
@@ -70,7 +70,6 @@ code { overflow-wrap: anywhere; color: var(--di-text); font: 600 12px/1.5 ui-mon
   .inventory-page { padding: 16px 12px; }
   .catalog-heading { align-items: flex-start; flex-direction: column; }
   .result-count { align-self: flex-start; }
-  .status-count { max-width: 65px; text-align: right; }
   .version-heading { align-items: flex-start; flex-direction: column; }
 }
 

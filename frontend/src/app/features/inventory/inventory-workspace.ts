@@ -201,8 +201,17 @@ export class InventoryWorkspace implements OnInit {
     return [...new Set(this.occurrences().map((occurrence) => occurrence.dependency.scope).filter(Boolean))].sort();
   }
 
-  get unresolvedCount(): number {
-    return this.scanResults().reduce((sum, result) => sum + (result.scan?.unresolvedCount ?? 0), 0);
+  get visibleVersionCount(): number {
+    return this.groups.reduce((sum, group) => sum + group.versions.length, 0);
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!this.search().trim() || this.ecosystemFilter() !== 'ALL' || this.dependencyFilter() !== 'ALL'
+      || this.scopeFilter() !== 'ALL' || this.securityFilter() !== 'ALL';
+  }
+
+  setQuickSecurityFilter(filter: 'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW'): void {
+    this.securityFilter.set(filter);
   }
 
   get hasCompletedScan(): boolean {
@@ -290,7 +299,7 @@ export class InventoryWorkspace implements OnInit {
       this.scanResults.set(results);
       this.occurrences.set(this.toOccurrences(results));
       const available = results.filter((result) => result.scan !== null).length;
-      if (available === 2 && results.some((result) => result.status === 'partial')) this.notice.set('Análisis completado con cobertura parcial; revisa qué dependencias quedaron por resolver.');
+      if (available === 2 && results.some((result) => result.status === 'partial')) this.notice.set('Análisis actualizado. Consulta el estado de cada ecosistema para ver su alcance.');
       else if (available === 2) this.notice.set('Análisis completado para Maven y npm.');
       else if (available === 1) this.notice.set('El inventario se actualizó parcialmente; revisa el estado de cada ecosistema.');
       else this.error.set(results.find((result) => result.status === 'error')?.message ?? 'No encontramos manifiestos compatibles para Maven ni npm en este repositorio.');
