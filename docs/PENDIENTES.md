@@ -1,3 +1,9 @@
+Actualización del bloque 63 (22 de noviembre de 2026). **Petición 3 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) recoge importación, permisos, procedencia y retención de las dos fuentes. La descarga e importación confirmadas en Dinamita corresponden a la validación anterior.
+
+- [ ] Completar la desconexión explícita de GitHub y procesar webhooks firmados e idempotentes. Mantener sincronización manual y mostrar cuándo no se pudo verificar el acceso remoto.
+- [ ] Revisar permisos al volver a agregar un repositorio GitHub. Exponer las acciones por repositorio acordes a los permisos efectivos, también para cuentas `MEMBER` con `repository.manage` sobre el recurso.
+- [ ] Validar retiro y revocación real, reconexión y accesos por equipo en ambas fuentes. Comprobar el flujo desde otro dispositivo y una carga cercana a 50.000 archivos. Consolidar plazos y respaldo del ZIP local en la petición 15.
+
 Actualización del bloque 62 (22 de noviembre de 2026): auditoría de Identity/Organization y autorización. Confirmado: administrador global separado de roles de organización; cuenta OWNER creada por registro abierto con admisión pendiente; invitación crea MEMBER, requiere correo verificado, aceptación y aprobación manual del propietario invitante. Roles organizativos OWNER/ADMIN/MEMBER/VIEWER; MEMBER puede recibir `repository.manage` limitado por equipo/repositorio. ADMIN puede gestionar acceso general pero la API restringe invitaciones/aprobaciones al OWNER. Google/GitHub login y vinculación existen en código; Compose tiene credenciales deshabilitadas según el estado operativo.
 
 Confirmado: cuentas MEMBER tendrán Dashboard limitado a repositorios asignados. Para MEMBER con `repository.manage` sobre un repo, la tabla mostrará «Administradora del repositorio A» sin cambiar su rol ni permisos de organización. **Petición 2 cerrada en requisitos; cambios de UI quedan para la fase de pulido.**
@@ -6,7 +12,8 @@ Actualización del bloque 61 (22 de noviembre de 2026): **petición 1 del plan d
 
 El plan ahora enumera las 15 peticiones y especifica la fase de IA documental: embeddings Ollama, dimensión/modelo por decidir, pgvector con aislamiento tenant, RAG con citas, orquestador y chat asistente Gemini con permisos/evaluación. No se han activado pgvector ni proveedores de IA.
 
-Siguiente: petición 2, cerrar identidad, roles, permisos y configuración de espacios/cuentas antes de definir la pantalla de Vulnerabilidades.
+La siguiente petición del plan maestro es la 4, sobre scanner y OSV.
+
 Actualización del bloque 60 (22 de noviembre de 2026): revisión del código confirma cuatro pantallas pendientes, según la confirmación del usuario: Vulnerabilidades, Análisis, Documentación y Reportes. El menú de navegación las envía al fallback “En preparación”. OSV/escaneo sí se usan desde Inventario y Dashboard, pero eso no equivale a completar sus pantallas independientes.
 
 El Dashboard, Inventario, Dependencias (grafo), Mis repositorios, Organización, Configuración y Administración ya tienen componentes propios; tienen capacidades de cobertura distinta. Dashboard sigue mostrando placeholders estáticos de grafo y tendencia, y análisis recientes solo Maven. Los textos del sidebar describen etapas ya superadas y requieren corregirse cuando el usuario priorice la pulida visual. El detalle del mapa y los estados por pantalla están en el bloque 60 del contexto maestro.

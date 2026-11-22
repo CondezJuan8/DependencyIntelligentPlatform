@@ -1393,3 +1393,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación:** revisión estática; sin pruebas de código ni sesión autenticada. La matriz y las dos decisiones confirmadas están registradas en el bloque 62 del contexto maestro.
 
 **Siguiente paso:** petición 3 — cerrar fuente GitHub/local, importación, sincronización y ciclo de vida de repositorios.
+
+## Bloque 63 — fuentes GitHub y locales (petición 3, 22/11/2026)
+
+**Petición.** Revisar el flujo completo de repositorios y fijar requisitos y criterios de aceptación en el contexto maestro.
+
+**Cambios.** Se documentó cómo se importan, autorizan, descargan y retiran las dos fuentes. GitHub obtiene un ZIP temporal por commit. Local persiste un ZIP privado identificado por SHA-256 y admite 100 MiB de contenido y 50.000 archivos. La sincronización de GitHub ocurre bajo demanda y la aplicación conserva el historial al retirar el acceso. El registro de pendientes recoge desconexión explícita, webhooks, revisión de permisos al reactivar y validaciones con accesos reales.
+
+**Herramientas utilizadas.** `rg`, PowerShell y Git para revisar controladores y casos de uso Java, consultas JDBC, migraciones Flyway V19/V24, pantalla Angular y documentos de arquitectura, base de datos y stack. La entrega es documental.
+
+**Verificación.** Se siguió la ruta desde `repository-workspace` y `/api/account/workspace` a los controladores de importación, el adaptador de GitHub App, `RepositorySourceService` y los permisos por repositorio. Se confirmó en SQL que volver a importar GitHub reactiva el registro previo, de modo que las asignaciones existentes pueden recuperar efecto. La importación y descarga en Dinamita se citan como evidencia del bloque anterior. No se repitieron pruebas de integración ni se modificó la instancia.
+
+**Siguiente paso.** Petición 4 sobre scanner y OSV. Revisar detección, versiones, cobertura y estados de consulta por separado.
