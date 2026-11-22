@@ -1,3 +1,8 @@
+Actualización del bloque 61 (22 de noviembre de 2026): **petición 1 del plan de 15 cerrada**. Propósito del producto, objetivo del producto completo por fases (local primero, servidor después), alcance del primer piloto, exclusión de la antigua demo de dos semanas y criterio de “listo para usar” quedaron consolidados. El público prioritario son por igual responsables/líderes técnicos y seguridad/DevSecOps.
+
+El plan ahora enumera las 15 peticiones y especifica la fase de IA documental: embeddings Ollama, dimensión/modelo por decidir, pgvector con aislamiento tenant, RAG con citas, orquestador y chat asistente Gemini con permisos/evaluación. No se han activado pgvector ni proveedores de IA.
+
+Siguiente: petición 2, cerrar identidad, roles, permisos y configuración de espacios/cuentas antes de definir la pantalla de Vulnerabilidades.
 Actualización del bloque 60 (22 de noviembre de 2026): revisión del código confirma cuatro pantallas pendientes, según la confirmación del usuario: Vulnerabilidades, Análisis, Documentación y Reportes. El menú de navegación las envía al fallback “En preparación”. OSV/escaneo sí se usan desde Inventario y Dashboard, pero eso no equivale a completar sus pantallas independientes.
 
 El Dashboard, Inventario, Dependencias (grafo), Mis repositorios, Organización, Configuración y Administración ya tienen componentes propios; tienen capacidades de cobertura distinta. Dashboard sigue mostrando placeholders estáticos de grafo y tendencia, y análisis recientes solo Maven. Los textos del sidebar describen etapas ya superadas y requieren corregirse cuando el usuario priorice la pulida visual. El detalle del mapa y los estados por pantalla están en el bloque 60 del contexto maestro.

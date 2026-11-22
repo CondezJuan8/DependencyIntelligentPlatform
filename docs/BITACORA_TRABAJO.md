@@ -1366,3 +1366,16 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación:** revisión estática del código; no se ejecutaron pruebas porque este bloque solo documenta el mapa existente. No se revisó la UI con sesión de navegador.
 
 **Siguiente paso:** cerrar el contexto maestro y luego ordenar las cuatro pantallas pendientes con criterios de aceptación antes de implementarlas; atender por separado textos de navegación obsoletos y placeholders del Dashboard.
+## Bloque 61 — petición 1: objetivo y alcance del producto
+
+**Petición:** integrar explícitamente pgvector, embeddings, RAG, orquestador y chat LLM en el plan de 15 peticiones y empezar por definir objetivo y alcance.
+
+**Decisiones consolidadas:** producto completo listo para usar por fases, primero local y luego servidor; la demo previa de dos semanas/50 horas ya no limita el alcance ni constituye fecha comprometida. El primer piloto mantiene GitHub y repositorios locales, Maven/npm, equipos/permisos por repositorio, análisis trazable y propuesta de PR aprobable con pruebas aisladas. Responsables/líderes técnicos y seguridad/DevSecOps tienen igual prioridad. Gemini será el LLM y Ollama el proveedor de embeddings; Codex queda fuera hasta petición explícita. No se inventan modelo, dimensión, límites ni cuotas. Correo de notificaciones queda posterior a notificaciones in-app.
+
+**Plan maestro actualizado:** 15 peticiones; separa centro documental (ingesta/permisos/retención) de la arquitectura IA: modelo/dimensión Ollama, pgvector y aislamiento, recuperación/RAG con citas, orquestador y chat Gemini con control de permisos/evaluación. `pgvector` sigue sin activarse hasta que se diseñe esa fase.
+
+**Herramientas utilizadas:** lectura comparativa del contexto maestro, arquitectura backend, especificación de base de datos, stack y mapa de navegación; edición documental con PowerShell/.NET UTF-8. Sin cambios de código ni migraciones.
+
+**Verificación:** búsqueda de contradicciones históricas sobre demo de dos semanas en el contexto; el plan antiguo quedó rotulado como histórico. Revisión documental, sin pruebas de código.
+
+**Siguiente:** petición 2 — cerrar identidad, roles, permisos y configuración, contrastando con los flujos ya implementados.
