@@ -1,3 +1,18 @@
+## Bloque 74 — petición 9: Centro de documentación (23/11/2026)
+
+- [x] Biblioteca responsive por organización con selección de espacio y permisos en el backend.
+- [x] Carga de archivos privados de hasta 50 MiB: PDF, DOCX, Markdown, TXT, README, OpenAPI, ADR y CHANGELOG.
+- [x] Extracción aislada en proceso hijo con Apache Tika, versión fijada, límites de memoria/tiempo y máximo de páginas PDF.
+- [x] Asociación a repositorios accesibles, historial de versiones, descarga con autorización, SHA-256, fragmentación e índice de búsqueda de texto completo.
+- [x] Eliminación explícita del original privado, versiones, fragmentos y metadatos de embeddings/evidencia asociados; la solicitud permanece reintentable si el borrado físico falla.
+- [x] Integración con `document.read`/`document.manage`, preferencias de idioma y tokens responsive/accesibles del tema.
+- [ ] Asociar documentos con componentes/versiones y filtrar documentos por componente.
+- [ ] Implementar configuración y ejecución automática de las políticas de retención ya modeladas en V9.
+- [ ] Evaluar OCR de PDF escaneado y persistir una explicación legible del resultado de extracción en la UI.
+- [ ] Implementar la fase semántica del siguiente bloque: definir modelo/dimensión de embeddings de Ollama, vector store, recuperación con citas y orquestación Gemini. No asumir modelo ni habilitar pgvector antes de fijar esa configuración.
+- [ ] Recorrido autenticado de carga/búsqueda/versionado/descarga/eliminación en Compose después de bootstrap del administrador; la base actual está vacía y no permite login funcional.
+
+Ver detalle, arquitectura y límites en el [contexto maestro, bloque 74](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) y en la [bitácora](BITACORA_TRABAJO.md).
 ## Bloque 73 — petición 8: Análisis (23 de noviembre de 2026)
 
 - [x] Añadir pantalla propia a Análisis para seleccionar repositorio, ejecutar Maven/npm y ver resultados.

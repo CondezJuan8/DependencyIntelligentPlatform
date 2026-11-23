@@ -1,3 +1,14 @@
+## Bloque 74 — petición 9: Centro de documentación (23/11/2026)
+
+**Petición.** Continuar el plan del contexto maestro implementando la pantalla de Documentación y su flujo real, sin adelantarse a la integración IA/RAG.
+
+**Cambios.** Se añadieron validaciones de nombre y tipos admitidos, DTO/puerto/caso de uso y adaptador JDBC. La pantalla ofrece carga de hasta 50 MiB, repositorios permitidos, historial de versiones, búsqueda léxica, descarga, SHA-256 y eliminación. Los documentos se guardan en el volumen privado existente; los accesos a versiones/descargas/borrado comprueban que el documento esté dentro del alcance visible. La extracción usa Tika 4.2.0 `PipesForkParser`, proceso hijo, timeout y heap configurados. Se habilitó Documentación en el sidebar y se añadieron textos en inglés.
+
+**Herramientas y tecnologías.** `apply_patch` y PowerShell para edición; Angular 22/TypeScript/HTML/SCSS; Java 21/Spring MVC/JDBC/PostgreSQL; Apache Tika `tika-pipes-fork-parser` 4.2.0; Docker Compose. Esta es la nueva dependencia backend; no se añadieron migraciones ni dependencias npm.
+
+**Verificación.** Build de Angular producción correcto; advertencia de bundle inicial (575.90 KB frente a 500 KB) y SCSS del módulo (5.43 KB frente a 4 KB). Backend Java 21 compiló y empaquetó con `-DskipTests`; no se ejecutaron pruebas automatizadas. Compose se actualizó solo en backend/frontend; `http://localhost:8089/health` y `/?view=documentation` respondieron HTTP 200, la base quedó en V28 y el backend inició correctamente con Tika. El recorrido CRUD autenticado no se verificó porque la base está vacía y falta bootstrap inicial del administrador. Una primera compilación reveló que Tika 4 requiere `PipesForkParser` para aislamiento y metadatos `HttpHeaders`; se ajustó al API 4.2.0 oficial antes de terminar el build.
+
+**Límites y siguiente paso.** Faltan asociación documento-componente/versión, UI/job para políticas V9 de retención, OCR y mensajes detallados de fallos de extracción. Búsqueda semántica, embeddings Ollama, vectores y Gemini pertenecen al bloque siguiente. Desplegado y verificado por HTTP; falta el recorrido autenticado tras bootstrap.
 ## Bloque 73 — petición 8: pantalla de Análisis (23/11/2026)
 
 **Petición.** Continuar el plan del contexto maestro con la petición 8: pantalla para ejecutar y consultar análisis de dependencias.

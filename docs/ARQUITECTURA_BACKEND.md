@@ -1,3 +1,10 @@
+## Bloque 74 — Centro de documentación (petición 9)
+
+Domain valida `DocumentName` y tipos admitidos; Application define `ManageDocuments`, sus DTO/puerto/caso de uso y límites independientes de Spring. Infrastructure ofrece `DocumentCenterController`, `JdbcDocumentLibrary` y el wiring del caso de uso. Los originales se guardan fuera de la webroot bajo `APP_DOCUMENTS_STORAGE_ROOT`, en volumen privado, con clave generada por UUID y SHA-256; la UI no recibe rutas internas. La autorización exige `document.read` o `document.manage`, limita las asociaciones a repositorios accesibles y hace cumplir el RLS/contexto tenant. Listados/búsquedas filtran los nombres de repositorio por el mismo alcance.
+
+Tika 4.2.0 se ejecuta con `PipesForkParser` y un proceso JVM hijo (1 proceso, heap 256 MiB, 45 s). Se admiten 50 MiB por archivo, máximo 500 páginas PDF y 1 M de caracteres indexados. El texto se guarda en `document_chunks` y se busca mediante el GIN `to_tsvector` existente; no se llama a Gemini/Ollama ni se guardan vectores. Versiones y procesamiento usan `document_versions`/`document_processing_runs`; borrado marca la solicitud V9 como pendiente, retira el original y limpia chunks/evidencias/metadatos antes de completarla.
+
+No se añade migración. La cobertura no incluye asociación a componentes/versiones, OCR, aplicación automática de retención, ni indexación semántica; el recorrido HTTP de usuario permanece pendiente del bootstrap que necesita Compose.
 ## Bloque 73 — petición 8: consulta de historial y fallos de análisis (23/11/2026)
 
 La pantalla Análisis solicita `POST /api/organizations/{organizationId}/repositories/{repositoryId}/dependency-analysis`; comparte el flujo que genera snapshots Maven y npm y después pide la evaluación OSV por separado. `GET /api/organizations/{organizationId}/repositories/{repositoryId}/scans` requiere `scan.read`, limita la consulta al repositorio/organización, aplica contexto tenant/RLS y devuelve hasta 50 ejecuciones con commit, estado, scanner, conteos, cobertura, error y hash de fuente. Application define `FindScanHistory` y `ScanHistoryReader`; Infrastructure implementa PostgreSQL/JDBC.
