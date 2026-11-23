@@ -19,6 +19,7 @@ const paths: Record<string, string> = {
   arrow: 'M4 12h16 m-6-6 6 6-6 6',
   plus: 'M12 4v16 M4 12h16',
   close: 'm5 5 14 14 M19 5 5 19',
+  refresh: 'M20 7v5h-5 M4 17v-5h5 M5.6 9A7 7 0 0 1 18 6.5L20 12 M4 12l2 5.5A7 7 0 0 0 18.4 15',
   mail: 'M3 5h18v14H3V5Z m0 1 9 7 9-7',
   lock: 'M5 10h14v11H5V10Z M8 10V7a4 4 0 0 1 8 0v3',
   person: 'M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2 M8 6a4 4 0 1 0 8 0a4 4 0 1 0-8 0',

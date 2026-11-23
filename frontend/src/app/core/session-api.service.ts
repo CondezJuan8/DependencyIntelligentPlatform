@@ -44,6 +44,13 @@ export class SessionApiService {
     );
   }
 
+  put<T>(path: string, body: unknown): Observable<T> {
+    return this.http.get<CsrfToken>('/api/auth/csrf').pipe(
+      switchMap(csrf => this.http.put<T>(path, body, { headers: { [csrf.headerName]: csrf.token } })),
+      catchError(error => this.handleFailure(error)),
+    );
+  }
+
   delete<T>(path: string): Observable<T> {
     return this.http.get<CsrfToken>('/api/auth/csrf').pipe(
       switchMap(csrf => this.http.delete<T>(path, { headers: { [csrf.headerName]: csrf.token } })),

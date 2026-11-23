@@ -20,9 +20,9 @@ export const navigation = [
     id: 'vulnerabilities',
     label: 'Vulnerabilidades',
     icon: 'shield',
-    ready: false,
+    ready: true,
     description:
-      'Explora hallazgos de seguridad con su versión afectada y evidencia. Pendiente de la integración con OSV.',
+      'Prioriza hallazgos OSV por severidad, repositorio y estado de revisión.',
   },
   {
     id: 'analysis',

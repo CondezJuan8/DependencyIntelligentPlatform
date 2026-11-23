@@ -1,0 +1,76 @@
+<section class="vulnerabilities-page" aria-labelledby="vuln-title">
+  <header class="vuln-heading">
+    <div>
+      <p class="eyebrow">{{ 'SEGURIDAD · OSV' | t }}</p>
+      <h1 id="vuln-title">{{ 'Vulnerabilidades' | t }}</h1>
+      <p class="intro">{{ 'Prioriza los avisos que afectan a tus repositorios y sigue su revisión.' | t }}</p>
+    </div>
+    <button class="refresh" type="button" (click)="load()" [disabled]="loading()">
+      <app-di-icon name="refresh" /> {{ 'Actualizar' | t }}
+    </button>
+  </header>
+
+  <div class="risk-summary" aria-label="{{ 'Resumen de severidad' | t }}">
+    <article class="risk-card critical"><span>{{ 'Críticas' | t }}</span><strong>{{ severityCounts().CRITICAL }}</strong><small>{{ 'Avisos que requieren atención prioritaria' | t }}</small></article>
+    <article class="risk-card high"><span>{{ 'Altas' | t }}</span><strong>{{ severityCounts().HIGH }}</strong><small>{{ 'Revisa impacto y planifica una corrección' | t }}</small></article>
+    <article class="risk-card warning"><span>{{ 'Medias, bajas o sin puntuación' | t }}</span><strong>{{ severityCounts().WARNING }}</strong><small>{{ 'La fuente no publica una severidad mayor' | t }}</small></article>
+    <article class="risk-card total"><span>{{ 'Paquetes afectados' | t }}</span><strong>{{ packageCount() }}</strong><small>{{ 'Versiones únicas en repositorios' | t }}</small></article>
+  </div>
+
+  <section class="filters" aria-label="{{ 'Filtros de vulnerabilidades' | t }}">
+    <label class="search-field"><span>{{ 'Buscar' | t }}</span><input type="search" [value]="search()" (input)="search.set($any($event.target).value)" [placeholder]="'Aviso, paquete, repositorio…' | t" /></label>
+    <label><span>{{ 'Severidad' | t }}</span><select [value]="severityFilter()" (change)="severityFilter.set($any($event.target).value)"><option value="ALL">{{ 'Todas' | t }}</option><option value="CRITICAL">{{ 'Crítica' | t }}</option><option value="HIGH">{{ 'Alta' | t }}</option><option value="WARNING">{{ 'Media, baja o sin puntuación' | t }}</option></select></label>
+    <label><span>{{ 'Ecosistema' | t }}</span><select [value]="ecosystemFilter()" (change)="ecosystemFilter.set($any($event.target).value)"><option value="ALL">{{ 'Todos' | t }}</option><option value="MAVEN">Maven</option><option value="NPM">npm</option></select></label>
+    <label><span>{{ 'Repositorio' | t }}</span><select [value]="repositoryFilter()" (change)="repositoryFilter.set($any($event.target).value)"><option value="ALL">{{ 'Todos' | t }}</option>@for (repo of repositories(); track repo.id) { <option [value]="repo.id">{{ repo.fullName }}</option> }</select></label>
+    <label><span>{{ 'Revisión' | t }}</span><select [value]="reviewFilter()" (change)="reviewFilter.set($any($event.target).value)"><option value="ALL">{{ 'Todos los estados' | t }}</option><option value="OPEN">{{ 'Pendiente' | t }}</option><option value="IN_REVIEW">{{ 'En revisión' | t }}</option><option value="RISK_ACCEPTED">{{ 'Riesgo aceptado' | t }}</option><option value="RESOLVED">{{ 'Resuelto' | t }}</option></select></label>
+    @if (hasAnyFilter()) { <button class="clear-filters" type="button" (click)="clearFilters()">{{ 'Limpiar filtros' | t }}</button> }
+  </section>
+
+  <div class="results-meta"><strong>{{ visibleFindings().length }} {{ 'avisos' | t }}</strong><span>{{ affectedCount() }} {{ 'paquetes y versiones afectados' | t }}</span></div>
+  @if (error()) { <p class="alert" role="alert">{{ error() | t }}</p> }
+  @if (notice()) { <p class="notice" role="status">{{ notice() | t }}</p> }
+  @if (loading()) { <div class="empty-state" role="status">{{ 'Cargando evaluaciones de seguridad…' | t }}</div> }
+  @else if (!repositories().length) { <div class="empty-state"><h2>{{ 'Aún no hay repositorios en tu espacio' | t }}</h2><p>{{ 'Conecta o importa un repositorio y ejecuta su análisis para consultar avisos OSV.' | t }}</p></div> }
+  @else if (!findings().length) { <div class="empty-state"><h2>{{ 'No hay avisos OSV registrados' | t }}</h2><p>{{ 'Los hallazgos aparecen después de analizar las versiones del inventario. Las consultas incompletas se indican en Inventario.' | t }}</p></div> }
+  @else if (!visibleFindings().length) { <div class="empty-state"><h2>{{ 'No hay resultados con estos filtros' | t }}</h2><p>{{ 'Prueba con otra búsqueda o limpia los filtros.' | t }}</p><button class="clear-filters" type="button" (click)="clearFilters()">{{ 'Limpiar filtros' | t }}</button></div> }
+  @else {
+    <div class="finding-list">
+      @for (group of visibleFindings(); track group.id) {
+        <article class="finding-card" [class]="'finding-card ' + group.risk.toLowerCase()">
+          <button class="finding-summary" type="button" (click)="toggle(group.id)" [attr.aria-expanded]="isExpanded(group.id)" [attr.aria-controls]="'finding-' + group.id">
+            <span class="severity-dot" aria-hidden="true"></span>
+            <span class="summary-copy"><span class="finding-id">{{ group.id }}</span><strong>{{ group.advisory.summary || ('Aviso de seguridad sin título publicado' | t) }}</strong><span class="summary-meta">{{ group.occurrences.length }} {{ 'paquetes afectados' | t }} · {{ group.risk === 'CRITICAL' ? ('Crítica' | t) : group.risk === 'HIGH' ? ('Alta' | t) : ('Media, baja o sin puntuación' | t) }}</span></span>
+            <span class="toggle-label">{{ isExpanded(group.id) ? ('Ocultar detalle' | t) : ('Ver detalle' | t) }} <app-di-icon name="chevron" /></span>
+          </button>
+          @if (isExpanded(group.id)) {
+            <div class="finding-detail" [id]="'finding-' + group.id">
+              @if (group.advisory.details) { <section class="advisory-description"><h2>{{ 'Qué publica OSV' | t }}</h2><p>{{ group.advisory.details }}</p></section> }
+              <section><h2>{{ 'Paquetes afectados y seguimiento' | t }}</h2><p class="review-disclaimer">{{ 'El estado lo decide el equipo; marcar resuelto no verifica automáticamente una nueva versión.' | t }}</p>
+                <div class="occurrence-list">
+                  @for (item of group.occurrences; track item.key) {
+                    <article class="occurrence">
+                      <div class="occurrence-main"><strong>{{ item.displayPackage }} <span class="version">{{ item.version }}</span></strong><span>{{ item.repository.fullName }} · {{ item.ecosystem }}</span>
+                        @if (fixedVersions(item).length) { <span class="fixed">{{ 'Versiones corregidas según OSV:' | t }} <b>{{ fixedVersions(item).join(', ') }}</b></span> }
+                        @else { <span class="no-fix">{{ 'OSV no indica una versión corregida para este paquete.' | t }}</span> }
+                      </div>
+                      <label class="review-control"><span>{{ 'Estado de revisión' | t }}</span><select [value]="item.reviewStatus" (change)="setReview(item, $any($event.target).value)" [disabled]="saving().has(item.key)" [attr.aria-label]="('Estado de revisión para' | t) + ' ' + item.displayPackage + ' ' + item.version"><option value="OPEN">{{ 'Pendiente' | t }}</option><option value="IN_REVIEW">{{ 'En revisión' | t }}</option><option value="RISK_ACCEPTED">{{ 'Riesgo aceptado' | t }}</option><option value="RESOLVED">{{ 'Resuelto' | t }}</option></select></label>
+                    </article>
+                  }
+                </div>
+              </section>
+              <section class="references"><h2>{{ 'Fuentes y referencias' | t }}</h2><div class="reference-links">
+                @if (group.advisory.url) { <a [href]="group.advisory.url" target="_blank" rel="noopener noreferrer">{{ 'Registro OSV' | t }} · {{ group.id }}</a> }
+                @for (reference of group.advisory.references; track reference) { <a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a> }
+              </div>
+              @if (group.advisory.aliases.length) { <p class="aliases">{{ 'Identificadores relacionados:' | t }} {{ group.advisory.aliases.join(', ') }}</p> }
+              @if (group.advisory.publishedAt) { <p class="published">{{ 'Publicado' | t }} {{ group.advisory.publishedAt | date:'mediumDate' }}@if (group.advisory.modifiedAt) { · {{ 'actualizado' | t }} {{ group.advisory.modifiedAt | date:'mediumDate' }} }</p> }
+              </section>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+  @if (unavailableRepositories()) { <p class="coverage-note" role="note">{{ unavailableRepositories() }} {{ 'repositorios no devolvieron una evaluación disponible. Revisa el estado OSV en Inventario; la ausencia de hallazgos aquí no significa que estén libres de avisos.' | t }}</p> }
+  @if (unresolvedAssessments()) { <p class="coverage-note" role="note">{{ unresolvedAssessments() }} {{ 'versiones tienen una consulta OSV incompleta, pendiente o antigua. Revisa el detalle por repositorio en Inventario antes de concluir que no tienen avisos.' | t }}</p> }
+</section>
