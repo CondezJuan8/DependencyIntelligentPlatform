@@ -12,6 +12,18 @@ Fecha: 23 de noviembre de 2026 (America/Bogota).
 
 **Siguiente paso:** continuar la siguiente petición del plan maestro cuando el usuario lo indique.
 
+## Bloque 70 — petición 6: Dashboard con datos y navegación contextual (23/11/2026)
+
+**Petición.** Implementar el Dashboard del contexto maestro con información útil, fuentes reales, estados vacíos y navegación al módulo correspondiente, incluyendo la decisión previa de mostrar a MEMBER únicamente sus repositorios asignados.
+
+**Cambios.** Las métricas cuentan versiones únicas por repositorio/ecosistema/paquete/versión y repositorios con snapshots. La cobertura resume estados completos/parciales y elementos no resueltos. Se conservan las cuatro categorías OSV y solo se cuentan como «sin avisos conocidos» las versiones con consulta exitosa; los avisos repetidos por ocurrencias se deduplican. Los análisis identifican Maven y npm. Las tarjetas/avisos abren Inventario y seleccionan el repositorio autorizado; MEMBER ya puede entrar al Dashboard, sin enlaces de gestión organizacional. Se retiró el panel de tendencia sin historial y se aclararon estados vacíos, fallo de OSV, teclado y puntos de quiebre móvil.
+
+**Herramientas y tecnologías.** Inspección con `rg` y PowerShell; edición TypeScript/Angular, RxJS, HTML y SCSS con `apply_patch`; diagnóstico mediante la API del compilador Angular en Node REPL; revisión y commits con Git por ruta absoluta. Se reutilizaron `/api/account/workspace`, snapshots Maven/npm, evaluaciones OSV y tokens del tema. Sin dependencias, endpoints ni migraciones nuevos.
+
+**Verificación.** TypeScript `noEmit` y Angular `NgtscProgram` cubrieron 45 archivos y terminaron con 0 diagnósticos, incluidos templates. `git diff --cached --check` pasó en los tres grupos. No se ejecutaron pruebas automatizadas ni se generó bundle de producción; la revisión visual con sesiones OWNER/MEMBER sigue pendiente. No se reiniciaron ni modificaron las instancias nativa/Compose y no se declara el frontend desplegado.
+
+**Siguiente paso.** Revisar el Dashboard con cuentas reales para verificar alcance de permisos, estado de OSV, modo claro/oscuro, inglés y móvil; luego continuar con la petición 7 (pantalla Vulnerabilidades) según prioridad del contexto maestro.
+
 ---
 
 # Bitácora de trabajo

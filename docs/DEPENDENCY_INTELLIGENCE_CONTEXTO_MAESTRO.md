@@ -1,3 +1,11 @@
+### Bloque 70 — Dashboard (petición 6, 23/11/2026)
+
+La vista usa `/api/account/workspace` como límite de autorización: OWNER ve sus repositorios y MEMBER únicamente los asignados. Presenta organizaciones (solo a cuentas no MEMBER), repositorios accesibles, versiones únicas por repositorio/ecosistema/paquete/versión, repositorios con snapshots, recuentos por cuatro categorías OSV, avisos priorizados y estado de cobertura completa/parcial. El conteo «sin avisos conocidos» requiere una evaluación OSV exitosa. Las consultas por repositorio se limitan a cuatro en paralelo.
+
+Las acciones abren el repositorio seleccionado directamente en Inventario; los hallazgos llevan al inventario de su repositorio. El Dashboard quedó disponible para MEMBER y conserva sus restricciones de datos. Los estados vacíos distinguen falta de repositorios, de análisis y de resultados OSV; se eliminó el panel de tendencia sin historial. El Dashboard distingue Maven y npm y muestra los elementos sin resolver del scanner.
+
+**Estado:** implementación frontend terminada. Queda pendiente la revisión interactiva del usuario con sesión OWNER y MEMBER, especialmente permisos de lectura por repositorio, temas claro/oscuro, idioma y vista móvil. No se alteraron API, esquema ni snapshots.
+
 ### Bloque 66 — Inventario (petición 5, 22/11/2026)
 
 - **Catálogo del espacio (RF-041–046).** Agrupa por ecosistema, namespace y nombre exacto. Cuenta versiones distintas y repositorios accesibles. Usa el último análisis completado por ecosistema y repositorio. En cuentas con varios espacios se selecciona una organización y, si hace falta, un repositorio.
@@ -135,7 +143,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente. **Requisitos cerrados en el bloque 63.**
 4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm. **Requisitos cerrados en el bloque 64.**
 5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados. **Implementado en el bloque 66.**
-6. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas.
+6. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas. **Implementado en el bloque 70; revisión interactiva pendiente.**
 7. **Pantalla Vulnerabilidades:** agrupación, severidad, filtros, priorización, estados de revisión, versiones corregidas y referencias.
 8. **Pantalla Análisis:** inicio y seguimiento, commit, progreso, estados, errores, reintentos e historial de ejecuciones.
 9. **Centro de documentación:** tipos de archivo, carga, extracción, asociación a repositorios/componentes, versiones, permisos, retención y eliminación.
@@ -154,7 +162,7 @@ Este apartado refleja el código actual, contrastado con `frontend/src/app/core/
 | --- | --- | --- |
 | **Administración** | Solo la ve una cuenta administradora de plataforma. Tiene métricas de propietarios/solicitudes, miembros, repositorios, equipos, organizaciones e invitaciones; pestañas para solicitudes, cuentas, repositorios, equipos, organizaciones, membresías, invitaciones y auditoría. Cambios sensibles piden motivo y confirmación. | Implementada. La vista trabaja con listas acotadas (hasta 200 filas; auditoría hasta 100) y consulta `/api/platform/overview` y `/api/platform/actions`. |
 | **Mis repositorios** | Para propietarios/admins: seleccionar organización, instalar/vincular GitHub App, sincronizar acceso, importar repositorios seleccionados, subir carpeta local (hasta 300 MiB/50.000 archivos), descargar y retirar del espacio. Para miembros: lista solo repositorios habilitados para su acceso. | Implementada. GitHub App y carga local usan permisos por organización. El funcionamiento de OAuth depende de credenciales habilitadas en el entorno activo. |
-| **Dashboard** | Resumen de los repositorios accesibles, estado de an?lisis y avisos OSV por severidad; las cuentas MEMBER solo ven sus repositorios asignados. | Parcial. Las tarjetas consultan datos existentes; los m?dulos a?n no implementados indican En preparaci?n. No muestra m?tricas inventadas. |
+| **Dashboard** | Resumen de repositorios accesibles, snapshots Maven/npm, cobertura del scanner y avisos OSV por severidad; las cuentas MEMBER solo ven sus repositorios asignados. | Implementado en bloque 70 con consultas acotadas, navegación directa a Inventario y estados explícitos. Falta revisión interactiva con las cuentas del usuario. |
 | **Inventario** | Ejecuta Maven y npm para el repositorio, muestra paquetes/versiones por archivo/ámbito, búsqueda, filtros, procedencia/hash/commit y detalles de avisos OSV; permite consultar OSV aparte y abrir evidencia de código para los casos soportados. | Implementada para Maven/npm con cobertura explícita. El último ajuste añade recuperación Maven desde padres/propiedades/BOM locales cuando el SBOM viene vacío. La revalidación autenticada de OMEGA tras ese cambio sigue pendiente. |
 | **Vulnerabilidades** | El propósito será centralizar hallazgos, paquetes/versiones afectadas, severidad/fuente y repositorios afectados. Actualmente OSV aparece en Dashboard e Inventario. | **Pantalla pendiente.** La navegación la dirige al estado general “En preparación”; no existe un componente de página propio ni filtros globales de hallazgos. |
 | **Análisis** | Aquí correspondería iniciar/seguir ejecuciones, revisar commit/estado/progreso, fallos, reintentos e historial/comparación. | **Pantalla pendiente.** Hoy el botón “Analizar repositorio” está dentro de Inventario; esta ruta del sidebar no tiene pantalla de análisis ni orquestación visible. El historial/comparación de snapshots no está terminado. |
@@ -165,9 +173,9 @@ Este apartado refleja el código actual, contrastado con `frontend/src/app/core/
 
 **Pantallas pendientes confirmadas por el usuario:** Vulnerabilidades, Análisis, Documentación y Reportes. No empezar a pulirlas hasta que el usuario priorice su orden. Antes de ese bloque, el usuario pidió terminar este contexto maestro y después trabajar visualmente esas cuatro.
 
-**Diferencias con el sidebar actual que deben corregirse cuando se priorice UI:** los textos de navegación todavía dicen que Inventory espera integrar análisis, que Vulnerabilidades espera OSV y que Análisis espera conectar repositorios/scanners, aunque esas capacidades ya existen parcialmente en otras vistas. El Dashboard conserva paneles vacíos que parecen futuros componentes terminados. Esto es trabajo de UX futuro, no una evidencia de que los cuatro módulos ya estén construidos.
+**Observación histórica del bloque 60:** el Dashboard conservaba paneles sin datos y la navegación ocultaba la vista para MEMBER. El bloque 70 corrigió ambos puntos. Los textos de preparación de otras pantallas siguen describiendo módulos que no están implementados como vistas completas; Inventory ya ofrece análisis e inventario y el Dashboard integra las evaluaciones OSV.
 
-**Acceso fuera del sidebar:** registro con correo/contraseña, verificación y aprobación administrativa, login, recuperación y página de espera; vincular identidad social es distinto de autorizar GitHub App para repositorios. En el sidebar, Administración solo aparece para administradores de plataforma y miembros de tipo MEMBER no ven Dashboard ni Organización.
+**Acceso fuera del sidebar:** registro con correo/contraseña, verificación y aprobación administrativa, login, recuperación y página de espera; vincular identidad social es distinto de autorizar GitHub App para repositorios. Administración solo aparece para administradores de plataforma; desde el bloque 70, MEMBER también accede a Dashboard limitado al workspace autorizado.
 
 **No se hizo cambio de código ni pruebas en este bloque;** fue una revisión estática del shell, navegación, componentes Angular y controladores existentes. La referencia histórica de pantallas propuestas sigue abajo, pero para el estado vigente prevalece esta tabla y `docs/PENDIENTES.md`.
 

@@ -1,3 +1,11 @@
+## Bloque 70 — Dashboard (23 de noviembre de 2026)
+
+- [x] Completar métricas de repositorios, versiones únicas, cobertura y riesgo con datos reales del workspace, scanner y OSV.
+- [x] Mostrar los repositorios autorizados en contexto de OWNER y MEMBER, con acceso directo al inventario del recurso seleccionado.
+- [x] Distinguir Maven/npm y cobertura completa/parcial; quitar el panel de tendencia sin datos.
+- [ ] Revisión interactiva por el usuario con sesión OWNER y MEMBER, y confirmación en modo oscuro, inglés y móvil.
+
+La implementación está en el bloque 70 del [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md). No se afirma validación visual con una sesión real.
 
 - [ ] Revisar la experiencia con la sesión real del usuario en OMEGA y Bot de WhatsApp. Los snapshots existentes se consultaron en solo lectura.
 - [ ] Petición 12: historial y comparación de la presencia de un paquete entre análisis.
