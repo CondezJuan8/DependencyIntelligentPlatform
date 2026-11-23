@@ -1,3 +1,16 @@
+## Bloque 75 — Petición 10: IA documental (23/11/2026; implementación inicial, no validada)
+
+- [x] Contratos hexagonales y casos de uso para indexación y preguntas con recuperación de evidencia.
+- [x] Adaptadores REST Gemini y Ollama; modelo/revisión vienen de configuración externa, la dimensión se detecta y se valida en runtime.
+- [x] Migración V29 agrega pgvector, dimensión flexible y RLS en la tabla vectorial; Compose construye pgvector 0.8.7 sobre la misma base postgres:17.7-alpine.
+- [x] API y pantalla de asistente, aislamiento por organización/repositorio, `assistant.query` + `document.read`, citas, abstención sin evidencia y error explícito de proveedor no disponible.
+- [ ] Configurar el nombre exacto y digest instalado de Ollama y confirmar que `/api/tags` los valida; configurar modelo y clave Gemini sin guardar secretos en Git.
+- [ ] Aplicar V29 en Compose y validar RLS/runtime grants. Se construyó la imagen con pgvector, pero no se aplicó la migración ni se recreó PostgreSQL.
+- [ ] Ejecutar regresiones focalizadas: permisos tenant/repositorio, dimensión incorrecta, persistencia/citas, abstención y fallos Ollama/Gemini. La compilación Java/Angular pasó; aún no se escribieron ni ejecutaron pruebas nuevas.
+- [ ] Indexación durable con progreso/reintentos, listado/recarga de conversaciones, evaluación de calidad y recorrido autenticado de extremo a extremo; validar UI móvil/desktop, tema e idioma.
+
+La indexación HTTP actual procesa hasta 32 fragmentos por llamada en lotes internos; puede repetirse si hay más. Ollama se configura con `OLLAMA_BASE_URL`, `OLLAMA_EMBEDDING_MODEL` y `OLLAMA_EMBEDDING_REVISION`; Gemini con `GEMINI_API_KEY` y `GEMINI_MODEL`. No se inventaron modelos ni dimensiones. La API y el frontend compilan; aún no están listos para uso hasta aplicar V29, configurar proveedores y completar el recorrido autenticado.
+
 ## Bloque 74 — petición 9: Centro de documentación (23/11/2026)
 
 - [x] Biblioteca responsive por organización con selección de espacio y permisos en el backend.

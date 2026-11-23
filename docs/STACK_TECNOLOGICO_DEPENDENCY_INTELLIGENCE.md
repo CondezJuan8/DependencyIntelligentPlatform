@@ -1,3 +1,7 @@
+### Bloque 75 — Asistente documental RAG (código inicial; runtime pendiente)
+
+Java 21 separa los puertos de Application de los adaptadores Infrastructure. Ollama se consume por REST `/api/embed`, validando nombre y digest mediante `/api/tags`; Gemini usa `generateContent` con API key en header y modelo configurable. Un Dockerfile construye pgvector 0.8.7 encima de la misma base `postgres:17.7-alpine` que usa el volumen actual. V29 crea tipo vector sin dimensión fija, registra dimensiones observadas y las valida en base. El retrieval usa distancia cosine y filtro tenant/repositorio/documento; no se crea índice ANN hasta medir volumen. Angular añade UI del asistente y citas. No se añadieron librerías Java/Node. Builds aislados de pgvector, backend y frontend pasaron; V29 y proveedores siguen sin activarse en el runtime.
+
 ### Bloque 74 — Centro de documentación (23/11/2026)
 
 Java 21 y Apache Tika 4.2.0 `tika-pipes-fork-parser` extraen texto en proceso aislado con límite temporal y heap. Spring MVC recibe multipart y JDBC/PostgreSQL reutilizan V8/V9 para versiones, relaciones, texto completo y auditoría de eliminación. Angular 22, TypeScript y SCSS incorporan biblioteca responsive, upload, asociación a repositorios, búsqueda, versiones y descarga. Docker Compose monta `document_data` como almacenamiento privado. Se añadió solo la dependencia Tika para el backend; no hay migración ni paquetes frontend nuevos. OCR, política automática de retención, asociaciones de componentes, pgvector, embeddings y chatbot quedan fuera del alcance verificado.

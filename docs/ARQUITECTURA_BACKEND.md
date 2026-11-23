@@ -1,3 +1,9 @@
+### Petición 10 — Asistente documental con RAG (bloque 75, en curso)
+
+Application declara `AskAssistant`, `IndexDocuments` y puertos puros para embeddings, búsqueda, generación y conversación. Infrastructure adapta Ollama, Gemini y pgvector mediante REST/JDBC. La autorización exige `assistant.query`, filtra repositorios donde el usuario también tiene `document.read` y excluye documentos/versiones archivados o eliminados. Gemini recibe solo los pasajes recuperados; el prompt distingue texto de documentos de instrucciones confiables. Si no existe evidencia recuperada, el caso de uso se abstiene y no llama al LLM.
+
+V29 añade `document_chunk_vectors` con RLS, tipo `vector` flexible y validación de dimensiones. Compose construye pgvector 0.8.7 sobre la misma base `postgres:17.7-alpine`; el build de la imagen aislada pasó, pero la migración sigue sin aplicarse al servicio activo. Backend y frontend compilaron. La solicitud HTTP indexa como máximo 32 chunks por llamada; no hay worker durable ni progreso, ni listado/recarga de conversaciones. Proveedores y flujo autenticado no se han probado en ejecución.
+
 ## Bloque 74 — Centro de documentación (petición 9)
 
 Domain valida `DocumentName` y tipos admitidos; Application define `ManageDocuments`, sus DTO/puerto/caso de uso y límites independientes de Spring. Infrastructure ofrece `DocumentCenterController`, `JdbcDocumentLibrary` y el wiring del caso de uso. Los originales se guardan fuera de la webroot bajo `APP_DOCUMENTS_STORAGE_ROOT`, en volumen privado, con clave generada por UUID y SHA-256; la UI no recibe rutas internas. La autorización exige `document.read` o `document.manage`, limita las asociaciones a repositorios accesibles y hace cumplir el RLS/contexto tenant. Listados/búsquedas filtran los nombres de repositorio por el mismo alcance.

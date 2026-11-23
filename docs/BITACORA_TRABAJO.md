@@ -1,3 +1,15 @@
+## Bloque 75 — Petición 10: primera fase del asistente RAG (23/11/2026)
+
+**Petición.** Empezar la petición 10 del contexto maestro: pgvector, embeddings Ollama, RAG con fuentes, orquestador y chat Gemini, sin adivinar los modelos o la dimensión.
+
+**Cambios.** Application añade DTO, puertos y casos de uso de consulta/indexación. Infrastructure añade adaptadores Ollama `/api/embed` + comprobación de nombre/digest vía `/api/tags`, Gemini `generateContent`, recuperación vectorial tenant-scoped y persistencia de conversación/evidencia. V29 guarda vectores de dimensión dinámica con comprobación contra el modelo. La API exige `assistant.query` y filtra documentos con `document.read` por repositorio permitido. Angular añade pantalla Asistente con preparación de 32 chunks por llamada, cita con nombre/extracto/página y estados de error/abstención. Compose construye pgvector 0.8.7 desde su tag oficial sobre postgres:17.7-alpine, manteniendo la base del volumen; `.env.example` documenta la configuración necesaria. Las claves permanecen fuera del código.
+
+**Herramientas y tecnologías usadas.** `apply_patch`, PowerShell, `rg`, Docker Compose, Maven/Java 21, Angular/TypeScript/SCSS, Git y documentación primaria de Ollama, Gemini y pgvector. No se añadieron paquetes de aplicación.
+
+**Verificación.** `docker compose config --quiet` y `git diff --check` pasaron; el build aislado de la imagen pgvector 0.8.7, el build del backend con tests omitidos y el build de producción Angular pasaron. El primer build Maven por defecto alcanzó y pasó las suites unitarias existentes de Domain (5) y Application (26), y luego reveló un error de compilación en Infrastructure; se corrigió y recompiló, sin repetir `verify`. No se añadieron pruebas nuevas. No se reinició servicio ni se afirma que V29 esté aplicada; tampoco se validó Ollama/Gemini real. El build Angular mantiene avisos de presupuesto del bundle inicial (577,49 KB/500 KB) y de estilos excedidos en varias pantallas existentes.
+
+**Pendiente.** Configurar modelo/digest Ollama y API key/modelo Gemini, actualizar PostgreSQL al contenedor pgvector y aplicar V29, luego ejecutar regresiones focalizadas y el recorrido autenticado con documentos y permisos reales. Evaluar citas/abstención y agregar historial reanudable/procesamiento durable.
+
 ## Bloque 74 — petición 9: Centro de documentación (23/11/2026)
 
 **Petición.** Continuar el plan del contexto maestro implementando la pantalla de Documentación y su flujo real, sin adelantarse a la integración IA/RAG.

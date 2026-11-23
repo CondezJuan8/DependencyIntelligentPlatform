@@ -109,3 +109,6 @@ Siete Excalidraw nativos más SVG/PNG y diccionario generados desde catálogo ap
 
 
 RLS no autentica; el tenant de ruta no acredita permisos. Identidades globales requieren acceso restringido por autenticación. APIs de negocio continúan denegadas. No se declara 5NF universal: [normalización](normalization.md) documenta dependencias y excepciones.
+## Asistente documental y pgvector V29 — código añadido, migración pendiente
+
+23 de noviembre de 2026. V29 crea `document_chunk_vectors` con tipo `vector` sin dimensión fija, integridad contra `embedding_models.dimension`, RLS forzado por organización y grants runtime explícitos. Compose construye pgvector 0.8.7 sobre la misma base `postgres:17.7-alpine`; el build aislado de la imagen pasó, pero no se recreó el contenedor activo. PostgreSQL Compose todavía está en V28 y no se regeneró el catálogo real/diagramas. Al aplicarse V29 aumentará una tabla; conteos exactos de FORCE RLS y FK deben verificarse contra el catálogo. `generate-documentation.py` ya describe la nueva tabla.
