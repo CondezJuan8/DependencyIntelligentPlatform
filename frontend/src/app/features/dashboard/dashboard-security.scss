@@ -24,6 +24,8 @@
 .finding-copy code { font-size: 0.9em; }
 .finding-copy p { margin: 0 0 5px; color: var(--di-text-secondary); font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
 .finding-copy a { color: var(--di-link); font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
+.finding-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.finding-actions .text-button { font-size: 13px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 720px) {
   .risk-categories { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }

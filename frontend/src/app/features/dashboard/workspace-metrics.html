@@ -1,32 +1,20 @@
 <div class="metrics" aria-label="Resumen del espacio de trabajo">
+  @if (!member()) {
+    <article>
+      <div><p>Organizaciones</p><strong>{{ loading() ? '…' : failed() ? '—' : count() }}</strong><small>Espacios a los que perteneces</small></div>
+      <span class="metric-icon blue"><app-di-icon name="users" /></span>
+    </article>
+  }
   <article>
-    <div>
-      <p>Organizaciones</p>
-      <strong>{{ loading() ? '…' : failed() ? '—' : count() }}</strong><small
-        >Espacios a los que perteneces</small
-      >
-    </div>
-    <span class="metric-icon blue"><app-di-icon name="users" /></span>
-  </article>
-  <article>
-    <div>
-      <p>Repositorios</p>
-      <strong>{{ loading() ? '…' : failed() ? '—' : repositories() }}</strong><small>Repositorios locales y GitHub</small>
-    </div>
+    <div><p>{{ member() ? 'Repositorios asignados' : 'Repositorios' }}</p><strong>{{ loading() ? '…' : failed() ? '—' : repositories() }}</strong><small>Acceso disponible para tu cuenta</small></div>
     <span class="metric-icon cyan"><app-di-icon name="box" /></span>
   </article>
   <article>
-    <div>
-      <p>Dependencias</p>
-      <strong>{{ loading() ? '…' : dependencies() === null ? '—' : dependencies() }}</strong><small>{{ loading() ? 'Consultando análisis' : dependencies() === null ? 'Sin análisis disponibles' : 'Dependencias declaradas en Maven' }}</small>
-    </div>
+    <div><p>Versiones de dependencias</p><strong>{{ loading() ? '…' : dependencies() === null ? '—' : dependencies() }}</strong><small>{{ loading() ? 'Consultando snapshots' : dependencies() === null ? 'Aún no hay análisis' : 'Versiones únicas en los últimos análisis' }}</small></div>
     <span class="metric-icon purple"><app-di-icon name="box" /></span>
   </article>
   <article>
-    <div>
-      <p>Nivel de riesgo</p>
-      <strong class="risk">Sin evaluar</strong><small>Requiere un análisis real</small>
-    </div>
-    <span class="metric-icon gray"><app-di-icon name="shield" /></span>
+    <div><p>Repositorios analizados</p><strong>{{ loading() ? '…' : failed() ? '—' : analyzedRepositories() }}</strong><small>{{ loading() ? 'Consultando snapshots' : 'Con al menos un análisis guardado' }}</small></div>
+    <span class="metric-icon gray"><app-di-icon name="analysis" /></span>
   </article>
 </div>
