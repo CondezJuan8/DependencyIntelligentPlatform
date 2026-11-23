@@ -11,6 +11,8 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
+Bloque 71: V28 añade `vulnerability_finding_reviews`, tabla tenant-scoped con FORCE RLS para triage humano por repositorio, paquete/versión e ID OSV. Guarda OPEN, IN_REVIEW, RISK_ACCEPTED o RESOLVED y al actor/fecha; valida la pertenencia a repositorio y usuario. El backend permite escribir con `repository.manage` y verifica que el hallazgo conste en snapshots OSV inmutables. V28 aplicada al Compose local; catálogo y diagramas se regeneraron desde PostgreSQL. Conteo comprobado: 127 tablas, 91 FORCE RLS y 226 FK.
+
 Bloque 42: V22 agrega `scan_vulnerability_assessments`, historial de consultas OSV por componente/versión de scan, con estados explícitos, SHA-256, JSON fuente, referencias y `source_modified_at`. La tabla referencia `scan_components` y aplica ENABLE+FORCE RLS. V23 limita al runtime a SELECT/INSERT para que el historial sea append-only; la consulta no escribe el catálogo global `vulnerabilities`, que conserva su rol dedicado de ingestión. Verificación de aplicación y conteo de catálogo en [informe de implementación](database/implementation-report.md); mapeo y semántica en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
 Bloque 23: V16 agrega `repository.manage` al rol MEMBER, efectivo solo con grant de equipo y repositorio. Bloque 24: V17 crea `member_repository_permissions` para permisos directos por miembro/repositorio, con FK, índice, FORCE RLS y grants runtime/migrator. Las acciones organizacionales sin repo siguen restringidas a OWNER/ADMIN y los grants se intersecan con el rol. Bloque 25: V16/V17 aplicadas y validadas en PostgreSQL; prueba IT focalizada correcta. Catálogo regenerado: 125 tablas, 88 con FORCE RLS y 221 FK.
@@ -21,7 +23,7 @@ Bloque 11: invitaciones, aceptación, membresías/roles, equipos y permisos por 
 
 Bloque 09: acceso Google/GitHub y vínculos explícitos implementados sobre `users`, `user_identities` y versión de credenciales existentes. No requiere migración nueva: V1–V13, 121 tablas. Los tokens externos se descartan, sin persistir secretos ni instalaciones ficticias. No cambia el catálogo ni sus diagramas. Configuración real de clientes pendiente. [Detalle de identidad](IDENTIDAD_GOOGLE_GITHUB.md).
 
-Referencia vigente de diseño. Esquema local hasta V23 con 128 tablas, 91 con RLS forzado y 227 FK. V18 persiste tema/idioma de organización; V19 registra archivos ZIP privados; V22–V23 guardan evaluaciones OSV tenant-scoped append-only por snapshot. Ver estado, diagramas y diccionario en [database/README.md](database/README.md).
+Referencia histórica de diseño. Esquema local hasta V28 con 127 tablas, 91 con RLS forzado y 226 FK. V28 añade triage OSV persistido y figura en el catálogo/documentación regenerados. V18 persiste tema/idioma de organización; V19 registra archivos ZIP privados; V22–V23 guardan evaluaciones OSV tenant-scoped append-only por snapshot. Ver estado, diagramas y diccionario en [database/README.md](database/README.md).
 
 Decisiones confirmadas por el usuario, que prevalecen sobre las propuestas históricas:
 

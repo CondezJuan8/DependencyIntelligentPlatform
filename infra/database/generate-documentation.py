@@ -19,6 +19,7 @@ from pathlib import Path
 PURPOSES = {
     'organization_settings': ('identity', 'Shared organization workspace theme and language, restricted to active members and managed by organization owners/admins.'),
     'member_repository_permissions': ('identity', 'Direct permission grants for a membership and repository, intersected with its effective role.'),
+    'vulnerability_finding_reviews': ('vulnerability', 'Tenant-scoped human triage state for an OSV advisory affecting a package version in a repository; separate from immutable provider evidence.'),
     'organizations': ('identity', 'Organización propietaria y límite de tenant.'),
     'users': ('identity', 'Identidad global con verificación de correo y versión de credenciales para revocar sesiones.'),
     'user_identities': ('identity', 'Vínculos verificados a identidades externas Google/GitHub y sujetos históricos.'),

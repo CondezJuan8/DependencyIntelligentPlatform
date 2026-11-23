@@ -1362,3 +1362,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 
 **Operación.** Compose quedó actualizado en `localhost:8089`. La ruta de Inventario respondió HTTP 200 y `/health` devolvió `UP`. PostgreSQL, Mailpit y cdxgen conservaron sus servicios y volúmenes.
+
+## Bloque 71 — petición 7: pantalla de Vulnerabilidades (23 de noviembre de 2026)
+
+**Petición.** Implementar la séptima petición del contexto maestro: centralizar hallazgos de seguridad, filtros, priorización, seguimiento, versiones corregidas y referencias.
+
+**Cambios.** Se creó una pantalla Angular independiente que agrega evaluaciones OSV reales de los repositorios visibles por permisos. Agrupa por ID OSV, filtra por texto/severidad/ecosistema/repositorio/estado, prioriza CRITICAL/HIGH y expone descripción, referencias, alias, versiones corregidas y repositorio/versión afectada. Los controles explican que “Resuelto” es una marca manual. Los estados se guardan por tenant, repositorio, paquete, versión e ID de advisory; el backend valida que el hallazgo exista en evidencia OSV y exige `repository.manage` para actualizarlo. Los snapshots OSV existentes continúan append-only. V28 añade la tabla RLS.
+
+**Herramientas y tecnologías.** Angular 22, TypeScript, RxJS, SCSS, Java 21, Spring Web/JDBC, PostgreSQL, Flyway y Maven. No se añadieron dependencias externas.
+
+**Verificación.** `npm run build` y el build de Docker frontend finalizaron correctamente. Maven `-DskipTests package` compiló Domain, Application e Infrastructure; las pruebas se omitieron. Flyway aplicó V27 y V28 en Compose. Health devolvió `UP`; la ruta de pantalla respondió HTTP 200. El catálogo PostgreSQL V28 se exportó y regeneró: 127 tablas, 91 FORCE RLS y 226 FK; validación estructural confirmó 7 diagramas, IDs/bindings únicos y cobertura de todas las FK. Quedan advertencias de presupuesto Angular (bundle inicial 570,11 KB vs 500 KB y SCSS nuevo 7,20 KB vs 4 KB). No se verificaron hallazgos reales ni el flujo autenticado de guardar el estado.
+
+**Siguiente.** Revisar visualmente `http://localhost:8089/?view=vulnerabilities` y validar guardar estados con los permisos/avisos reales de Dinamita. Continúan después Análisis, Documentación y Reportes.

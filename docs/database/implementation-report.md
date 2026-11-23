@@ -1,3 +1,5 @@
+
+23 de noviembre de 2026. Se añadió V28 para guardar estados de revisión OSV por repositorio y paquete/versión, con RLS tenant-scoped, permisos de lectura y epository.manage para actualizaciones. La tabla solo acepta revisiones de un hallazgo confirmado en snapshots OSV append-only. La migración está en el código; aún no se confirmó su aplicación al Compose activo ni se regeneró schema.json desde esa base.
 ## Retiro de almacenamiento fuera del alcance V27
 
 23 de noviembre de 2026. Se anadio una migracion aditiva para instalaciones existentes; conserva el historial V1-V26 y retira almacenamiento de an?lisis que dej? de utilizarse. El catalogo documentado queda en 126 tablas, 90 con ENABLE+FORCE RLS y 224 FK. No se aplico esta migracion a los entornos activos durante este cambio.

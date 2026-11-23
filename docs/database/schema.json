@@ -76,7 +76,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -226,7 +227,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -479,7 +481,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -653,8 +656,10 @@
                     "definition": "CREATE UNIQUE INDEX assistant_model_providers_pkey ON public.assistant_model_providers USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -715,8 +720,10 @@
                     "definition": "CREATE UNIQUE INDEX assistant_model_versions_provider_model_name_revision_key ON public.assistant_model_versions USING btree (provider, model_name, revision)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -805,8 +812,10 @@
                     "definition": "CREATE UNIQUE INDEX assistant_prompt_versions_purpose_version_key ON public.assistant_prompt_versions USING btree (purpose, version)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -1464,7 +1473,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -1633,7 +1643,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -1870,7 +1881,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -2042,7 +2054,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -2410,7 +2423,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -2518,7 +2532,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -2666,7 +2681,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -2794,7 +2810,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -2922,7 +2939,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -3098,7 +3116,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -3332,7 +3351,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -3557,7 +3577,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -3681,8 +3702,10 @@
                     "definition": "CREATE UNIQUE INDEX dependency_scopes_pkey ON public.dependency_scopes USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -3808,7 +3831,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4035,7 +4059,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4213,7 +4238,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4321,7 +4347,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4464,7 +4491,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4634,7 +4662,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4792,7 +4821,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -4925,7 +4955,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -5026,8 +5057,10 @@
                     "definition": "CREATE UNIQUE INDEX document_types_pkey ON public.document_types USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -5200,7 +5233,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -5504,7 +5538,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -5681,8 +5716,10 @@
                     "definition": "CREATE UNIQUE INDEX embedding_models_provider_model_name_revision_key ON public.embedding_models USING btree (provider, model_name, revision)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -5839,7 +5876,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -5943,7 +5981,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -6080,7 +6119,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -6367,7 +6407,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -6662,7 +6703,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -6789,7 +6831,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -6897,7 +6940,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -7115,7 +7159,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -7223,7 +7268,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -7683,7 +7729,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -7819,7 +7866,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -7890,8 +7938,10 @@
                     "definition": "CREATE UNIQUE INDEX integration_providers_pkey ON public.integration_providers USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -8005,7 +8055,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -8174,7 +8225,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -8362,7 +8414,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -8430,8 +8483,10 @@
                     "definition": "CREATE UNIQUE INDEX job_statuses_pkey ON public.job_statuses USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -8474,8 +8529,10 @@
                     "definition": "CREATE UNIQUE INDEX job_types_pkey ON public.job_types USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -8536,8 +8593,10 @@
                     "definition": "CREATE UNIQUE INDEX license_catalog_pkey ON public.license_catalog USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -8665,7 +8724,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -8835,7 +8895,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -8967,7 +9028,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -9192,7 +9254,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -9439,7 +9502,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -9507,8 +9571,10 @@
                     "definition": "CREATE UNIQUE INDEX notification_channels_pkey ON public.notification_channels USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -9629,7 +9695,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -9838,7 +9905,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -9984,7 +10052,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -10121,7 +10190,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -10320,7 +10390,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -10566,7 +10637,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -10751,7 +10823,8 @@
                     "command": "SELECT"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -10906,7 +10979,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -11078,7 +11152,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -11180,8 +11255,10 @@
                     "definition": "CREATE UNIQUE INDEX package_ecosystems_pkey ON public.package_ecosystems USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -11271,8 +11348,10 @@
                     "definition": "CREATE UNIQUE INDEX permissions_pkey ON public.permissions USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -11327,8 +11406,10 @@
                     "definition": "CREATE UNIQUE INDEX platform_administrators_pkey ON public.platform_administrators USING btree (user_id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -11579,7 +11660,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -11697,8 +11779,10 @@
                     "definition": "CREATE UNIQUE INDEX report_definitions_pkey ON public.report_definitions USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -11760,8 +11844,10 @@
                     "definition": "CREATE UNIQUE INDEX report_formats_pkey ON public.report_formats USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -11897,7 +11983,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -12070,7 +12157,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -12178,7 +12266,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -12304,7 +12393,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -12474,7 +12564,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -12565,8 +12656,10 @@
                     "definition": "CREATE UNIQUE INDEX report_types_pkey ON public.report_types USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -12748,7 +12841,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -12989,7 +13083,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -13155,7 +13250,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -13288,7 +13384,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -13411,7 +13508,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -13507,8 +13605,10 @@
                     "definition": "CREATE UNIQUE INDEX role_permissions_pkey ON public.role_permissions USING btree (role_id, permission_id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -13591,8 +13691,10 @@
                     "definition": "CREATE UNIQUE INDEX roles_pkey ON public.roles USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -13731,7 +13833,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -13915,7 +14018,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -14077,7 +14181,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -14293,7 +14398,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -14494,7 +14600,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -14660,7 +14767,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -14761,6 +14869,13 @@
                     "default": null,
                     "nullable": true,
                     "generated": false
+                },
+                {
+                    "name": "source_manifest_path",
+                    "type": "text",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
                 }
             ],
             "comment": "scan: Snapshot occurrence. bom_ref is local to the SBOM; classification requires evidence.",
@@ -14806,7 +14921,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -15007,7 +15123,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -15109,7 +15226,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -15226,7 +15344,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -15418,7 +15537,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -15562,8 +15682,10 @@
                     "definition": "CREATE UNIQUE INDEX scan_stages_sequence_number_key ON public.scan_stages USING btree (sequence_number)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -15728,7 +15850,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -15995,7 +16118,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -16149,8 +16273,10 @@
                     "definition": "CREATE UNIQUE INDEX scanner_tools_pkey ON public.scanner_tools USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -16319,6 +16445,20 @@
                 {
                     "name": "unresolved_count",
                     "type": "integer",
+                    "default": null,
+                    "nullable": true,
+                    "generated": false
+                },
+                {
+                    "name": "coverage_status",
+                    "type": "text",
+                    "default": "'COMPLETE'::text",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "coverage_message",
+                    "type": "text",
                     "default": null,
                     "nullable": true,
                     "generated": false
@@ -16538,6 +16678,18 @@
                 },
                 {
                     "kind": "c",
+                    "name": "scans_coverage_status_check",
+                    "columns": [
+                        "coverage_status"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((coverage_status = ANY (ARRAY['COMPLETE'::text, 'PARTIAL'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
                     "name": "scans_git_reference_check",
                     "columns": [
                         "git_reference"
@@ -16722,8 +16874,10 @@
                     "definition": "CREATE UNIQUE INDEX severity_levels_sort_order_key ON public.severity_levels USING btree (sort_order)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -17014,7 +17168,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -17156,8 +17311,10 @@
                     "definition": "CREATE UNIQUE INDEX user_access_tokens_token_hash_key ON public.user_access_tokens USING btree (token_hash)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -17337,8 +17494,10 @@
                     "definition": "CREATE UNIQUE INDEX user_identities_user_id_provider_key ON public.user_identities USING btree (user_id, provider)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -17452,8 +17611,10 @@
                     "definition": "CREATE UNIQUE INDEX user_password_credentials_pkey ON public.user_password_credentials USING btree (user_id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -17610,8 +17771,10 @@
                     "definition": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -17803,7 +17966,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -17914,8 +18078,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerabilities_source_external_id_key ON public.vulnerabilities USING btree (source, external_id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18050,8 +18216,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_affected_packages_pkey ON public.vulnerability_affected_packages USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18167,8 +18335,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_affected_ranges_pkey ON public.vulnerability_affected_ranges USING btree (id)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18259,8 +18429,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_aliases_vulnerability_id_alias_type_alias_val_key ON public.vulnerability_aliases USING btree (vulnerability_id, alias_type, alias_value)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18318,6 +18490,226 @@
             ]
         },
         {
+            "rls": true,
+            "name": "vulnerability_finding_reviews",
+            "columns": [
+                {
+                    "name": "organization_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "repository_id",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "ecosystem",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "namespace",
+                    "type": "text",
+                    "default": "''::text",
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "package_name",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "package_version",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "advisory_id",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "review_status",
+                    "type": "text",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "reviewed_by",
+                    "type": "uuid",
+                    "default": null,
+                    "nullable": false,
+                    "generated": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "default": "CURRENT_TIMESTAMP",
+                    "nullable": false,
+                    "generated": false
+                }
+            ],
+            "comment": "vulnerability: Mutable tenant-scoped triage state for an advisory affecting an exact package version in a repository; OSV assessment evidence remains append-only.",
+            "indexes": [
+                {
+                    "name": "ix_vulnerability_finding_reviews_repository",
+                    "definition": "CREATE INDEX ix_vulnerability_finding_reviews_repository ON public.vulnerability_finding_reviews USING btree (organization_id, repository_id, review_status)"
+                },
+                {
+                    "name": "vulnerability_finding_reviews_pkey",
+                    "definition": "CREATE UNIQUE INDEX vulnerability_finding_reviews_pkey ON public.vulnerability_finding_reviews USING btree (organization_id, repository_id, ecosystem, namespace, package_name, package_version, advisory_id)"
+                }
+            ],
+            "policies": [
+                {
+                    "name": "schema_migration_access",
+                    "check": "true",
+                    "roles": [
+                        "dependency_migrator"
+                    ],
+                    "using": "true",
+                    "command": "ALL"
+                },
+                {
+                    "name": "tenant_isolation",
+                    "check": "(organization_id = app_private.current_organization_id())",
+                    "roles": [
+                        "public"
+                    ],
+                    "using": "(organization_id = app_private.current_organization_id())",
+                    "command": "ALL"
+                }
+            ],
+            "triggers": [
+            ],
+            "force_rls": true,
+            "constraints": [
+                {
+                    "kind": "c",
+                    "name": "vulnerability_finding_reviews_advisory_id_check",
+                    "columns": [
+                        "advisory_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((btrim(advisory_id) <> ''::text))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "vulnerability_finding_reviews_ecosystem_check",
+                    "columns": [
+                        "ecosystem"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((ecosystem = ANY (ARRAY['MAVEN'::text, 'NPM'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "vulnerability_finding_reviews_organization_id_repository_i_fkey",
+                    "columns": [
+                        "organization_id",
+                        "repository_id"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT",
+                    "referenced_table": "repositories",
+                    "referenced_columns": [
+                        "organization_id",
+                        "id"
+                    ]
+                },
+                {
+                    "kind": "c",
+                    "name": "vulnerability_finding_reviews_package_name_check",
+                    "columns": [
+                        "package_name"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((btrim(package_name) <> ''::text))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "vulnerability_finding_reviews_package_version_check",
+                    "columns": [
+                        "package_version"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((btrim(package_version) <> ''::text))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "p",
+                    "name": "vulnerability_finding_reviews_pkey",
+                    "columns": [
+                        "organization_id",
+                        "repository_id",
+                        "ecosystem",
+                        "namespace",
+                        "package_name",
+                        "package_version",
+                        "advisory_id"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "PRIMARY KEY (organization_id, repository_id, ecosystem, namespace, package_name, package_version, advisory_id)",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "c",
+                    "name": "vulnerability_finding_reviews_review_status_check",
+                    "columns": [
+                        "review_status"
+                    ],
+                    "on_delete": null,
+                    "validated": true,
+                    "definition": "CHECK ((review_status = ANY (ARRAY['OPEN'::text, 'IN_REVIEW'::text, 'RISK_ACCEPTED'::text, 'RESOLVED'::text])))",
+                    "referenced_table": null,
+                    "referenced_columns": null
+                },
+                {
+                    "kind": "f",
+                    "name": "vulnerability_finding_reviews_reviewed_by_fkey",
+                    "columns": [
+                        "reviewed_by"
+                    ],
+                    "on_delete": "RESTRICT",
+                    "validated": true,
+                    "definition": "FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE RESTRICT",
+                    "referenced_table": "users",
+                    "referenced_columns": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        {
             "rls": false,
             "name": "vulnerability_fixed_versions",
             "columns": [
@@ -18343,8 +18735,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_fixed_versions_pkey ON public.vulnerability_fixed_versions USING btree (affected_package_id, version)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18428,8 +18822,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_range_events_pkey ON public.vulnerability_range_events USING btree (range_id, sequence_number)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18541,8 +18937,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_references_vulnerability_id_url_key ON public.vulnerability_references USING btree (vulnerability_id, url)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18685,8 +19083,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_severities_vulnerability_id_source_method_obs_key ON public.vulnerability_severities USING btree (vulnerability_id, source, method, observed_at)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18852,8 +19252,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_source_records_vulnerability_id_source_fetche_key ON public.vulnerability_source_records USING btree (vulnerability_id, source, fetched_at, sha256)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -18983,8 +19385,10 @@
                     "definition": "CREATE UNIQUE INDEX vulnerability_sources_pkey ON public.vulnerability_sources USING btree (code)"
                 }
             ],
-            "policies": [],
-            "triggers": [],
+            "policies": [
+            ],
+            "triggers": [
+            ],
             "force_rls": false,
             "constraints": [
                 {
@@ -19126,7 +19530,8 @@
                     "command": "ALL"
                 }
             ],
-            "triggers": [],
+            "triggers": [
+            ],
             "force_rls": true,
             "constraints": [
                 {
@@ -19285,5 +19690,5 @@
             "create_role": false
         }
     ],
-    "latest_migration": "27"
+    "latest_migration": "28"
 }

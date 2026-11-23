@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V27. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V28. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -839,7 +839,6 @@ Retención/borrado: sin borrado automático; aplicar políticas del tenant y res
 
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
-
 
 ## dependency_scopes
 
@@ -3050,7 +3049,7 @@ Restricciones:
 - `repositories_visibility_check`: `CHECK ((visibility = ANY (ARRAY['PUBLIC'::text, 'PRIVATE'::text, 'INTERNAL'::text, 'UNKNOWN'::text])))`. Validada: True.
 - `uq_repository_provider_identity`: `UNIQUE (organization_id, provider, external_id)`. Validada: True.
 
-Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `local_repository_sources` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `member_repository_permissions` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id).
+Referencias entrantes: `document_repositories` (organization_id, repository_id), `impact_finding_repositories` (organization_id, repository_id), `local_repository_sources` (organization_id, repository_id), `member_repository_assignments` (organization_id, repository_id), `member_repository_permissions` (organization_id, repository_id), `membership_invitations` (organization_id, repository_id), `report_repositories` (organization_id, repository_id), `repository_branches` (organization_id, repository_id), `repository_commits` (organization_id, repository_id), `repository_settings` (organization_id, repository_id), `repository_team_access` (organization_id, repository_id), `scans` (organization_id, repository_id), `vulnerability_finding_reviews` (organization_id, repository_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -3506,6 +3505,7 @@ Módulo: **scan**. Ámbito: **tenant**. RLS: True; FORCE: True.
 | `id` | `uuid` | No | gen_random_uuid() | U |
 | `component_version_id` | `uuid` | No | — | FK |
 | `dependency_scope_id` | `uuid` | Sí | — | FK |
+| `source_manifest_path` | `text` | Sí | — |  |
 
 Restricciones:
 
@@ -3518,6 +3518,7 @@ Restricciones:
 - `uq_scan_component_id`: `UNIQUE (organization_id, scan_id, id)`. Validada: True.
 - `uq_scan_component_tenant_id`: `UNIQUE (organization_id, id)`. Validada: True.
 
+Referencias entrantes: `assistant_message_evidences` (organization_id, scan_component_id), `scan_component_licenses` (organization_id, scan_component_id), `scan_vulnerability_assessments` (organization_id, scan_id, scan_component_id), `scan_vulnerability_findings` (organization_id, scan_id, scan_component_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -3850,6 +3851,8 @@ Módulo: **scan**. Ámbito: **tenant**. RLS: True; FORCE: True.
 | `source_sha256` | `character varying(64)` | Sí | — |  |
 | `manifest_count` | `integer` | Sí | — |  |
 | `unresolved_count` | `integer` | Sí | — |  |
+| `coverage_status` | `text` | No | 'COMPLETE'::text |  |
+| `coverage_message` | `text` | Sí | — |  |
 
 Restricciones:
 
@@ -3862,6 +3865,7 @@ Restricciones:
 - `scans_check`: `CHECK (((started_at IS NULL) OR (started_at >= requested_at)))`. Validada: True.
 - `scans_check1`: `CHECK (((finished_at IS NULL) OR (finished_at >= started_at)))`. Validada: True.
 - `scans_check2`: `CHECK (((((status)::text = 'PENDING'::text) AND (started_at IS NULL) AND (finished_at IS NULL) AND (failure_reason IS NULL)) OR (((status)::text = 'RUNNING'::text) AND (started_at IS NOT NULL) AND (finished_at IS NULL) AND (failure_reason IS NULL)) OR (((status)::text = 'COMPLETED'::text) AND (started_at IS NOT NULL) AND (finished_at IS NOT NULL) AND (failure_reason IS NULL)) OR (((status)::text = 'FAILED'::text) AND (started_at IS NOT NULL) AND (finished_at IS NOT NULL) AND (failure_reason IS NOT NULL) AND (btrim(failure_reason) <> ''::text))))`. Validada: True.
+- `scans_coverage_status_check`: `CHECK ((coverage_status = ANY (ARRAY['COMPLETE'::text, 'PARTIAL'::text])))`. Validada: True.
 - `scans_git_reference_check`: `CHECK ((btrim((git_reference)::text) <> ''::text))`. Validada: True.
 - `scans_manifest_count_check`: `CHECK ((manifest_count >= 0))`. Validada: True.
 - `scans_organization_id_id_key`: `UNIQUE (organization_id, id)`. Validada: True.
@@ -4136,7 +4140,7 @@ Restricciones:
 - `users_pkey`: `PRIMARY KEY (id)`. Validada: True.
 - `users_reviewed_by_user_id_fkey`: `FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
 
-Referencias entrantes: `audit_events` (actor_id), `membership_invitations` (accepted_by_user_id), `membership_invitations` (approved_by_user_id), `organization_memberships` (user_id), `organization_memberships` (invited_by_user_id), `organization_settings` (updated_by_user_id), `platform_administrators` (user_id), `platform_audit_events` (actor_id), `user_access_tokens` (target_user_id), `user_access_tokens` (user_id), `user_identities` (user_id), `user_password_credentials` (user_id), `users` (reviewed_by_user_id).
+Referencias entrantes: `audit_events` (actor_id), `membership_invitations` (accepted_by_user_id), `membership_invitations` (approved_by_user_id), `organization_memberships` (user_id), `organization_memberships` (invited_by_user_id), `organization_settings` (updated_by_user_id), `platform_administrators` (user_id), `platform_audit_events` (actor_id), `user_access_tokens` (target_user_id), `user_access_tokens` (user_id), `user_identities` (user_id), `user_password_credentials` (user_id), `users` (reviewed_by_user_id), `vulnerability_finding_reviews` (reviewed_by).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 
@@ -4308,6 +4312,48 @@ Referencias entrantes: ninguna.
 
 Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valores todavía utilizados.
 
+
+## vulnerability_finding_reviews
+
+Tenant-scoped human triage state for an OSV advisory affecting a package version in a repository; separate from immutable provider evidence.
+
+Módulo: **vulnerability**. Ámbito: **tenant**. RLS: True; FORCE: True.
+
+| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
+| --- | --- | --- | --- | --- |
+| `organization_id` | `uuid` | No | — | FK, PK |
+| `repository_id` | `uuid` | No | — | FK, PK |
+| `ecosystem` | `text` | No | — | PK |
+| `namespace` | `text` | No | ''::text | PK |
+| `package_name` | `text` | No | — | PK |
+| `package_version` | `text` | No | — | PK |
+| `advisory_id` | `text` | No | — | PK |
+| `review_status` | `text` | No | — |  |
+| `reviewed_by` | `uuid` | No | — | FK |
+| `updated_at` | `timestamp with time zone` | No | CURRENT_TIMESTAMP |  |
+
+Restricciones:
+
+- `vulnerability_finding_reviews_advisory_id_check`: `CHECK ((btrim(advisory_id) <> ''::text))`. Validada: True.
+- `vulnerability_finding_reviews_ecosystem_check`: `CHECK ((ecosystem = ANY (ARRAY['MAVEN'::text, 'NPM'::text])))`. Validada: True.
+- `vulnerability_finding_reviews_organization_id_repository_i_fkey`: `FOREIGN KEY (organization_id, repository_id) REFERENCES repositories(organization_id, id) ON DELETE RESTRICT`. Validada: True.
+- `vulnerability_finding_reviews_package_name_check`: `CHECK ((btrim(package_name) <> ''::text))`. Validada: True.
+- `vulnerability_finding_reviews_package_version_check`: `CHECK ((btrim(package_version) <> ''::text))`. Validada: True.
+- `vulnerability_finding_reviews_pkey`: `PRIMARY KEY (organization_id, repository_id, ecosystem, namespace, package_name, package_version, advisory_id)`. Validada: True.
+- `vulnerability_finding_reviews_review_status_check`: `CHECK ((review_status = ANY (ARRAY['OPEN'::text, 'IN_REVIEW'::text, 'RISK_ACCEPTED'::text, 'RESOLVED'::text])))`. Validada: True.
+- `vulnerability_finding_reviews_reviewed_by_fkey`: `FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE RESTRICT`. Validada: True.
+
+Referencias entrantes: ninguna.
+
+Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
+
+- `CREATE INDEX ix_vulnerability_finding_reviews_repository ON public.vulnerability_finding_reviews USING btree (organization_id, repository_id, review_status)`
+- `CREATE UNIQUE INDEX vulnerability_finding_reviews_pkey ON public.vulnerability_finding_reviews USING btree (organization_id, repository_id, ecosystem, namespace, package_name, package_version, advisory_id)`
+
+Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
+
+- Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
+- Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
 
 ## vulnerability_fixed_versions
 

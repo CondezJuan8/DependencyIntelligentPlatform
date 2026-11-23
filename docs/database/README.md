@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). El esquema documentado llega a **V27**, con **126 tablas de negocio, 90 con RLS forzado y 224 FK**. V27 retira almacenamiento que ya no forma parte del alcance del producto. El catalogo y el diccionario reflejan la estructura posterior a esa migracion.
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). La última exportación comprobada del catálogo corresponde a V27 (126 tablas, 90 con RLS forzado y 224 FK). V28 añade el estado de revisión de vulnerabilidades con FORCE RLS y dos FK (repositorio tenant-scoped y usuario); al aplicarla, el esquema tendrá 127 tablas, 91 con RLS y 226 FK. El catálogo y el diccionario se regeneraron después de aplicar la migración V28 en PostgreSQL Compose.
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,7 +16,7 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint crea dependency_app. Flyway aplica V1-V27; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
+El entrypoint crea dependency_app. Flyway aplica V1-V28; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
 
 Las cargas locales se limitan a 100 MiB totales y 50.000 archivos por carpeta. El cuerpo multipart puede medir hasta 200 MiB por rutas/cabeceras; el contenido agregado de archivos continúa limitado a 100 MiB. Los originales empaquetados viven fuera de la base; conserva y respalda también el volumen `repository_data` para poder recuperar los repositorios importados.
 
