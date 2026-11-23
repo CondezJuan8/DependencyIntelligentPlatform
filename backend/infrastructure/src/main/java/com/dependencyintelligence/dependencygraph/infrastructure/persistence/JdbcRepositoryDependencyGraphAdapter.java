@@ -59,7 +59,8 @@ public final class JdbcRepositoryDependencyGraphAdapter implements RepositoryDep
         scanArguments[0] = organizationId;
         for (int index = 0; index < scanIds.size(); index++) scanArguments[index + 1] = scanIds.get(index);
         List<NodeRow> packageRows = jdbc.query("""
-            select sc.id,sc.scan_id,pe.code,c.namespace,c.name,cv.version,ds.code,sc.dependency_type,sc.bom_ref
+            select sc.id,sc.scan_id,pe.code,c.namespace,c.name,cv.version,ds.code,sc.dependency_type,
+                   coalesce(sc.source_manifest_path, split_part(sc.bom_ref, '#', 1))
             from scan_components sc
             join component_versions cv on cv.organization_id=sc.organization_id and cv.id=sc.component_version_id
             join components c on c.organization_id=cv.organization_id and c.id=cv.component_id
@@ -78,7 +79,7 @@ public final class JdbcRepositoryDependencyGraphAdapter implements RepositoryDep
                 : row.namespace() + ":" + row.name();
             label += "@" + row.version();
             nodes.add(new RepositoryDependencyGraph.Node(row.id().toString(), label, row.version(), row.ecosystem(),
-                row.scope(), row.dependencyType(), manifestPath(row.bomRef()), false));
+                row.scope(), row.dependencyType(), row.manifestPath(), false));
             nodeById.put(row.id(), row);
         }
 
@@ -115,14 +116,9 @@ public final class JdbcRepositoryDependencyGraphAdapter implements RepositoryDep
     }
 
     private static String ecosystem(String scanner) { return scanner.endsWith("npm") || "npm-lockfile".equals(scanner) ? "npm" : "maven"; }
-    private static String manifestPath(String bomRef) {
-        int marker = bomRef.indexOf('#');
-        return marker < 0 ? bomRef : bomRef.substring(0, marker);
-    }
-
     private record SourceRow(UUID id, String ecosystem, String sha256, String commitSha,
                              java.time.Instant analyzedAt, int unresolvedCount) { }
     private record NodeRow(UUID id, UUID scanId, String ecosystem, String namespace, String name, String version,
-                           String scope, String dependencyType, String bomRef) { }
+                           String scope, String dependencyType, String manifestPath) { }
     private record EdgeRow(UUID id, UUID scanId, UUID sourceId, UUID targetId, String relationship) { }
 }

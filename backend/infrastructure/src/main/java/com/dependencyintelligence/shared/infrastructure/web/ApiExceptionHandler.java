@@ -74,4 +74,9 @@ public class ApiExceptionHandler {
     public ProblemDetail invalidRequest(IllegalArgumentException exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
+
+    @ExceptionHandler(com.dependencyintelligence.scan.application.usecase.ManifestReadException.class)
+    public ProblemDetail manifestReadFailed(com.dependencyintelligence.scan.application.usecase.ManifestReadException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+    }
 }

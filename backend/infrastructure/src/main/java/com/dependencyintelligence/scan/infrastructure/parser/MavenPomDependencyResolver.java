@@ -47,7 +47,7 @@ final class MavenPomDependencyResolver {
                 ManagedDependency managed = project.management().get(key);
                 String version = expand(declared.version(), project);
                 if (version.isBlank() && managed != null) version = managed.version();
-                if (!validPart(group) || !validPart(artifact) || !validVersion(version) || raw.path().length() > 240) {
+                if (!validPart(group) || !validPart(artifact) || !validVersion(version)) {
                     unresolved++;
                     continue;
                 }

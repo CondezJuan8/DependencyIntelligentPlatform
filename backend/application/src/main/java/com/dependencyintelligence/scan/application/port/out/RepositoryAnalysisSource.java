@@ -8,7 +8,8 @@ public interface RepositoryAnalysisSource {
     Archive open(UUID organizationId, UUID repositoryId);
 
     interface Archive extends AutoCloseable {
-        InputStream content();
+        /** Opens a new stream of the same snapshot. The caller closes each stream. */
+        InputStream content() throws IOException;
         String provider();
         String sha256();
         String commitSha();

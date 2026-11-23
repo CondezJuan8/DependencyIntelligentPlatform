@@ -1,5 +1,7 @@
 package com.dependencyintelligence.scan.infrastructure.parser;
 
+import static com.dependencyintelligence.repository.application.RepositorySourceLimits.*;
+
 import com.dependencyintelligence.component.domain.PackageCoordinates;
 import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
 import com.dependencyintelligence.scan.application.dto.ManifestDependency;
@@ -22,27 +24,57 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 /** Parses npm lockfile v2/v3 as data; never runs npm or project scripts. */
 @Component
 public final class BoundedNpmLockReader implements NpmLockfileReader {
     private static final int MAX_LOCK_BYTES = 5 * 1024 * 1024;
-    private static final int MAX_ARCHIVE_ENTRIES = 5_000;
     private static final int MAX_PACKAGES = 30_000;
-    private static final long MAX_EXPANDED_BYTES = 120L * 1024 * 1024;
+    private static final int MAX_TOTAL_LOCK_BYTES = 25 * 1024 * 1024;
+    private static final Pattern EXACT_VERSION = Pattern.compile("[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?");
     private static final List<String> ROOT_DEPENDENCY_SECTIONS = List.of("dependencies", "devDependencies", "optionalDependencies", "peerDependencies");
     private static final List<String> PACKAGE_DEPENDENCY_SECTIONS = List.of("dependencies", "optionalDependencies", "peerDependencies");
 
     private final ObjectMapper json = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
     @Override public ManifestAnalysis read(InputStream input) {
-        byte[] lock = readLock(input);
-        if (lock == null) return new ManifestAnalysis(List.of(), 0, 0);
+        var locks = readLocks(input);
+        var dependencies = new ArrayList<ManifestDependency>();
+        var edges = new ArrayList<ManifestDependencyEdge>();
+        int unresolved = 0;
+        int valid = 0;
+        IllegalArgumentException firstFailure = null;
+        for (var lock : locks.entrySet()) {
+            String prefix = locks.size() == 1 ? "" : lock.getKey() + "/";
+            ManifestAnalysis analysis;
+            try {
+                analysis = parseLock(lock.getValue());
+            } catch (IllegalArgumentException failure) {
+                if (firstFailure == null) firstFailure = failure;
+                unresolved++;
+                continue;
+            }
+            valid++;
+            if (analysis.dependencies().size() > MAX_PACKAGES - dependencies.size())
+                throw invalid("Los lockfiles superan el límite total de 30.000 paquetes.");
+            unresolved += analysis.unresolvedCount();
+            analysis.dependencies().forEach(item -> dependencies.add(new ManifestDependency(prefix + item.manifestPath(),
+                item.coordinates(), item.scope(), item.dependencyType())));
+            analysis.edges().forEach(edge -> edges.add(new ManifestDependencyEdge(
+                prefix + edge.parentManifestPath(), prefix + edge.childManifestPath())));
+        }
+        if (valid == 0 && firstFailure != null) throw firstFailure;
+        return new ManifestAnalysis(dependencies, edges, locks.size(), unresolved);
+    }
+
+    private ManifestAnalysis parseLock(byte[] lock) {
         try {
             JsonNode root = json.readTree(lock);
             int version = root.path("lockfileVersion").asInt(0);
@@ -51,15 +83,20 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
             if (!packages.isObject() || packages.size() > MAX_PACKAGES) throw invalid("Mapa packages inválido o demasiado grande.");
 
             Map<String, PackageEntry> entries = new HashMap<>();
+            int unresolvedPackages = 0;
             Iterator<Map.Entry<String, JsonNode>> fields = packages.fields();
             while (fields.hasNext()) {
                 var field = fields.next();
                 String path = field.getKey();
                 JsonNode node = field.getValue();
-                if (path.isEmpty() || node.path("link").asBoolean(false) || !node.path("version").isTextual()) continue;
+                if (!isInstalledPath(path) || node.path("link").asBoolean(false)) continue;
                 String name = packageName(path, node);
                 String versionText = node.path("version").asText();
-                if (name.isBlank() || name.length() > 512 || versionText.isBlank() || versionText.length() > 255) continue;
+                if (name.isBlank() || name.length() > 512 || versionText.length() > 255
+                        || !EXACT_VERSION.matcher(versionText).matches()) {
+                    unresolvedPackages++;
+                    continue;
+                }
                 String encodedName = purlName(name);
                 String namespace = name.startsWith("@") && name.contains("/") ? name.substring(0, name.indexOf('/')) : null;
                 var coordinates = new PackageCoordinates("npm", namespace, name, versionText,
@@ -72,7 +109,11 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
             JsonNode rootPackage = packages.path("");
             Set<String> directPaths = new LinkedHashSet<>();
             Set<ManifestDependencyEdge> edges = new LinkedHashSet<>();
-            int unresolved = connectDependencies("", rootPackage, entries, directPaths, edges);
+            int unresolved = unresolvedPackages + connectDependencies("", rootPackage, entries, directPaths);
+            for (var workspace : packages.properties()) {
+                if (!workspace.getKey().isEmpty() && !isInstalledPath(workspace.getKey()))
+                    unresolved += connectDependencies(workspace.getKey(), workspace.getValue(), entries, directPaths);
+            }
 
             Deque<String> pending = new ArrayDeque<>(directPaths);
             Set<String> reachable = new HashSet<>();
@@ -81,22 +122,19 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
                 if (!reachable.add(parentPath)) continue;
                 PackageEntry parent = entries.get(parentPath);
                 if (parent == null) continue;
-                int before = edges.size();
-                unresolved += connectDependencies(parentPath, parent.node(), entries, null, edges);
-                if (edges.size() > before) {
-                    for (ManifestDependencyEdge edge : edges) {
-                        if (edge.parentManifestPath().equals(parentPath) && !reachable.contains(edge.childManifestPath()))
-                            pending.addLast(edge.childManifestPath());
-                    }
+                for (String name : dependencyNames(parent.node(), PACKAGE_DEPENDENCY_SECTIONS)) {
+                    String target = resolveInstalledPath(parentPath, name, entries);
+                    if (target == null) { unresolved++; continue; }
+                    if (!target.equals(parentPath)) edges.add(new ManifestDependencyEdge(parentPath, target));
+                    if (!reachable.contains(target)) pending.addLast(target);
                 }
             }
 
             List<ManifestDependency> dependencies = new ArrayList<>();
-            for (String path : reachable) {
-                PackageEntry entry = entries.get(path);
-                if (entry == null) continue;
+            for (PackageEntry entry : entries.values()) {
+                String path = entry.path();
                 dependencies.add(new ManifestDependency(path, entry.coordinates(), entry.scope(),
-                    directPaths.contains(path) ? "DIRECT" : "TRANSITIVE"));
+                    directPaths.contains(path) ? "DIRECT" : reachable.contains(path) ? "TRANSITIVE" : "UNKNOWN"));
             }
             dependencies.sort((left, right) -> left.manifestPath().compareTo(right.manifestPath()));
             List<ManifestDependencyEdge> resolvedEdges = edges.stream()
@@ -110,17 +148,13 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
     }
 
     private static int connectDependencies(String parentPath, JsonNode parent, Map<String, PackageEntry> entries,
-            Set<String> directPaths, Set<ManifestDependencyEdge> edges) {
-        Set<String> names = dependencyNames(parent, parentPath.isEmpty() ? ROOT_DEPENDENCY_SECTIONS : PACKAGE_DEPENDENCY_SECTIONS);
+            Set<String> directPaths) {
+        Set<String> names = dependencyNames(parent, ROOT_DEPENDENCY_SECTIONS);
         int unresolved = 0;
         for (String name : names) {
             String targetPath = resolveInstalledPath(parentPath, name, entries);
             if (targetPath == null) { unresolved++; continue; }
-            if (parentPath.isEmpty()) {
-                if (directPaths != null) directPaths.add(targetPath);
-            } else if (edges != null) {
-                edges.add(new ManifestDependencyEdge(parentPath, targetPath));
-            }
+            directPaths.add(targetPath);
         }
         return unresolved;
     }
@@ -146,6 +180,10 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
             int ancestor = base.lastIndexOf("/node_modules/");
             if (ancestor >= 0) base = base.substring(0, ancestor);
             else if (base.startsWith("node_modules/")) base = "";
+            else if (!base.isEmpty()) {
+                int slash = base.lastIndexOf('/');
+                base = slash < 0 ? "" : base.substring(0, slash);
+            }
             else return null;
         }
     }
@@ -164,33 +202,45 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
             .reduce((left, right) -> left + "/" + right).orElse("");
     }
 
-    private static byte[] readLock(InputStream input) {
-        byte[] lock = null;
+    private static boolean isInstalledPath(String path) {
+        return path.startsWith("node_modules/") || path.contains("/node_modules/");
+    }
+
+    private static Map<String, byte[]> readLocks(InputStream input) {
+        var locks = new LinkedHashMap<String, byte[]>();
+        int lockBytes = 0;
         long expanded = 0;
         int entries = 0;
+        int files = 0;
+        byte[] buffer = new byte[16 * 1024];
         try (var zip = new ZipInputStream(input)) {
             for (var entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-                if (++entries > MAX_ARCHIVE_ENTRIES) throw invalid("ZIP con demasiados archivos.");
+                if (++entries > MAX_ARCHIVE_ENTRIES || (!entry.isDirectory() && ++files > MAX_FILES))
+                    throw invalid("El ZIP supera 50.000 archivos o 100.000 entradas totales para el análisis npm.");
                 String path = entry.getName();
-                if (path.startsWith("/") || path.contains("\\") || Arrays.asList(path.split("/", -1)).contains(".."))
+                if (path.length() > MAX_PATH_LENGTH || path.startsWith("/") || path.contains("\\")
+                        || Arrays.asList(path.split("/", -1)).contains(".."))
                     throw invalid("Ruta no válida en ZIP.");
-                boolean lockfile = !entry.isDirectory() && path.endsWith("package-lock.json");
+                boolean lockfile = !entry.isDirectory()
+                    && (path.equals("package-lock.json") || path.endsWith("/package-lock.json"));
                 var bytes = lockfile ? new ByteArrayOutputStream() : null;
-                byte[] buffer = new byte[8192];
                 for (int count; (count = zip.read(buffer)) != -1;) {
                     expanded += count;
-                    if (expanded > MAX_EXPANDED_BYTES || (lockfile && bytes.size() + count > MAX_LOCK_BYTES))
-                        throw invalid("ZIP o package-lock supera el límite.");
+                    if (expanded > MAX_EXPANDED_BYTES) throw invalid("El ZIP supera 512 MiB descomprimidos.");
+                    if (lockfile && (bytes.size() + count > MAX_LOCK_BYTES || lockBytes + bytes.size() + count > MAX_TOTAL_LOCK_BYTES))
+                        throw invalid("Los lockfiles superan 5 MiB por archivo o 25 MiB en total.");
                     if (lockfile) bytes.write(buffer, 0, count);
                 }
                 if (lockfile) {
-                    if (lock != null) throw invalid("Más de un package-lock.json; analiza cada aplicación por separado.");
-                    lock = bytes.toByteArray();
+                    if (locks.size() >= 64) throw invalid("El ZIP supera 64 archivos package-lock.json.");
+                    if (locks.putIfAbsent(path, bytes.toByteArray()) != null)
+                        throw invalid("El ZIP contiene rutas de lockfile duplicadas.");
+                    lockBytes += bytes.size();
                 }
                 zip.closeEntry();
             }
         } catch (IOException failure) { throw new IllegalArgumentException("No se pudo leer el ZIP npm.", failure); }
-        return lock;
+        return locks;
     }
 
     private static IllegalArgumentException invalid(String message) { return new IllegalArgumentException(message); }

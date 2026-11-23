@@ -23,6 +23,7 @@ import com.dependencyintelligence.scan.application.port.in.AnalyzeMavenRepositor
 import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSource;
 import com.dependencyintelligence.scan.application.port.out.MavenManifestReader;
 import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
+import com.dependencyintelligence.scan.application.usecase.AnalyzeRepositoryUseCase;
 import com.dependencyintelligence.scan.application.usecase.AnalyzeMavenRepositoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.AnalyzeNpmRepository;
 import com.dependencyintelligence.scan.application.port.out.NpmLockfileReader;
@@ -88,11 +89,19 @@ public class UseCaseConfiguration {
         return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
     }
 
-    @Bean AnalyzeMavenRepository analyzeMavenRepository(RepositoryAnalysisSource source, MavenManifestReader reader,
+    @Bean AnalyzeMavenRepositoryUseCase analyzeMavenRepository(RepositoryAnalysisSource source, MavenManifestReader reader,
             MavenAnalysisStore store, Clock clock) {
         return new AnalyzeMavenRepositoryUseCase(source, reader, store, clock);
     }
-    @Bean AnalyzeNpmRepository analyzeNpmRepository(RepositoryAnalysisSource source,NpmLockfileReader reader,MavenAnalysisStore store,Clock clock){return new AnalyzeNpmRepositoryUseCase(source,reader,store,clock);}
+    @Bean AnalyzeNpmRepositoryUseCase analyzeNpmRepository(RepositoryAnalysisSource source, NpmLockfileReader reader,
+            MavenAnalysisStore store, Clock clock) {
+        return new AnalyzeNpmRepositoryUseCase(source, reader, store, clock);
+    }
+
+    @Bean AnalyzeRepositoryUseCase analyzeRepository(RepositoryAnalysisSource source, AnalyzeMavenRepositoryUseCase maven,
+            AnalyzeNpmRepositoryUseCase npm) {
+        return new AnalyzeRepositoryUseCase(source, maven, npm);
+    }
 
     @Bean GetRepositoryDependencyGraph getRepositoryDependencyGraph(RepositoryDependencyGraphReader reader, TenantTransactions transactions) {
         var useCase = new GetRepositoryDependencyGraphUseCase(reader);

@@ -40,6 +40,48 @@ class CdxgenNpmLockfileReaderTest {
         assertTrue(result.dependencies().stream().anyMatch(item -> item.coordinates().name().equals("@scope/widget")));
     }
 
+    @Test void retainsTransitivelyResolvedScopedPackagesMissingFromANonEmptyBom() throws Exception {
+        CycloneDxGenerator partialBom = (archive, ecosystem) -> """
+            {"bomFormat":"CycloneDX","specVersion":"1.6",
+             "metadata":{"component":{"type":"application","bom-ref":"root"},
+               "properties":[{"name":"dependency-intelligence:source-manifest-count","value":"2"}]},
+             "components":[{"type":"library","bom-ref":"top","name":"top","version":"2.3.0","purl":"pkg:npm/top@2.3.0"}],
+             "dependencies":[{"ref":"root","dependsOn":["top"]},{"ref":"top","dependsOn":[]}]}
+            """.getBytes(StandardCharsets.UTF_8);
+        var bytes = new ByteArrayOutputStream();
+        try (var archive = new ZipOutputStream(bytes)) {
+            for (int file = 0; file < 5_001; file++) {
+                archive.putNextEntry(new ZipEntry("src/file-" + file + ".txt"));
+                archive.closeEntry();
+            }
+            write(archive, "first/package-lock.json", """
+                {"lockfileVersion":3,"packages":{
+                  "":{"dependencies":{"top":"^2.3.0"}},
+                  "node_modules/top":{"version":"2.3.0","dependencies":{"@scope/leaf":"^1.2.0"}},
+                  "node_modules/@scope/leaf":{"version":"1.2.0"}
+                }}
+                """);
+            write(archive, "second/package-lock.json", """
+                {"lockfileVersion":3,"packages":{"":{"dependencies":{"other":"1.0.0"}},"node_modules/other":{"version":"1.0.0"}}}
+                """);
+        }
+
+        var result = new CdxgenNpmLockfileReader(partialBom, new CycloneDxManifestMapper(new com.fasterxml.jackson.databind.ObjectMapper()),
+            new BoundedNpmLockReader()).read(new ByteArrayInputStream(bytes.toByteArray()));
+
+        assertEquals(2, result.manifestCount());
+        assertEquals(3, result.dependencies().size());
+        assertEquals(1, result.edges().size());
+        assertTrue(result.dependencies().stream().anyMatch(item -> "@scope/leaf".equals(item.coordinates().name())
+            && "TRANSITIVE".equals(item.dependencyType()) && item.manifestPath().startsWith("first/package-lock.json/")));
+    }
+
+    private static void write(ZipOutputStream archive, String path, String contents) throws Exception {
+        archive.putNextEntry(new ZipEntry(path));
+        archive.write(contents.getBytes(StandardCharsets.UTF_8));
+        archive.closeEntry();
+    }
+
     private static ByteArrayInputStream zip(String lockfile) throws Exception {
         var bytes = new ByteArrayOutputStream();
         try (var archive = new ZipOutputStream(bytes)) {

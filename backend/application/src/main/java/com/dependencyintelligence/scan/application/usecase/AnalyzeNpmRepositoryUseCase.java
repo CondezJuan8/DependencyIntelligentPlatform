@@ -1,6 +1,7 @@
 package com.dependencyintelligence.scan.application.usecase;
 
 import com.dependencyintelligence.scan.application.dto.MavenInventory;
+import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
 import com.dependencyintelligence.scan.application.port.in.AnalyzeNpmRepository;
 import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
 import com.dependencyintelligence.scan.application.port.out.NpmLockfileReader;
@@ -24,13 +25,26 @@ public final class AnalyzeNpmRepositoryUseCase implements AnalyzeNpmRepository {
 
     @Override public MavenInventory run(UUID organizationId, UUID repositoryId) {
         try (var source = sources.open(organizationId, repositoryId)) {
-            var analysis = reader.read(source.content());
-            if (analysis.manifestCount() == 0) throw new IllegalArgumentException("No se encontró package-lock.json compatible.");
-            return store.save("cdxgen-npm", UUID.randomUUID(), organizationId, repositoryId,
-                source.provider(), source.sha256(), source.commitSha(), clock.instant().truncatedTo(ChronoUnit.MICROS), analysis);
+            return analyze(organizationId, repositoryId, source, false)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró package-lock.json compatible."));
         } catch (IOException failure) {
             throw new IllegalStateException("No se pudo cerrar el archivo de código fuente.", failure);
         }
+    }
+
+    Optional<MavenInventory> analyze(UUID organizationId, UUID repositoryId, RepositoryAnalysisSource.Archive source,
+                                     boolean recordMissingManifest) {
+        ManifestAnalysis analysis;
+        try (var input = source.content()) {
+            analysis = reader.read(input);
+        } catch (IOException failure) {
+            throw new ManifestReadException("No se pudo leer la fuente del repositorio.", failure);
+        } catch (IllegalArgumentException | IllegalStateException failure) {
+            throw new ManifestReadException(failure.getMessage(), failure);
+        }
+        if (analysis.manifestCount() == 0 && !recordMissingManifest) return Optional.empty();
+        return Optional.of(store.save("cdxgen-npm", UUID.randomUUID(), organizationId, repositoryId,
+            source.provider(), source.sha256(), source.commitSha(), clock.instant().truncatedTo(ChronoUnit.MICROS), analysis));
     }
 
     @Override public Optional<MavenInventory> latest(UUID organizationId, UUID repositoryId) {

@@ -1,5 +1,7 @@
 package com.dependencyintelligence.scan.infrastructure.parser;
 
+import static com.dependencyintelligence.repository.application.RepositorySourceLimits.*;
+
 import com.dependencyintelligence.scan.application.port.out.CycloneDxGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -31,9 +34,7 @@ import java.util.zip.ZipInputStream;
 /** Calls the isolated cdxgen sidecar with a read-only snapshot; the API never starts containers or exposes a Docker socket. */
 @Component
 public final class CdxgenScannerAdapter implements CycloneDxGenerator {
-    private static final int MAX_FILES = 50_000;
-    private static final long MAX_EXPANDED_BYTES = 512L * 1024 * 1024;
-    private static final long MAX_BOM_BYTES = 25L * 1024 * 1024;
+    private static final int MAX_BOM_BYTES = 25 * 1024 * 1024;
     private final Path workspace;
     private final RestClient scanner;
     private final ObjectMapper json;
@@ -62,7 +63,11 @@ public final class CdxgenScannerAdapter implements CycloneDxGenerator {
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Map.of("path", snapshot.toString(), "type", ecosystem == Ecosystem.MAVEN ? "java" : "js",
                     "multiProject", "true", "specVersion", "1.6"))
-                .retrieve().body(byte[].class);
+                .exchange((request, response) -> {
+                    if (!response.getStatusCode().is2xxSuccessful())
+                        throw new IllegalStateException("No se pudo completar el análisis aislado con cdxgen.");
+                    return response.getBody().readNBytes(MAX_BOM_BYTES + 1);
+                });
             if (result == null || result.length == 0 || result.length > MAX_BOM_BYTES)
                 throw new IllegalStateException("cdxgen devolvió un SBOM vacío o superior a 25 MiB.");
             return addManifestCount(result, countManifests(snapshot, ecosystem));
@@ -98,23 +103,25 @@ public final class CdxgenScannerAdapter implements CycloneDxGenerator {
         Set<String> paths = new HashSet<>();
         long expanded = 0;
         int count = 0;
+        int files = 0;
+        byte[] buffer = new byte[16 * 1024];
         try (var zip = new ZipInputStream(input)) {
             for (var entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-                if (++count > MAX_FILES) throw new IllegalArgumentException("El repositorio supera el límite de 50.000 archivos para análisis.");
+                if (++count > MAX_ARCHIVE_ENTRIES || (!entry.isDirectory() && ++files > MAX_FILES))
+                    throw new IllegalArgumentException("El ZIP supera 50.000 archivos o 100.000 entradas totales para cdxgen.");
                 String name = entry.getName();
                 if (!safePath(name) || !paths.add(name)) throw new IllegalArgumentException("El archivo ZIP contiene una ruta duplicada o no permitida.");
                 Path target = root.resolve(name).normalize();
                 if (!target.startsWith(root) || target.equals(root)) throw new IllegalArgumentException("El archivo ZIP contiene una ruta fuera de la fuente autorizada.");
                 if (entry.isDirectory()) Files.createDirectories(target);
-                else {
-                    Files.createDirectories(target.getParent());
-                    try (var output = Files.newOutputStream(target, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
-                        byte[] buffer = new byte[16 * 1024];
-                        for (int read; (read = zip.read(buffer)) != -1;) {
-                            expanded += read;
-                            if (expanded > MAX_EXPANDED_BYTES) throw new IllegalArgumentException("La fuente supera 512 MiB descomprimidos para análisis.");
-                            output.write(buffer, 0, read);
-                        }
+                else Files.createDirectories(target.getParent());
+                try (var output = entry.isDirectory() ? OutputStream.nullOutputStream()
+                        : Files.newOutputStream(target, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+                    for (int read; (read = zip.read(buffer)) != -1;) {
+                        expanded += read;
+                        if (expanded > MAX_EXPANDED_BYTES)
+                            throw new IllegalArgumentException("La fuente supera 512 MiB descomprimidos para análisis.");
+                        output.write(buffer, 0, read);
                     }
                 }
                 zip.closeEntry();
@@ -123,7 +130,7 @@ public final class CdxgenScannerAdapter implements CycloneDxGenerator {
     }
 
     private static boolean safePath(String name) {
-        if (name == null || name.isBlank() || name.length() > 1024 || name.startsWith("/") || name.contains("\\")
+        if (name == null || name.isBlank() || name.length() > MAX_PATH_LENGTH || name.startsWith("/") || name.contains("\\")
                 || name.indexOf('\0') >= 0 || name.matches("^[A-Za-z]:.*")) return false;
         for (String part : name.split("/", -1)) if (part.equals("..") || part.equals(".")) return false;
         return true;
@@ -146,6 +153,9 @@ public final class CdxgenScannerAdapter implements CycloneDxGenerator {
     private static void remove(Path root) {
         try (var paths = Files.walk(root)) {
             List<Path> descendants = new ArrayList<>(paths.sorted(Comparator.reverseOrder()).toList());
+            for (Path path : descendants) {
+                if (Files.isDirectory(path)) path.toFile().setWritable(true, true);
+            }
             for (Path path : descendants) {
                 path.toFile().setWritable(true, true);
                 Files.deleteIfExists(path);
