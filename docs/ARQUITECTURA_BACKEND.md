@@ -1,3 +1,9 @@
+## Bloque 73 — petición 8: consulta de historial y fallos de análisis (23/11/2026)
+
+La pantalla Análisis solicita `POST /api/organizations/{organizationId}/repositories/{repositoryId}/dependency-analysis`; comparte el flujo que genera snapshots Maven y npm y después pide la evaluación OSV por separado. `GET /api/organizations/{organizationId}/repositories/{repositoryId}/scans` requiere `scan.read`, limita la consulta al repositorio/organización, aplica contexto tenant/RLS y devuelve hasta 50 ejecuciones con commit, estado, scanner, conteos, cobertura, error y hash de fuente. Application define `FindScanHistory` y `ScanHistoryReader`; Infrastructure implementa PostgreSQL/JDBC.
+
+Los fallos de lectura dentro de Maven/npm se insertan como scans `FAILED`, con scanner/ecosistema, commit o hash local y motivo, conservando los snapshots completados anteriores. No se añadió migración (V28 conserva las columnas necesarias). La operación de análisis sigue síncrona; no se usa el endpoint `POST /scans`, cuyo job todavía carece de worker. Fallos previos a la apertura de una fuente no tienen un commit/hash confiable para persistir.
+
 ## Bloque 66 — consulta del catálogo de Inventario
 
 Application autoriza el conjunto de repositorios mediante `FindAccountWorkspace` y delega la lectura a `InventoryCatalogReader`. Infrastructure aplica RLS en `TenantTransactions` y usa consultas acotadas para snapshots, apariciones y evidencia OSV. `GET /api/organizations/{organizationId}/inventory` agrega las apariciones filtradas y entrega una página de paquetes. `GET /api/organizations/{organizationId}/inventory/occurrences` devuelve las apariciones de un paquete exacto con los mismos filtros. El esquema permanece en V26.

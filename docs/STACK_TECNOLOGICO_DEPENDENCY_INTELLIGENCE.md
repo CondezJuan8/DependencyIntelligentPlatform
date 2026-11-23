@@ -1,3 +1,7 @@
+### Bloque 73 — pantalla de Análisis (23/11/2026)
+
+Angular/TypeScript/SCSS incorpora una página móvil primero con selector de repositorio, estado durante la petición síncrona, resultados Maven/npm, acción de reintento y hasta 50 ejecuciones. Java 21 añade DTO/puertos/caso de uso de historial y adaptador JDBC sobre PostgreSQL, protegido por `scan.read` y contexto RLS. Los errores de lectura de manifiestos quedan como scans fallidos; OSV se invoca después del scanner como integración separada. Sin paquetes ni migraciones nuevos. Las builds Maven y Angular terminaron correctamente; la compilación mantiene avisos de presupuesto, incluido SCSS del nuevo módulo.
+
 ### Bloque 66 — catálogo de Inventario (22/11/2026)
 
 Angular usa señales y RxJS para combinar filtros, cancelar peticiones previas y cargar apariciones bajo demanda. Java y Spring JDBC ejecutan las consultas parametrizadas sobre PostgreSQL con los permisos y la evidencia OSV existentes. El catálogo pagina en la API y reutiliza los tokens de tema. El esquema y las dependencias de producto permanecen en la misma versión.

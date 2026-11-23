@@ -1,3 +1,15 @@
+## Bloque 73 — petición 8: Análisis (23 de noviembre de 2026)
+
+- [x] Añadir pantalla propia a Análisis para seleccionar repositorio, ejecutar Maven/npm y ver resultados.
+- [x] Consultar historial protegido por `scan.read`, con hasta 50 ejecuciones, commit, scanner, duración, cobertura, conteos, motivo de fallo y SHA-256.
+- [x] Guardar como `FAILED` los errores de lectura de manifiestos sin reemplazar snapshots válidos; poder reintentar desde UI.
+- [x] Pedir la evaluación OSV después del scanner, manteniéndola como etapa distinta.
+- [x] Compilar backend/frontend y actualizar ambos servicios Compose sin tocar PostgreSQL, scanner, Mailpit o instancia nativa.
+- [ ] Validar con sesión autorizada que los repositorios reales muestran el historial y que el análisis Maven/npm finaliza; Compose espera el bootstrap inicial del administrador.
+- [ ] Worker durable, progreso por etapas, comparación de snapshots y persistencia trazable de errores al abrir la fuente.
+
+El estado y límites verificados están descritos en el bloque 73 del [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
+
 ## Bloque 72 — unificar análisis recientes y cobertura del Dashboard (23 de noviembre de 2026)
 
 - [x] Quitar el panel duplicado de cobertura y mostrar los contadores completo/parcial dentro de Análisis recientes.

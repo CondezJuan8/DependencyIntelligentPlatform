@@ -1,3 +1,15 @@
+## Bloque 73 — petición 8: pantalla de Análisis (23/11/2026)
+
+**Petición.** Continuar el plan del contexto maestro con la petición 8: pantalla para ejecutar y consultar análisis de dependencias.
+
+**Cambios.** La opción del sidebar Análisis deja de estar «En preparación». Se agregó selector de repositorios accesibles, ejecución Maven/npm sobre la fuente actual, resultado por ecosistema, historial de hasta 50 scans, scanner/versión, commit/ref, duración, conteos, cobertura, fallos, SHA-256 expandible y enlace al Inventario. Un scan fallido de parsing se persiste sin sobrescribir los snapshots previos. OSV se solicita después, como etapa separada. Los textos estáticos de la pantalla usan el idioma elegido.
+
+**Herramientas y tecnologías.** `apply_patch`, Angular/TypeScript/HTML/SCSS, Java 21, Spring MVC, JDBC/PostgreSQL y Docker Compose. Se usó el build backend con `-DskipTests`; las pruebas automatizadas no se ejecutaron. No se añadieron dependencias ni migraciones. El build frontend terminó con avisos de presupuesto existentes y uno nuevo para el SCSS de esta pantalla.
+
+**Verificación.** Build de Domain/Application/Infrastructure completado; Angular producción completado. Los servicios backend/frontend Compose se recrearon sin dependencias; la primera petición a `/health` dio 502 durante el arranque, y `/?view=analysis` respondió 200. Se observó el backend conectado y migraciones V28 al día. Falta repetir healthcheck después del arranque y revisión autenticada porque la base Compose sigue vacía y espera bootstrap. No se comprobó ejecución real en cuenta. Se detectó que el endpoint de análisis es síncrono; la UI no simula porcentaje. No se tocaron base, Mailpit, scanner ni instancia nativa.
+
+**Siguiente paso.** Completar bootstrap seguro para crear el administrador inicial; luego recorrer Análisis con la cuenta propietaria y repositorios reales. Después decidir e implementar worker durable/progreso y comparación de snapshots por fases.
+
 ## Bloque 69 - retiro de pantalla y almacenamiento
 
 Fecha: 23 de noviembre de 2026 (America/Bogota).
