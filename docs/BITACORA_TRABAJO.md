@@ -2,7 +2,7 @@
 
 **Petición.** Continuar el plan del contexto maestro implementando la pantalla de Documentación y su flujo real, sin adelantarse a la integración IA/RAG.
 
-**Cambios.** Se añadieron validaciones de nombre y tipos admitidos, DTO/puerto/caso de uso y adaptador JDBC. La pantalla ofrece carga de hasta 50 MiB, repositorios permitidos, historial de versiones, búsqueda léxica, descarga, SHA-256 y eliminación. Los documentos se guardan en el volumen privado existente; los accesos a versiones/descargas/borrado comprueban que el documento esté dentro del alcance visible. La extracción usa Tika 4.2.0 `PipesForkParser`, proceso hijo, timeout y heap configurados. Se habilitó Documentación en el sidebar y se añadieron textos en inglés.
+**Cambios.** Se añadieron validaciones de nombre y tipos admitidos, DTO/puerto/caso de uso y adaptador JDBC. La pantalla ofrece carga de hasta 50 MiB, repositorios permitidos, historial de versiones, búsqueda léxica, descarga, SHA-256 y eliminación. El documento queda visible en `DELETION_PENDING` si falla el retiro físico y se archiva al completar el proceso, de modo que se pueda reintentar sin dejarlo listado después. Los documentos se guardan en el volumen privado existente; los accesos a versiones/descargas/borrado comprueban que el documento esté dentro del alcance visible. La extracción usa Tika 4.2.0 `PipesForkParser`, proceso hijo, timeout y heap configurados. Se habilitó Documentación en el sidebar y se añadieron textos en inglés.
 
 **Herramientas y tecnologías.** `apply_patch` y PowerShell para edición; Angular 22/TypeScript/HTML/SCSS; Java 21/Spring MVC/JDBC/PostgreSQL; Apache Tika `tika-pipes-fork-parser` 4.2.0; Docker Compose. Esta es la nueva dependencia backend; no se añadieron migraciones ni dependencias npm.
 

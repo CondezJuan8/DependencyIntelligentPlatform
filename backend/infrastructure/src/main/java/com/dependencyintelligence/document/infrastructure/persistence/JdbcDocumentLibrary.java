@@ -201,6 +201,7 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
             jdbc.update("delete from document_processing_artifacts where organization_id=? and processing_run_id in (select id from document_processing_runs where organization_id=? and document_version_id in (select id from document_versions where organization_id=? and document_id=?))", organizationId, organizationId, organizationId, documentId);
             jdbc.update("delete from document_processing_runs where organization_id=? and document_version_id in (select id from document_versions where organization_id=? and document_id=?)", organizationId, organizationId, documentId);
             jdbc.update("update document_versions set original_status='DELETED',storage_key=null,temporary_storage_key=null,temporary_expires_at=null,deleted_at=clock_timestamp(),indexing_status='CANCELLED' where organization_id=? and document_id=?", organizationId, documentId);
+            jdbc.update("update documents set status='ARCHIVED' where organization_id=? and id=?", organizationId, documentId);
             jdbc.update("update data_deletion_requests set status='COMPLETED',completed_at=clock_timestamp() where organization_id=? and id=?", organizationId, requestId);
             return null;
         });
