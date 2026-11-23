@@ -1,4 +1,10 @@
-## Resolución local Maven y comunicación de cobertura (22/11/2026)
+## Carga y análisis combinado (bloque 65)
+
+Inventario invoca `POST /dependency-analysis`. Maven y npm abren el mismo ZIP autorizado, con el mismo hash y commit. El backend concilia CycloneDX con POM y lockfiles, incluso cuando CycloneDX ya aportó algunos paquetes. Reutiliza los lectores estáticos para recuperarse de fallos del scanner y conserva la cobertura parcial cuando corresponde. npm admite múltiples lockfiles compatibles y mantiene los nombres scoped y las relaciones observadas.
+
+La carga local admite 300 MiB de contenido y 50.000 archivos. El ZIP descargado de GitHub admite hasta 300 MiB. Los lectores permiten hasta 50.000 archivos y 100.000 entradas totales contando directorios, y limitan la expansión a 512 MiB. El SBOM tiene un límite de 25 MiB. V26 conserva la ruta completa del manifiesto. La evaluación OSV recibe los IDs del análisis y se puede repetir desde Inventario.
+
+## Resolución local Maven y comunicación de cobertura (histórico del bloque 59)
 
 Si cdxgen detecta un POM y entrega un SBOM sin componentes, `BoundedMavenArchiveReader` extrae únicamente bytes de POM con límites de entradas, tamaño y expansión. `MavenPomDependencyResolver` crea un modelo local que resuelve propiedades heredadas, POM padre por ruta relativa, versiones gestionadas y BOM de tipo `pom`/scope `import` incluidos en el mismo archivo fuente. Devuelve declaraciones directas confirmadas y su scope. No se inicia Maven ni se ejecutan wrappers, plugins, compilación o scripts; tampoco hay resolución de dependencias desde Internet.
 

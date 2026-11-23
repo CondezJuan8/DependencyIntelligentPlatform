@@ -1,8 +1,9 @@
-Actualización del bloque 64 (22 de noviembre de 2026). **Petición 4 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) documenta el recorrido, la cobertura y los estados separados del scanner y OSV.
+Actualización del bloque 65 (22 de noviembre de 2026). Las correcciones de la petición 4 ya usan una sola fuente por análisis y reproducen la evidencia OSV del scan mostrado. Se acordó un límite de 300 MiB y 50.000 archivos.
 
-- [ ] Fijar una fuente única por acción de análisis, asociar la evidencia que muestra Inventario al `scanId` correcto y filtrar las versiones corregidas por paquete y ecosistema.
-- [ ] Preservar el último inventario válido en pantalla al fallar un reanálisis. Distinguir los estados sin manifiesto, sin dependencias, con referencias sin resolver y con fallo. Verificar los límites del respaldo y las omisiones cuando CycloneDX contiene resultados parciales.
-- [ ] Validar desde una sesión autenticada un Maven multimódulo y un npm con scope y transitivas. Comprobar el resultado por scan, el fallo y reintento independiente de OSV y su presentación en Inventario. El siguiente bloque de definición es la petición 5, Inventario.
+- [x] Fijar una fuente única por acción, asociar la evidencia OSV al `scanId` y filtrar las versiones corregidas por paquete y ecosistema.
+- [x] Conservar el último inventario válido al fallar un reanálisis. Conciliar omisiones de CycloneDX con POM y lockfiles y distinguir ausencia de manifiesto, cobertura y fallo.
+- [x] Comprobar en un entorno Docker desechable la carga autenticada de 300 MiB y 50.000 archivos, los resultados Maven/npm con el mismo hash, una transitiva npm scoped, la selección de OSV por scan y la persistencia en Inventario y Grafo.
+- [ ] Confirmar la presentación interactiva en los repositorios reales del usuario. Maven mantiene cobertura parcial para padres, BOM remotos y transitivas sin evidencia local. La petición 5 sigue centrada en el catálogo y los filtros de Inventario.
 
 Actualización del bloque 63 (22 de noviembre de 2026). **Petición 3 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) recoge importación, permisos, procedencia y retención de las dos fuentes. La descarga e importación confirmadas en Dinamita corresponden a la validación anterior.
 

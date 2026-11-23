@@ -11,6 +11,8 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
+Bloque 65. V26 añade `scan_components.source_manifest_path` para conservar rutas completas de POM y lockfiles. Los nuevos análisis usan un identificador de ocurrencia de longitud fija. Inventario y Grafo siguen leyendo las ocurrencias históricas mediante su referencia original. La migración no crea tablas ni cambia las relaciones.
+
 Bloque 42: V22 agrega `scan_vulnerability_assessments`, historial de consultas OSV por componente/versión de scan, con estados explícitos, SHA-256, JSON fuente, referencias y `source_modified_at`. La tabla referencia `scan_components` y aplica ENABLE+FORCE RLS. V23 limita al runtime a SELECT/INSERT para que el historial sea append-only; la consulta no escribe el catálogo global `vulnerabilities`, que conserva su rol dedicado de ingestión. Verificación de aplicación y conteo de catálogo en [informe de implementación](database/implementation-report.md); mapeo y semántica en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
 Bloque 23: V16 agrega `repository.manage` al rol MEMBER, efectivo solo con grant de equipo y repositorio. Bloque 24: V17 crea `member_repository_permissions` para permisos directos por miembro/repositorio, con FK, índice, FORCE RLS y grants runtime/migrator. Las acciones organizacionales sin repo siguen restringidas a OWNER/ADMIN y los grants se intersecan con el rol. Bloque 25: V16/V17 aplicadas y validadas en PostgreSQL; prueba IT focalizada correcta. Catálogo regenerado: 125 tablas, 88 con FORCE RLS y 221 FK.

@@ -1,5 +1,9 @@
 # Conexión de repositorios GitHub
 
+## Límites vigentes (bloque 65)
+
+La carpeta local admite 300 MiB de contenido y 50.000 archivos. La descarga desde GitHub admite hasta 300 MiB de ZIP. Los límites mencionados en el registro histórico de abajo corresponden a esos bloques anteriores. Desde Inventario, Maven y npm analizan la misma instantánea de la fuente autorizada. Ver [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
+
 ## Estado operativo del bloque actual (19/11/2026)
 
 La GitHub App está configurada y su JWT se comprobó previamente con `GET /app` (HTTP 200). Una consulta directa de solo lectura a GitHub el 19/11/2026 confirmó la instalación `183677764` en `CondezJuan8`, permiso `Contents: Read`, token de instalación emitido (HTTP 201) y dos repositorios autorizados (HTTP 200). El propietario completó OAuth desde Dinamita: la base tiene **una instalación activa, dos repositorios GitHub y un repositorio LOCAL habilitados**. El usuario confirmó que los tres aparecen en la plataforma y que **Descargar fuente** entrega un ZIP de cada origen. La instalación hecha directamente en GitHub no crea por sí sola el vínculo; ese paso ya quedó completado en esta instancia.

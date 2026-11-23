@@ -1,9 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { catchError, finalize, forkJoin, map, of } from 'rxjs';
 import { SessionApiService, accessError } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
+import { evidenceKey, fixesForPackage } from './inventory-evidence';
 
 type Ecosystem = 'MAVEN' | 'NPM';
 type DependencyKind = 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN' | string;
@@ -39,8 +40,15 @@ interface Scan {
 interface ScanResult {
   ecosystem: Ecosystem;
   scan: Scan | null;
-  status: 'complete' | 'partial' | 'unavailable' | 'error';
+  status: 'complete' | 'partial' | 'not-analyzed' | 'no-manifest' | 'error';
   message: string;
+}
+
+interface AnalysisResponse {
+  ecosystem: Ecosystem;
+  scan: Scan | null;
+  status: 'COMPLETED' | 'NO_MANIFEST' | 'FAILED';
+  message: string | null;
 }
 
 interface Occurrence {
@@ -80,6 +88,7 @@ interface Advisory {
   publishedAt: string | null; modifiedAt: string | null; url: string; aliases: string[]; references: string[]; affectedJson: string;
 }
 interface VersionAssessment {
+  scanId: string;
   packageVersion: { ecosystem: string; namespace: string | null; name: string; version: string };
   status: AssessmentStatus; lastSuccessfulStatus: AssessmentStatus | null; checkedAt: string | null;
   lastSuccessfulAt: string | null; sourceModifiedAt: string | null; failureCode: string | null; advisories: Advisory[];
@@ -107,7 +116,22 @@ export class InventoryWorkspace implements OnInit {
   readonly repository = signal<Repository | null>(null);
   readonly occurrences = signal<Occurrence[]>([]);
   readonly scanResults = signal<ScanResult[]>([]);
-  readonly vulnerabilityAssessment = signal<InventoryAssessment | null>(null);
+  private readonly osvEvidence = signal<VersionAssessment[]>([]);
+  private readonly assessmentsByKey = computed(() => {
+    const active = new Set(this.scanResults().flatMap(result => result.scan ? [result.scan.scanId] : []));
+    return new Map(this.osvEvidence().filter(item => active.has(item.scanId))
+      .map(item => [evidenceKey(item.scanId, item.packageVersion), item]));
+  });
+  readonly vulnerabilityAssessment = computed(() => {
+    const assessments = [...this.assessmentsByKey().values()];
+    if (!assessments.length) return null;
+    return {
+      affectedVersions: assessments.filter(item => item.advisories.length > 0).length,
+      advisoryCount: new Set(assessments.flatMap(item => item.advisories.map(advisory => advisory.id))).size,
+      unavailableVersions: assessments.filter(item => !['MATCHED', 'NO_KNOWN_ADVISORIES'].includes(item.status)).length,
+      staleVersions: assessments.filter(item => item.status === 'STALE').length,
+    };
+  });
   readonly assessmentError = signal('');
   readonly assessingVulnerabilities = signal(false);
   readonly codeEvidence = signal<Record<string, RepositoryCodeEvidence>>({});
@@ -218,6 +242,10 @@ export class InventoryWorkspace implements OnInit {
     return this.scanResults().some((result) => result.status === 'complete' || result.status === 'partial');
   }
 
+  get hasNoCompatibleManifest(): boolean {
+    return this.scanResults().length > 0 && this.scanResults().every(result => result.status === 'no-manifest');
+  }
+
   ngOnInit(): void {
     this.api.get<Repository[]>('/api/account/workspace').pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (items) => {
@@ -233,7 +261,7 @@ export class InventoryWorkspace implements OnInit {
     this.repository.set(repository);
     this.occurrences.set([]);
     this.scanResults.set([]);
-    this.vulnerabilityAssessment.set(null);
+    this.osvEvidence.set([]);
     this.codeEvidence.set({}); this.codeEvidenceErrors.set({}); this.codeEvidenceLoading.set(new Set());
     this.assessmentError.set('');
     this.clearFilters();
@@ -272,7 +300,7 @@ export class InventoryWorkspace implements OnInit {
     const filter = this.securityFilter();
     if (filter === 'ALL') return true;
     const status = this.assessmentFor(group, version)?.status;
-    if (filter === 'VULNERABLE') return status === 'MATCHED';
+    if (filter === 'VULNERABLE') return !!this.assessmentFor(group, version)?.advisories.length;
     if (filter === 'NO_KNOWN') return status === 'NO_KNOWN_ADVISORIES';
     return status !== 'MATCHED' && status !== 'NO_KNOWN_ADVISORIES';
   }
@@ -287,32 +315,44 @@ export class InventoryWorkspace implements OnInit {
 
   analyzeRepository(): void {
     const repository = this.repository();
-    if (!repository || this.busy() || this.loadingScans()) return;
+    if (!repository || this.busy() || this.loadingScans() || this.assessingVulnerabilities()) return;
     this.busy.set(true);
     this.error.set('');
     this.notice.set('');
 
-    forkJoin([
-      this.runScanner(repository, 'MAVEN'),
-      this.runScanner(repository, 'NPM'),
-    ]).subscribe({ next: (results) => {
-      this.scanResults.set(results);
-      this.occurrences.set(this.toOccurrences(results));
-      const available = results.filter((result) => result.scan !== null).length;
-      if (available === 2 && results.some((result) => result.status === 'partial')) this.notice.set('Análisis actualizado. Consulta el estado de cada ecosistema para ver su alcance.');
-      else if (available === 2) this.notice.set('Análisis completado para Maven y npm.');
-      else if (available === 1) this.notice.set('El inventario se actualizó parcialmente; revisa el estado de cada ecosistema.');
-      else this.error.set(results.find((result) => result.status === 'error')?.message ?? 'No encontramos manifiestos compatibles para Maven ni npm en este repositorio.');
-      if (available > 0) this.assessVulnerabilities(repository);
-      else this.busy.set(false);
-    }, error: (failure) => { this.error.set(accessError(failure)); this.busy.set(false); } });
+    this.assessmentError.set('');
+
+    this.api.post<AnalysisResponse[]>(this.repositoryEndpoint(repository, 'dependency-analysis'), {})
+      .pipe(finalize(() => this.busy.set(false)))
+      .subscribe({
+        next: (response) => {
+          const previous = new Map(this.scanResults().map(result => [result.ecosystem, result.scan]));
+          const results = response.map((result): ScanResult => {
+            if (result.status === 'FAILED') {
+              return { ecosystem: result.ecosystem, scan: previous.get(result.ecosystem) ?? null,
+                status: 'error', message: result.message ?? 'No se pudo completar el análisis' };
+            }
+            return this.scanResult(result.ecosystem, result.scan, result.status === 'NO_MANIFEST');
+          });
+          this.scanResults.set(results);
+          this.occurrences.set(this.toOccurrences(results));
+          const visible = new Set(results.flatMap(result => result.scan ? [result.scan.scanId] : []));
+          this.osvEvidence.update(items => items.filter(item => visible.has(item.scanId)));
+          const completed = response.filter(result => result.status === 'COMPLETED');
+          if (completed.length > 0)
+            this.notice.set('Análisis actualizado. Consulta el estado de cada ecosistema para ver su alcance.');
+          const newScans = completed.flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
+          if (newScans.length) this.assessVulnerabilities(repository, newScans);
+        },
+        error: failure => this.error.set(accessError(failure)),
+      });
   }
 
   private loadScans(repository: Repository, requestSequence: number): void {
     forkJoin([
       this.loadScanner(repository, 'MAVEN'),
       this.loadScanner(repository, 'NPM'),
-      this.loadVulnerabilityAssessment(repository),
+      this.loadVulnerabilityAssessment(repository, requestSequence),
     ]).pipe(finalize(() => {
       if (requestSequence === this.scanLoadSequence) this.loadingScans.set(false);
     })).subscribe(([maven, npm, assessment]) => {
@@ -321,17 +361,18 @@ export class InventoryWorkspace implements OnInit {
       const found = results.filter((result) => result.scan !== null);
       this.scanResults.set(results);
       this.occurrences.set(this.toOccurrences(found));
-      this.vulnerabilityAssessment.set(assessment);
+      this.osvEvidence.set(assessment?.assessments ?? []);
       const scanError = results.find((result) => result.status === 'error');
       if (scanError) this.error.set(scanError.message);
     });
   }
 
   assessmentFor(group: PackageGroup, version: VersionGroup): VersionAssessment | undefined {
-    return this.vulnerabilityAssessment()?.assessments.find((item) =>
-      item.packageVersion.ecosystem.toUpperCase() === group.ecosystem
-      && item.packageVersion.namespace === group.namespace && item.packageVersion.name === group.name
-      && item.packageVersion.version === version.version);
+    const scanId = version.occurrences[0]?.scanId;
+    if (!scanId) return undefined;
+    return this.assessmentsByKey().get(evidenceKey(scanId, {
+      ecosystem: group.ecosystem, namespace: group.namespace, name: group.name, version: version.version,
+    }));
   }
 
   assessmentLabel(status: AssessmentStatus): string {
@@ -361,27 +402,9 @@ export class InventoryWorkspace implements OnInit {
     }
   }
 
-  fixedVersions(advisory: Advisory): string[] {
-    const knownFixes: Record<string, string[]> = {
-      'GHSA-WJGM-6HV5-3CVF': ['2.18.10', '2.21.6', '2.22.2', '3.1.6', '3.2.2'],
-      'GHSA-WV8Q-QHHJ-9H54': ['2.18.11', '2.21.7', '2.22.3', '3.1.7', '3.2.3'],
-    };
-    const curated = knownFixes[advisory.id.toUpperCase()];
-    if (curated) return curated;
-    try {
-      const parsed: unknown = JSON.parse(advisory.affectedJson);
-      const affected = Array.isArray(parsed) ? parsed : [parsed];
-      const fixed = affected.flatMap((entry) => {
-        if (!entry || typeof entry !== 'object' || !('ranges' in entry) || !Array.isArray(entry.ranges)) return [];
-        return entry.ranges.flatMap((range: unknown) => {
-          if (!range || typeof range !== 'object' || !('events' in range) || !Array.isArray(range.events)) return [];
-          return range.events.flatMap((event: unknown) => event && typeof event === 'object' && 'fixed' in event && typeof event.fixed === 'string' ? [event.fixed] : []);
-        });
-      });
-      return [...new Set(fixed)].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-    } catch {
-      return [];
-    }
+  fixedVersions(advisory: Advisory, group: PackageGroup): string[] {
+    const name = group.ecosystem === 'MAVEN' ? `${group.namespace}:${group.name}` : group.name;
+    return fixesForPackage(advisory.affectedJson, group.ecosystem, name);
   }
 
   loadCodeEvidence(advisoryId: string): void {
@@ -398,65 +421,72 @@ export class InventoryWorkspace implements OnInit {
       });
   }
 
-  private assessVulnerabilities(repository: Repository): void {
+  private assessVulnerabilities(repository: Repository, scanIds: string[]): void {
+    const requestSequence = this.scanLoadSequence;
+    const requested = new Set(scanIds);
     this.assessingVulnerabilities.set(true);
-    this.api.post<InventoryAssessment>(this.vulnerabilityEndpoint(repository), {}).pipe(
-      finalize(() => { this.assessingVulnerabilities.set(false); this.busy.set(false); }),
+    this.api.post<InventoryAssessment>(this.vulnerabilityEndpoint(repository), { scanIds }).pipe(
+      finalize(() => { if (requestSequence === this.scanLoadSequence) this.assessingVulnerabilities.set(false); }),
     ).subscribe({
-      next: (assessment) => { this.vulnerabilityAssessment.set(assessment); this.assessmentError.set(''); },
-      error: (failure: HttpErrorResponse) => this.assessmentError.set(accessError(failure)),
+      next: (assessment) => {
+        if (requestSequence !== this.scanLoadSequence) return;
+        this.osvEvidence.update(items => [
+          ...items.filter(item => !requested.has(item.scanId)),
+          ...assessment.assessments.filter(item => requested.has(item.scanId)),
+        ]);
+        this.assessmentError.set('');
+      },
+      error: (failure: HttpErrorResponse) => {
+        if (requestSequence !== this.scanLoadSequence) return;
+        this.osvEvidence.update(items => items.map(item => requested.has(item.scanId)
+          ? { ...item, status: item.advisories.length ? 'STALE' : 'UNAVAILABLE' } : item));
+        this.assessmentError.set(accessError(failure));
+      },
     });
   }
 
-  private loadVulnerabilityAssessment(repository: Repository) {
+  private loadVulnerabilityAssessment(repository: Repository, requestSequence: number) {
     return this.api.get<InventoryAssessment>(this.vulnerabilityEndpoint(repository)).pipe(catchError((failure: HttpErrorResponse) => {
-      this.assessmentError.set(accessError(failure));
+      if (requestSequence === this.scanLoadSequence) this.assessmentError.set(accessError(failure));
       return of(null);
     }));
   }
 
   assessCurrentRepository(): void {
     const repository = this.repository();
-    if (!repository || this.assessingVulnerabilities()) return;
+    if (!repository || this.assessingVulnerabilities() || this.busy()) return;
+    const scanIds = this.scanResults().flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
+    if (!scanIds.length) return;
     this.assessmentError.set('');
-    this.assessVulnerabilities(repository);
+    this.assessVulnerabilities(repository, scanIds);
   }
 
   private vulnerabilityEndpoint(repository: Repository): string {
-    return `/api/organizations/${repository.organizationId}/repositories/${repository.id}/vulnerability-analysis`;
+    return this.repositoryEndpoint(repository, 'vulnerability-analysis');
   }
 
   private loadScanner(repository: Repository, ecosystem: Ecosystem) {
-    return this.api.get<Scan | null>(this.endpoint(repository, ecosystem)).pipe(
-      map((scan) => ({ ecosystem, scan, status: !scan ? 'unavailable' as const : scan.coverageStatus === 'PARTIAL' ? 'partial' as const : 'complete' as const, message: !scan ? 'Aún sin analizar' : scan.coverageMessage ?? 'Análisis disponible' })),
-      catchError((failure: HttpErrorResponse) => of({
+    const endpoint = this.repositoryEndpoint(repository, ecosystem === 'MAVEN' ? 'maven-analysis' : 'npm-analysis');
+    return this.api.get<Scan | null>(endpoint).pipe(
+      map((scan) => this.scanResult(ecosystem, scan, scan?.manifestCount === 0)),
+      catchError((failure: HttpErrorResponse) => of<ScanResult>({
         ecosystem,
         scan: null,
-        status: failure.status === 404 ? 'unavailable' as const : 'error' as const,
+        status: failure.status === 404 ? 'not-analyzed' : 'error',
         message: failure.status === 404 ? 'Aún sin analizar' : accessError(failure),
       })),
     );
   }
 
-  private runScanner(repository: Repository, ecosystem: Ecosystem) {
-    return this.api.post<Scan>(this.endpoint(repository, ecosystem), {}).pipe(
-      map((scan): ScanResult => ({ ecosystem, scan, status: scan.coverageStatus === 'PARTIAL' ? 'partial' : 'complete', message: scan.coverageMessage ?? 'Analizado' })),
-      catchError((failure: HttpErrorResponse) => {
-        const detail = typeof failure.error?.detail === 'string' ? failure.error.detail : '';
-        const noManifest = failure.status === 404 || (failure.status === 400 && /manifest|package-lock|pom\.xml|proyecto Maven/i.test(detail));
-        return of({
-          ecosystem,
-          scan: null,
-          status: noManifest ? 'unavailable' as const : 'error' as const,
-          message: detail || (noManifest ? 'No se encontró un manifiesto compatible' : accessError(failure)),
-        });
-      }),
-    );
+  private scanResult(ecosystem: Ecosystem, scan: Scan | null, noManifest: boolean): ScanResult {
+    if (noManifest) return { ecosystem, scan: null, status: 'no-manifest', message: 'No se encontró un manifiesto compatible' };
+    if (!scan) return { ecosystem, scan: null, status: 'not-analyzed', message: 'Aún sin analizar' };
+    return { ecosystem, scan, status: scan.coverageStatus === 'PARTIAL' ? 'partial' : 'complete',
+      message: scan.coverageMessage ?? 'Análisis disponible' };
   }
 
-  private endpoint(repository: Repository, ecosystem: Ecosystem): string {
-    const scanner = ecosystem === 'MAVEN' ? 'maven-analysis' : 'npm-analysis';
-    return `/api/organizations/${repository.organizationId}/repositories/${repository.id}/${scanner}`;
+  private repositoryEndpoint(repository: Repository, path: string): string {
+    return `/api/organizations/${repository.organizationId}/repositories/${repository.id}/${path}`;
   }
 
   private toOccurrences(results: ScanResult[]): Occurrence[] {

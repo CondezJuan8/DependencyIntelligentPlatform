@@ -30,7 +30,7 @@
     <section class="control-panel" aria-label="Controles del inventario">
       <div class="repository-control">
         <label for="inventory-repository">Repositorio</label>
-        <select id="inventory-repository" [value]="repository()?.id ?? ''" [disabled]="busy()" (change)="selectRepository($event)">
+        <select id="inventory-repository" [value]="repository()?.id ?? ''" [disabled]="busy() || assessingVulnerabilities()" (change)="selectRepository($event)">
           @for (item of repositories(); track item.id) {
             <option [value]="item.id">{{ item.fullName }} · {{ item.source }}</option>
           }
@@ -38,7 +38,7 @@
       </div>
       <div class="scan-control">
         <p>{{ 'Una acción revisa Java/Maven y JavaScript/npm' | t }}</p>
-        <button class="primary" type="button" [disabled]="busy() || loadingScans() || !repository()" (click)="analyzeRepository()">
+        <button class="primary" type="button" [disabled]="busy() || loadingScans() || assessingVulnerabilities() || !repository()" (click)="analyzeRepository()">
           @if (busy()) { <span class="button-spinner" aria-hidden="true"></span> Analizando… } @else { Analizar repositorio }
         </button>
       </div>
@@ -56,9 +56,12 @@
         <div class="status-list">
           @for (result of scanResults(); track result.ecosystem) {
             <article class="status-item" [class.complete]="result.status === 'complete'" [class.partial]="result.status === 'partial'" [class.failed]="result.status === 'error'">
-              <span class="status-icon" aria-hidden="true">{{ result.status === 'complete' ? '✓' : result.status === 'error' ? '!' : result.status === 'unavailable' ? '–' : 'i' }}</span>
+              <span class="status-icon" aria-hidden="true">{{ result.status === 'complete' ? '✓' : result.status === 'error' ? '!' : '–' }}</span>
               <div class="status-copy">
-                <div class="status-title-row"><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><span class="status-pill">{{ result.status === 'complete' ? ('Inventario listo' | t) : result.status === 'partial' ? ('Listo con datos por confirmar' | t) : result.status === 'error' ? ('No se pudo completar' | t) : ('No se encontró este formato' | t) }}</span></div>
+                <div class="status-title-row"><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><span class="status-pill">{{ result.status === 'complete' ? ('Inventario listo' | t) : result.status === 'partial' ? ('Listo con datos por confirmar' | t) : result.status === 'error' ? ('No se pudo completar' | t) : result.status === 'no-manifest' ? ('No se encontró este formato' | t) : ('Aún sin analizar' | t) }}</span></div>
+                @if (result.status === 'error' && result.scan) {
+                  <p>{{ result.message | t }} {{ 'Se muestra el último inventario disponible, del' | t }} {{ result.scan.analyzedAt | date:'medium' }}.</p>
+                }
                 @if (result.scan) {
                   <p><strong>{{ result.scan.dependencies.length }}</strong> {{ 'dependencias identificadas con versión' | t }}</p>
                   @if (result.scan.unresolvedCount > 0) {
@@ -140,7 +143,7 @@
               <details class="package-card">
                 <summary>
                   <span class="package-symbol" [class.npm]="group.ecosystem === 'NPM'" aria-hidden="true">{{ group.ecosystem === 'MAVEN' ? 'M' : 'N' }}</span>
-                  <span class="package-identity"><strong data-no-translate>{{ group.namespace ? group.namespace + ':' : '' }}{{ group.name }}</strong><small>{{ group.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</small></span>
+                  <span class="package-identity"><strong data-no-translate>{{ group.ecosystem === 'MAVEN' && group.namespace ? group.namespace + ':' : '' }}{{ group.name }}</strong><small>{{ group.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</small></span>
                   <span class="package-metrics"><span>{{ group.versions.length }} {{ group.versions.length === 1 ? 'versión' : 'versiones' }}</span><span>{{ group.directCount }} directas · {{ group.transitiveCount }} transitivas · {{ group.unknownCount }} {{ 'por clasificar' | t }}</span></span>
                   <span class="chevron" aria-hidden="true">⌄</span>
                 </summary>
@@ -159,7 +162,7 @@
                                 <li class="advisory-item"><details class="advisory-card"><summary><span class="advisory-heading"><strong>{{ advisory.id }}</strong><span class="severity" [class]="'severity severity-' + advisory.severity.toLowerCase()">{{ advisory.severity }}</span></span><span class="advisory-title">{{ advisory.summary || 'Aviso de seguridad publicado por OSV' }}</span><span class="advisory-open-label">Ver detalles</span></summary>
                                   <div class="advisory-card-content">
                                     <div class="advisory-explanation"><strong>{{ 'Qué significa este aviso' | t }}</strong><p>{{ advisoryExplanation(advisory) }}</p><strong>{{ 'Qué revisar en tu código' | t }}</strong><p>{{ advisoryAction(advisory) }}</p>
-                                      @if (fixedVersions(advisory); as fixes) { @if (fixes.length > 0) { <p class="fixed-versions"><strong>{{ 'Versiones corregidas publicadas:' | t }}</strong> <code>{{ fixes.join(', ') }}</code></p> } }
+                                      @if (fixedVersions(advisory, group); as fixes) { @if (fixes.length > 0) { <p class="fixed-versions"><strong>{{ 'Versiones corregidas publicadas:' | t }}</strong> <code>{{ fixes.join(', ') }}</code></p> } }
                                     </div>
                                     <button class="code-evidence-button" type="button" [disabled]="codeEvidenceLoading().has(advisory.id.toUpperCase())" (click)="loadCodeEvidence(advisory.id)">{{ codeEvidenceLoading().has(advisory.id.toUpperCase()) ? ('Buscando en los archivos…' | t) : ('Buscar dónde revisar en el código' | t) }}</button>
                                     <p class="evidence-caveat">{{ 'La búsqueda señala coincidencias textuales con el patrón del aviso. No demuestra que el flujo sea explotable ni sustituye revisar cómo llegan y se validan los datos.' | t }}</p>
@@ -207,12 +210,16 @@
       </section>
     } @else if (loadingScans()) {
       <section class="empty-state" role="status" aria-live="polite"><span class="loading-mark" aria-hidden="true"></span><h2>Cargando análisis guardados</h2><p>Estamos reuniendo los resultados Maven y npm de este repositorio.</p></section>
+    } @else if (!busy() && hasNoCompatibleManifest) {
+      <section class="empty-state inventory-empty">
+        <h2>{{ 'No se detectaron manifiestos compatibles' | t }}</h2>
+        <p>Comprueba que el repositorio incluya un pom.xml o un package-lock.json.</p>
+      </section>
     } @else if (!busy() && hasCompletedScan) {
       <section class="empty-state inventory-empty">
         <span class="empty-icon" aria-hidden="true">⌕</span>
         <h2>Aún no hay dependencias en este inventario</h2>
-        <p>Ejecuta el análisis. Se revisarán archivos Maven y npm compatibles y los resultados parciales también se conservarán.</p>
-        <button class="primary" type="button" [disabled]="busy()" (click)="analyzeRepository()">Analizar repositorio</button>
+        <p>{{ 'El análisis encontró manifiestos, pero no identificó dependencias con versión exacta. Revisa el estado de cada ecosistema.' | t }}</p>
       </section>
     } @else if (!busy()) {
       <section class="empty-state inventory-empty">

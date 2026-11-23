@@ -1417,3 +1417,17 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** Revisión estática de `inventory-workspace`, adaptadores cdxgen y OSV, lectores Maven/npm y persistencia por scan y ocurrencia. Se consultaron pruebas existentes y evidencias de los bloques 55–59. No se ejecutaron pruebas nuevas ni un análisis autenticado durante este bloque.
 
 **Siguiente paso.** Petición 5, Inventario. Definir catálogo, alcance, búsqueda, filtros y cómo se muestran la procedencia y la cobertura.
+
+## Bloque 65 — carga de 300 MiB y correcciones de scanner y OSV (22/11/2026)
+
+**Petición.** Corregir los fallos encontrados en la petición 4, admitir 300 MiB y 50.000 archivos en una sola carga y entregar la plataforma en ejecución.
+
+**Cambios.** Los límites de la interfaz, multipart, almacenamiento y lectores quedaron alineados. Application analiza Maven y npm sobre la misma fuente autorizada. Se contrastan los componentes de CycloneDX con POM y lockfiles para recuperar omisiones, también en un SBOM que ya trae paquetes. Se amplió el respaldo npm a varios lockfiles compatibles y se eliminó la búsqueda repetida de todas las aristas al recorrerlo. V26 conserva rutas completas de manifiestos. Inventario distingue ausencia, cobertura parcial y fallo. Si falla un reanálisis, presenta la fecha del inventario previo. OSV evalúa los IDs solicitados y conserva las respuestas completas cuando falla otra página del lote. La interfaz limita las versiones corregidas al paquete afectado.
+
+**Herramientas utilizadas.** Java 21, Maven 3.9.11, JUnit, Spring Boot, PostgreSQL/Flyway, Angular y TypeScript, Node.js para la comprobación HTTP, Docker Compose, Nginx y cdxgen seguro 13.8.0 existente. El adaptador OSV sigue siendo el del proyecto.
+
+**Verificación.** Pasaron 25 pruebas focales de backend, la compilación Angular y una comprobación TypeScript de coincidencias por ID de scan, ecosistema y nombre. Con una cuenta y base desechables, la API autenticada aceptó en una solicitud 314.572.800 bytes y 50.000 archivos. El scanner guardó 1 dependencia Maven y 2 npm sobre el mismo SHA-256. El grafo devolvió 3 aristas. OSV devolvió 4 avisos para la versión probada de lodash, ninguno para la de `@babel/parser` y 12 avisos para la dependencia Maven probada. El resultado de cada consulta quedó restringido al scan seleccionado. También se comprobó que la ausencia de manifiesto perdura al recargar y que otro repositorio no puede obtener sus evaluaciones por ID. La prueba usó la API que consume Inventario.
+
+**Operación.** Se aplicó V26 a Compose y se recrearon los contenedores de API y web para servir el nuevo código en `localhost:8089`. El despliegue conserva los servicios de PostgreSQL, Mailpit y scanner. `/health` devolvió `UP` y la página de Inventario devolvió HTTP 200.
+
+**Siguiente paso.** Revisar Inventario con los repositorios reales del usuario. Maven mantiene cobertura parcial para dependencias que requieren resolver transitivas, padres o BOM remotos.

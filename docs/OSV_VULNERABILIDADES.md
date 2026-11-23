@@ -4,7 +4,7 @@
 
 El inventario consulta OSV para las versiones exactas del último análisis completado de Maven y npm. Angular solicita la comprobación al ejecutar **Analizar repositorio** y carga la última evidencia al abrir un repositorio. La API valida primero el permiso de repositorio; la llamada externa ocurre después de completar esa autorización.
 
-- `POST /api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis`: consulta y guarda una nueva evaluación.
+- `POST /api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis`: consulta y guarda una nueva evaluación. Inventario envía `{ "scanIds": [...] }` con hasta dos análisis del repositorio. Las llamadas sin IDs usan los últimos scans por ecosistema.
 - `GET /api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis`: devuelve la evaluación más reciente y su estado de vigencia.
 - Las consultas de paquetes usan `POST /v1/querybatch`; los avisos encontrados se completan con `GET /v1/vulns/{id}`.
 - `maven` se traduce al ecosistema OSV `Maven` y su nombre `groupId:artifactId`; `npm` conserva nombres scoped como `@scope/paquete`.

@@ -1,3 +1,9 @@
+## Bloque 65 — una fuente por análisis y evaluación OSV por scan
+
+El caso de uso de Application abre una fuente a través de `RepositoryAnalysisSource` y entrega la misma instantánea a ambos lectores. Infrastructure compara CycloneDX con POM y lockfiles estáticos. Si falta un manifiesto se registra la ausencia para que una recarga no muestre un inventario de una fuente anterior como vigente. Los resultados y errores de cada ecosistema se entregan por separado. V26 guarda la ruta del manifiesto y mantiene la lectura de las ocurrencias históricas.
+
+OSV conserva sus adaptadores y las consultas se pueden repetir con los IDs de scan que muestra Inventario. El filtro SQL aplica organización, repositorio, scanner compatible y estado completado. Los endpoints individuales y las consultas OSV sin IDs siguen disponibles para los flujos existentes.
+
 ## Actualización — scanner Maven y presentación de Inventario (22/11/2026)
 
 Infrastructure incorpora `MavenPomDependencyResolver`, usado como fallback del puerto de lectura Maven solo cuando cdxgen detecta manifiestos pero no componentes. Trabaja sobre POM acotados extraídos del ZIP autorizado y resuelve herencia y gestión local de versiones/BOM sin ejecutar procesos externos. Domain y Application no adquieren dependencias de Spring ni del parser. Las declaraciones se persisten con el flujo existente y OSV continúa como etapa separada basada en versiones exactas. La interfaz presenta resultados por ecosistema y detalle progresivo de cobertura, más búsqueda/filtros del inventario. El runtime real requiere un nuevo análisis autenticado de OMEGA para confirmar la recuperación en datos de usuario.
@@ -47,7 +53,7 @@ Cuando la App informa una sola instalación disponible que aún no está conecta
 
 ### Importación local de carpetas
 
-`ImportLocalFolderUseCase` valida nombre, límites y rutas en Application; el adaptador HTTP recibe partes multipart; el puerto `LocalRepositorySourceStore` guarda un ZIP con rutas relativas saneadas y SHA-256 fuera de la raíz web, y persiste sus metadatos en `local_repository_sources` bajo RLS. Compose monta `repository_data` separado de PostgreSQL. El repositorio usa `provider=local`, por lo que los equipos y permisos por repositorio existentes aplican sin duplicar RBAC. Límites actuales (bloque 46): 100 MiB totales de contenido y hasta 50.000 archivos. La forma admite hasta 100.001 partes/parámetros (nombre + ruta y archivo por entrada) y cuerpos multipart hasta 200 MiB para dar margen a nombres/rutas; Nginx y Spring/Tomcat están alineados. No se extraen entradas ZIP ni se ejecutan comandos. `RepositorySourceService` resuelve ZIP local/GitHub y entrega una fuente de lectura con hash y commit (GitHub) al endpoint autorizado. Los analizadores futuros deberán validar entradas ZIP y procesar fuera de la petición HTTP.
+`ImportLocalFolderUseCase` valida nombre, límites y rutas en Application. El adaptador HTTP recibe partes multipart y `LocalRepositorySourceStore` guarda un ZIP privado y sus metadatos con SHA-256 en `local_repository_sources` bajo RLS. Compose monta `repository_data` separado de PostgreSQL. Los permisos aplican a ambas fuentes. El límite vigente es 300 MiB de contenido y 50.000 archivos, con hasta 100.001 partes y 512 MiB de cuerpo multipart. `RepositorySourceService` entrega una fuente de lectura con hash y commit de GitHub cuando corresponde.
 
 ## Administración de un repositorio por un miembro
 
