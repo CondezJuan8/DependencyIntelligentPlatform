@@ -44,6 +44,9 @@ import com.dependencyintelligence.sbom.application.port.in.ImportSbom;
 import com.dependencyintelligence.sbom.application.port.out.SbomParser;
 import com.dependencyintelligence.sbom.application.port.out.SbomImportStore;
 import com.dependencyintelligence.sbom.application.usecase.ImportSbomUseCase;
+import com.dependencyintelligence.document.application.port.in.ManageDocuments;
+import com.dependencyintelligence.document.application.port.out.DocumentLibrary;
+import com.dependencyintelligence.document.application.usecase.ManageDocumentsUseCase;
 
 /** Composition root owns framework wiring and use case transaction boundaries. */
 @Configuration
@@ -115,5 +118,7 @@ public class UseCaseConfiguration {
     @Bean FilterInventory filterInventory(FindAccountWorkspace workspace, InventoryCatalogReader reader) {
         return new FilterInventoryUseCase(workspace, reader);
     }
+
+    @Bean ManageDocuments manageDocuments(DocumentLibrary documents) { return new ManageDocumentsUseCase(documents); }
 
 }

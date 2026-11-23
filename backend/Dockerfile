@@ -12,7 +12,7 @@ RUN if [ "$OPERATOR_TOOL_IMAGE" = "true" ]; then mvn -B -ntp -DskipTests package
 
 FROM eclipse-temurin:21-jre-jammy
 RUN groupadd --system app && useradd --system --gid app app
-RUN mkdir -p /var/lib/dependency-intelligence/repositories && chown -R app:app /var/lib/dependency-intelligence
+RUN mkdir -p /var/lib/dependency-intelligence/repositories /var/lib/dependency-intelligence/documents && chown -R app:app /var/lib/dependency-intelligence
 WORKDIR /app
 COPY --from=build /workspace/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar app.jar
 USER app

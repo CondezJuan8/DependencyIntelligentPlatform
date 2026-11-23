@@ -62,6 +62,7 @@ services:
       GITHUB_APP_CALLBACK_URL: ${GITHUB_APP_CALLBACK_URL:-http://localhost:${WEB_PORT:-8088}/api/integrations/github/app-callback}
       GITHUB_APP_API_BASE_URL: ${GITHUB_APP_API_BASE_URL:-https://api.github.com}
       LOCAL_REPOSITORY_STORAGE_ROOT: /var/lib/dependency-intelligence/repositories
+      APP_DOCUMENTS_STORAGE_ROOT: /var/lib/dependency-intelligence/documents
       OSV_API_BASE_URL: ${OSV_API_BASE_URL:-https://api.osv.dev}
       OSV_CONNECT_TIMEOUT: ${OSV_CONNECT_TIMEOUT:-PT5S}
       OSV_READ_TIMEOUT: ${OSV_READ_TIMEOUT:-PT15S}
@@ -74,6 +75,7 @@ services:
       INVITATION_LIFETIME: ${INVITATION_LIFETIME:-PT72H}
     volumes:
       - repository_data:/var/lib/dependency-intelligence/repositories
+      - document_data:/var/lib/dependency-intelligence/documents
       - scanner_work:/app/scanner-work
     networks:
       - default
@@ -179,6 +181,7 @@ services:
 volumes:
   postgres_data:
   repository_data:
+  document_data:
   scanner_work:
 networks:
   scanner_internal:
