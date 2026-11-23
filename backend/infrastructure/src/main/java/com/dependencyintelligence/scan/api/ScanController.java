@@ -3,6 +3,8 @@ package com.dependencyintelligence.scan.api;
 import com.dependencyintelligence.scan.application.dto.RequestScanCommand;
 import com.dependencyintelligence.scan.application.dto.ScanResult;
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
+import com.dependencyintelligence.scan.application.port.in.FindScanHistory;
+import com.dependencyintelligence.scan.application.dto.ScanHistoryItem;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,11 +18,20 @@ import com.dependencyintelligence.identity.infrastructure.security.AuthorizedRep
 @RequestMapping("/api/organizations/{organizationId}/repositories/{repositoryId}/scans")
 public class ScanController {
     private final RequestScan requestScan;
+    private final FindScanHistory history;
     private final AuthorizedRepositoryActions access;
 
-    public ScanController(RequestScan requestScan, AuthorizedRepositoryActions access) {
+    public ScanController(RequestScan requestScan, FindScanHistory history, AuthorizedRepositoryActions access) {
         this.requestScan = requestScan;
+        this.history = history;
         this.access = access;
+    }
+
+    @GetMapping
+    public ResponseEntity<java.util.List<ScanHistoryItem>> history(@PathVariable UUID organizationId,
+            @PathVariable UUID repositoryId, Principal principal) {
+        return ResponseEntity.ok(access.execute(principal, organizationId, repositoryId, "scan.read",
+            () -> history.execute(organizationId, repositoryId)));
     }
 
     @PostMapping

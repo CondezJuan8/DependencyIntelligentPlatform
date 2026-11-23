@@ -74,6 +74,29 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
         return tenants.execute(organizationId, () -> readInventory(scannerName, organizationId, repositoryId, null));
     }
 
+    @Override public void saveFailure(String scannerName, UUID organizationId, UUID repositoryId, String provider,
+            String sourceSha256, String commitSha, Instant failedAt, String reason) {
+        tenants.execute(organizationId, () -> {
+            UUID scanId = UUID.randomUUID();
+            boolean local = "local".equals(provider);
+            String safeReason = reason == null || reason.isBlank() ? "El análisis falló sin detalle adicional." : reason;
+            jdbc.update("""
+                insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
+                  failure_reason,origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,coverage_status,coverage_message)
+                values(?,?,?,?, 'FAILED',?,?,?, ?,?, ?,?,'MANUAL',?,0,0,'PARTIAL',?)
+                """, scanId, organizationId, repositoryId, local ? null : commitSha, Timestamp.from(failedAt),
+                 Timestamp.from(failedAt), Timestamp.from(failedAt), safeReason, local ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN",
+                 scannerName, scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, safeReason);
+            if (commitSha != null && !local) {
+                jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
+                    organizationId, repositoryId, commitSha);
+                jdbc.update("update scans set repository_commit_id=(select id from repository_commits where organization_id=? and repository_id=? and commit_sha=?) where organization_id=? and id=?",
+                    organizationId, repositoryId, commitSha, organizationId, scanId);
+            }
+            return null;
+        });
+    }
+
     private Optional<MavenInventory> readInventory(String scannerName, UUID organizationId, UUID repositoryId, UUID scanId) {
         var scans = jdbc.query("""
             select id,origin,source_sha256,git_reference,finished_at,manifest_count,unresolved_count,coverage_status,coverage_message

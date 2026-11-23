@@ -22,8 +22,11 @@ import com.dependencyintelligence.repository.application.usecase.DeleteRepositor
 import com.dependencyintelligence.repository.application.usecase.FindRepositoryVulnerabilityEvidenceUseCase;
 import com.dependencyintelligence.repository.application.usecase.RegisterRepositoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
+import com.dependencyintelligence.scan.application.port.in.FindScanHistory;
+import com.dependencyintelligence.scan.application.port.out.ScanHistoryReader;
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
 import com.dependencyintelligence.scan.application.usecase.RequestScanUseCase;
+import com.dependencyintelligence.scan.application.usecase.FindScanHistoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.AnalyzeMavenRepository;
 import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSource;
 import com.dependencyintelligence.scan.application.port.out.MavenManifestReader;
@@ -91,6 +94,10 @@ public class UseCaseConfiguration {
         return command -> transactions.execute(command.organizationId(), () -> useCase.execute(command));
     }
 
+    @Bean FindScanHistory findScanHistory(ScanHistoryReader history) {
+        return new FindScanHistoryUseCase(history);
+    }
+
     @Bean AnalyzeMavenRepositoryUseCase analyzeMavenRepository(RepositoryAnalysisSource source, MavenManifestReader reader,
             MavenAnalysisStore store, Clock clock) {
         return new AnalyzeMavenRepositoryUseCase(source, reader, store, clock);
@@ -101,8 +108,8 @@ public class UseCaseConfiguration {
     }
 
     @Bean AnalyzeRepositoryUseCase analyzeRepository(RepositoryAnalysisSource source, AnalyzeMavenRepositoryUseCase maven,
-            AnalyzeNpmRepositoryUseCase npm) {
-        return new AnalyzeRepositoryUseCase(source, maven, npm);
+            AnalyzeNpmRepositoryUseCase npm, MavenAnalysisStore scans, Clock clock) {
+        return new AnalyzeRepositoryUseCase(source, maven, npm, scans, clock);
     }
 
     @Bean FilterInventory filterInventory(FindAccountWorkspace workspace, InventoryCatalogReader reader) {
