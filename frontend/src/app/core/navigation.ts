@@ -36,9 +36,9 @@ export const navigation = [
     id: 'documentation',
     label: 'Documentación',
     icon: 'document',
-    ready: false,
+    ready: true,
     description:
-      'Organiza documentación técnica y consulta respuestas con evidencia. La búsqueda y el asistente llegarán en su fase.',
+      'Guarda, versiona y busca documentos técnicos asociados a repositorios.',
   },
   {
     id: 'reports',
