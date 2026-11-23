@@ -2,6 +2,7 @@ import { PlatformAdministration } from '../features/administration/platform-admi
 import { RepositoryWorkspace } from '../features/repositories/repository-workspace';
 import { InventoryWorkspace } from '../features/inventory/inventory-workspace';
 import { VulnerabilitiesWorkspace } from '../features/vulnerabilities/vulnerabilities-workspace';
+import { AnalysisWorkspace } from '../features/scans/analysis-workspace';
 import { AccountSettings } from '../features/identity/account-settings';
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,7 +20,7 @@ import { WorkspaceTopbar } from './workspace-topbar';
 import { WorkspaceSettingsService } from '../core/workspace-settings.service';
 @Component({
   selector: 'app-application-shell',
-  imports: [PlatformAdministration,RepositoryWorkspace,InventoryWorkspace,VulnerabilitiesWorkspace,AccountSettings,
+  imports: [PlatformAdministration,RepositoryWorkspace,InventoryWorkspace,VulnerabilitiesWorkspace,AnalysisWorkspace,AccountSettings,
     WorkspaceSidebar,
     WorkspaceTopbar,
     MatButtonModule,

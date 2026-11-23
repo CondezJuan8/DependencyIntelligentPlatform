@@ -26,6 +26,7 @@
 @case ('repositories') { @defer(on immediate){<app-invitation-acceptance/><app-repository-workspace/>}@loading{<p role="status">Cargando repositorios…</p>} }
 @case ('inventory') { @defer(on immediate){<app-inventory-workspace/>}@loading{<p role="status">Cargando inventario…</p>} }
 @case ('vulnerabilities') { @defer(on immediate){<app-vulnerabilities-workspace/>}@loading{<p role="status">Cargando vulnerabilidades…</p>} }
+@case ('analysis') { @defer(on immediate){<app-analysis-workspace (openInventory)="openInventory($event)"/>}@loading{<p role="status">Cargando análisis…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
             <app-dashboard (manage)="go('organization')" (connectRepository)="go('repositories')" (openInventory)="openInventory($event)" />

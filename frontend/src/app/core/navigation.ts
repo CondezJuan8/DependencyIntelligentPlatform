@@ -28,9 +28,9 @@ export const navigation = [
     id: 'analysis',
     label: 'Análisis',
     icon: 'analysis',
-    ready: false,
+    ready: true,
     description:
-      'Ejecuta análisis sobre commits reales. Primero conectaremos repositorios y el procesamiento de Maven y npm.',
+      'Inicia análisis Maven y npm, consulta su historial, commit, cobertura y errores.',
   },
   {
     id: 'documentation',
