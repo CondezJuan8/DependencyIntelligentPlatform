@@ -47,6 +47,15 @@ import com.dependencyintelligence.sbom.application.usecase.ImportSbomUseCase;
 import com.dependencyintelligence.document.application.port.in.ManageDocuments;
 import com.dependencyintelligence.document.application.port.out.DocumentLibrary;
 import com.dependencyintelligence.document.application.usecase.ManageDocumentsUseCase;
+import com.dependencyintelligence.assistant.application.port.in.AskAssistant;
+import com.dependencyintelligence.assistant.application.port.in.IndexDocuments;
+import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.AnswerGeneration;
+import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.ConversationStore;
+import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.Embeddings;
+import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.EvidenceSearch;
+import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.IndexableChunks;
+import com.dependencyintelligence.assistant.application.usecase.AskAssistantUseCase;
+import com.dependencyintelligence.assistant.application.usecase.IndexDocumentsUseCase;
 
 /** Composition root owns framework wiring and use case transaction boundaries. */
 @Configuration
@@ -120,5 +129,9 @@ public class UseCaseConfiguration {
     }
 
     @Bean ManageDocuments manageDocuments(DocumentLibrary documents) { return new ManageDocumentsUseCase(documents); }
+    @Bean AskAssistant askAssistant(Embeddings embeddings, EvidenceSearch search, AnswerGeneration answers, ConversationStore conversations) {
+        return new AskAssistantUseCase(embeddings, search, answers, conversations);
+    }
+    @Bean IndexDocuments indexDocuments(Embeddings embeddings, IndexableChunks chunks) { return new IndexDocumentsUseCase(embeddings, chunks); }
 
 }

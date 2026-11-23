@@ -8,7 +8,10 @@ services:
       - "127.0.0.1:${MAILPIT_WEB_PORT:-8025}:8025"
       - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
   database:
-    image: postgres:17.7-alpine
+    image: dependency-intelligence-postgres:17.7-alpine-pgvector-0.8.7
+    build:
+      context: ./infra/database
+      dockerfile: Dockerfile.pgvector
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dependency_intelligence}
       POSTGRES_USER: ${POSTGRES_USER:-dependency}
@@ -68,6 +71,11 @@ services:
       OSV_READ_TIMEOUT: ${OSV_READ_TIMEOUT:-PT15S}
       OSV_ASSESSMENT_MAX_AGE: ${OSV_ASSESSMENT_MAX_AGE:-PT24H}
       OSV_BATCH_SIZE: ${OSV_BATCH_SIZE:-100}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-}
+      OLLAMA_EMBEDDING_REVISION: ${OLLAMA_EMBEDDING_REVISION:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
       DEPENDENCY_INTELLIGENCE_SCANNER_CDXGEN_URL: http://cdxgen-scanner:9090
       DEPENDENCY_INTELLIGENCE_SCANNER_WORKSPACE: /app/scanner-work
       OAUTH_AUTHORIZATION_LIFETIME: ${OAUTH_AUTHORIZATION_LIFETIME:-PT5M}

@@ -12,6 +12,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.dependencyintelligence.assistant.infrastructure.AiProviderUnavailableException.class)
+    public ProblemDetail aiProviderUnavailable(com.dependencyintelligence.assistant.infrastructure.AiProviderUnavailableException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
+    }
     @ExceptionHandler(com.dependencyintelligence.organization.application.exception.AccessConflictException.class)
     public ProblemDetail accessConflict(RuntimeException exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());

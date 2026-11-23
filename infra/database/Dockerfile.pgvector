@@ -1,0 +1,9 @@
+# Preserve the exact PostgreSQL/Alpine base used by the existing volume while adding pgvector.
+FROM postgres:17.7-alpine
+RUN apk add --no-cache --virtual .pgvector-build-deps build-base git \
+    && git clone --depth 1 --branch v0.8.7 https://github.com/pgvector/pgvector.git /tmp/pgvector \
+    && make -C /tmp/pgvector clean \
+    && make -C /tmp/pgvector with_llvm=no \
+    && make -C /tmp/pgvector with_llvm=no install \
+    && apk del .pgvector-build-deps \
+    && rm -rf /tmp/pgvector

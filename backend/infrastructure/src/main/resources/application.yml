@@ -61,6 +61,16 @@ server:
     include-message: never
     include-stacktrace: never
 app:
+  ai:
+    request-timeout: ${AI_REQUEST_TIMEOUT:PT45S}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      embedding-model: ${OLLAMA_EMBEDDING_MODEL:}
+      embedding-revision: ${OLLAMA_EMBEDDING_REVISION:}
+    gemini:
+      base-url: ${GEMINI_API_BASE_URL:https://generativelanguage.googleapis.com}
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:}
   vulnerability:
     osv:
       base-url: ${OSV_API_BASE_URL:https://api.osv.dev}
