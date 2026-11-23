@@ -1,3 +1,12 @@
+### Bloque 66 — Inventario (petición 5, 22/11/2026)
+
+- **Catálogo del espacio (RF-041–046).** Agrupa por ecosistema, namespace y nombre exacto. Cuenta versiones distintas y repositorios accesibles. Usa el último análisis completado por ecosistema y repositorio. En cuentas con varios espacios se selecciona una organización y, si hace falta, un repositorio.
+- **Búsqueda y prioridad.** Busca nombre, coordenada, versión, archivo y repositorio. Combina filtros de versión exacta, ecosistema, ámbito, tipo, estado OSV y severidad. Los filtros se aplican a la misma aparición antes de agrupar. La severidad representa avisos observados. Los resultados desactualizados, incompletos o pendientes de consulta aparecen como datos por revisar.
+- **Detalle.** Al abrir un paquete se consultan sus apariciones con versión, repositorio, tipo, archivo o referencia SBOM, fecha y procedencia. Desde cada aparición se puede abrir el inventario del repositorio en la versión seleccionada o buscar esa versión en Grafo. Los avisos completos y las versiones corregidas se muestran en la vista por repositorio.
+- **Alcance y rendimiento.** El catálogo y las apariciones se consultan sobre PostgreSQL y se paginan. La pantalla pide 25 resultados por página. La API filtra por los repositorios que la cuenta puede leer antes de entrar a la transacción de la organización. La vista por repositorio conserva las acciones de análisis y OSV. Agregar o consultar un filtro del catálogo usa lecturas guardadas.
+
+El historial comparativo por commit se define en la petición 12. La petición 6 revisará el recorrido del Grafo.
+
 ### Bloque 65 — carga de 300 MiB y consistencia del análisis (22/11/2026)
 
 - **Carga local:** hasta 300 MiB de contenido (314.572.800 bytes) y 50.000 archivos. Nginx y Spring/Tomcat admiten un cuerpo multipart de 512 MiB para incluir nombres y metadatos. El ZIP remoto de GitHub también admite hasta 300 MiB. Los lectores del scanner admiten 50.000 archivos y hasta 512 MiB descomprimidos. Los límites por POM, lockfile y SBOM siguen protegiendo cada parser.
@@ -129,7 +138,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 2. **Identidad, roles y ajustes:** acceso, aprobación, matriz de permisos, organización, perfil, preferencias y métodos de acceso. **Requisitos cerrados en el bloque 62.**
 3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente. **Requisitos cerrados en el bloque 63.**
 4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm. **Requisitos cerrados en el bloque 64.**
-5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados.
+5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados. **Implementado en el bloque 66.**
 6. **Grafo:** relaciones permitidas, vistas, filtros, búsqueda, navegación y límites para repositorios grandes.
 7. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas.
 8. **Pantalla Vulnerabilidades:** agrupación, severidad, filtros, priorización, estados de revisión, versiones corregidas y referencias.
@@ -141,7 +150,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 14. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
 15. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
 
-Primero se fijan datos, acceso y scanner. Después se detallan las pantallas y sus flujos. El plan termina con IA, validación de cambios y operación. La siguiente es la **petición 5**, Inventario.
+Primero se fijan datos, acceso y scanner. Después se detallan las pantallas y sus flujos. El plan termina con IA, validación de cambios y operación. La siguiente es la **petición 6**, Grafo.
 
 ### Bloque 60 — mapa actual del producto y las cuatro pantallas pendientes (22 de noviembre de 2026)
 
@@ -318,7 +327,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
 | SBOM/componentes — RF-022–032 | cdxgen aislado integrado en Inventario para Maven y npm. Persiste componentes y relaciones verificadas con estado de cobertura. | Validar el recorrido autenticado y distinguir fallos y cobertura incompleta. Maven transitivo sigue parcial. Ver bloque 64. | Fuente autorizada, scanner, artefactos |
 | Vulnerabilidades — RF-033–040 | OSV integrado por versión exacta. Guarda evaluaciones con evidencia por scan y ocurrencia. | Verificar asociación en UI por scan, mostrar rangos y versiones corregidas del paquete correcto y validar fallo y reintento. Ver bloque 64. | OSV, snapshots de scanner, Inventario |
-| Inventario — RF-041–046 | Escritura de ocurrencias, sin consulta de inventario ni UI | Búsqueda/filtros/paginación, versiones, repositorios y directa/transitiva solo con evidencia | SBOM/grafo y permisos |
+| Inventario — RF-041–046 | Catálogo paginado por organización y repositorio, búsqueda y filtros combinables, versiones y apariciones con procedencia, tipo y estados OSV. Ver bloque 66. | Revisión visual en móvil y con sesión real. Historial comparativo en la petición 12. | Snapshots, grafo y permisos |
 | Grafo — RF-047–052 | Aristas normalizadas con extremos del mismo snapshot | Importar/consultar aristas y navegar rutas/riesgos en UI | Parser/scanner, OSV, permisos |
 | Historial/comparación — RF-053–059 | Snapshots importados con procedencia | Consulta por commit y comparación añadidos/eliminados/actualizados del mismo repositorio | Nuevo modelo, inventario |
 | Recomendaciones — RF-060–065 | Pendiente | Versiones candidatas/corregidas, cambios documentados, riesgos, evidencia y pruebas sugeridas | OSV, releases/documentos, comparación |

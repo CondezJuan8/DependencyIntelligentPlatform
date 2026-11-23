@@ -1,3 +1,7 @@
+### Bloque 66 — catálogo de Inventario (22/11/2026)
+
+Angular usa señales y RxJS para combinar filtros, cancelar peticiones previas y cargar apariciones bajo demanda. Java y Spring JDBC ejecutan las consultas parametrizadas sobre PostgreSQL con los permisos y la evidencia OSV existentes. El catálogo pagina en la API y reutiliza los tokens de tema. El esquema y las dependencias de producto permanecen en la misma versión.
+
 ### Actualización del bloque 59 — scanner Maven e Inventario (22/11/2026)
 
 Java 21 / Infrastructure: fallback estático Maven desde POM incluidos, con herencia de propiedades y `dependencyManagement`/BOM local; límites de entrada preservados y sin invocar Maven. Angular/TypeScript/SCSS: resumen de estado por ecosistema, cobertura explicable, filtros rápidos y avanzados y contador de resultados. Sin paquetes nuevos, cambios de esquema ni cambios al adaptador OSV. Build y pruebas focales constan en la bitácora. OMEGA requiere reanálisis desde UI para validar conteos reales.

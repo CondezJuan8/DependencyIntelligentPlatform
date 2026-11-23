@@ -1,9 +1,15 @@
+Actualización del bloque 66 (22 de noviembre de 2026). La petición 5 incorpora el catálogo paginado del espacio, filtros por seguridad y alcance, y detalle de apariciones con enlaces al repositorio y al grafo. La referencia funcional está en el [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
+
+- [ ] Revisar la experiencia con la sesión real del usuario en OMEGA y Bot de WhatsApp. Los snapshots existentes se consultaron en solo lectura.
+- [ ] Petición 6: revisar Grafo con los repositorios grandes y las relaciones verificadas.
+- [ ] Petición 12: historial y comparación de la presencia de un paquete entre análisis.
+
 Actualización del bloque 65 (22 de noviembre de 2026). Las correcciones de la petición 4 ya usan una sola fuente por análisis y reproducen la evidencia OSV del scan mostrado. Se acordó un límite de 300 MiB y 50.000 archivos.
 
 - [x] Fijar una fuente única por acción, asociar la evidencia OSV al `scanId` y filtrar las versiones corregidas por paquete y ecosistema.
 - [x] Conservar el último inventario válido al fallar un reanálisis. Conciliar omisiones de CycloneDX con POM y lockfiles y distinguir ausencia de manifiesto, cobertura y fallo.
 - [x] Comprobar en un entorno Docker desechable la carga autenticada de 300 MiB y 50.000 archivos, los resultados Maven/npm con el mismo hash, una transitiva npm scoped, la selección de OSV por scan y la persistencia en Inventario y Grafo.
-- [ ] Confirmar la presentación interactiva en los repositorios reales del usuario. Maven mantiene cobertura parcial para padres, BOM remotos y transitivas sin evidencia local. La petición 5 sigue centrada en el catálogo y los filtros de Inventario.
+- [ ] Confirmar la presentación interactiva en los repositorios reales del usuario. Maven mantiene cobertura parcial para padres, BOM remotos y transitivas sin evidencia local.
 
 Actualización del bloque 63 (22 de noviembre de 2026). **Petición 3 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) recoge importación, permisos, procedencia y retención de las dos fuentes. La descarga e importación confirmadas en Dinamita corresponden a la validación anterior.
 

@@ -1,5 +1,9 @@
 # Paleta y criterios de revisión del frontend
 
+### Bloque 66 — catálogo de Inventario
+
+Inventario abre el catálogo del espacio y ofrece la vista por repositorio para iniciar escaneos, repetir OSV o consultar un aviso completo. El catálogo mantiene los filtros al volver de una revisión. La lista se pagina y solo carga apariciones al abrir una fila. Las apariciones muestran repositorio, versión, relación, ruta y procedencia desplegable. Los controles tienen etiquetas, foco visible y estados anunciados. El diseño se adapta a una columna en pantallas reducidas y usa los tokens existentes para ambos temas.
+
 ### Bloque 51 — mapa de dependencias por capas
 
 El grafo de Inventario ahora distribuye proyecto, directas y transitivas de izquierda a derecha por profundidad. Angular consolida ocurrencias con la misma identidad de paquete, versión y ecosistema en una tarjeta y conserva rutas/ámbitos para el detalle; las relaciones compartidas convergen en ese nodo. Las tarjetas muestran nombre/versión, los bordes identifican tipo, y búsqueda resalta coincidencias con su ruta de padres. El panel separa dependencias declaradas y paquetes que utilizan el nodo. El listado accesible mantiene todas las entradas; el canvas limita a 1.000 nodos por respuesta, prioriza niveles cercanos y enfoca búsquedas/selecciones grandes. Cytoscape usa layout preset y cálculo BFS O(V+E); no se añadió biblioteca ni se cambió API/base de datos. La revisión de tipos de TypeScript (44 archivos) y el parseo del template pasan; build completa y revisión visual en Compose quedan pendientes porque Node/npm CLI y el host de navegador no están disponibles. Ver [diseño](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).

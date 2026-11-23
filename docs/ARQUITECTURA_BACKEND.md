@@ -1,3 +1,7 @@
+## Bloque 66 — consulta del catálogo de Inventario
+
+Application autoriza el conjunto de repositorios mediante `FindAccountWorkspace` y delega la lectura a `InventoryCatalogReader`. Infrastructure aplica RLS en `TenantTransactions` y usa consultas acotadas para snapshots, apariciones y evidencia OSV. `GET /api/organizations/{organizationId}/inventory` agrega las apariciones filtradas y entrega una página de paquetes. `GET /api/organizations/{organizationId}/inventory/occurrences` devuelve las apariciones de un paquete exacto con los mismos filtros. El esquema permanece en V26.
+
 ## Bloque 65 — una fuente por análisis y evaluación OSV por scan
 
 El caso de uso de Application abre una fuente a través de `RepositoryAnalysisSource` y entrega la misma instantánea a ambos lectores. Infrastructure compara CycloneDX con POM y lockfiles estáticos. Si falta un manifiesto se registra la ausencia para que una recarga no muestre un inventario de una fuente anterior como vigente. Los resultados y errores de cada ecosistema se entregan por separado. V26 guarda la ruta del manifiesto y mantiene la lectura de las ocurrencias históricas.

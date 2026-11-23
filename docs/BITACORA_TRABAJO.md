@@ -1431,3 +1431,19 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Operación.** Se aplicó V26 a Compose y se recrearon los contenedores de API y web para servir el nuevo código en `localhost:8089`. El despliegue conserva los servicios de PostgreSQL, Mailpit y scanner. `/health` devolvió `UP` y la página de Inventario devolvió HTTP 200.
 
 **Siguiente paso.** Revisar Inventario con los repositorios reales del usuario. Maven mantiene cobertura parcial para dependencias que requieren resolver transitivas, padres o BOM remotos.
+
+## Bloque 66 — catálogo de Inventario (petición 5, 22/11/2026)
+
+**Petición.** Completar el catálogo de paquetes y versiones, facilitar la priorización de avisos y conservar la procedencia al navegar al repositorio.
+
+**Cambios.** Se añadió la vista por organización con páginas de 25 identidades. Las búsquedas y los filtros se aplican a las apariciones autorizadas. El detalle ordena por versión y repositorio y permite abrir la evidencia completa del repositorio o buscar la versión en Grafo. El catálogo mantiene los filtros al volver del detalle. La vista por repositorio conserva sus acciones de scanner y OSV y también pagina sus paquetes.
+
+**Herramientas utilizadas.** Java 21, Maven, JUnit, Spring JDBC, PostgreSQL y RLS, Angular, RxJS, TypeScript, SCSS, Node.js, Chrome y Docker Compose. Las consultas leen las tablas vigentes en V26. Se reutilizaron los permisos de `FindAccountWorkspace`, la evidencia OSV existente y los tokens de ambos temas.
+
+**Verificación.** Pasó la prueba unitaria de alcance por repositorio y Angular compiló con advertencias de presupuesto. La API autenticada, con dos repositorios desechables, devolvió 223 paquetes y 224 versiones. Se verificaron páginas, consulta por archivo, severidad combinada con tipo y exclusión del repositorio sin permiso para el miembro. Las diez lecturas del catálogo y el detalle del caso de propietario sumaron aproximadamente 21 segundos en Compose local. La consulta inicial excedía el tiempo límite y se cambió por lecturas acotadas de snapshots, apariciones y evidencia.
+
+**Navegador y datos de usuario.** Chrome automatizado pasó la paginación, búsqueda, apertura de dos apariciones, detalle OSV, filtro conservado al volver, tema oscuro y enlace al Grafo. Se comprobó una ventana de 375 px sin desplazamiento horizontal. En solo lectura, los análisis guardados de OMEGA tienen 270 versiones npm y 7 Maven y los de Bot de WhatsApp tienen 284 versiones npm. El recorrido interactivo se hizo con el espacio desechable.
+
+**Operación.** Compose quedó actualizado en `localhost:8089`. La ruta de Inventario respondió HTTP 200 y `/health` devolvió `UP`. PostgreSQL, Mailpit y cdxgen conservaron sus servicios y volúmenes.
+
+**Siguiente paso.** Petición 6, Grafo. Mantener la comparación de presencia entre análisis en la petición 12.
