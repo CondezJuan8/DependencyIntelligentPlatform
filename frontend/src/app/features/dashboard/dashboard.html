@@ -91,32 +91,30 @@
   </div>
 </section>
 
-<div class="dashboard-grid">
-  <section class="panel" aria-labelledby="recent-analyses-heading">
-    <div class="panel-title"><div><h2 id="recent-analyses-heading">Análisis recientes</h2><p>Último snapshot disponible por ecosistema y repositorio.</p></div><span class="di-tag">{{ analyses().length }}</span></div>
-    @for (analysis of analyses().slice(0, 6); track analysis.scanId) {
-      <button class="organization-row analysis-row" (click)="openInventory.emit(analysis.repositoryId)">
-        <span class="organization-avatar"><app-di-icon name="analysis" /></span>
-        <span>{{ analysis.repositoryName }}<small>{{ analysis.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }} · {{ analysisVersionCount(analysis) }} versiones · {{ analysis.coverageStatus === 'PARTIAL' ? 'Cobertura parcial' : 'Cobertura completa' }} · {{ analysis.analyzedAt | date:'short' }}</small></span>
-        <app-di-icon name="arrow" />
-      </button>
-    } @empty {
-      @if (!loading()) { <div class="compact-empty"><h3>Aún no hay análisis</h3><p>Abre un repositorio en Inventario para iniciar el primer análisis.</p>@if (repositories().length) { <button mat-stroked-button (click)="openInventory.emit(repositories()[0].id)">Ir a Inventario</button> }</div> }
-    }
-  </section>
-
-  <section class="panel coverage-panel" aria-labelledby="coverage-heading">
-    <div class="panel-title"><div><h2 id="coverage-heading">Cobertura de análisis</h2><p>Estado informado por el scanner para los snapshots actuales.</p></div></div>
-    @if (analyses().length) {
-      <div class="coverage-summary"><div><strong>{{ completeAnalysisCount }}</strong><span>Análisis completos</span></div><div><strong>{{ partialAnalysisCount }}</strong><span>Análisis parciales</span></div></div>
-      @for (analysis of analyses().slice(0, 5); track analysis.scanId) {
-        <div class="coverage-row"><span>{{ analysis.repositoryName }} · {{ analysis.ecosystem === 'MAVEN' ? 'Maven' : 'npm' }}</span><span class="coverage-status" [class.partial]="analysis.coverageStatus === 'PARTIAL'">{{ analysis.coverageStatus === 'PARTIAL' ? 'Parcial' : 'Completa' }}</span><small>{{ analysis.unresolvedCount }} elementos sin resolver</small></div>
+<section class="panel analysis-panel" aria-labelledby="recent-analyses-heading">
+  <div class="panel-title">
+    <div>
+      <h2 id="recent-analyses-heading">Análisis recientes</h2>
+      <p>Último snapshot disponible por ecosistema y repositorio.</p>
+      @if (analyses().length) {
+        <div class="analysis-summary">
+          <span><strong>{{ completeAnalysisCount }}</strong><span>Análisis completos</span></span>
+          <span><strong>{{ partialAnalysisCount }}</strong><span>Análisis parciales</span></span>
+        </div>
       }
-    } @else if (!loading()) {
-      <div class="compact-empty"><app-di-icon name="analysis" /><h3>La cobertura aparecerá tras analizar</h3><p>El estado y los elementos sin resolver se toman del resultado del scanner.</p></div>
-    } @else { <p class="loading-state" role="status">Consultando snapshots…</p> }
-  </section>
-</div>
+    </div>
+    <span class="di-tag">{{ analyses().length }}</span>
+  </div>
+  @for (analysis of analyses().slice(0, 6); track analysis.scanId) {
+    <button class="organization-row analysis-row" (click)="openInventory.emit(analysis.repositoryId)">
+      <span class="organization-avatar"><app-di-icon name="analysis" /></span>
+      <span>{{ analysis.repositoryName }}<small>{{ analysis.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }} · {{ analysisVersionCount(analysis) }} versiones · {{ analysis.coverageStatus === 'PARTIAL' ? 'Cobertura parcial' : 'Cobertura completa' }} · {{ analysis.unresolvedCount }} elementos sin resolver · {{ analysis.analyzedAt | date:'short' }}</small></span>
+      <app-di-icon name="arrow" />
+    </button>
+  } @empty {
+    @if (!loading()) { <div class="compact-empty"><h3>Aún no hay análisis</h3><p>Abre un repositorio en Inventario para iniciar el primer análisis.</p>@if (repositories().length) { <button mat-stroked-button (click)="openInventory.emit(repositories()[0].id)">Ir a Inventario</button> }</div> }
+  }
+</section>
 
 @if (!isMember()) {
   <div class="secondary-grid">

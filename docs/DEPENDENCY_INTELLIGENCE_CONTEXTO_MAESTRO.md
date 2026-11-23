@@ -1,3 +1,7 @@
+### Bloque 72 — análisis y cobertura en una sola sección (23/11/2026)
+
+Se unificó la información repetida del Dashboard en «Análisis recientes»: estado completo/parcial, totales por estado, versiones, elementos sin resolver, ecosistema y fecha por snapshot. Se retiró el panel separado de cobertura. La imagen del frontend se reconstruyó y se actualizó únicamente ese contenedor; HTTP 200 y chunk verificados.
+
 ### Bloque 71 — actualización del frontend Compose (23/11/2026)
 
 Se reconstruyó y recreó solo el servicio frontend. El recurso de Dashboard servido en `localhost:8089` responde HTTP 200 y el chunk actual no contiene el grafo ni el antiguo panel de tendencia. Se conservaron el contador de versiones y la cobertura. Backend, base, scanner y Mailpit continuaron activos. La revisión visual del usuario aún falta.

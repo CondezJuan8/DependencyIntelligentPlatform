@@ -1,3 +1,10 @@
+## Bloque 72 — unificar análisis recientes y cobertura del Dashboard (23 de noviembre de 2026)
+
+- [x] Quitar el panel duplicado de cobertura y mostrar los contadores completo/parcial dentro de Análisis recientes.
+- [x] Añadir elementos sin resolver a cada snapshot, conservando ecosistema, versiones, estado y fecha.
+- [x] Reconstruir y actualizar solo el frontend de Compose; la vista servida responde HTTP 200.
+- [ ] Revisión visual del usuario en localhost.
+
 ## Bloque 71 — limpiar restos del panel y publicar Dashboard en Compose (23 de noviembre de 2026)
 
 - [x] Retirar del diccionario de idiomas los últimos textos del panel de tendencia eliminado.

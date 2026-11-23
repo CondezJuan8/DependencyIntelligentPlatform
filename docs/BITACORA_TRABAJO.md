@@ -37,6 +37,19 @@ Fecha: 23 de noviembre de 2026 (America/Bogota).
 **Siguiente paso.** Recargar el Dashboard en el navegador y confirmar su presentación; después continuar la petición 7 del contexto maestro.
 
 
+## Bloque 72 — eliminar duplicación entre cobertura y análisis (23/11/2026)
+
+**Petición.** Evitar repetir en dos paneles la misma información del scanner en el Dashboard.
+
+**Cambios.** «Análisis recientes» es la única sección para snapshots. Resume cuántos están completos o parciales y cada fila muestra ecosistema, versiones únicas, estado de cobertura, elementos sin resolver y fecha. Se eliminó el panel de cobertura redundante y su CSS/traducciones que ya no se usan.
+
+**Herramientas y tecnologías.** Angular, HTML, SCSS, diccionario de idioma y Docker Compose; inspección estática con `rg`. Sin dependencias, API ni base de datos nuevas.
+
+**Verificación.** `docker compose build frontend` compiló correctamente (con advertencias existentes de presupuesto Angular). Se recreó solo `frontend` con `docker compose up -d --no-deps frontend`. `localhost:8089` respondió HTTP 200; el chunk actualizado contiene el resumen completo/parcial y elementos sin resolver, y ya no contiene el panel separado. Backend, PostgreSQL, scanner y Mailpit siguen activos. No se ejecutaron pruebas adicionales.
+
+**Siguiente paso.** Revisar el panel unificado en el navegador y continuar con la petición 7 del contexto maestro.
+
+
 ---
 
 # Bitácora de trabajo
