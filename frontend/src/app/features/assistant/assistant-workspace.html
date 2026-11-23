@@ -1,0 +1,43 @@
+<section class="assistant-page">
+  <header class="page-heading">
+    <div><p class="eyebrow">{{ preferences.text('DOCUMENTACIÓN CON EVIDENCIA') }}</p><h1>{{ preferences.text('Asistente de documentación') }}</h1>
+      <p>{{ preferences.text('Pregunta sobre documentos de tus repositorios y revisa las fuentes de cada respuesta.') }}</p></div>
+    <label class="organization-picker">{{ preferences.text('Espacio') }}
+      <select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending()">
+        @for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }
+      </select>
+    </label>
+  </header>
+
+  <section class="assistant-card" aria-labelledby="assistant-title">
+    <div class="section-heading"><div><h2 id="assistant-title">{{ preferences.text('Asistente del espacio') }}</h2>
+      <p>{{ preferences.text('Solo consulta documentos asociados a repositorios que puedes ver. Las respuestas incluyen citas.') }}</p></div>
+      <button type="button" class="secondary" [disabled]="indexing() || !organizationId()" (click)="indexDocuments()">
+        {{ indexing() ? preferences.text('Preparando documentos…') : preferences.text('Preparar documentos para búsqueda') }}
+      </button>
+    </div>
+    @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
+    @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    <div class="conversation" aria-live="polite" aria-relevant="additions text">
+      @if (!turns().length) { <div class="empty"><span aria-hidden="true">✦</span><h3>{{ preferences.text('Empieza con una pregunta concreta') }}</h3>
+        <p>{{ preferences.text('Por ejemplo: ¿qué decisiones de arquitectura documentamos para este repositorio?') }}</p></div> }
+      @for (turn of turns(); track $index) {
+        <article class="turn" [class.user-turn]="turn.role === 'USER'" [class.assistant-turn]="turn.role === 'ASSISTANT'">
+          <strong>{{ turn.role === 'USER' ? preferences.text('Tú') : preferences.text('Asistente') }}</strong>
+          <p>{{ turn.content }}</p>
+          @if (turn.citations?.length) { <ol class="citations" [attr.aria-label]="preferences.text('Fuentes consultadas')">
+            @for (citation of turn.citations; track citation.chunkId; let index = $index) {
+              <li><strong>[{{ index + 1 }}] {{ citation.documentName }}</strong><span>{{ citation.filename }}@if(citation.page){ · {{ preferences.text('página') }} {{ citation.page }} }@if(citation.section){ · {{ citation.section }} }</span><blockquote>{{ citation.excerpt }}</blockquote></li>
+            }
+          </ol> }
+        </article>
+      }
+      @if (pending()) { <p class="working" role="status">{{ preferences.text('Buscando evidencia autorizada…') }}</p> }
+    </div>
+    <form class="composer" (submit)="ask($event)">
+      <label for="assistant-question">{{ preferences.text('Tu pregunta') }}</label>
+      <textarea id="assistant-question" rows="3" maxlength="4000" [value]="question()" (input)="question.set($any($event.target).value)" [placeholder]="preferences.text('Escribe una pregunta sobre la documentación del espacio…')" [disabled]="pending() || !organizationId()"></textarea>
+      <div class="composer-actions"><span>{{ question().length }}/4000</span><button type="submit" [disabled]="pending() || !question().trim() || !organizationId()">{{ pending() ? preferences.text('Consultando…') : preferences.text('Preguntar') }}</button></div>
+    </form>
+  </section>
+</section>

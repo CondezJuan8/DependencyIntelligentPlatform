@@ -41,6 +41,13 @@ export const navigation = [
       'Guarda, versiona y busca documentos técnicos asociados a repositorios.',
   },
   {
+    id: 'assistant',
+    label: 'Asistente',
+    icon: 'analysis',
+    ready: true,
+    description: 'Respuestas basadas en documentación autorizada, con citas verificables.',
+  },
+  {
     id: 'reports',
     label: 'Reportes',
     icon: 'report',

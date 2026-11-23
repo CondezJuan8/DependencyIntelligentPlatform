@@ -19,9 +19,10 @@ import { WorkspaceSidebar } from './workspace-sidebar';
 import { WorkspaceTopbar } from './workspace-topbar';
 import { WorkspaceSettingsService } from '../core/workspace-settings.service';
 import { DocumentCenter } from '../features/documents/document-center';
+import { AssistantWorkspace } from '../features/assistant/assistant-workspace';
 @Component({
   selector: 'app-application-shell',
-  imports: [PlatformAdministration,RepositoryWorkspace,InventoryWorkspace,VulnerabilitiesWorkspace,AnalysisWorkspace,AccountSettings,DocumentCenter,
+  imports: [PlatformAdministration,RepositoryWorkspace,InventoryWorkspace,VulnerabilitiesWorkspace,AnalysisWorkspace,AccountSettings,DocumentCenter,AssistantWorkspace,
     WorkspaceSidebar,
     WorkspaceTopbar,
     MatButtonModule,

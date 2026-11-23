@@ -1,0 +1,57 @@
+import { Component, inject, signal } from '@angular/core';
+import { finalize } from 'rxjs';
+import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
+import { PreferencesService } from '../../core/preferences.service';
+
+interface Answer { conversationId: string; messageId: string; answer: string; citations: Citation[]; status: string; model: string | null; }
+interface Citation { documentId: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
+interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; }
+
+@Component({ selector: 'app-assistant-workspace', templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
+export class AssistantWorkspace {
+  private readonly api = inject(SessionApiService);
+  readonly preferences = inject(PreferencesService);
+  readonly organizations = signal<Organization[]>([]);
+  readonly organizationId = signal('');
+  readonly question = signal('');
+  readonly conversationId = signal<string | null>(null);
+  readonly turns = signal<Turn[]>([]);
+  readonly pending = signal(false);
+  readonly indexing = signal(false);
+  readonly error = signal('');
+  readonly notice = signal('');
+
+  constructor() {
+    this.api.get<Organization[]>('/api/organizations').subscribe({
+      next: organizations => { this.organizations.set(organizations); this.organizationId.set(organizations[0]?.id ?? ''); },
+      error: error => this.error.set(accessError(error)),
+    });
+  }
+  changeOrganization(event: Event): void { this.organizationId.set((event.target as HTMLSelectElement).value); this.reset(); }
+  reset(): void { this.conversationId.set(null); this.turns.set([]); this.error.set(''); this.notice.set(''); }
+  indexDocuments(): void {
+    const org = this.organizationId(); if (!org || this.indexing()) return;
+    this.indexing.set(true); this.error.set(''); this.notice.set('');
+    this.api.post<{ indexed: number; failed: number; morePending: boolean }>(`/api/organizations/${org}/assistant/index`, {}).pipe(finalize(() => this.indexing.set(false))).subscribe({
+      next: result => { const more = result.morePending; const message = this.preferences.language() === 'en' ? 'Prepared ' + result.indexed + ' passages; ' + result.failed + ' failed.' + (more ? ' More remain; run this action again to continue.' : '') : 'Se prepararon ' + result.indexed + ' fragmentos; ' + result.failed + ' con error.' + (more ? ' Quedan más; ejecuta esta acción otra vez para continuar.' : ''); this.notice.set(message); },
+      error: error => this.error.set(accessError(error)),
+    });
+  }
+  ask(event: Event): void {
+    event.preventDefault();
+    const org = this.organizationId(), question = this.question().trim(); if (!org || !question || this.pending()) return;
+    this.turns.update(turns => [...turns, { role: 'USER', content: question }]);
+    this.question.set(''); this.pending.set(true); this.error.set(''); this.notice.set('');
+    this.api.post<Answer>(`/api/organizations/${org}/assistant/ask`, { conversationId: this.conversationId(), question })
+      .pipe(finalize(() => this.pending.set(false))).subscribe({
+        next: result => {
+          this.conversationId.set(result.conversationId);
+          const answer = result.status === 'NO_EVIDENCE' && this.preferences.language() === 'en'
+            ? 'I could not find authorized document evidence to answer this question. Link relevant documentation or ask a more specific question.'
+            : result.answer;
+          this.turns.update(turns => [...turns, { role: 'ASSISTANT', content: answer, citations: result.citations }]);
+        },
+        error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.error.set(accessError(error)); },
+      });
+  }
+}
