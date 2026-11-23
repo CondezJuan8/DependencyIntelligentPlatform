@@ -70,10 +70,10 @@ export function readPage(search: string): Page {
 }
 
 export function availableNavigation(account:{platformAdmin:boolean;accountType:string}|null){
- return navigation.filter(item=>(item.id!=='administration'||!!account?.platformAdmin)&&(!(account?.accountType==='MEMBER')||!['organization','dashboard'].includes(item.id)));
+ return navigation.filter(item=>(item.id!=='administration'||!!account?.platformAdmin)&&(!(account?.accountType==='MEMBER')||item.id!=='organization'));
 }
 export function initialPage(search:string,account:{platformAdmin:boolean;accountType:string}|null):Page{
- const fallback:Page=account?.platformAdmin?'administration':account?.accountType==='MEMBER'?'repositories':'dashboard';
+ const fallback:Page=account?.platformAdmin?'administration':'dashboard';
  const requested=new URLSearchParams(search).get('view');
  return availableNavigation(account).find(item=>item.id===requested)?.id??fallback;
 }

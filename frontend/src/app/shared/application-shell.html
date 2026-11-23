@@ -27,7 +27,7 @@
 @case ('inventory') { @defer(on immediate){<app-inventory-workspace/>}@loading{<p role="status">Cargando inventario…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
-            <app-dashboard (manage)="go('organization')" />
+            <app-dashboard (manage)="go('organization')" (connectRepository)="go('repositories')" (openInventory)="openInventory($event)" />
           } @loading {
             <p role="status">Cargando tu dashboard…</p>
           } @error {

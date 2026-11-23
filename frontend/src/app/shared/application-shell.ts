@@ -76,4 +76,10 @@ if(!availableNavigation(this.api.account()).some(item=>item.id===page))page=init
     if (url.href !== window.location.href)
       window.history.pushState(null, '', url.pathname + url.search);
   }
+  openInventory(repositoryId: string): void {
+    this.go('inventory');
+    const url = new URL(window.location.href);
+    url.searchParams.set('repositoryId', repositoryId);
+    window.history.replaceState(null, '', url.pathname + url.search);
+  }
 }

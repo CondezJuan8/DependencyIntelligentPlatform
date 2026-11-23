@@ -271,7 +271,15 @@ export class InventoryWorkspace implements OnInit {
     this.api.get<Repository[]>('/api/account/workspace').pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (items) => {
         this.repositories.set(items);
-        if (this.mode() === 'repository') this.setRepository(items[0] ?? null);
+        const requestedRepositoryId = new URLSearchParams(window.location.search).get('repositoryId');
+        const requestedRepository = requestedRepositoryId ? items.find(item => item.id === requestedRepositoryId) : undefined;
+        if (requestedRepository) {
+          this.mode.set('repository');
+          this.setRepository(requestedRepository);
+          const url = new URL(window.location.href);
+          url.searchParams.delete('repositoryId');
+          window.history.replaceState(null, '', url.pathname + url.search);
+        } else if (this.mode() === 'repository') this.setRepository(items[0] ?? null);
       },
       error: (failure) => this.error.set(accessError(failure)),
     });
