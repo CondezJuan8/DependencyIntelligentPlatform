@@ -1,0 +1,155 @@
+<section class="space-catalog" aria-labelledby="space-catalog-title">
+  <header class="catalog-intro">
+    <h2 id="space-catalog-title">{{ 'Catálogo del espacio' | t }}</h2>
+    <p>{{ 'Encuentra dependencias en los últimos análisis de los repositorios a los que tienes acceso.' | t }}</p>
+  </header>
+
+  <form class="catalog-controls" role="search" (submit)="$event.preventDefault()">
+    @if (organizations().length > 1) {
+      <label>{{ 'Organización' | t }}
+        <select [value]="organizationId()" (change)="chooseOrganization($event)">
+          @for (org of organizations(); track org[0]) { <option [value]="org[0]" [selected]="org[0] === organizationId()">{{ org[1] }}</option> }
+        </select>
+      </label>
+    }
+    <label class="search">{{ 'Buscar por nombre, versión o archivo' | t }}
+      <input type="search" maxlength="160" [value]="filters().query ?? ''" (input)="filter('query', $event)"
+        [placeholder]="'Ej. jackson-databind o package-lock.json' | t" />
+    </label>
+    <label>{{ 'Repositorio' | t }}
+      <select [value]="filters().repositoryId ?? ''" (change)="filter('repositoryId', $event)">
+        <option value="">{{ 'Todos los repositorios' | t }}</option>
+        @for (repository of availableRepositories(); track repository.id) {
+          <option [value]="repository.id">{{ repository.fullName }}</option>
+        }
+      </select>
+    </label>
+    <label>{{ 'Orden' | t }}
+      <select [value]="filters().riskFirst ?? ''" (change)="filter('riskFirst', $event)">
+        <option value="">{{ 'Por nombre' | t }}</option>
+        <option value="true">{{ 'Mayor severidad primero' | t }}</option>
+      </select>
+    </label>
+    <div class="security-shortcuts" role="group" [attr.aria-label]="'Filtros rápidos por seguridad' | t">
+      <button type="button" [attr.aria-pressed]="!filters().security" (click)="setFilter('security', '')">{{ 'Todas' | t }}</button>
+      <button type="button" [attr.aria-pressed]="filters().security === 'VULNERABLE'" (click)="setFilter('security', 'VULNERABLE')">{{ 'Con avisos OSV' | t }}</button>
+      <button type="button" [attr.aria-pressed]="filters().security === 'REVIEW'" (click)="setFilter('security', 'REVIEW')">{{ 'Por revisar' | t }}</button>
+      <button type="button" [attr.aria-pressed]="filters().security === 'NO_KNOWN'" (click)="setFilter('security', 'NO_KNOWN')">{{ 'Sin avisos conocidos' | t }}</button>
+    </div>
+    <details class="advanced">
+      <summary>{{ 'Filtros avanzados' | t }}</summary>
+      <div class="advanced-grid">
+        <label>{{ 'Ecosistema' | t }} <select [value]="filters().ecosystem ?? ''" (change)="filter('ecosystem', $event)">
+          <option value="">{{ 'Todos' | t }}</option><option value="MAVEN">Java · Maven</option><option value="NPM">JavaScript · npm</option>
+        </select></label>
+        <label>{{ 'Versión exacta' | t }} <input type="search" maxlength="255" [value]="filters().version ?? ''" (input)="filter('version', $event)" placeholder="1.2.3" /></label>
+        <label>{{ 'Tipo de dependencia' | t }} <select [value]="filters().kind ?? ''" (change)="filter('kind', $event)">
+          <option value="">{{ 'Todas' | t }}</option><option value="DIRECT">{{ 'Directas' | t }}</option>
+          <option value="TRANSITIVE">{{ 'Transitivas' | t }}</option><option value="UNKNOWN">{{ 'Pendiente de clasificar' | t }}</option>
+        </select></label>
+        <label>{{ 'Ámbito' | t }} <select [value]="filters().scope ?? ''" (change)="filter('scope', $event)">
+          <option value="">{{ 'Todos' | t }}</option>@for (scope of scopes; track scope) { <option [value]="scope">{{ scope }}</option> }
+        </select></label>
+        <label>{{ 'Severidad del aviso' | t }} <select [value]="filters().severity ?? ''" (change)="filter('severity', $event)">
+          <option value="">{{ 'Todas' | t }}</option>@for (severity of severities; track severity) { <option [value]="severity">{{ severityLabel(severity) | t }}</option> }
+        </select></label>
+      </div>
+    </details>
+    @if (filterActive()) { <button type="button" class="clear" (click)="clear()">{{ 'Quitar filtros' | t }}</button> }
+  </form>
+
+  <section class="results" [attr.aria-busy]="loading()">
+    @if (loading()) {
+      <p role="status" class="message">{{ 'Buscando dependencias…' | t }}</p>
+    } @else if (error()) {
+      <div class="message" role="alert"><p>{{ error() }}</p><button type="button" (click)="load()">{{ 'Reintentar' | t }}</button></div>
+    } @else if (result(); as catalog) {
+      @if (catalog.packages.length) {
+        <header class="results-header" aria-live="polite">
+          <strong>{{ page() * pageSize + 1 }}–{{ page() * pageSize + catalog.packages.length }} {{ 'de' | t }} {{ catalog.totalPackages }} {{ 'paquetes' | t }}</strong>
+          <span>{{ catalog.totalVersions }} {{ 'versiones encontradas' | t }}</span>
+        </header>
+        <ul class="packages">
+          @for (item of catalog.packages; track item.key.ecosystem + '/' + item.key.namespace + '/' + item.key.name; let row = $index) {
+            <li>
+              <button type="button" class="package-row" (click)="toggle(item)" [attr.aria-expanded]="expanded() === item"
+                  [attr.aria-controls]="expanded() === item ? 'inventory-occurrences-' + row : null">
+                <span class="package-name"><strong>{{ name(item.key) }}</strong>
+                  <small>{{ item.key.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</small></span>
+                <span class="package-facts">
+                  <span>{{ item.versions }} {{ (item.versions === 1 ? 'versión' : 'versiones') | t }}</span>
+                  <span>{{ item.repositories }} {{ (item.repositories === 1 ? 'repositorio' : 'repositorios') | t }}</span>
+                </span>
+                <span class="security">
+                  @if (item.severity) { <span class="risk" [attr.data-severity]="item.severity">{{ severityLabel(item.severity) | t }}</span> }
+                  @if (item.pending) { <small>{{ item.pending }} {{ 'apariciones por revisar' | t }}</small> }
+                  @else if (!item.withAdvisories) { <small>{{ 'Sin avisos conocidos' | t }}</small> }
+                </span>
+                <span aria-hidden="true">{{ expanded() === item ? '−' : '+' }}</span>
+              </button>
+              @if (expanded() === item) {
+                <section class="occurrences" [id]="'inventory-occurrences-' + row" [attr.aria-label]="'Dónde aparece' | t">
+                  <h3>{{ 'Dónde aparece' | t }}</h3>
+                  @if (detailLoading()) { <p role="status">{{ 'Cargando apariciones…' | t }}</p> }
+                  @else if (detailError()) { <p role="alert">{{ detailError() }}</p><button type="button" (click)="showOccurrences(detailPage())">{{ 'Reintentar' | t }}</button> }
+                  @else if (detail(); as entries) {
+                    @if (!entries.occurrences.length) { <p>{{ 'No hay coincidencias' | t }}</p> }
+                    @for (entry of entries.occurrences; track entry.id) {
+                      <article class="occurrence">
+                        <div class="occurrence-main">
+                          <strong>{{ entry.repositoryName }}</strong><code>{{ entry.version }}</code>
+                          <span>{{ entry.source === 'github' ? 'GitHub' : entry.source === 'local' ? ('Local' | t) : entry.source }}</span>
+                          <span>{{ (entry.kind === 'DIRECT' ? 'Directa' : entry.kind === 'TRANSITIVE' ? 'Transitiva' : 'Pendiente de clasificar') | t }}</span>
+                          @if (entry.scope) { <span>{{ entry.scope }}</span> }
+                        </div>
+                        <code class="path">{{ entry.manifestPath }}</code>
+                        <div class="occurrence-main">
+                          <span>{{ assessmentLabel(entry.assessment) | t }}</span>
+                          @if (entry.severity) { <span class="risk" [attr.data-severity]="entry.severity">{{ severityLabel(entry.severity) | t }}</span> }
+                          @if (entry.analyzedAt) { <time [attr.datetime]="entry.analyzedAt">{{ entry.analyzedAt | date:'medium' }}</time> }
+                        </div>
+                        @if (entry.commit || entry.sourceSha256) {
+                          <details class="source">
+                            <summary>{{ 'Procedencia de la fuente' | t }}</summary>
+                            @if (entry.commit) { <p>Commit <code>{{ entry.commit }}</code></p> }
+                            @if (entry.sourceSha256) { <p>SHA-256 <code>{{ entry.sourceSha256 }}</code></p> }
+                          </details>
+                        }
+                        <div class="occurrence-actions">
+                          <button type="button" (click)="showRepository(item.key, entry)">{{ 'Ver detalle en el repositorio' | t }}</button>
+                          <a [href]="graphUrl(item.key, entry)">{{ 'Ver en el grafo' | t }}</a>
+                        </div>
+                      </article>
+                    }
+                    @if (entries.totalOccurrences > pageSize) {
+                      <div class="pagination" [attr.aria-label]="'Páginas de apariciones' | t">
+                        <button type="button" [disabled]="detailPage() === 0" (click)="showOccurrences(detailPage() - 1)">{{ 'Anterior' | t }}</button>
+                        <span>{{ detailPage() * pageSize + 1 }}–{{ detailPage() * pageSize + entries.occurrences.length }} {{ 'de' | t }} {{ entries.totalOccurrences }}</span>
+                        <button type="button" [disabled]="(detailPage() + 1) * pageSize >= entries.totalOccurrences" (click)="showOccurrences(detailPage() + 1)">{{ 'Siguiente' | t }}</button>
+                      </div>
+                    }
+                  }
+                </section>
+              }
+            </li>
+          }
+        </ul>
+        @if (catalog.totalPackages > pageSize) {
+          <nav class="pagination" [attr.aria-label]="'Páginas del catálogo' | t">
+            <button type="button" [disabled]="page() === 0" (click)="goToPage(page() - 1)">{{ 'Anterior' | t }}</button>
+            <span>{{ 'Página' | t }} {{ page() + 1 }}</span>
+            <button type="button" [disabled]="(page() + 1) * pageSize >= catalog.totalPackages" (click)="goToPage(page() + 1)">{{ 'Siguiente' | t }}</button>
+          </nav>
+        }
+      } @else {
+        <div class="message" role="status">
+          @if (filterActive()) {
+            <strong>{{ 'No hay coincidencias' | t }}</strong><p>{{ 'Prueba otra búsqueda o quita los filtros.' | t }}</p>
+          } @else {
+            <strong>{{ 'Todavía no hay paquetes en este espacio' | t }}</strong><p>{{ 'Abre Por repositorio para analizar un proyecto.' | t }}</p>
+          }
+        </div>
+      }
+    }
+  </section>
+</section>

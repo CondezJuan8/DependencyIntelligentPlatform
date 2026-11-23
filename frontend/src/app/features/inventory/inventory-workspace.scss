@@ -147,3 +147,8 @@ select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-v
 @media (min-width: 1120px) {
   .filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+.inventory-modes { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .65rem 1.2rem; }
+.inventory-modes button { min-height: 42px; padding: .4rem .8rem; border: 1px solid var(--di-border); border-radius: 8px; font: inherit; font-weight: 650; color: var(--di-text); background: var(--di-surface); cursor: pointer; }
+.inventory-modes button[aria-pressed='true'] { border-color: var(--di-link); background: var(--di-info-background); color: var(--di-info-text); }
+.inventory-modes button:focus-visible { outline: 2px solid var(--di-link); outline-offset: 2px; }
+.repository-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding: 1rem; border-top: 1px solid var(--di-border); color: var(--di-text-secondary); }

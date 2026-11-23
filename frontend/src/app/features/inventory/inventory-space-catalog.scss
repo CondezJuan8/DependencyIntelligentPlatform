@@ -1,0 +1,48 @@
+:host { display: block; min-width: 0; }
+:host([hidden]) { display: none; }
+.space-catalog { display: grid; gap: 1rem; color: var(--di-text); }
+.catalog-intro h2, h3 { margin: 0; }
+.catalog-intro p { margin: .35rem 0 0; color: var(--di-text-secondary); }
+.catalog-controls, .results { border: 1px solid var(--di-border); border-radius: 12px; background: var(--di-surface); }
+.catalog-controls { display: grid; gap: .85rem; padding: 1rem; }
+label { display: grid; min-width: 0; gap: .35rem; font-size: .875rem; font-weight: 650; }
+input, select, button { font: inherit; color: var(--di-text); }
+input, select { width: 100%; min-height: 42px; padding: .45rem .65rem; border: 1px solid var(--di-control-border); border-radius: 8px; background: var(--di-surface); }
+button { min-height: 42px; padding: .35rem .8rem; border: 1px solid var(--di-border); border-radius: 8px; background: var(--di-surface); cursor: pointer; }
+button:hover:not(:disabled) { background: var(--di-surface-muted); }
+button:disabled { cursor: default; opacity: .55; }
+:is(button, input, select, summary, a):focus-visible { outline: 2px solid var(--di-link); outline-offset: 2px; }
+.security-shortcuts { display: flex; flex-wrap: wrap; gap: .5rem; }
+.security-shortcuts button[aria-pressed='true'] { border-color: var(--di-link); color: var(--di-info-text); background: var(--di-info-background); }
+.advanced summary { min-height: 42px; align-content: center; cursor: pointer; color: var(--di-link); font-weight: 650; }
+.advanced-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: .6rem; margin-top: .5rem; }
+.clear { justify-self: start; }
+.packages { list-style: none; padding: 0; margin: 0; }
+.packages li, .pagination { border-top: 1px solid var(--di-border); }
+.results-header, .pagination, .message { padding: 1rem; }
+.results-header, .pagination { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
+.results-header span, small, .occurrence-main span:not(.risk), time { color: var(--di-text-secondary); }
+.package-row { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .5rem; padding: 1rem; border: 0; border-radius: 0; text-align: start; }
+.package-name { display: grid; gap: .25rem; overflow-wrap: anywhere; }
+.package-facts, .security, .occurrence-main { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .75rem; }
+.package-facts { grid-column: 1; font-size: .875rem; }
+.package-row > :last-child { grid-row: 1; grid-column: 2; justify-self: end; color: var(--di-link); }
+.risk { padding: .22rem .55rem; border-radius: 999px; font-size: .8rem; font-weight: 700; color: var(--di-info-text); background: var(--di-info-background); }
+.risk[data-severity='CRITICAL'] { color: var(--di-critical-text); background: var(--di-critical-background); }
+.risk[data-severity='HIGH'] { color: var(--di-high-risk-text); background: var(--di-high-risk-background); }
+.risk[data-severity='MEDIUM'] { color: var(--di-warning-text); background: var(--di-warning-background); }
+.occurrences { display: grid; gap: .65rem; padding: 1rem; background: var(--di-surface-muted); }
+.occurrence { display: grid; gap: .5rem; min-width: 0; padding: .8rem; border: 1px solid var(--di-border); border-radius: 8px; background: var(--di-surface); }
+.occurrence code { overflow-wrap: anywhere; }
+.source summary { width: fit-content; padding-block: .35rem; color: var(--di-link); cursor: pointer; }
+.source p { margin: .4rem 0; }
+.occurrence-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem 1rem; }
+.occurrence-actions :is(button, a) { color: var(--di-link); }
+.message p { margin: .45rem 0; }
+@media (min-width: 720px) {
+  .catalog-controls { grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); }
+  .security-shortcuts, .advanced { grid-column: 1 / -1; }
+  .package-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 1rem; }
+  .package-facts { grid-column: 2; }
+  .package-row > :last-child { grid-column: 4; }
+}

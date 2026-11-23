@@ -12,7 +12,7 @@
     <section class="graph-controls" aria-label="{{ 'Filtros del grafo' | t }}">
       <div class="control-field"><label for="graph-repository">{{ 'Repositorio' | t }}</label>
         <select id="graph-repository" [value]="repository()?.id ?? ''" (change)="onRepositoryChange($event)">
-          @for (item of repositories(); track item.id) { <option [value]="item.id">{{ item.fullName }} · {{ item.source | t }}</option> }
+          @for (item of repositories(); track item.id) { <option [value]="item.id" [selected]="item.id === repository()?.id">{{ item.fullName }} · {{ item.source | t }}</option> }
         </select>
       </div>
       <div class="control-field"><label for="graph-ecosystem">{{ 'Ecosistema' | t }}</label>

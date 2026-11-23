@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { catchError, finalize, forkJoin, map, of } from 'rxjs';
 import { SessionApiService, accessError } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 import { evidenceKey, fixesForPackage } from './inventory-evidence';
+import { InventorySpaceCatalog, type InventoryLocation } from './inventory-space-catalog';
 
 type Ecosystem = 'MAVEN' | 'NPM';
 type DependencyKind = 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN' | string;
@@ -104,14 +105,20 @@ interface RepositoryCodeEvidence {
 
 @Component({
   selector: 'app-inventory-workspace',
-  imports: [DatePipe, TranslatePipe],
+  imports: [DatePipe, TranslatePipe, InventorySpaceCatalog],
   templateUrl: './inventory-workspace.html',
   styleUrls: ['./inventory-workspace.scss', './inventory-catalog.scss', './inventory-advisories.scss'],
 })
 export class InventoryWorkspace implements OnInit {
   private readonly api = inject(SessionApiService);
+  private readonly catalog = viewChild(InventorySpaceCatalog);
   private scanLoadSequence = 0;
+  private catalogDirty = false;
 
+  readonly mode = signal<'catalog' | 'repository'>('catalog');
+  readonly focusedPackage = signal('');
+  readonly packagePage = signal(0);
+  readonly packagePageSize = 25;
   readonly repositories = signal<Repository[]>([]);
   readonly repository = signal<Repository | null>(null);
   readonly occurrences = signal<Occurrence[]>([]);
@@ -142,21 +149,25 @@ export class InventoryWorkspace implements OnInit {
   readonly dependencyFilter = signal<'ALL' | 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN'>('ALL');
   readonly securityFilter = signal<'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW'>('ALL');
   readonly scopeFilter = signal('ALL');
+  readonly versionFilter = signal('');
+  readonly severityFilter = signal('');
   readonly loading = signal(true);
   readonly loadingScans = signal(false);
   readonly busy = signal(false);
   readonly error = signal('');
   readonly notice = signal('');
 
-  get groups(): PackageGroup[] {
+  private readonly matchingGroups = computed(() => {
     const filtered = this.occurrences().filter((occurrence) => {
       const dependency = occurrence.dependency;
       const matchesEcosystem = this.ecosystemFilter() === 'ALL' || occurrence.ecosystem === this.ecosystemFilter();
       const matchesKind = this.dependencyFilter() === 'ALL' || dependency.dependencyType === this.dependencyFilter();
       const matchesScope = this.scopeFilter() === 'ALL' || dependency.scope === this.scopeFilter();
       const query = this.search().trim().toLocaleLowerCase();
-      const identity = `${dependency.coordinates.namespace ?? ''} ${dependency.coordinates.name} ${dependency.coordinates.version} ${dependency.manifestPath} ${dependency.scope}`.toLocaleLowerCase();
-      return matchesEcosystem && matchesKind && matchesScope && (!query || identity.includes(query));
+      const identity = `${dependency.coordinates.namespace ?? ''}:${dependency.coordinates.name} ${dependency.coordinates.version} ${dependency.manifestPath} ${dependency.scope}`.toLocaleLowerCase();
+      const version = this.versionFilter().trim();
+      return matchesEcosystem && matchesKind && matchesScope && (!version || dependency.coordinates.version === version)
+        && (!query || identity.includes(query));
     });
 
     const packages = new Map<string, PackageGroup>();
@@ -199,6 +210,15 @@ export class InventoryWorkspace implements OnInit {
       })
       .filter(group => group.versions.length > 0)
       .sort((left, right) => left.name.localeCompare(right.name));
+  });
+
+  get groups(): PackageGroup[] {
+    return this.matchingGroups();
+  }
+
+  get visibleGroups(): PackageGroup[] {
+    const start = this.packagePage() * this.packagePageSize;
+    return this.groups.slice(start, start + this.packagePageSize);
   }
 
   get uniquePackageCount(): number {
@@ -231,11 +251,12 @@ export class InventoryWorkspace implements OnInit {
 
   get hasActiveFilters(): boolean {
     return !!this.search().trim() || this.ecosystemFilter() !== 'ALL' || this.dependencyFilter() !== 'ALL'
-      || this.scopeFilter() !== 'ALL' || this.securityFilter() !== 'ALL';
+      || this.scopeFilter() !== 'ALL' || this.securityFilter() !== 'ALL' || !!this.versionFilter() || !!this.severityFilter();
   }
 
   setQuickSecurityFilter(filter: 'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW'): void {
     this.securityFilter.set(filter);
+    this.packagePage.set(0);
   }
 
   get hasCompletedScan(): boolean {
@@ -250,10 +271,34 @@ export class InventoryWorkspace implements OnInit {
     this.api.get<Repository[]>('/api/account/workspace').pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (items) => {
         this.repositories.set(items);
-        this.setRepository(items[0] ?? null);
+        if (this.mode() === 'repository') this.setRepository(items[0] ?? null);
       },
       error: (failure) => this.error.set(accessError(failure)),
     });
+  }
+
+  showMode(mode: 'catalog' | 'repository'): void {
+    this.mode.set(mode);
+    if (mode === 'repository' && !this.repository()) this.setRepository(this.repositories()[0] ?? null);
+    if (mode === 'catalog' && this.catalogDirty) {
+      this.catalog()?.load();
+      this.catalogDirty = false;
+    }
+  }
+
+  openRepositoryLocation(location: InventoryLocation): void {
+    const repository = this.repositories().find(item => item.id === location.repositoryId);
+    if (!repository) return;
+    this.mode.set('repository');
+    this.setRepository(repository);
+    this.ecosystemFilter.set(location.ecosystem);
+    this.search.set(location.packageName);
+    this.versionFilter.set(location.version);
+    this.focusedPackage.set(location.packageName);
+  }
+
+  packageName(group: PackageGroup): string {
+    return group.ecosystem === 'MAVEN' && group.namespace ? `${group.namespace}:${group.name}` : group.name;
   }
 
   setRepository(repository: Repository | null): void {
@@ -278,45 +323,66 @@ export class InventoryWorkspace implements OnInit {
 
   updateSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
+    this.packagePage.set(0);
   }
 
   updateEcosystem(event: Event): void {
     this.ecosystemFilter.set((event.target as HTMLSelectElement).value as 'ALL' | Ecosystem);
+    this.packagePage.set(0);
   }
 
   updateDependencyKind(event: Event): void {
     this.dependencyFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'DIRECT' | 'TRANSITIVE' | 'UNKNOWN');
+    this.packagePage.set(0);
   }
 
   updateScope(event: Event): void {
     this.scopeFilter.set((event.target as HTMLSelectElement).value);
+    this.packagePage.set(0);
   }
 
   updateSecurityFilter(event: Event): void {
-    this.securityFilter.set((event.target as HTMLSelectElement).value as 'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW');
+    this.setQuickSecurityFilter((event.target as HTMLSelectElement).value as 'ALL' | 'VULNERABLE' | 'NO_KNOWN' | 'REVIEW');
+  }
+
+  updateVersion(event: Event): void {
+    this.versionFilter.set((event.target as HTMLInputElement).value);
+    this.packagePage.set(0);
+  }
+
+  updateSeverity(event: Event): void {
+    this.severityFilter.set((event.target as HTMLSelectElement).value);
+    this.packagePage.set(0);
   }
 
   private matchesSecurityFilter(group: PackageGroup, version: VersionGroup): boolean {
     const filter = this.securityFilter();
+    const assessment = this.assessmentFor(group, version);
+    if (this.severityFilter() && !assessment?.advisories.some(advisory => advisory.severity === this.severityFilter())) return false;
     if (filter === 'ALL') return true;
-    const status = this.assessmentFor(group, version)?.status;
-    if (filter === 'VULNERABLE') return !!this.assessmentFor(group, version)?.advisories.length;
+    const status = assessment?.status;
+    if (filter === 'VULNERABLE') return !!assessment?.advisories.length;
     if (filter === 'NO_KNOWN') return status === 'NO_KNOWN_ADVISORIES';
     return status !== 'MATCHED' && status !== 'NO_KNOWN_ADVISORIES';
   }
 
   clearFilters(): void {
+    this.packagePage.set(0);
+    this.focusedPackage.set('');
     this.search.set('');
     this.ecosystemFilter.set('ALL');
     this.dependencyFilter.set('ALL');
     this.scopeFilter.set('ALL');
     this.securityFilter.set('ALL');
+    this.versionFilter.set('');
+    this.severityFilter.set('');
   }
 
   analyzeRepository(): void {
     const repository = this.repository();
     if (!repository || this.busy() || this.loadingScans() || this.assessingVulnerabilities()) return;
     this.busy.set(true);
+    this.packagePage.set(0);
     this.error.set('');
     this.notice.set('');
 
@@ -339,6 +405,7 @@ export class InventoryWorkspace implements OnInit {
           const visible = new Set(results.flatMap(result => result.scan ? [result.scan.scanId] : []));
           this.osvEvidence.update(items => items.filter(item => visible.has(item.scanId)));
           const completed = response.filter(result => result.status === 'COMPLETED');
+          this.catalogDirty ||= response.some(result => result.status !== 'FAILED');
           if (completed.length > 0)
             this.notice.set('Análisis actualizado. Consulta el estado de cada ecosistema para ver su alcance.');
           const newScans = completed.flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
@@ -434,6 +501,8 @@ export class InventoryWorkspace implements OnInit {
           ...items.filter(item => !requested.has(item.scanId)),
           ...assessment.assessments.filter(item => requested.has(item.scanId)),
         ]);
+        this.catalogDirty = true;
+        this.packagePage.set(0);
         this.assessmentError.set('');
       },
       error: (failure: HttpErrorResponse) => {

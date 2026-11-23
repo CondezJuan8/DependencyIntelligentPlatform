@@ -66,7 +66,9 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     this.api.get<Repository[]>('/api/account/workspace').pipe(finalize(() => this.loading.set(false))).subscribe({
       next: repositories => {
         this.repositories.set(repositories);
-        this.selectRepository(repositories[0]?.id ?? '');
+        const params = new URLSearchParams(window.location.search);
+        const linked = repositories.find(repository => repository.id === params.get('repository'));
+        this.selectRepository(linked?.id ?? repositories[0]?.id ?? '', linked ? params.get('package')?.slice(0, 1024) : '');
       },
       error: failure => this.error.set(accessError(failure)),
     });
@@ -74,7 +76,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.themeObserver?.disconnect(); this.graphResizeObserver?.disconnect(); this.cy?.destroy(); }
 
-  selectRepository(id: string): void {
+  selectRepository(id: string, initialSearch = ''): void {
     const selected = this.repositories().find(repository => repository.id === id) ?? null;
     this.repository.set(selected);
     this.graph.set(null);
@@ -87,7 +89,7 @@ export class DependencyGraphWorkspace implements OnInit, OnDestroy {
     this.scopeFilter.set('ALL');
     this.dependencyTypeFilter.set('ALL');
     this.ecosystem.set('ALL');
-    this.search.set('');
+    this.search.set(initialSearch);
     this.localDepth.set(1);
     this.localDirection.set('BOTH');
     this.listLimit.set(PACKAGE_LIST_PAGE_SIZE);
