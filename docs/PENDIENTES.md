@@ -1,3 +1,10 @@
+## Bloque 71 — limpiar restos del panel y publicar Dashboard en Compose (23 de noviembre de 2026)
+
+- [x] Retirar del diccionario de idiomas los últimos textos del panel de tendencia eliminado.
+- [x] Reconstruir y actualizar solo el contenedor frontend en `localhost:8089`; backend, PostgreSQL, cdxgen y Mailpit permanecieron activos.
+- [x] Verificar HTTP 200 y el chunk Dashboard servido: sin grafo, sin panel de tendencia y con el contador de versiones de dependencias conservado.
+- [ ] Revisión visual del usuario con su sesión y preferencias.
+
 ## Bloque 70 — Dashboard (23 de noviembre de 2026)
 
 - [x] Completar métricas de repositorios, versiones únicas, cobertura y riesgo con datos reales del workspace, scanner y OSV.

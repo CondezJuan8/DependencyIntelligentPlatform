@@ -24,6 +24,19 @@ Fecha: 23 de noviembre de 2026 (America/Bogota).
 
 **Siguiente paso.** Revisar el Dashboard con cuentas reales para verificar alcance de permisos, estado de OSV, modo claro/oscuro, inglés y móvil; luego continuar con la petición 7 (pantalla Vulnerabilidades) según prioridad del contexto maestro.
 
+## Bloque 71 — retirar textos residuales y actualizar solo el frontend (23/11/2026)
+
+**Petición.** Quitar del Dashboard el grafo; mantener el contador de dependencias y actualizar la versión visible en Compose.
+
+**Cambios.** El código del Dashboard ya no tenía el grafo ni el panel de tendencia, pero el bundle del contenedor anterior seguía sirviéndolo. Se eliminaron las últimas cinco traducciones huérfanas de ese panel. Se reconstruyó la imagen del frontend y se recreó solo ese contenedor.
+
+**Herramientas y tecnologías.** `rg`, TypeScript, Angular, Docker Compose, Nginx y fetch HTTP local. Sin dependencias, endpoints, migraciones ni cambios de backend.
+
+**Verificación.** `docker compose build frontend` completó con advertencias existentes de presupuesto Angular. `docker compose up -d --no-deps frontend` dejó actualizado el servicio. El Dashboard servido devolvió HTTP 200; el chunk `dashboard` quedó sin el grafo, sin textos del panel antiguo, y conserva el contador de dependencias. Backend, PostgreSQL, cdxgen y Mailpit siguen activos. Revisión visual del usuario pendiente.
+
+**Siguiente paso.** Recargar el Dashboard en el navegador y confirmar su presentación; después continuar la petición 7 del contexto maestro.
+
+
 ---
 
 # Bitácora de trabajo

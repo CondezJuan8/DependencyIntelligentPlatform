@@ -1,3 +1,7 @@
+### Bloque 71 — actualización del frontend Compose (23/11/2026)
+
+Se reconstruyó y recreó solo el servicio frontend. El recurso de Dashboard servido en `localhost:8089` responde HTTP 200 y el chunk actual no contiene el grafo ni el antiguo panel de tendencia. Se conservaron el contador de versiones y la cobertura. Backend, base, scanner y Mailpit continuaron activos. La revisión visual del usuario aún falta.
+
 ### Bloque 70 — Dashboard (petición 6, 23/11/2026)
 
 La vista usa `/api/account/workspace` como límite de autorización: OWNER ve sus repositorios y MEMBER únicamente los asignados. Presenta organizaciones (solo a cuentas no MEMBER), repositorios accesibles, versiones únicas por repositorio/ecosistema/paquete/versión, repositorios con snapshots, recuentos por cuatro categorías OSV, avisos priorizados y estado de cobertura completa/parcial. El conteo «sin avisos conocidos» requiere una evaluación OSV exitosa. Las consultas por repositorio se limitan a cuatro en paralelo.
