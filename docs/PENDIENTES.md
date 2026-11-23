@@ -4,7 +4,9 @@
 - [x] Adaptadores REST Gemini y Ollama; modelo/revisión vienen de configuración externa, la dimensión se detecta y se valida en runtime.
 - [x] Migración V29 agrega pgvector, dimensión flexible y RLS en la tabla vectorial; Compose construye pgvector 0.8.7 sobre la misma base postgres:17.7-alpine.
 - [x] API y pantalla de asistente, aislamiento por organización/repositorio, `assistant.query` + `document.read`, citas, abstención sin evidencia y error explícito de proveedor no disponible.
-- [ ] Configurar el nombre exacto y digest instalado de Ollama y confirmar que `/api/tags` los valida; configurar modelo y clave Gemini sin guardar secretos en Git.
+- [x] Instalar Ollama 0.40.17, descargar `embeddinggemma-2:latest` y comprobar `/api/tags` y `/api/embed`: digest `f4981a15b99858ad1f2e0729416e526be7b4f428291b40082b9e4f7b27b5f62f`, vector de 768 dimensiones con valores finitos. Nombre/digest guardados en `.env` local, ignorado por Git.
+- [ ] Permitir acceso del backend Docker a Ollama con una regla entrante limitada al puerto 11434 y a `172.18.0.0/16`. El perfil de firewall administrado rechazó crearla con el acceso actual; Ollama sigue escuchando solo en `127.0.0.1` para no exponer la API.
+- [ ] Configurar modelo y clave Gemini sin guardar secretos en Git.
 - [ ] Aplicar V29 en Compose y validar RLS/runtime grants. Se construyó la imagen con pgvector, pero no se aplicó la migración ni se recreó PostgreSQL.
 - [ ] Ejecutar regresiones focalizadas: permisos tenant/repositorio, dimensión incorrecta, persistencia/citas, abstención y fallos Ollama/Gemini. La compilación Java/Angular pasó; aún no se escribieron ni ejecutaron pruebas nuevas.
 - [ ] Indexación durable con progreso/reintentos, listado/recarga de conversaciones, evaluación de calidad y recorrido autenticado de extremo a extremo; validar UI móvil/desktop, tema e idioma.
