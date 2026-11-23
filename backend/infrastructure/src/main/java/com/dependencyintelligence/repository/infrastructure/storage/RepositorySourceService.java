@@ -1,5 +1,7 @@
 package com.dependencyintelligence.repository.infrastructure.storage;
 
+import static com.dependencyintelligence.repository.application.RepositorySourceLimits.MAX_GITHUB_ZIP_BYTES;
+
 import com.dependencyintelligence.integration.application.port.out.GitHubAppGateway;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +60,7 @@ public final class RepositorySourceService {
             Path archive = Files.createTempFile("di-github-source-", ".zip");
             try {
                 String commit = github.downloadArchive(location.installationId(), location.externalId(), location.fullName(), archive);
-                if (Files.size(archive) < 4 || Files.size(archive) > 100L * 1024 * 1024 || !isZip(archive))
+                if (Files.size(archive) < 4 || Files.size(archive) > MAX_GITHUB_ZIP_BYTES || !isZip(archive))
                     throw new IllegalStateException("El ZIP de GitHub no cumple el límite de tamaño.");
                 return new SourceSnapshot(archive, "github", sha256(archive), commit, true);
             } catch (Exception failure) {

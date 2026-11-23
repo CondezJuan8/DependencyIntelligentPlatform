@@ -141,8 +141,8 @@ export class RepositoryWorkspace implements OnInit {
     this.error.set('');
     const bytes = included.reduce((total, file) => total + file.size, 0);
     if (!included.length) { this.localFiles.set([]); this.error.set('No se encontraron archivos para importar.'); this.message.set(''); }
-    else if (included.length > 50_000 || bytes > 100 * 1024 * 1024) {
-      this.localFiles.set([]); this.error.set('La carpeta supera el límite de 50.000 archivos o 100 MiB.'); this.message.set('');
+    else if (included.length > 50_000 || bytes > 300 * 1024 * 1024) {
+      this.localFiles.set([]); this.error.set('La carpeta supera el límite de 50.000 archivos o 300 MiB.'); this.message.set('');
     } else { this.localFiles.set(included); this.message.set(files.length > included.length ? 'Se omitieron archivos de credenciales y carpetas generadas.' : ''); }
   }
 
@@ -161,7 +161,7 @@ export class RepositoryWorkspace implements OnInit {
     form.append('name', this.localName());
     for (const file of files) {
       form.append('paths', file.webkitRelativePath);
-      form.append('files', file, file.name);
+      form.append('files', file, 'file');
     }
     this.pending.set(true); this.error.set(''); this.message.set('Subiendo la carpeta al almacenamiento privado…'); this.uploadProgress.set(0);
     this.api.upload<LocalFolderImportResult>(`/api/organizations/${organizationId}/repositories/local-folder`, form)

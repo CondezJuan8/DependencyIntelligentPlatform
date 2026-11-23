@@ -42,9 +42,10 @@ class LocalFolderImportUseCaseTest {
         assertFalse(sources.called);
     }
 
-    @Test void acceptsFoldersWithFiftyThousandFiles() {
+    @Test void acceptsThreeHundredMibAcrossFiftyThousandFiles() {
+        long maxBytes = 300L * 1024 * 1024;
         var files = java.util.stream.IntStream.range(0, 50_000)
-            .mapToObj(index -> file("project/file-" + index + ".txt", 1)).toList();
+            .mapToObj(index -> file("project/file-" + index + ".txt", index == 0 ? maxBytes - 49_999 : 1)).toList();
         var result = useCase.execute(new LocalFolderImportCommand(organization, user, "project", files));
         assertEquals(50_000, result.fileCount());
         assertEquals(50_000, sources.paths.size());
@@ -62,7 +63,7 @@ class LocalFolderImportUseCaseTest {
     @Test void rejectsGeneratedDirectoriesAndOversizedFolders() {
         assertThrows(IllegalArgumentException.class, () -> useCase.execute(command("project", "project/node_modules/x", 1)));
         assertNull(repositories.saved);
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(command("project", "project/large.bin", 100L * 1024 * 1024 + 1)));
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(command("project", "project/large.bin", 300L * 1024 * 1024 + 1)));
         assertNull(repositories.saved);
         var mixedRoots = new LocalFolderImportCommand(organization, user, "project",
             List.of(file("project/a.txt", 1), file("other/b.txt", 1)));

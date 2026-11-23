@@ -1,5 +1,7 @@
 package com.dependencyintelligence.repository.application.usecase;
 
+import static com.dependencyintelligence.repository.application.RepositorySourceLimits.*;
+
 import com.dependencyintelligence.organization.application.port.out.OrganizationLookup;
 import com.dependencyintelligence.repository.application.dto.LocalFolderImportCommand;
 import com.dependencyintelligence.repository.application.dto.LocalFolderImportResult;
@@ -17,9 +19,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 public final class ImportLocalFolderUseCase implements ImportLocalFolder {
-    private static final int MAX_FILES = 50_000;
-    private static final long MAX_BYTES = 100L * 1024 * 1024;
-    private static final int MAX_PATH_LENGTH = 1_024;
     private final OrganizationLookup organizations;
     private final RepositoryStore repositories;
     private final LocalRepositorySourceStore sources;
@@ -45,7 +44,8 @@ public final class ImportLocalFolderUseCase implements ImportLocalFolder {
             if (selectedRoot == null) selectedRoot = root;
             else if (!selectedRoot.equals(root)) throw new IllegalArgumentException("Selecciona una sola carpeta de proyecto.");
             if (!paths.add(path.toLowerCase(Locale.ROOT))) throw new IllegalArgumentException("La carpeta contiene rutas duplicadas.");
-            if (file.size() < 0 || file.size() > MAX_BYTES - total) throw new IllegalArgumentException("La carpeta supera el límite de 100 MiB.");
+            if (file.size() < 0 || file.size() > MAX_LOCAL_CONTENT_BYTES - total)
+                throw new IllegalArgumentException("La carpeta supera el límite de 300 MiB.");
             total += file.size();
             normalizedFiles.add(new LocalFolderImportCommand.ProjectFile(path, file.size(), file.content()));
         }

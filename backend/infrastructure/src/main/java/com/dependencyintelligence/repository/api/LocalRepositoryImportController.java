@@ -1,5 +1,7 @@
 package com.dependencyintelligence.repository.api;
 
+import static com.dependencyintelligence.repository.application.RepositorySourceLimits.MAX_FILES;
+
 import com.dependencyintelligence.identity.infrastructure.security.AuthorizedRepositoryActions;
 import com.dependencyintelligence.repository.application.dto.LocalFolderImportCommand;
 import com.dependencyintelligence.repository.application.dto.LocalFolderImportResult;
@@ -40,7 +42,7 @@ public class LocalRepositoryImportController {
     public LocalFolderImportResult upload(@org.springframework.web.bind.annotation.PathVariable UUID organizationId,
             Principal principal, @RequestParam("name") String name, @RequestParam("paths") List<String> paths,
             @RequestParam("files") List<MultipartFile> files) {
-        if (files.isEmpty() || files.size() != paths.size() || files.size() > 50_000)
+        if (files.isEmpty() || files.size() != paths.size() || files.size() > MAX_FILES)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona una carpeta con hasta 50.000 archivos.");
         var projectFiles = new ArrayList<LocalFolderImportCommand.ProjectFile>(files.size());
         for (int index = 0; index < files.size(); index++) {

@@ -1,5 +1,7 @@
 package com.dependencyintelligence.integration.infrastructure.github;
 
+import static com.dependencyintelligence.repository.application.RepositorySourceLimits.MAX_GITHUB_ZIP_BYTES;
+
 import com.dependencyintelligence.integration.application.dto.GitHubModels.Candidate;
 import com.dependencyintelligence.integration.application.port.out.GitHubAppGateway;
 import com.dependencyintelligence.integration.application.exception.GitHubInstallationRevokedException;
@@ -200,7 +202,7 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
             byte[] buffer = new byte[8192]; long bytes = 0;
             for (int count; (count = input.read(buffer)) != -1;) {
                 bytes += count;
-                if (bytes > 100L * 1024 * 1024) throw new java.io.IOException("GitHub archive exceeds 100 MiB.");
+                if (bytes > MAX_GITHUB_ZIP_BYTES) throw new java.io.IOException("GitHub archive exceeds 300 MiB.");
                 output.write(buffer, 0, count);
             }
         }
