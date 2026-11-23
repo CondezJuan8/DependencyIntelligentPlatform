@@ -1,6 +1,6 @@
 ## Carga y análisis combinado (bloque 65)
 
-Inventario invoca `POST /dependency-analysis`. Maven y npm abren el mismo ZIP autorizado, con el mismo hash y commit. El backend concilia CycloneDX con POM y lockfiles, incluso cuando CycloneDX ya aportó algunos paquetes. Reutiliza los lectores estáticos para recuperarse de fallos del scanner y conserva la cobertura parcial cuando corresponde. npm admite múltiples lockfiles compatibles y mantiene los nombres scoped y las relaciones observadas.
+Inventario invoca `POST /dependency-analysis`. Maven y npm abren el mismo ZIP autorizado, con el mismo hash y commit. El backend concilia CycloneDX con POM y lockfiles, incluso cuando CycloneDX ya aportó algunos paquetes. Reutiliza los lectores estáticos para recuperarse de fallos del scanner y conserva la cobertura parcial cuando corresponde. npm admite múltiples lockfiles compatibles y mantiene los nombres scoped y clasifica dependencias directas/transitivas con la evidencia disponible.
 
 La carga local admite 300 MiB de contenido y 50.000 archivos. El ZIP descargado de GitHub admite hasta 300 MiB. Los lectores permiten hasta 50.000 archivos y 100.000 entradas totales contando directorios, y limitan la expansión a 512 MiB. El SBOM tiene un límite de 25 MiB. V26 conserva la ruta completa del manifiesto. La evaluación OSV recibe los IDs del análisis y se puede repetir desde Inventario.
 
@@ -17,11 +17,11 @@ Verificado con fixtures unitarios de herencia local y BOM importado; OMEGA aún 
 
 La validación de la instancia detectó un scan `cdxgen-maven` real con un POM y ningún componente en CycloneDX. El reader Maven ahora vuelve a abrir el ZIP autorizado en una copia temporal (límite comprimido de 100 MiB) y, solo cuando el SBOM no aporta dependencias pero informa manifiestos, usa `BoundedMavenArchiveReader` para recuperar declaraciones de POM con versión exacta. Los paquetes recuperados se persisten y pueden pasar a la evaluación OSV por separado.
 
-El fallback no resuelve versiones de BOM o POM padre remoto y no ejecuta Maven; tampoco atribuye relaciones transitivas. La cobertura permanece `PARTIAL`, con un mensaje que explica esos límites. Sin versión exacta, el paquete queda contado como no resuelto y no se consulta OSV con coordenadas inventadas.
+El fallback no resuelve versiones de BOM o POM padre remoto y no ejecuta Maven; tampoco clasifica paquetes transitivos sin evidencia. La cobertura permanece `PARTIAL`, con un mensaje que explica esos límites. Sin versión exacta, el paquete queda contado como no resuelto y no se consulta OSV con coordenadas inventadas.
 
 ## Flujo conectado
 
-El botón **Analizar repositorio** llama a `POST /maven-analysis` y `POST /npm-analysis`. Ambos endpoints usan el `RepositoryAnalysisSource` autorizado para abrir el ZIP del commit actual; sus readers invocan cdxgen y guardan componentes, scopes, aristas, procedencia, hash y cobertura con `MavenAnalysisStore`. Después la interfaz solicita `POST /vulnerability-analysis`, que consulta OSV sobre las versiones exactas y persiste cada resultado. El `POST /scans` genérico conserva su función de solicitud; no sustituye estas acciones.
+El botón **Analizar repositorio** llama a `POST /maven-analysis` y `POST /npm-analysis`. Ambos endpoints usan el `RepositoryAnalysisSource` autorizado para abrir el ZIP del commit actual; sus readers invocan cdxgen y guardan componentes, scopes, procedencia, hash y cobertura con `MavenAnalysisStore`. Después la interfaz solicita `POST /vulnerability-analysis`, que consulta OSV sobre las versiones exactas y persiste cada resultado. El `POST /scans` genérico conserva su función de solicitud; no sustituye estas acciones.
 
 cdxgen corre como servicio separado `cdxgen-scanner`, imagen `ghcr.io/cdxgen/cdxgen-secure:13.8.0` fijada al digest OCI multi-arquitectura `sha256:3a59d95320b5d70f7b369af4ed4ad92c0fe931a426374e0f9df942129e23b8ad`. La imagen y el modo `CDXGEN_SECURE_MODE` mantienen desactivadas las instalaciones automáticas. En modo seguro, cdxgen analiza manifiestos y lockfiles sin invocar Maven ni npm; así no ejecuta scripts, wrappers, plugins ni herramientas de compilación provenientes del repositorio. La versión 13.8.0 es un release oficial que incluye endurecimiento de lectores y rutas. Referencias primarias: [Threat Model](https://github.com/CycloneDX/cdxgen/blob/v13.8.0/docs/THREAT_MODEL.md), [CLI](https://github.com/CycloneDX/cdxgen/blob/v13.8.0/docs/CLI.md), [release 13.8.0](https://github.com/CycloneDX/cdxgen/releases/tag/v13.8.0).
 
@@ -38,17 +38,17 @@ La versión y el digest OCI multi-arquitectura quedan fijados para que Compose s
 
 ## Cobertura que se informa
 
-- **npm:** cdxgen lee `package-lock.json`, conserva nombres `@scope/paquete` y registra las relaciones disponibles; lockfiles múltiples se analizan juntos. Si faltan versiones exactas o relaciones verificables, se conserva el inventario parcial y se informa el conteo pendiente.
+- **npm:** cdxgen lee `package-lock.json`, conserva nombres `@scope/paquete` y clasifica el alcance directo/transitivo segun la evidencia disponible; lockfiles múltiples se analizan juntos. Si faltan versiones exactas o evidencia suficiente para clasificar el alcance, se conserva el inventario parcial y se informa el conteo pendiente.
 - **Maven:** cdxgen recorre módulos y POM dentro de la fuente, incluidas versiones obtenibles por propiedades, POM padre y `dependencyManagement`/BOM locales. El modo seguro evita ejecutar Maven; por eso no garantiza el árbol transitivo resuelto por Maven y cada análisis Maven se marca **parcial** con esa explicación. Un POM padre remoto o una versión no inferible queda en el conteo sin resolver. La resolución Maven transitiva segura sigue pendiente.
 - **OSV:** el adaptador existente envía ecosistemas/nombres/versiones exactos, asocia cada fila batch por posición y sigue `next_page_token` por paquete (con tope defensivo de 100 páginas). Un fallo de consulta deja inventario intacto y queda `UNAVAILABLE`/`INCOMPLETE`; cada aviso conserva ID OSV aunque el detalle no tenga alias, severidad o no se descargue.
 - No encontrar resultados es **sin avisos conocidos en OSV** para esa versión consultada. Es distinto de una versión no resuelta o de una consulta incompleta/fallida.
 
-El importador manual CycloneDX acepta Maven y npm, mantiene `bom-ref`, scope y relaciones verificadas. No inventa aristas al faltar el componente intermedio.
+El importador manual CycloneDX acepta Maven y npm, y conserva `bom-ref`, scope y la clasificaci?n directa/transitiva cuando el SBOM la respalda. No persiste enlaces paquete a paquete.
 
 ## Verificación y límites pendientes
 
 Se ejecutaron 18 pruebas focales de Infrastructure en una copia temporal del backend: mapper CycloneDX Maven/npm, extracción y request al sidecar, lockfile npm scoped, parser CycloneDX, y adaptador OSV con respuestas controladas. Pasaron las 18. También pasó el build de producción Angular.
 
-Se aplicó V25 y se verificó el runtime del scanner 13.8.0 en Compose: `/health` responde y el backend espera su healthcheck. Con fixtures temporales reales, cdxgen encontró dos paquetes npm (scoped directo y dependencia transitiva) con las dos aristas observadas, y dos paquetes Maven entre tres POMs multimódulo con versiones gestionadas/heredadas pero sin aristas; ambos Maven quedan presentes como `UNKNOWN` y con cobertura parcial. No se ejecutó una petición autenticada desde el usuario en la UI.
+Se aplic? V25 y se verific? el runtime del scanner 13.8.0 en Compose: `/health` responde y el backend espera su healthcheck. Con fixtures temporales reales, cdxgen encontr? dos paquetes npm (scoped directo y dependencia transitiva). En Maven encontr? dos paquetes entre tres POMs multim?dulo con versiones gestionadas/heredadas; ambos quedaron presentes como `UNKNOWN` y con cobertura parcial. No se ejecut? una petici?n autenticada desde el usuario en la UI.
 
 Se ejecutaron 18 pruebas focales (18 pasaron), 5 `SbomImportIT` con PostgreSQL desechable (5 pasaron) y build Angular (pasó). La consulta OSV se validó con respuestas simuladas, incluyendo paginación, error del proveedor, asociación de resultados batch y vulnerabilidad con ID sin alias/severidad; no se consultó OSV en vivo.

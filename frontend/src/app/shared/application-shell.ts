@@ -12,7 +12,6 @@ import { OrganizationWorkspace } from '../features/organizations/organization-wo
 import { InvitationAcceptance } from '../features/organizations/invitation-acceptance';
 import { EmailVerification } from '../features/identity/email-verification';
 import { ConnectedIdentities } from '../features/identity/connected-identities';
-import { DependencyGraphWorkspace } from '../features/graph/dependency-graph-workspace';
 import { InvitationLinkService } from '../features/organizations/invitation-link.service';
 import { WorkspaceSidebar } from './workspace-sidebar';
 import { WorkspaceTopbar } from './workspace-topbar';
@@ -29,7 +28,6 @@ import { WorkspaceSettingsService } from '../core/workspace-settings.service';
     InvitationAcceptance,
     EmailVerification,
     ConnectedIdentities,
-    DependencyGraphWorkspace,
   ],
   templateUrl: './application-shell.html',
   styleUrl: './application-shell.scss',

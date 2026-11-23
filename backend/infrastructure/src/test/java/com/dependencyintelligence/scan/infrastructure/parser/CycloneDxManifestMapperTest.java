@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class CycloneDxManifestMapperTest {
     private final CycloneDxManifestMapper mapper = new CycloneDxManifestMapper(new ObjectMapper());
 
-    @Test void mapsMavenMultiModuleManagedVersionsAndVerifiedTransitiveEdges() {
+    @Test void mapsMavenMultiModuleManagedVersionsAndDirectTransitiveClassification() {
         String bom = """
             {"bomFormat":"CycloneDX","specVersion":"1.7","metadata":{"component":{"bom-ref":"root"},"properties":[{"name":"dependency-intelligence:source-manifest-count","value":"3"}]},
              "components":[
@@ -25,12 +25,11 @@ class CycloneDxManifestMapperTest {
             .findFirst().orElseThrow().coordinates().version());
         assertEquals(1, analysis.dependencies().stream().filter(item -> item.dependencyType().equals("DIRECT")).count());
         assertEquals(1, analysis.dependencies().stream().filter(item -> item.dependencyType().equals("TRANSITIVE")).count());
-        assertEquals(1, analysis.edges().size());
         assertEquals(0, analysis.unresolvedCount());
         assertEquals("PARTIAL", analysis.coverageStatus());
     }
 
-    @Test void preservesScopedNpmIdentityAndLockfileTransitiveRelationships() {
+    @Test void preservesScopedNpmIdentityAndDirectTransitiveClassification() {
         String bom = """
             {"bomFormat":"CycloneDX","specVersion":"1.6","metadata":{"component":{"bom-ref":"pkg:npm/scanner-fixture@1.0.0"},"properties":[{"name":"dependency-intelligence:source-manifest-count","value":"1"}]},
              "components":[
@@ -48,11 +47,10 @@ class CycloneDxManifestMapperTest {
         assertEquals("DIRECT", scoped.dependencyType());
         assertTrue(analysis.dependencies().stream().anyMatch(item -> item.coordinates().name().equals("axios")
             && item.dependencyType().equals("TRANSITIVE")));
-        assertEquals(1, analysis.edges().size());
         assertEquals(0, analysis.unresolvedCount());
     }
 
-    @Test void marksComponentsWithoutRootRelationshipAsPartialInsteadOfInventingEdges() {
+    @Test void marksComponentsWithoutRootEvidenceAsPartial() {
         String bom = """
             {"bomFormat":"CycloneDX","specVersion":"1.6","metadata":{"component":{"bom-ref":"root"},"properties":[{"name":"dependency-intelligence:source-manifest-count","value":"2"}]},
              "components":[{"type":"library","bom-ref":"lib","group":"org.example","name":"lib","version":"1.0.0","purl":"pkg:maven/org.example/lib@1.0.0?type=jar"}],
@@ -61,7 +59,6 @@ class CycloneDxManifestMapperTest {
         var analysis = mapper.map(bom.getBytes(java.nio.charset.StandardCharsets.UTF_8), "MAVEN");
         assertEquals(1, analysis.dependencies().size());
         assertEquals("UNKNOWN", analysis.dependencies().getFirst().dependencyType());
-        assertTrue(analysis.edges().isEmpty());
         assertEquals(1, analysis.unresolvedCount());
         assertEquals("PARTIAL", analysis.coverageStatus());
     }

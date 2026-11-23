@@ -1,14 +1,11 @@
-Actualización del bloque 66 (22 de noviembre de 2026). La petición 5 incorpora el catálogo paginado del espacio, filtros por seguridad y alcance, y detalle de apariciones con enlaces al repositorio y al grafo. La referencia funcional está en el [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md).
 
 - [ ] Revisar la experiencia con la sesión real del usuario en OMEGA y Bot de WhatsApp. Los snapshots existentes se consultaron en solo lectura.
-- [ ] Petición 6: revisar Grafo con los repositorios grandes y las relaciones verificadas.
 - [ ] Petición 12: historial y comparación de la presencia de un paquete entre análisis.
 
 Actualización del bloque 65 (22 de noviembre de 2026). Las correcciones de la petición 4 ya usan una sola fuente por análisis y reproducen la evidencia OSV del scan mostrado. Se acordó un límite de 300 MiB y 50.000 archivos.
 
 - [x] Fijar una fuente única por acción, asociar la evidencia OSV al `scanId` y filtrar las versiones corregidas por paquete y ecosistema.
 - [x] Conservar el último inventario válido al fallar un reanálisis. Conciliar omisiones de CycloneDX con POM y lockfiles y distinguir ausencia de manifiesto, cobertura y fallo.
-- [x] Comprobar en un entorno Docker desechable la carga autenticada de 300 MiB y 50.000 archivos, los resultados Maven/npm con el mismo hash, una transitiva npm scoped, la selección de OSV por scan y la persistencia en Inventario y Grafo.
 - [ ] Confirmar la presentación interactiva en los repositorios reales del usuario. Maven mantiene cobertura parcial para padres, BOM remotos y transitivas sin evidencia local.
 
 Actualización del bloque 63 (22 de noviembre de 2026). **Petición 3 cerrada en requisitos.** El [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) recoge importación, permisos, procedencia y retención de las dos fuentes. La descarga e importación confirmadas en Dinamita corresponden a la validación anterior.
@@ -27,7 +24,6 @@ El plan ahora enumera las 15 peticiones y especifica la fase de IA documental: e
 
 Actualización del bloque 60 (22 de noviembre de 2026): revisión del código confirma cuatro pantallas pendientes, según la confirmación del usuario: Vulnerabilidades, Análisis, Documentación y Reportes. El menú de navegación las envía al fallback “En preparación”. OSV/escaneo sí se usan desde Inventario y Dashboard, pero eso no equivale a completar sus pantallas independientes.
 
-El Dashboard, Inventario, Dependencias (grafo), Mis repositorios, Organización, Configuración y Administración ya tienen componentes propios; tienen capacidades de cobertura distinta. Dashboard sigue mostrando placeholders estáticos de grafo y tendencia, y análisis recientes solo Maven. Los textos del sidebar describen etapas ya superadas y requieren corregirse cuando el usuario priorice la pulida visual. El detalle del mapa y los estados por pantalla están en el bloque 60 del contexto maestro.
 
 Siguiente paso cuando se cierre la revisión documental: acordar el orden y los criterios de aceptación de las cuatro pantallas; no iniciar todavía una implementación por inferencia.
 
@@ -47,7 +43,7 @@ Actualizado: 22 de noviembre de 2026, bloque 58.
 
 **Comprobado en Compose:** OMEGA Maven tenía 1 POM detectado pero 0 componentes; npm conserva 270 componentes en OMEGA y 291 en Bot de WhatsApp. OSV guardó evaluaciones asociadas a esos scans; Bot tiene 11 resultados `MATCHED` con avisos ligados a paquetes y versiones, OMEGA no reporta avisos en las 270 versiones evaluadas.
 
-**Implementado y probado:** si cdxgen devuelve SBOM Maven vacío, el backend recupera declaraciones con versión exacta desde POM, informa `PARTIAL` y conserva pendientes sin inventar versiones ni relaciones transitivas. Pasaron las pruebas focales del fallback y de asociación/persistencia OSV.
+**Implementado y probado:** si cdxgen devuelve SBOM Maven vacío, el backend recupera declaraciones con versión exacta desde POM, informa `PARTIAL` y conserva pendientes sin inventar versiones ni afirmar cobertura transitiva sin evidencia. Pasaron las pruebas focales del fallback y de asociación/persistencia OSV.
 
 **Pendiente:** reanalizar OMEGA en Inventario y confirmar que el inventario Maven y su evaluación OSV aparecen en la UI. El backend Compose ya corre el JAR actualizado; PostgreSQL, Mailpit, cdxgen y el entorno nativo siguen activos. Maven transitivo, versiones gestionadas sin evidencia local, Maven v4 y ecosistemas adicionales siguen fuera de cobertura garantizada.
 ## Bloque 56 — restaurar Inventario y separar scanner de OSV (implementado; reanálisis autenticado pendiente)
@@ -60,23 +56,18 @@ La inspección agregada de la base activa encontró tres scans `cdxgen-npm` guar
 
 ## Bloque 55 — scanner de dependencias y cobertura OSV (implementado; recorrido autenticado pendiente)
 
-Se conectó el flujo usado por el botón de Inventario a cdxgen secure 13.8.0 mediante un sidecar Docker aislado. Los readers Maven/npm convierten SBOM CycloneDX en el mismo modelo de inventario y grafo; V25 registra cobertura `COMPLETE/PARTIAL`; el importador CycloneDX ahora admite Maven/npm y guarda las aristas declaradas. El análisis Maven se marca parcial porque el modo seguro no ejecuta Maven y no verifica el árbol transitivo completo. Se añadieron regresiones focales de mapper, extracción aislada, paquete scoped y paginación/fallo OSV.
 
-**Verificado:** 18 pruebas focales, 5 pruebas `SbomImportIT` con PostgreSQL desechable, build Angular, runtime cdxgen 13.8.0 en Compose y V25 aplicada. El sidecar encontró npm scoped directo + transitivo y sus dos relaciones. Para Maven multimódulo encontró versiones heredadas/gestionadas en dos módulos, conservó ambos paquetes sin inventar aristas y marcó la cobertura parcial/relación `UNKNOWN`. El frontend y backend de Compose se actualizaron; el frontend responde HTTP 200. OSV se probó con respuestas controladas, no en vivo. No se completó todavía una solicitud autenticada de análisis desde la sesión del usuario.
 
 **Pendiente:** recorrido autenticado desde Inventario sobre repositorios reales; confirmar en la UI que se actualizan inventario, relaciones y vulnerabilidades después del análisis, y observar el comportamiento con un error real de OSV. Maven transitivo sigue limitado por el modo seguro: la cobertura se informa parcial y no se afirman relaciones no emitidas por el SBOM. Ver [scanner](../infra/scanner/README.md) y [bitácora](BITACORA_TRABAJO.md).
 
 Ver [scanner](../infra/scanner/README.md) y [bitácora](BITACORA_TRABAJO.md).
 
-**Bloque 54 implementado, revisión de UI pendiente:** el grafo ya ofrece vista general/local, profundidad y dirección, búsqueda centrada, filtros combinables por ecosistema/módulo/tipo/ámbito, grupos por namespace y contador de nodos/aristas observadas. No se crean aristas que atraviesen dependencias ocultas. El DTO del grafo todavía no incluye severidad de vulnerabilidad. Con datos reales se midió `OMEGA-main` (277 paquetes; 492 relaciones de paquete) y `Bot-de-Whatsapp-plantilla--main` (284 paquetes consolidados; 411 relaciones de paquete); el layout Cytoscape headless tomó 297 ms y 306 ms. El caso de seis paquetes fue solo un fixture derivado de OMEGA, porque no existe un repo de ese tamaño en la base activa. Falta recorrido visual en navegador; la sesión CUA no pudo verificar la URL de Chrome. Ver [bitácora](BITACORA_TRABAJO.md).
 
-**Próxima comprobación prioritaria:** recorrido interactivo del bloque 54 con los dos repositorios reales y un repositorio independiente de seis paquetes cuando esté disponible; revisar búsqueda, filtros, vista local, zoom, ajuste, tema y tamaños móvil/escritorio. El build actualizado está servido en `localhost:8089` (página y chunk del grafo HTTP 200); no se hizo una prueba visual ni de bloqueo de interfaz en esta sesión.
 
 Actualizado: 20 de noviembre de 2026, bloque 51 (mapa de dependencias por capas).
 
 **Estado del entorno y datos:** no se consultó la base de datos activa durante el bloque 52, por lo que el contenido actual de repositorios/scans debe confirmarse en la instancia local al abrir la plataforma. La muestra de npm permanece en `samples/npm-axios-demo` (Axios directo + ocho paquetes transitivos en lockfile v3); no se afirma que Omega/Bot de WhatsApp estén importados o analizados desde esta sesión.
 
-**Estado del grafo e Inventario:** el bloque 52 conserva el mapa por capas (hasta 1.000 nodos), agrega una red force-directed (hasta 350 nodos), mantiene lista/búsqueda completas y filtros de seguridad por versión. TypeScript, parseo de templates y build Angular pasan; falta revisión visual con Omega/Bot de WhatsApp, temas claro/oscuro y móvil/escritorio. La vista actualizada está en `http://localhost:8090/?view=inventory`; la API usa el backend activo de 8089. Ver [diseño](DISENO_FRONTEND.md) y [bitácora](BITACORA_TRABAJO.md).
 
 Bloque 35: el botón principal detecta una instalación única y lleva directamente a OAuth/PKCE; el navegador recibe `index.html` sin caché y recarga la pestaña restaurada al volver desde GitHub. El propietario completó el recorrido. La base registra la instalación y dos repositorios; la descarga ZIP funcionó en la vista del usuario.
 
@@ -122,7 +113,6 @@ Pasos y callbacks en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md), acce
 
 - [x] Configuracion compartida de organizacion: tema SYSTEM/LIGHT/DARK e idioma ES/EN persistidos en backend con autorizacion OWNER/ADMIN y lectura para miembros activos; V18 aplicada y verificada en PostgreSQL local. Parametros adicionales quedan pendientes.
 - [x] Importación desde carpeta: selector web, exclusión de `.git`/dependencias/artefactos de build/credenciales conocidas, límite de 100 MiB/50.000 archivos, ZIP privado persistente, repositorio local tenant-scoped y autorización mediante permisos existentes. La carga histórica de 446 archivos se confirmó antes de V24; el nuevo borde de 50.000 está cubierto por test focal y queda pendiente validación de carga real.
-- [ ] Análisis de repositorios: Maven lee declaraciones directas concretas; npm lee paquetes del lockfile v2/v3 con tipo directo/transitivo. Falta validación real del usuario, aristas padre-hijo, Maven transitivo/herencia/BOM, npm v1 y jobs aislados/progreso/reintentos.
 
 Orden de referencia según las dependencias del maestro; se elige el bloque concreto con el usuario al retomar.
 
@@ -132,9 +122,7 @@ Orden de referencia según las dependencias del maestro; se elige el bloque conc
 | Identidad y organización | Backend/UI de invitaciones y gestión entregados en bloque 11; pendiente revisión conjunta y paginación de historiales de invitaciones grandes | Completar aceptación visual/operativa sin considerar pendiente el código ya probado |
 | Integración de repositorios GitHub | Instalación/OAuth/PKCE, listado, importación, descarga y sincronización bajo demanda; deshabilita repositorios retirados y detecta instalación revocada al abrir/actualizar el espacio | Falta webhook o sincronización periódica inmediata, y revisión del usuario retirando/revocando acceso real; las fuentes remotas viven mientras GitHub las autorice |
 | Repositorios y análisis | Pantallas, worker/jobs, estados, errores, reintentos/recuperación e historial con commit real | Solicitar y completar análisis trazable, con fallos recuperables |
-| SBOM y ecosistemas | Carga, parsers Maven/npm con cobertura ampliada, scanner aislado y relaciones con evidencia | Procesar proyectos reales y guardar componentes/aristas verificables sin inferencias |
 | Vulnerabilidades | Consulta OSV por versión exacta, snapshots con evidencia tenant-scoped, Dashboard por cuatro niveles, fixes oficiales y búsqueda estática por archivo/línea para dos advisories Jackson (bloques 42–44) | Revisar con avisos reales del usuario; ampliar patrones/cobertura y decidir más adelante análisis de flujo real, sin afirmar que las heurísticas prueban explotabilidad |
-| Inventario y grafo | Catálogo UI agregado, API/vista Cytoscape por repositorio, búsqueda/filtro/detalle y lista textual implementados. npm persiste relaciones alcanzables del lockfile v2/v3; Maven enlaza proyecto con dependencias explícitas de POM. Pendientes: resolución Maven transitiva, vistas multi-repositorio/paginación, riesgo en nodos y validación con datos reales | Navegar paquetes/versiones y relaciones con evidencia trazable; directa/transitiva solo cuando la fuente lo respalde |
 | Historial y comparación | Consultas por commit y comparación de snapshots del mismo repositorio | Identificar añadidos, eliminados y actualizados con procedencia |
 | Recomendaciones | Versiones candidatas/corregidas, riesgo y evidencia documental | Proponer cambios explicables y pruebas pertinentes |
 | Impacto y primer piloto | ADD/UPDATE/REMOVE/REPLACE, estados KNOWN/POTENTIAL/VALIDATED, pruebas aisladas y propuesta de PR aprobable | Ejecutar validación aislada y presentar una propuesta revisable; acciones sobre repositorios sujetas a aprobación en el producto |

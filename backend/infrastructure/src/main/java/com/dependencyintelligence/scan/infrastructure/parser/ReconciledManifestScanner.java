@@ -5,7 +5,6 @@ import static com.dependencyintelligence.repository.application.RepositorySource
 import com.dependencyintelligence.component.domain.PackageCoordinates;
 import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
 import com.dependencyintelligence.scan.application.dto.ManifestDependency;
-import com.dependencyintelligence.scan.application.dto.ManifestDependencyEdge;
 import com.dependencyintelligence.scan.application.port.out.CycloneDxGenerator;
 import com.dependencyintelligence.scan.application.port.out.CycloneDxGenerator.Ecosystem;
 import java.io.IOException;
@@ -78,48 +77,36 @@ final class ReconciledManifestScanner {
     }
 
     private static ManifestAnalysis partial(ManifestAnalysis analysis, String message) {
-        return new ManifestAnalysis(analysis.dependencies(), analysis.edges(), analysis.manifestCount(),
+        return new ManifestAnalysis(analysis.dependencies(), analysis.manifestCount(),
             analysis.unresolvedCount(), "PARTIAL", message);
     }
 
     private static ManifestAnalysis reconcile(ManifestAnalysis local, ManifestAnalysis sbom, Ecosystem ecosystem) {
-        // Keep lockfile paths and scopes for npm. Maven CycloneDX paths identify graph nodes independently of POM paths.
+        // Keep lockfile paths and scopes for npm. Maven CycloneDX paths identify SBOM components independently of POM paths.
         ManifestAnalysis primary = ecosystem == Ecosystem.NPM ? local : sbom;
         ManifestAnalysis secondary = ecosystem == Ecosystem.NPM ? sbom : local;
         var dependencies = new ArrayList<>(primary.dependencies());
-        var edges = new LinkedHashSet<>(primary.edges());
         var byPackage = new HashMap<Identity, List<ManifestDependency>>();
         for (var dependency : primary.dependencies())
             byPackage.computeIfAbsent(Identity.of(dependency.coordinates()), ignored -> new ArrayList<>()).add(dependency);
 
-        var translatedPaths = new HashMap<String, String>();
         for (var dependency : secondary.dependencies()) {
             List<ManifestDependency> existing = byPackage.get(Identity.of(dependency.coordinates()));
             if (existing == null) {
                 dependencies.add(dependency);
-                translatedPaths.put(dependency.manifestPath(), dependency.manifestPath());
-            } else if (existing.size() == 1) {
-                translatedPaths.put(dependency.manifestPath(), existing.getFirst().manifestPath());
             }
         }
-        int ambiguousEdges = 0;
-        for (var edge : secondary.edges()) {
-            String parent = translatedPaths.get(edge.parentManifestPath());
-            String child = translatedPaths.get(edge.childManifestPath());
-            if (parent == null || child == null) ambiguousEdges++;
-            else if (!parent.equals(child)) edges.add(new ManifestDependencyEdge(parent, child));
-        }
         int added = dependencies.size() - primary.dependencies().size();
-        int unresolved = Math.max(local.unresolvedCount(), sbom.unresolvedCount()) + ambiguousEdges;
+        int unresolved = Math.max(local.unresolvedCount(), sbom.unresolvedCount());
         int manifestCount = Math.max(local.manifestCount(), sbom.manifestCount());
         if (ecosystem == Ecosystem.MAVEN || unresolved > 0 || added > 0
                 || "PARTIAL".equals(sbom.coverageStatus()) || "PARTIAL".equals(local.coverageStatus())) {
             String explanation = ecosystem == Ecosystem.MAVEN
                 ? "Cobertura Maven parcial: se contrastaron CycloneDX y los POM locales. Las transitivas requieren evidencia verificable."
-                : "Se contrastaron CycloneDX y los lockfiles. Hay diferencias o relaciones por confirmar.";
-            return new ManifestAnalysis(dependencies, List.copyOf(edges), manifestCount, unresolved, "PARTIAL", explanation);
+                : "Se contrastaron CycloneDX y los lockfiles. Hay componentes por confirmar.";
+            return new ManifestAnalysis(dependencies, manifestCount, unresolved, "PARTIAL", explanation);
         }
-        return new ManifestAnalysis(dependencies, List.copyOf(edges), manifestCount, 0);
+        return new ManifestAnalysis(dependencies, manifestCount, 0);
     }
 
     private static void copyBounded(InputStream archive, Path replay) throws IOException {

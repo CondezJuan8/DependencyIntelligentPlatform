@@ -88,7 +88,7 @@ class CycloneDxJsonParserTest {
         rejects(document.toString(), DUPLICATE_REFERENCE);
     }
 
-    @Test void importsScopedNpmPackagesAndKeepsRootAndTransitiveRelationships() throws Exception {
+    @Test void importsScopedNpmPackagesAndClassifiesDirectAndTransitiveComponents() throws Exception {
         String bom = """
             {"bomFormat":"CycloneDX","specVersion":"1.7","metadata":{"component":{"bom-ref":"root"}},
              "components":[
@@ -104,9 +104,6 @@ class CycloneDxJsonParserTest {
         assertEquals("DIRECT", scoped.dependencyType());
         assertEquals("optional", parsed.components().get(1).scope());
         assertEquals("TRANSITIVE", parsed.components().get(1).dependencyType());
-        assertEquals(1, parsed.edges().size());
-        assertEquals("scoped", parsed.edges().getFirst().parentBomRef());
-        assertEquals("axios", parsed.edges().getFirst().childBomRef());
     }
 
     @Test void enforcesByteAndComponentLimitsAndAllowsEmptyInventory() throws Exception {

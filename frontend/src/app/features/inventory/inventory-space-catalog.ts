@@ -152,12 +152,6 @@ export class InventorySpaceCatalog implements OnInit {
       packageName: this.name(key), version: occurrence.version });
   }
 
-  graphUrl(key: PackageKey, occurrence: Occurrence): string {
-    const params = new URLSearchParams({ view: 'dependencies', repository: occurrence.repositoryId,
-      package: `${this.name(key)}@${occurrence.version}` });
-    return '?' + params;
-  }
-
   name(key: PackageKey): string {
     return key.ecosystem === 'MAVEN' && key.namespace ? `${key.namespace}:${key.name}` : key.name;
   }

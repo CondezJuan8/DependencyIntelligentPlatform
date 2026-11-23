@@ -50,16 +50,13 @@ class NormalizedSchemaIT extends PostgresIntegrationSupport {
         assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into user_identities(user_id,provider,provider_subject) values (?,'google',?)", second.user(), "fixture-" + first.user()));
     }
 
-    @Test void edgesFindingsAndComparisonsCannotCrossSnapshotRepositoryOrTenant() {
+    @Test void unusedScanStorageIsRemovedAndTenantScopedDataRemains() {
         var first = fixture(); var second = fixture();
-        var type = jdbc.queryForObject("select id from dependency_relationship_types where code='depends_on'", UUID.class);
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into dependency_edges(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id) values (?,?,?,?,?)", first.tenant(), first.scan(), first.occurrence(), second.occurrence(), type));
+        assertNull(jdbc.queryForObject("select to_regclass('dependency_edges')::text", String.class));
+        assertNull(jdbc.queryForObject("select to_regclass('dependency_relationship_types')::text", String.class));
         var otherScan = UUID.randomUUID();
         jdbc.update("insert into scans(id,organization_id,repository_id,git_reference,status) values (?,?,?,'main','PENDING')", otherScan, first.tenant(), first.repo());
         var otherOccurrence = jdbc.queryForObject("insert into scan_components(organization_id,scan_id,bom_ref,component_version_id,dependency_type) values (?,?,'child',?,'TRANSITIVE') returning id", UUID.class, first.tenant(), otherScan, first.version());
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into dependency_edges(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id) values (?,?,?,?,?)", first.tenant(), first.scan(), first.occurrence(), otherOccurrence, type));
-        var child = jdbc.queryForObject("insert into scan_components(organization_id,scan_id,bom_ref,component_version_id,dependency_type) values (?,?,'valid-child',?,'TRANSITIVE') returning id", UUID.class, first.tenant(), first.scan(), first.version());
-        jdbc.update("insert into dependency_edges(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id) values (?,?,?,?,?)", first.tenant(), first.scan(), first.occurrence(), child, type);
         var vulnerability = UUID.randomUUID();
         jdbc.update("insert into vulnerabilities(id,source,external_id) values (?,'OSV',?)", vulnerability, "fixture-" + vulnerability);
         assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("insert into scan_vulnerability_findings(organization_id,scan_id,scan_component_id,vulnerability_id) values (?,?,?,?)", first.tenant(), first.scan(), second.occurrence(), vulnerability));
@@ -119,7 +116,7 @@ class NormalizedSchemaIT extends PostgresIntegrationSupport {
         jdbc.update("insert into change_pull_request_proposals(organization_id,simulation_id,title,description,proposed_patch_storage_key,status,approved_by_membership_id,approved_at) values (?,?,'Fixture','Fixture','fixture/patch','APPROVED',?,current_timestamp)", fixture.tenant(), simulation, fixture.member());
     }
 
-    @Test void upgradeFromV3PreservesVersionVariantsEdgesMembershipAndFindingEvidence() {
+    @Test void upgradeFromV3PreservesVersionVariantsMembershipAndFindingEvidence() {
         String schema = "v3_" + UUID.randomUUID().toString().replace("-", "");
         Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).target("3").load().migrate();
         UUID tenant=UUID.randomUUID(), user=UUID.randomUUID(), repo=UUID.randomUUID(), scan=UUID.randomUUID(), first=UUID.randomUUID(), second=UUID.randomUUID(), advisory=UUID.randomUUID();
@@ -130,17 +127,16 @@ class NormalizedSchemaIT extends PostgresIntegrationSupport {
         jdbc.update("insert into " + schema + ".scans(id,organization_id,repository_id,git_reference,status,commit_sha) values (?,?,?,'main','PENDING',?)", scan, tenant, repo, "a".repeat(40));
         jdbc.update("insert into " + schema + ".components(id,organization_id,purl,ecosystem,namespace,name,version) values (?,?,'pkg:maven/org.example/core@1','Maven','org.example','core','1'),(?,?,'pkg:maven/org.example/core@1?type=jar','Maven','org.example','core','1')", first, tenant, second, tenant);
         jdbc.update("insert into " + schema + ".scan_components values (?,?,'parent',?,'DIRECT'),(?,?,'child',?,'TRANSITIVE')", tenant, scan, first, tenant, scan, second);
-        jdbc.update("insert into " + schema + ".dependency_relationships values (?,?,'parent','child')", tenant, scan);
         jdbc.update("insert into " + schema + ".vulnerabilities(id,source,external_id,raw_payload) values (?,'OSV','legacy-advisory','{\"fixture\":true}')", advisory);
         jdbc.update("insert into " + schema + ".vulnerability_findings(organization_id,scan_id,bom_ref,vulnerability_id,fixed_versions) values (?,?,'parent',?,'[\"2\",\"2\"]')", tenant, scan, advisory);
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(8, latest.migrate().migrationsExecuted);
+        assertEquals(24, latest.migrate().migrationsExecuted);
         latest.validate();
         assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".components", Integer.class));
         assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".component_versions", Integer.class));
         assertEquals(2, jdbc.queryForObject("select count(*) from " + schema + ".component_identifiers", Integer.class));
         assertEquals(2, jdbc.queryForObject("select count(*) from " + schema + ".scan_components", Integer.class));
-        assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".dependency_edges", Integer.class));
+        assertNull(jdbc.queryForObject("select to_regclass('" + schema + ".dependency_edges')::text", String.class));
         assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".membership_roles", Integer.class));
         assertEquals("legacy-subject", jdbc.queryForObject("select provider_subject from " + schema + ".user_identities", String.class));
         assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".finding_fixed_versions", Integer.class));

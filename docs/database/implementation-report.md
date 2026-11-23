@@ -1,3 +1,7 @@
+## Retiro de almacenamiento fuera del alcance V27
+
+23 de noviembre de 2026. Se anadio una migracion aditiva para instalaciones existentes; conserva el historial V1-V26 y retira almacenamiento de an?lisis que dej? de utilizarse. El catalogo documentado queda en 126 tablas, 90 con ENABLE+FORCE RLS y 224 FK. No se aplico esta migracion a los entornos activos durante este cambio.
+
 ## Ajustes compartidos de organizacion, bloque 26
 
 18 de noviembre de 2026. Migracion V18 aplicada con Flyway en PostgreSQL local. Catalogo real: 126 tablas de negocio, 89 con ENABLE+FORCE RLS y 223 FK. Catalogo schema.json, diccionario y siete diagramas regenerados; IDs/bindings unicos y todas las FK cubiertas.
@@ -65,7 +69,6 @@ Referencia: [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENC
 
 | Migración | Función |
 | --- | --- |
-| V4 | Paquete/versión/identificadores/aparición separados; aristas entre apariciones del mismo snapshot |
 | V5 | Identidad local/externa, membresías, RBAC, equipos, permisos por repositorio e instalaciones GitHub |
 | V6 | Jobs/intentos/etapas, commits, artefactos, SBOM, comparaciones, hashes y licencias |
 | V7 | Advisories, aliases, severidades, fuentes/rangos/fixes y evidencia de hallazgos privados |
@@ -80,9 +83,7 @@ V101 vectorial se entrega fuera de la ubicación Flyway predeterminada y no fue 
 
 ## Transición y compatibilidad
 
-La conversión conserva organizaciones, sujetos históricos, membresías/roles, repositorios, snapshots, procedencia, versiones/PURL alternativos, apariciones, aristas y hallazgos. Fixes multivaluados pasan a filas. `sbom_imports` pasa a `sbom_documents`. Se conservan checksums previos. Datos incompatibles requieren revisión; no se eliminan silenciosamente para forzar el arranque.
 
-Adaptadores existentes compatibles con paquete/versión/identificadores separados. La importación conserva cada bom-ref y UNKNOWN, no inventa commit/scanner/grafo y revierte Íntegramente ante conflicto. El parser continúa acotado a Maven; el catálogo npm no implementa su parser.
 
 Infrastructure delimita tenant mediante `TenantTransactions`, también en el bootstrap. Domain/Application siguen sin Spring/JPA. Credenciales Flyway/runtime separadas y guard contra datasource propietario/privilegiado. Aprovisionamiento del login comprobado dos veces para verificar idempotencia.
 
@@ -95,7 +96,6 @@ Primera selección: 8 unitarias/arquitectura/seguridad y 22 de integración, tod
 Cobertura:
 
 - Instalación limpia, actualización desde V1/V3 con datos, checksums intactos y validación JPA.
-- Dos PURL con qualifiers convertidos al mismo paquete/versión, manteniendo apariciones/aristas; identidad, roles, advisory, base explícita del hash de payload y fixes preservados.
 - FK del mismo tenant/repositorio/snapshot/paquete/análisis; equipos, comparación, documentos/citas, reportes y entregas.
 - Login runtime real sin DDL/propiedad: lecturas/escrituras ajenas y escritura de catálogos rechazadas; contexto transaccional eliminado y cambio interno de tenant rechazado.
 - Importador y JPA con ese login; rollback/reimportación/bootstrap.
@@ -105,6 +105,5 @@ Siete Excalidraw nativos más SVG/PNG y diccionario generados desde catálogo ap
 
 ## Pendientes de producto
 
-Las tablas están disponibles; faltan servicios y recorridos. Sigue registro/login local, verificación/recuperación/sesiones, autorización de membresía/permisos y HTTP/UI. Después Google/GitHub, instalación GitHub, worker/scanner Maven/npm, OSV, inventario/grafo/comparación e impacto. Almacenamiento documental, Ollama/Gemini, reportes/alertas, ejecución de retención y operación/backup requieren implementación y aceptación.
 
 RLS no autentica; el tenant de ruta no acredita permisos. Identidades globales requieren acceso restringido por autenticación. APIs de negocio continúan denegadas. No se declara 5NF universal: [normalización](normalization.md) documenta dependencias y excepciones.

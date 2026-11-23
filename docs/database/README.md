@@ -1,6 +1,6 @@
 # Base de datos de Dependency Intelligence
 
-Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). Esquema aplicado hasta **V24**, con **128 tablas de negocio, 91 con RLS forzado y 227 FK**; V24 solo amplía el CHECK del conteo de archivos y no cambia tablas ni totales. El catálogo y el diccionario reflejan el límite consultado en la base migrada.
+Fuente vigente en [CODEX_DATABASE_DEPENDENCY_INTELLIGENCE](../CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md). El esquema documentado llega a **V27**, con **126 tablas de negocio, 90 con RLS forzado y 224 FK**. V27 retira almacenamiento que ya no forma parte del alcance del producto. El catalogo y el diccionario reflejan la estructura posterior a esa migracion.
 
 - [Informe de implementación y pruebas](implementation-report.md).
 - [Diccionario: función, columnas, claves, Índices, políticas y referencias de cada tabla](data-dictionary.md).
@@ -16,7 +16,7 @@ Para una instalación nueva, copiar `.env.example` a `.env` sin sobrescribir una
 docker compose up --build -d
 ```
 
-El entrypoint crea dependency_app. Flyway aplica V1-V24; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
+El entrypoint crea dependency_app. Flyway aplica V1-V27; el datasource usa el login limitado dependency_app, miembro de dependency_runtime. Los archivos de proyectos locales persisten en el volumen Docker `repository_data`, separado del volumen PostgreSQL.
 
 Las cargas locales se limitan a 100 MiB totales y 50.000 archivos por carpeta. El cuerpo multipart puede medir hasta 200 MiB por rutas/cabeceras; el contenido agregado de archivos continúa limitado a 100 MiB. Los originales empaquetados viven fuera de la base; conserva y respalda también el volumen `repository_data` para poder recuperar los repositorios importados.
 
@@ -54,11 +54,11 @@ Usa PostgreSQL 17.7 de Testcontainers con Docker. Alternativa: `TEST_DATABASE_UR
 
 ## Diagramas y regeneración
 
-Archivos JSON nativos editables en Excalidraw, acompañados de SVG y PNG:
+Archivos editables nativos de Excalidraw, acompañados de SVG:
 
 1. [Contexto del sistema](diagrams/01-system-data-context.excalidraw).
 2. [Identidad, permisos e integraciones](diagrams/02-identity-access-integrations.excalidraw).
-3. [Scans, SBOM, componentes y grafo](diagrams/03-scans-sbom-components-graph.excalidraw).
+3. [Scans, SBOM y componentes](diagrams/03-scans-sbom-components.excalidraw).
 4. [Vulnerabilidades y evidencia](diagrams/04-vulnerability-intelligence.excalidraw).
 5. [Documentos y RAG; vectores opcionales](diagrams/05-documentation-rag-pgvector.excalidraw).
 6. [Impacto, reportes, notificaciones y retención](diagrams/06-change-impact-reporting-notifications.excalidraw).
@@ -71,6 +71,6 @@ psql -X -qAt -v ON_ERROR_STOP=1 -f infra/database/export-schema.sql -o docs/data
 python infra/database/generate-documentation.py docs/database/schema.json docs/database
 ```
 
-El export contiene estructura/politicas/roles, nunca datos de negocio ni contraseñas. El generador usa Python estándar; Pillow añade PNG. Diagramas 2-6 representan FK reales; diagramas 1/7 flujos lógicos. Validación confirma IDs, bindings y las 227 FK.
+El export contiene estructura/politicas/roles, nunca datos de negocio ni contrasenas. El generador usa Python estandar; Pillow puede anadir PNG. Los diagramas 2-6 representan FK reales; diagramas 1/7 flujos logicos. V27 actualiza el almacenamiento de analisis; inventario y evaluaciones OSV conservan componentes y clasificaciones.
 
 Verificación disponible de Docker, Excalidraw, pgvector y revisión visual del acceso en [implementation-report](implementation-report.md) y [ACCESO_LOCAL](../ACCESO_LOCAL.md).

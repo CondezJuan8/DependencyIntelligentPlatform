@@ -25,13 +25,6 @@ export const navigation = [
       'Explora hallazgos de seguridad con su versión afectada y evidencia. Pendiente de la integración con OSV.',
   },
   {
-    id: 'dependencies',
-    label: 'Dependencias',
-    icon: 'graph',
-    ready: true,
-    description: 'Explora las relaciones de dependencia observadas en los análisis Maven y npm.',
-  },
-  {
     id: 'analysis',
     label: 'Análisis',
     icon: 'analysis',

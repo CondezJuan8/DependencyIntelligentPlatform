@@ -48,7 +48,6 @@ PURPOSES = {
     'repository_settings': ('integration', 'Configuración escalar de análisis por repositorio.'),
     'package_ecosystems': ('component', 'Ecosistemas conocidos; solo Maven/npm están confirmados como cobertura objetivo.'),
     'dependency_scopes': ('component', 'Scopes conocidos de dependencias.'),
-    'dependency_relationship_types': ('component', 'Tipos semánticos de aristas.'),
     'components': ('component', 'Identidad lógica del paquete, privada por organización.'),
     'component_versions': ('component', 'Versión exacta textual; no asume SemVer universal.'),
     'component_identifiers': ('component', 'Identificadores alternativos de una versión, incluidos PURL con distintos qualifiers.'),
@@ -74,7 +73,6 @@ PURPOSES = {
     'sbom_external_references': ('scan', 'Referencias externas asociadas al documento SBOM.'),
     'scan_components': ('scan', 'Aparición de una versión dentro de un snapshot, con bom_ref local.'),
     'scan_vulnerability_assessments': ('vulnerability', 'Evaluación exacta por versión y snapshot con evidencia OSV tenant-scoped, estado de fallo y frescura.'),
-    'dependency_edges': ('scan', 'Arista entre dos apariciones del mismo snapshot; no demuestra comunicación runtime.'),
     'scan_comparisons': ('scan', 'Comparación reproducible entre snapshots distintos del mismo repositorio.'),
     'scan_component_changes': ('scan', 'Resultado derivado/persistido de comparación por paquete y versiones.'),
     'vulnerabilities': ('vulnerability', 'Advisory público canónico por fuente/identificador.'),
@@ -373,7 +371,7 @@ def main():
     dictionary(schema,args.output)
     destination=args.output/'diagrams'; scenes=[]
     specs=[({'identity','integration'},'02-identity-access-integrations','Identidad, acceso e integraciones'),
-           ({'component','scan'},'03-scans-sbom-components-graph','Scans, SBOM, versiones y grafo'),
+           ({'component','scan'},'03-scans-sbom-components','Scans, SBOM y componentes'),
            ({'vulnerability'},'04-vulnerability-intelligence','Vulnerabilidades, fuentes y hallazgos'),
            ({'documentation'},'05-documentation-rag-pgvector','Documentos, citas y metadatos RAG — vectores opcionales'),
            ({'impact','reporting','notifications','audit'},'06-change-impact-reporting-notifications','Impacto, reportes, notificaciones y retención')]

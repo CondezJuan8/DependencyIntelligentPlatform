@@ -2,17 +2,13 @@
 
 - **Catálogo del espacio (RF-041–046).** Agrupa por ecosistema, namespace y nombre exacto. Cuenta versiones distintas y repositorios accesibles. Usa el último análisis completado por ecosistema y repositorio. En cuentas con varios espacios se selecciona una organización y, si hace falta, un repositorio.
 - **Búsqueda y prioridad.** Busca nombre, coordenada, versión, archivo y repositorio. Combina filtros de versión exacta, ecosistema, ámbito, tipo, estado OSV y severidad. Los filtros se aplican a la misma aparición antes de agrupar. La severidad representa avisos observados. Los resultados desactualizados, incompletos o pendientes de consulta aparecen como datos por revisar.
-- **Detalle.** Al abrir un paquete se consultan sus apariciones con versión, repositorio, tipo, archivo o referencia SBOM, fecha y procedencia. Desde cada aparición se puede abrir el inventario del repositorio en la versión seleccionada o buscar esa versión en Grafo. Los avisos completos y las versiones corregidas se muestran en la vista por repositorio.
 - **Alcance y rendimiento.** El catálogo y las apariciones se consultan sobre PostgreSQL y se paginan. La pantalla pide 25 resultados por página. La API filtra por los repositorios que la cuenta puede leer antes de entrar a la transacción de la organización. La vista por repositorio conserva las acciones de análisis y OSV. Agregar o consultar un filtro del catálogo usa lecturas guardadas.
 
-El historial comparativo por commit se define en la petición 12. La petición 6 revisará el recorrido del Grafo.
 
 ### Bloque 65 — carga de 300 MiB y consistencia del análisis (22/11/2026)
 
 - **Carga local:** hasta 300 MiB de contenido (314.572.800 bytes) y 50.000 archivos. Nginx y Spring/Tomcat admiten un cuerpo multipart de 512 MiB para incluir nombres y metadatos. El ZIP remoto de GitHub también admite hasta 300 MiB. Los lectores del scanner admiten 50.000 archivos y hasta 512 MiB descomprimidos. Los límites por POM, lockfile y SBOM siguen protegiendo cada parser.
 - **Una fuente por análisis:** Inventario usa `POST /dependency-analysis`. Application abre una fuente autorizada que ambos lectores leen de forma independiente. Se conserva el mismo SHA-256 y el mismo commit de GitHub en los dos resultados. Los endpoints históricos siguen disponibles. Una fuente sin el manifiesto de un ecosistema deja un resultado explícito de ausencia. Si falla un ecosistema se conserva su último inventario válido y se muestra la fecha.
-- **Conciliación del scanner:** se comparan CycloneDX, los POM de la fuente y los lockfiles compatibles. Se conservan componentes con versión exacta omitidos por CycloneDX aunque haya devuelto otros paquetes. npm preserva nombres scoped, admite varios `package-lock.json` v2/v3 y mantiene las aristas verificables. Maven sigue siendo parcial para transitivas no resueltas y padres o BOM remotos. La lectura estática mantiene la ejecución de scripts, plugins, wrappers y compiladores deshabilitada.
-- **Evidencia OSV por scan:** Inventario envía los `scanId` que muestra y descarta evidencia de otros análisis. La persistencia mantiene el aislamiento por organización y repositorio. Un fallo de paginación afecta a las consultas pendientes de esa página. Una respuesta malformada se marca incompleta. Las versiones corregidas se leen de la entrada OSV que corresponde al paquete y ecosistema. La migración V26 conserva la ruta completa del manifiesto para Inventario y Grafo.
 
 ### Bloque 64 — auditoría previa de scanner y OSV (petición 4, 22/11/2026)
 
@@ -21,7 +17,7 @@ Esta sección registra la implementación que se auditó antes de los cambios de
 #### Flujo actual
 
 1. **Analizar repositorio**, en Inventario, solicita en paralelo `POST /maven-analysis` y `POST /npm-analysis` dentro del repositorio autorizado. Cada endpoint abre la fuente GitHub fijada a un commit o el ZIP local identificado por SHA-256. Los dos endpoints abren la fuente de forma independiente. `POST /scans` tiene su propio contrato de solicitud y el botón actual usa los endpoints por ecosistema.
-2. **Detección y persistencia.** cdxgen 13.8.0 genera CycloneDX en un contenedor aislado con red interna y fuente de solo lectura. Compose desactiva la instalación de dependencias y activa el modo seguro. El mapper conserva coordenadas exactas y aristas observadas. Un componente con identidad válida permanece en el inventario aunque su relación sea `UNKNOWN`. El repositorio, el origen, el hash, el commit cuando existe y la cobertura se guardan junto con los componentes. V25 incorpora `COMPLETE` y `PARTIAL` para el alcance del scanner.
+2. **Deteccion y persistencia.** cdxgen genera CycloneDX en un contenedor aislado con la fuente en solo lectura. Los parsers concilian componentes del SBOM con POM y lockfiles; persisten nombre, version, archivo, alcance, procedencia y clasificacion directa/transitiva/unknown basada en evidencia.
 3. **Evaluación.** Tras obtener un scan, Inventario solicita `POST /vulnerability-analysis`. **Consultar OSV** permite repetir solo la evaluación. El backend toma el último scan completado por ecosistema, incluidos los nombres antiguos de scanner, y consulta las versiones guardadas. Envía `Maven` con `groupId:artifactId` y `npm` con el nombre completo, incluido `@scope/paquete`. La respuesta se asocia por posición en cada lote y se recorren los `next_page_token` por consulta. Se guarda la evidencia por scan y ocurrencia, incluido el ID OSV si faltan alias CVE o severidad. [Contrato oficial de OSV por lotes](https://google.github.io/osv.dev/post-v1-querybatch/)
 
 #### Cobertura por ecosistema
@@ -29,7 +25,7 @@ Esta sección registra la implementación que se auditó antes de los cambios de
 | | Qué puede confirmar hoy | Límite vigente |
 | --- | --- | --- |
 | Maven | Componentes exactos que aporta CycloneDX. Si cdxgen detecta POM pero devuelve cero componentes, la lectura estática recupera declaraciones directas con versiones explícitas o resolubles mediante propiedades, padres y BOM presentes en el ZIP. | La cobertura es parcial. El modo seguro mantiene deshabilitados Maven, plugins y scripts. Padres o BOM remotos y transitivas sin evidencia quedan fuera de la cobertura garantizada. |
-| npm | Versiones resueltas y relaciones verificadas del `package-lock.json`, conservando paquetes con scope. Si cdxgen detecta el lockfile pero devuelve cero componentes, el lector de respaldo usa lockfiles v2/v3 y presenta el resultado recuperado como parcial. | Sin lockfile compatible no se puede confirmar el árbol instalado. Un rango de `package.json` por sí solo no permite evaluar una versión exacta. El respaldo no concilia componentes omitidos por un SBOM que ya trae algún resultado. |
+| npm | Versiones resueltas del `package-lock.json`, conservando paquetes con scope y clasificando el alcance directo/transitivo cuando la fuente lo permite. Si cdxgen detecta el lockfile pero devuelve cero componentes, el lector de respaldo usa lockfiles v2/v3 y presenta el resultado recuperado como parcial. | Sin lockfile compatible no se puede confirmar el árbol instalado. Un rango de `package.json` por sí solo no permite evaluar una versión exacta. El respaldo no concilia componentes omitidos por un SBOM que ya trae algún resultado. |
 
 El adaptador cdxgen admite hasta 50.000 entradas, 512 MiB descomprimidos y un SBOM de 25 MiB. Ambos lectores de respaldo tienen un límite de 5.000 entradas y 120 MiB descomprimidos. Maven limita además el respaldo a 64 POM de hasta 1 MiB cada uno. Una carpeta admitida por la carga puede superar el límite del lector de respaldo. El detalle de cobertura debe identificar el límite que se alcanzó.
 
@@ -47,7 +43,7 @@ El adaptador cdxgen admite hasta 50.000 entradas, 512 MiB descomprimidos y un SB
 
 1. **Fuente y asociación.** Fijar una única fuente reproducible por acción de análisis y verificar que Inventario muestre OSV para el mismo `scanId`. Hoy Maven y npm pueden tomar cada uno el commit vigente al abrir la fuente. La UI agrupa OSV por coordenadas y versión sin comprobar `scanId`, y un error del nuevo OSV puede dejar visible la evaluación anterior. Mostrar la procedencia de resultados previos cuando se conserven. Las versiones corregidas deben corresponder a la entrada `affected` del paquete y ecosistema seleccionados. Hoy la extracción genérica reúne los `fixed` de todas las entradas del aviso.
 2. **Recuperación.** Diferenciar manifiesto ausente, proyecto compatible sin dependencias, versión sin resolver y fallo del scanner. Cuando falle un reanálisis, mantener visible el último inventario válido con su fecha y su estado. Hoy el backend conserva scans previos, pero el botón puede ocultar el inventario anterior del ecosistema que falló hasta recargar. Evaluar los resultados incompletos de cdxgen y los límites distintos del respaldo con fixtures controlados, sin ejecutar código de repositorios.
-3. **Recorrido autenticado.** Reanalizar un Maven multimódulo y un npm con paquete scoped y transitiva, a través de Inventario. Comparar fuente, manifiestos, componentes, relaciones, respuesta OSV, persistencia y pantalla. Usar respuestas controladas para verificar la versión afectada frente a la corregida para el mismo aviso, paginación, ausencia de alias/severidad, fallo y reintento independiente de OSV. Incluir un repositorio real por ecosistema y registrar los resultados para el scan exacto. Mantener el adaptador OSV y limitar cualquier cambio a fallos comprobados.
+3. **Recorrido autenticado.** Reanalizar un Maven multimódulo y un npm con paquete scoped y transitiva, a través de Inventario. Comparar fuente, manifiestos, componentes, clasificacion directa/transitiva, respuesta OSV, persistencia y pantalla. Usar respuestas controladas para verificar la versión afectada frente a la corregida para el mismo aviso, paginación, ausencia de alias/severidad, fallo y reintento independiente de OSV. Incluir un repositorio real por ecosistema y registrar los resultados para el scan exacto. Mantener el adaptador OSV y limitar cualquier cambio a fallos comprobados.
 
 **Estado de la petición 4.** Requisitos y límites consolidados mediante revisión estática. Los bloques anteriores registran pruebas focales, un smoke test del contenedor y evidencia de PostgreSQL para OMEGA y Bot de WhatsApp. El recorrido autenticado de extremo a extremo con la versión posterior al bloque 59 sigue pendiente. La siguiente petición define la experiencia de Inventario. [Guía del scanner](../infra/scanner/README.md) · [Estados de OSV](OSV_VULNERABILIDADES.md)
 
@@ -130,7 +126,7 @@ La matriz actual y sus límites están comprobados/documentados. Se confirma el 
 
 **Límites confirmados:** Gemini será el LLM de la plataforma; Ollama generará embeddings. Codex no se integra al producto sin petición explícita. Las notificaciones comienzan dentro de la aplicación; el correo de notificaciones se deja para después. Modelo, versión, dimensión de embedding y cuotas se decidirán con evidencia al diseñar la fase de IA.
 
-#### Plan de cierre del contexto maestro — 15 peticiones funcionales
+#### Plan de cierre del contexto maestro — 14 peticiones funcionales
 
 Estas peticiones sirven para concretar alcance, decisiones y criterios de aceptación del maestro; no representan quince commits ni prometen que el producto entero quede implementado en quince turnos.
 
@@ -139,18 +135,16 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 3. **Repositorios:** flujo GitHub App frente a carpeta local, importación, sincronización/revocación, asignaciones y retención de fuente. **Requisitos cerrados en el bloque 63.**
 4. **Scanner y OSV:** detección, versiones/coordenadas, cobertura, estados de consulta, hallazgos y manejo de fallos Maven/npm. **Requisitos cerrados en el bloque 64.**
 5. **Inventario:** alcance global o por repositorio, catálogo, búsqueda, filtros, evidencia y estados. **Implementado en el bloque 66.**
-6. **Grafo:** relaciones permitidas, vistas, filtros, búsqueda, navegación y límites para repositorios grandes.
-7. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas.
-8. **Pantalla Vulnerabilidades:** agrupación, severidad, filtros, priorización, estados de revisión, versiones corregidas y referencias.
-9. **Pantalla Análisis:** inicio y seguimiento, commit, progreso, estados, errores, reintentos e historial de ejecuciones.
-10. **Centro de documentación:** tipos de archivo, carga, extracción, asociación a repositorios/componentes, versiones, permisos, retención y eliminación.
-11. **Arquitectura de IA documental, explícita:** Ollama y selección verificable de modelo/dimensión para embeddings; pgvector, migración, esquema, índices y aislamiento por organización; recuperación (incluida búsqueda híbrida si se decide); RAG con fragmentos y citas; orquestador; chat asistente con Gemini; permisos en recuperación, respuesta sin evidencia, fallos y evaluación de calidad. No activar pgvector en el núcleo antes de decidir e implementar esta fase documental.
-12. **Historial, comparación y recomendaciones:** snapshots por commit, cambios de paquetes/versiones y recomendación sustentada en fuentes.
-13. **Reportes:** destinatarios, informes técnicos/ejecutivos, filtros, vista previa, formatos exportables y programación.
-14. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
-15. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
+6. **Dashboard:** indicadores y acciones útiles, fuentes de datos, estados vacíos y enlaces a los módulos; sin cifras simuladas.
+7. **Pantalla Vulnerabilidades:** agrupación, severidad, filtros, priorización, estados de revisión, versiones corregidas y referencias.
+8. **Pantalla Análisis:** inicio y seguimiento, commit, progreso, estados, errores, reintentos e historial de ejecuciones.
+9. **Centro de documentación:** tipos de archivo, carga, extracción, asociación a repositorios/componentes, versiones, permisos, retención y eliminación.
+10. **Arquitectura de IA documental, explícita:** Ollama y selección verificable de modelo/dimensión para embeddings; pgvector, migración, esquema, índices y aislamiento por organización; recuperación (incluida búsqueda híbrida si se decide); RAG con fragmentos y citas; orquestador; chat asistente con Gemini; permisos en recuperación, respuesta sin evidencia, fallos y evaluación de calidad. No activar pgvector en el núcleo antes de decidir e implementar esta fase documental.
+11. **Historial, comparación y recomendaciones:** snapshots por commit, cambios de paquetes/versiones y recomendación sustentada en fuentes.
+12. **Reportes:** destinatarios, informes técnicos/ejecutivos, filtros, vista previa, formatos exportables y programación.
+13. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
+14. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
 
-Primero se fijan datos, acceso y scanner. Después se detallan las pantallas y sus flujos. El plan termina con IA, validación de cambios y operación. La siguiente es la **petición 6**, Grafo.
 
 ### Bloque 60 — mapa actual del producto y las cuatro pantallas pendientes (22 de noviembre de 2026)
 
@@ -160,10 +154,9 @@ Este apartado refleja el código actual, contrastado con `frontend/src/app/core/
 | --- | --- | --- |
 | **Administración** | Solo la ve una cuenta administradora de plataforma. Tiene métricas de propietarios/solicitudes, miembros, repositorios, equipos, organizaciones e invitaciones; pestañas para solicitudes, cuentas, repositorios, equipos, organizaciones, membresías, invitaciones y auditoría. Cambios sensibles piden motivo y confirmación. | Implementada. La vista trabaja con listas acotadas (hasta 200 filas; auditoría hasta 100) y consulta `/api/platform/overview` y `/api/platform/actions`. |
 | **Mis repositorios** | Para propietarios/admins: seleccionar organización, instalar/vincular GitHub App, sincronizar acceso, importar repositorios seleccionados, subir carpeta local (hasta 300 MiB/50.000 archivos), descargar y retirar del espacio. Para miembros: lista solo repositorios habilitados para su acceso. | Implementada. GitHub App y carga local usan permisos por organización. El funcionamiento de OAuth depende de credenciales habilitadas en el entorno activo. |
-| **Dashboard** | Lista repositorios y organizaciones accesibles, muestra resumen OSV por cuatro categorías, avisos recientes y análisis recientes; ofrece accesos a gestión. | Parcial. El resumen OSV y las listas consultan datos; los paneles de grafo y evolución del riesgo muestran estados vacíos fijos, y los análisis recientes solo consultan datos Maven. No es todavía el centro de navegación funcional de todos los módulos. |
+| **Dashboard** | Resumen de los repositorios accesibles, estado de an?lisis y avisos OSV por severidad; las cuentas MEMBER solo ven sus repositorios asignados. | Parcial. Las tarjetas consultan datos existentes; los m?dulos a?n no implementados indican En preparaci?n. No muestra m?tricas inventadas. |
 | **Inventario** | Ejecuta Maven y npm para el repositorio, muestra paquetes/versiones por archivo/ámbito, búsqueda, filtros, procedencia/hash/commit y detalles de avisos OSV; permite consultar OSV aparte y abrir evidencia de código para los casos soportados. | Implementada para Maven/npm con cobertura explícita. El último ajuste añade recuperación Maven desde padres/propiedades/BOM locales cuando el SBOM viene vacío. La revalidación autenticada de OMEGA tras ese cambio sigue pendiente. |
 | **Vulnerabilidades** | El propósito será centralizar hallazgos, paquetes/versiones afectadas, severidad/fuente y repositorios afectados. Actualmente OSV aparece en Dashboard e Inventario. | **Pantalla pendiente.** La navegación la dirige al estado general “En preparación”; no existe un componente de página propio ni filtros globales de hallazgos. |
-| **Dependencias** | Grafo por repositorio: vista general/local, profundidad, dirección de relaciones, filtros, búsqueda/centrado, zoom y lista accesible. | Implementada con datos Maven/npm y aristas que el scanner pudo verificar. Se mantienen límites de cobertura que el SBOM no respalde. |
 | **Análisis** | Aquí correspondería iniciar/seguir ejecuciones, revisar commit/estado/progreso, fallos, reintentos e historial/comparación. | **Pantalla pendiente.** Hoy el botón “Analizar repositorio” está dentro de Inventario; esta ruta del sidebar no tiene pantalla de análisis ni orquestación visible. El historial/comparación de snapshots no está terminado. |
 | **Documentación** | Debería gestionar documentos privados, versiones, relación con repositorios/componentes, extracción, indexación y búsqueda con citas; la visión aprobada usa Gemini para IA y Ollama para embeddings. | **Pantalla pendiente.** No hay componente ni flujo de documentos/IA en la UI o API del producto verificado en esta revisión. No integrar Codex sin petición explícita. |
 | **Reportes** | Debería producir exportaciones técnicas/ejecutivas, con filtros, preview y salida trazable; el maestro considera PDF/CSV/JSON/SBOM. | **Pantalla pendiente.** El sidebar muestra el estado genérico de preparación; no se encontró página, catálogo ni endpoint de generación/exportación. |
@@ -193,12 +186,12 @@ Verificación focal: `CdxgenMavenManifestReaderTest` 3/3, `CdxgenNpmLockfileRead
 
 La revisión de PostgreSQL en Compose encontró el defecto real: `OMEGA-main` tenía un scan `cdxgen-maven` completado con un POM detectado, pero cero componentes guardados. En los scans recientes npm, `cdxgen` también emitió SBOM vacío; el lector existente recuperó 270 componentes de OMEGA y 291 de Bot de WhatsApp desde los lockfiles. OSV sí está complementando los scans npm recientes: hay 270 evaluaciones para OMEGA y 291 para Bot; Bot tiene 11 evaluaciones `MATCHED` con IDs GHSA enlazados a paquete/versión, y OMEGA no tuvo avisos conocidos. Los datos existentes muestran que OSV conserva evaluaciones asociadas al mismo `scan_id`.
 
-Se corrigió el adaptador Maven: al encontrar POM pero SBOM vacío, vuelve a leer el ZIP de forma limitada y recupera declaraciones con versión exacta usando el lector seguro existente. Nunca inventa versión ni relaciones transitivas. El inventario queda `PARTIAL`, explicando límites de herencia/BOM y transitivas; si nada se puede resolver, deja el manifiesto y los elementos pendientes visibles. Se añadió regresión OSV para conservar un aviso `MATCHED` con ID OSV aunque falten alias/severidad y asociarlo a la ocurrencia exacta del scan.
+Se corrigió el adaptador Maven: al encontrar POM pero SBOM vacío, vuelve a leer el ZIP de forma limitada y recupera declaraciones con versión exacta usando el lector seguro existente. Nunca inventa versión ni afirmar cobertura transitiva sin evidencia. El inventario queda `PARTIAL`, explicando límites de herencia/BOM y transitivas; si nada se puede resolver, deja el manifiesto y los elementos pendientes visibles. Se añadió regresión OSV para conservar un aviso `MATCHED` con ID OSV aunque falten alias/severidad y asociarlo a la ocurrencia exacta del scan.
 
 Verificación focal: 10 pruebas de scanner, Maven, npm y OSV pasaron; incluye paginación, error del proveedor, paquete npm scoped, fallback Maven vacío y persistencia de resultado positivo/negativo. El runtime se validó contra scans reales guardados en PostgreSQL. El backend actualizado ya está en Compose; falta volver a analizar OMEGA desde Inventario y comprobar sus resultados en la UI. Maven transitivo seguro sigue siendo cobertura parcial. Ver [bitácora](BITACORA_TRABAJO.md), [scanner](../infra/scanner/README.md) y [pendientes](PENDIENTES.md).
 ### Bloque 57 — validación de scanner y OSV (22 de noviembre de 2026)
 
-La revisión confirma que scanner y OSV son etapas independientes y complementarias: cdxgen genera CycloneDX y persiste componentes/relaciones; OSV lee el último scan por ecosistema y guarda la evaluación asociada, sin volver a escanear ni borrar inventario si falla. Los reportes focales existentes del 20/11 muestran `CdxgenScannerAdapterTest` 2/2, `CdxgenNpmLockfileReaderTest` 1/1 y `OsvRestAdapterTest` 2/2. No se pudieron repetir en este entorno: el primer intento no tenía acceso a Maven Central; el reintento inició descargas autorizadas pero se detuvo antes de llegar a ejecutar tests. La app Compose respondió `/health` con `UP`; el endpoint de health protegido devolvió 401 sin sesión.
+La revisión confirma que scanner y OSV son etapas independientes y complementarias: cdxgen genera CycloneDX y persiste componentes y clasificaciones; OSV lee el último scan por ecosistema y guarda la evaluación asociada, sin volver a escanear ni borrar inventario si falla. Los reportes focales existentes del 20/11 muestran `CdxgenScannerAdapterTest` 2/2, `CdxgenNpmLockfileReaderTest` 1/1 y `OsvRestAdapterTest` 2/2. No se pudieron repetir en este entorno: el primer intento no tenía acceso a Maven Central; el reintento inició descargas autorizadas pero se detuvo antes de llegar a ejecutar tests. La app Compose respondió `/health` con `UP`; el endpoint de health protegido devolvió 401 sin sesión.
 
 Consulta directa, de solo lectura, a la API oficial OSV el 22/11: `org.apache.logging.log4j:log4j-core` 2.14.1 reportó `CVE-2021-44228`; 2.17.1 no reportó ese CVE, aunque devolvió otros avisos. `lodash` 4.17.20 reportó `CVE-2021-23337`; 4.17.21 no reportó ese CVE, aunque devolvió otros avisos. Esto confirma respuesta y búsqueda por coordenadas/versión en el proveedor, no prueba que la integración de la instancia haya procesado esas respuestas.
 
@@ -208,36 +201,25 @@ Consulta directa, de solo lectura, a la API oficial OSV el 22/11: `org.apache.lo
 
 Se corrigió un hueco entre nombres de scanners: OSV ahora selecciona el último scan por ecosistema entre `maven-manifest`/`npm-lockfile` históricos y `cdxgen-maven`/`cdxgen-npm` actuales, deduplicando por ecosistema. La carga de OSV ya no silencia fallos y se puede repetir desde **Consultar OSV** sin volver a escanear. Si cdxgen produce un SBOM npm vacío pese a detectar `package-lock.json`, el parser acotado recupera el inventario como cobertura parcial. El diagnóstico de la base activa encontró tres snapshots npm vacíos preexistentes; requieren reanálisis por el usuario y se mantienen intactos. La implementación y límites están en [bitácora](BITACORA_TRABAJO.md) y [pendientes](PENDIENTES.md).
 
-### Bloque 55 — scanner cdxgen conectado al Inventario (20 de noviembre de 2026; runtime validado)
 
-El botón de análisis continúa usando los endpoints Maven/npm, ahora conectados a un servicio cdxgen secure 13.8.0 aislado; los snapshots siguen guardándose con el modelo tenant-scoped, hash/commit, componentes y aristas. El mapper CycloneDX incorpora Maven/npm, nombres npm scoped, relaciones directas/transitivas y estado explícito de cobertura. V25 agrega estado/mensaje de cobertura y está aplicada a Compose. El importador CycloneDX manual conserva scopes y aristas verificadas. El flujo de OSV conserva su adaptador y consulta los snapshots del scanner por ecosistema; el adaptador pagina `next_page_token`, asocia cada fila batch y retiene ID OSV con detalle mínimo cuando faltan alias o severidad.
 
-Verificación: 18 pruebas focales y 5 `SbomImportIT` pasan; build Angular correcto. V25 quedó aplicada en Compose y cdxgen 13.8.0 responde healthcheck. El smoke test real detectó npm scoped + transitivo con relaciones observadas y Maven multimódulo con versiones gestionadas/heredadas, reteniendo paquetes sin aristas artificiales y cobertura parcial. El frontend Compose responde HTTP 200. OSV fue probado con respuestas controladas, no en vivo, y no se ejecutó una solicitud autenticada desde la sesión del usuario. La resolución Maven transitiva en modo seguro sigue pendiente. Alcance y límites: [scanner](../infra/scanner/README.md) y [bitácora](BITACORA_TRABAJO.md).
 
-### Bloque 51 — mapa de dependencias por capas
 
-El grafo de Inventario ahora distribuye proyecto, directas y transitivas de izquierda a derecha por profundidad. Angular consolida ocurrencias con la misma identidad de paquete, versión y ecosistema en una tarjeta y conserva rutas/ámbitos para el detalle; las relaciones compartidas convergen en ese nodo. Las tarjetas muestran nombre/versión, los bordes identifican tipo, y búsqueda resalta coincidencias con su ruta de padres. El panel separa dependencias declaradas y paquetes que utilizan el nodo. El listado accesible mantiene todas las entradas; el canvas limita a 1.000 nodos por respuesta, prioriza niveles cercanos y enfoca búsquedas/selecciones grandes. Cytoscape usa layout preset y cálculo BFS O(V+E); no se añadió biblioteca ni se cambió API/base de datos. La revisión de tipos de TypeScript (44 archivos) y el parseo del template pasan; build completa y revisión visual en Compose quedan pendientes porque Node/npm CLI y el host de navegador no están disponibles. Ver [diseño](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
 ### Bloque 50 — muestra npm importable para probar Inventario (20 de noviembre de 2026)
 
 Se preparó `samples/npm-axios-demo` como proyecto local mínimo con `package.json` y `package-lock.json` v3. Declara Axios 1.7.9 directamente y ocho paquetes instalados transitivos, con rutas de dependencia representativas; no tiene `node_modules`, scripts ni código ejecutable. La prueba de la plataforma es importar esa carpeta en Mis repositorios y ejecutar el análisis npm desde Inventario. El fixture se validó como JSON y estructura; aún no se subió ni escaneó en la instancia. Ver [bitácora](BITACORA_TRABAJO.md) y [pendientes](PENDIENTES.md).
 ### Bloque 49 — diagnóstico de Inventario npm (20 de noviembre de 2026)
 
 En la instancia de Compose, Inventario solo ofrece `Formula1Simulator · local`; allí Maven muestra seis componentes y npm figura «Aún sin analizar». El repositorio de ejemplo Axios todavía no está importado en ese espacio, por lo que la ausencia de componentes npm no demuestra un fallo del parser. La inspección del código confirma soporte de `package-lock.json` v2/v3 y existe una prueba focal con lockfile sintético; falta el recorrido con un repositorio npm real. Siguiente: importar Axios (`axios/axios`, `v1.x`), seleccionar ese repo, ejecutar el análisis y revisar componentes persistidos. No se modificaron análisis ni datos en este diagnóstico. Ver [bitácora](BITACORA_TRABAJO.md) y [pendientes](PENDIENTES.md).
-### Bloque 48 — legibilidad del grafo (20 de noviembre de 2026)
 
-La vista usa distribución radial determinista: proyecto al centro, dependencias directas en anillo interior y transitivas en anillo exterior. Las etiquetas se orientan al exterior del anillo; el canvas usa nombres compactos y la lista conserva coordenadas completas, archivo y ámbito. La punta de flecha identifica el paquete requerido y una guía explica cómo leerlo. Verificación visual con los seis paquetes Maven directos de `Formula1Simulator` en Compose. No se añadieron relaciones: el snapshot no tiene transitivas. Pendientes: probar npm transitivo, vista móvil y grafos grandes; ver [diseño frontend](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
 
-### Bloque 47 — visibilidad y ciclo de vida del canvas (20 de noviembre de 2026)
 
-Angular monta el contenedor Cytoscape cuando llega la respuesta del grafo. `ViewChild` y `ResizeObserver` inicializan/dimensionan el canvas al aparecer; la revisión real confirmó nodo raíz y seis directas. Verificación y commits en [bitácora](BITACORA_TRABAJO.md).
 
 ### Bloque 46 — ampliación del límite de archivos locales (20 de noviembre de 2026)
 
 El usuario pidió conservar el tamaño máximo y ampliar la cantidad de archivos por carpeta. Se mantienen **100 MiB de contenido total** y **50.000 archivos** como nuevo límite. El navegador, el caso de uso Application, el controlador y el CHECK de `local_repository_sources.file_count` se alinean; V24 cambia únicamente esa restricción. Spring/Tomcat aceptan 100.001 partes/parámetros (nombre + ruta + archivo por entrada) y 200 MiB de cuerpo multipart para los metadatos/rutas sin elevar el contenido de archivos permitido; Nginx queda en el mismo máximo de cuerpo. Pruebas focales cubren el borde de 50.000 y el rechazo de 50.001; el test existente conserva el rechazo por encima de 100 MiB. La descarga de ZIP GitHub mantiene su límite separado. Ver [bitácora](BITACORA_TRABAJO.md), [arquitectura](ARQUITECTURA_BACKEND.md), [base de datos](CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [pendientes](PENDIENTES.md).
 
-### Bloque 45 — grafo de dependencias Maven/npm (20 de noviembre de 2026)
 
-Inventario incorpora una vista navegable de grafo por repositorio, filtro por ecosistema, búsqueda, zoom, detalle de paquete y lista accesible. La API tenant-scoped lee los últimos snapshots completados y las aristas guardadas por scan en `dependency_edges`; la raíz del proyecto es un nodo virtual de presentación. npm reconstruye relaciones alcanzables desde `package-lock` v2/v3 y conserva paths exactos, incluidos paquetes anidados. Maven representa únicamente dependencias explícitas con versión presentes en POM: el enlace proyecto→paquete es evidencia de `DIRECT`; no se afirman transitivas. La fuente, hash, commit y conteo sin resolver quedan visibles. Cytoscape.js ya estaba instalado; no se agregaron paquetes ni migraciones. Build Angular y backend, más la prueba focal del parser npm (1/1), correctos. Se recrearon backend/frontend de Compose sin tocar PostgreSQL/Mailpit; `localhost:8089/?view=dependencies` responde 200 y Spring Boot inició con Flyway V23 al día. La base Compose sigue vacía según el estado operativo, así que falta cargar y reanalizar un repo para revisar nodos reales; para nuevos resultados npm hay que generar aristas con un análisis nuevo. Resolución Maven transitiva, riesgo sobre nodos, visualización de grafos muy grandes y revisión real siguen pendientes. Ver [bitácora](BITACORA_TRABAJO.md), [arquitectura](ARQUITECTURA_BACKEND.md), [diseño](DISENO_FRONTEND.md) y [pendientes](PENDIENTES.md).
 
 ### Bloque 44 — evidencia de código y ciclo de vida del repositorio (20 de noviembre de 2026)
 
@@ -253,7 +235,6 @@ El Dashboard consulta los snapshots Maven, npm y OSV de cada repositorio accesib
 
 La pantalla Inventario presenta Maven y npm en una sola vista por repositorio: un botón ejecuta ambos analizadores y después evalúa sus versiones exactas con OSV. Los paquetes se agrupan por ecosistema, namespace y nombre; cada identidad muestra versiones exactas y ocurrencias por archivo/ámbito. Incluye búsqueda, filtros, conteos, procedencia de fuente/hash/commit y estados accesibles. El bloque 42 agrega avisos y evidencia con estado fresco/parcial/no disponible; detalles y límites en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
-La interfaz usa los analizadores Maven/npm y consulta OSV por versiones exactas. V22/V23 guardan evidencia tenant-scoped append-only, preservando la diferencia entre sin avisos conocidos y fallo. La consulta OSV no garantiza cobertura total ni produce todavía rangos deterministas, fixes, grafo o recomendaciones. La cobertura de parsers, las relaciones transitivas y la agregación entre repositorios siguen pendientes. Ver [diseño frontend](DISENO_FRONTEND.md), [OSV](OSV_VULNERABILIDADES.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
 
 **Fecha de elaboración:** 12 de noviembre de 2026  
 **Propósito:** conservar el contexto, decisiones, ideas, requisitos, arquitectura, pantallas, investigación pendiente y próximos pasos conversados sobre el proyecto Dependency Intelligence, para continuar el trabajo desde otra cuenta de ChatGPT.
@@ -325,16 +306,13 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Identidad, organizaciones y permisos — RF-001–006 | Acceso local, organización, autorización, recuperación/verificación SMTP y proveedores externos con fixture. Bloque 11 entrega invitaciones SMTP, aceptación y gestión HTTP/UI de membresías, roles, equipos y permisos por repositorio | Configurar clientes y probar consentimiento real Google/GitHub; entrega durable, paginación de historiales grandes y revisión visual conjunta | Credenciales externas y operación de correo/sesiones |
 | GitHub — RF-007–014 | Vinculación OAuth/PKCE, importación de repositorios seleccionados y descarga por commit confirmadas en Dinamita. Sincronización bajo demanda y detección de revocación implementadas. | Desconexión explícita, prueba de revocación real, recorrido desde otro dispositivo y webhooks firmados e idempotentes. Ver bloque 63. | GitHub App, credenciales y jobs |
 | Repositorios y análisis — RF-015–021 | Registro/consulta y solicitud de scan por API con autorización de rol/equipo y RLS | Interfaz de repositorios/scans, worker, estados, errores, historial y commit real | Jobs, GitHub, scanner |
-| SBOM/componentes — RF-022–032 | cdxgen aislado integrado en Inventario para Maven y npm. Persiste componentes y relaciones verificadas con estado de cobertura. | Validar el recorrido autenticado y distinguir fallos y cobertura incompleta. Maven transitivo sigue parcial. Ver bloque 64. | Fuente autorizada, scanner, artefactos |
+| SBOM/componentes — RF-022–032 | cdxgen aislado integrado en Inventario para Maven y npm. Persiste componentes y su clasificacion directa/transitiva respaldada por evidencia, junto con el estado de cobertura. | Validar el recorrido autenticado y distinguir fallos y cobertura incompleta. Maven transitivo sigue parcial. Ver bloque 64. | Fuente autorizada, scanner, artefactos |
 | Vulnerabilidades — RF-033–040 | OSV integrado por versión exacta. Guarda evaluaciones con evidencia por scan y ocurrencia. | Verificar asociación en UI por scan, mostrar rangos y versiones corregidas del paquete correcto y validar fallo y reintento. Ver bloque 64. | OSV, snapshots de scanner, Inventario |
-| Inventario — RF-041–046 | Catálogo paginado por organización y repositorio, búsqueda y filtros combinables, versiones y apariciones con procedencia, tipo y estados OSV. Ver bloque 66. | Revisión visual en móvil y con sesión real. Historial comparativo en la petición 12. | Snapshots, grafo y permisos |
-| Grafo — RF-047–052 | Aristas normalizadas con extremos del mismo snapshot | Importar/consultar aristas y navegar rutas/riesgos en UI | Parser/scanner, OSV, permisos |
 | Historial/comparación — RF-053–059 | Snapshots importados con procedencia | Consulta por commit y comparación añadidos/eliminados/actualizados del mismo repositorio | Nuevo modelo, inventario |
 | Recomendaciones — RF-060–065 | Pendiente | Versiones candidatas/corregidas, cambios documentados, riesgos, evidencia y pruebas sugeridas | OSV, releases/documentos, comparación |
 | Alertas — RF-066–070 | Pendiente | Eventos, deduplicación, suscripción, estado y entrega in-app; correo después | Jobs, hallazgos/cambios |
 | SBOM/artefactos — RF-071–074 | Solo hash/procedencia; original no retenido | Conservar/consultar/exportar SBOM y comparar snapshots; formatos y trazabilidad | Almacenamiento privado, permisos |
 | Documentos/IA — RF-075–080 | Pendiente | Originales privados, versiones, asociaciones, extracción/OCR, búsqueda híbrida, Ollama, Gemini y respuestas citadas con permisos | Jobs, almacenamiento, modelos/configuración, pgvector aislado |
-| Impacto — RF-081–085 y RF-091 | Pendiente | ADD/UPDATE/REMOVE/REPLACE con evidencia KNOWN/POTENTIAL/VALIDATED, documentos por revisar, pruebas aisladas y propuesta de PR aprobable | Grafo, versiones, documentos y ejecutor aislado |
 | Reportes — RF-086–090 | Pendiente | Informes técnicos/ejecutivos, PDF/CSV/JSON/SBOM, artefactos trazables y programación posterior | Inventario, hallazgos, permisos, jobs |
 | Auditoría y requisitos no funcionales | Health, FK/RLS/roles SQL, append-only, evento al crear organización, CSRF, hash de contraseña y límite local de intentos | Ampliar auditoría a casos de uso, logs/métricas, límites coordinados, retención, backup/restauración y servidor | Transversal a cada fase |
 | Interfaz — pantallas del apartado 6 | Bloque 13: acceso/registro, navegación lateral/topbar, dashboard con organizaciones reales/estados vacíos y organización con pestañas/tabla/filtros/diálogos | Aceptación visual en escritorio/móvil, correcciones del usuario y pantallas con datos de los módulos aún pendientes | Contratos y funciones por módulo |
@@ -343,7 +321,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 
 - Tres módulos Maven Domain/Application/Infrastructure; Domain y Application sin Spring/JPA.
 - Flyway V1–V17 con 125 tablas, 88 con RLS forzado y 221 FK. Diccionario y siete diagramas validados desde el catálogo aplicado. V12 permite consultar organizaciones propias; V13 soporta revocación de sesiones, V14 administración de plataforma, V15 decisiones de admisión y V17 permisos directos por miembro/repositorio.
-- F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni relaciones.
+- F03 y F04 funcionan como parser e importación persistente acotados, con validación previa, SHA-256, procedencia y rollback. Falta entrada HTTP e inventario visual. Importaciones manuales no inventan commit/scanner ni clasificaciones no respaldadas.
 - Registro/login/logout, creación/listado de organizaciones y restauración de sesión disponibles en Angular. APIs de repositorios/scans autorizadas con rol y equipo. Las sesiones viven en memoria del backend y vencen por inactividad. Docker y el recorrido visual completo siguen pendientes. Ver `ACCESO_LOCAL.md`.
 - Verificación y recuperación operativas con tokens aleatorios, hash, caducidad y uso único. Mailpit 1.33.1 recibe los correos locales. Cola de recuperación acotada en memoria, con reenvío manual ante fallo/reinicio. SMTP y PostgreSQL requieren reenvío si una aceptación de correo precede a un commit fallido. Configuración y pruebas en `VERIFICACION_Y_RECUPERACION.md`.
 - Bloque 09: Google OIDC y GitHub OAuth con PKCE, state/nonce, sesión propia y vínculo explícito. No se fusionan correos coincidentes; se protege el último método disponible y se revocan otras sesiones al vincular. Sin secretos configurados, ambos proveedores están deshabilitados. Contratos, activación y límites en [IDENTIDAD_GOOGLE_GITHUB](IDENTIDAD_GOOGLE_GITHUB.md). No implica acceso a repositorios GitHub.
@@ -354,7 +332,6 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 
 1. Base y contratos hasta V13, con artefactos derivados del catálogo aplicado. Mantener migraciones incrementales y verificar modelo/dimensión al activar vectores.
 2. Revisar con el usuario invitaciones y gestión de equipos/permisos entregadas en bloque 11. Acceso local en bloque 06, correo en bloque 07 y proveedores/vinculación en bloque 09. Configurar clientes reales Google/GitHub y verificar consentimiento cuando estén disponibles; completar entrega durable y operación para servidor. Elegir el siguiente bloque con el usuario según PENDIENTES.
-3. GitHub, jobs, scanner Maven/npm, SBOM, OSV, inventario/grafo/historial y UI.
 4. Comparación, recomendaciones e impacto; pruebas aisladas y propuesta de PR con aprobación para cerrar el primer piloto.
 5. Documentos privados, extracción/búsqueda, embeddings Ollama y asistente Gemini; reportes y alertas in-app según sus dependencias.
 6. Completar visión empresarial, automatizaciones/reportes programados y operación en servidor. Correo de notificaciones después de in-app. Codex queda fuera hasta nueva instrucción.
@@ -375,7 +352,6 @@ La visión no es crear simplemente otro escáner de vulnerabilidades. La propues
 
 1. **Dependency Inventory:** inventario centralizado de dependencias directas y transitivas de los repositorios.
 2. **Vulnerability Intelligence:** identificación y seguimiento de vulnerabilidades asociadas a paquetes y versiones.
-3. **Dependency Graph / Impact Graph:** visualización de relaciones y propagación de dependencias entre proyectos.
 4. **Change Impact Analysis:** análisis de consecuencias potenciales de modificar una dependencia.
 5. **Documentation Intelligence:** documentación técnica centralizada y conectada con repositorios, componentes y versiones.
 6. **AI Assistant:** asistente contextual que consulta los datos estructurados y la documentación de la organización, responde con evidencia y explica riesgos.
@@ -482,24 +458,6 @@ Debe permitir:
 
 La fuente inicial propuesta es **OSV (Open Source Vulnerabilities)**. No se debe asumir que OSV cubre todos los ecosistemas, todos los tipos de vulnerabilidad ni todos los metadatos. La cobertura y el tratamiento de severidad/versiones deben investigarse y probarse.
 
-## 3.3 Dependency Graph / Impact Graph
-
-Representación visual de las relaciones entre repositorios, dependencias y versiones.
-
-Primera versión conceptual:
-
-- Repositorio.
-- Dependencia.
-- Versión.
-- Relación directa o transitiva.
-- Rutas que explican cómo una dependencia aparece dentro de un proyecto.
-
-El grafo debe permitir explorar dónde se utiliza un componente y qué otros componentes dependen de él.
-
-**Distinción fundamental:** una relación de dependencia de paquetes no demuestra que dos microservicios se comuniquen en tiempo de ejecución. No debe presentarse una conexión de SBOM como prueba de comunicación entre servicios. Para inferir comunicación real se necesitarían otras fuentes, por ejemplo telemetría, trazas, service mesh, configuración o documentación de arquitectura.
-
-En el MVP, el grafo recomendado es sencillo: **repositorio → dependencia → versión**, con indicación de dependencia directa/transitiva y, si el SBOM lo permite, las rutas entre componentes.
-
 ## 3.4 Scan History
 
 Historial de análisis por repositorio y organización.
@@ -554,7 +512,6 @@ La plataforma debe distinguir claramente:
 2. **Impacto potencial:** existe una ruta o cambio que merece revisión, pero no se ha demostrado que produzca un fallo.
 3. **Impacto validado:** una prueba, análisis estático o ejecución controlada confirmó el efecto.
 
-No afirmar que un servicio se romperá simplemente porque aparece una relación en el grafo.
 
 ### Evolución futura: Simulate Change
 
@@ -723,7 +680,7 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 - **RF-029:** generar un SBOM.
 - **RF-030:** soportar CycloneDX como formato inicial.
 - **RF-031:** almacenar los componentes detectados.
-- **RF-032:** almacenar las relaciones entre componentes.
+- **RF-032:** almacenar la clasificacion y procedencia de componentes.
 
 ## 4.5 Vulnerabilidades
 
@@ -745,20 +702,7 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 - **RF-045:** mostrar repositorios donde aparece una dependencia.
 - **RF-046:** mostrar múltiples versiones del mismo paquete.
 
-## 4.7 Grafo de dependencias
-
-**Estado de entrega — bloque 45:** se implementa el recorrido inicial para repositorios con snapshots Maven/npm completados, con evidencia por scan y sin inferir relaciones. npm usa las referencias declaradas en el lockfile y sus paths instalados; Maven cubre solo las dependencias explícitas resueltas con versión en POM. El modelo de `dependency_edges` enlaza ocurrencias del mismo scan. La interfaz muestra los nodos raíz por separado (virtuales), dependencias directas/transitivas según el parser, filtros, búsqueda, detalle, procedencia y alternativa textual navegable. Riesgo en nodos y rutas de impacto aún no están integrados. No reemplaza todos los RF-047–052.
-
-**Estado de visualización — bloque 47:** corregida la inicialización diferida del canvas Angular/Cytoscape y el redimensionamiento al montarse/cambiar el host. Revisión visual en Compose confirma un grafo visible para `Formula1Simulator` con seis dependencias Maven directas. Etiquetas Maven resumidas en el canvas y nombres completos disponibles en lista/detalle/búsqueda. La muestra actual tiene cero transitivas; no afirmar cobertura transitiva Maven. Sigue pendiente validar un snapshot npm con lockfile y ajustar presentación según revisión del usuario.
-
-- **RF-047:** visualizar relaciones de dependencias.
-- **RF-048:** mostrar nodos de repositorios.
-- **RF-049:** mostrar nodos de paquetes/componentes.
-- **RF-050:** mostrar relaciones y rutas de dependencia.
-- **RF-051:** identificar dependencias transitivas.
-- **RF-052:** mostrar información de riesgo asociada a los nodos cuando exista.
-
-## 4.8 Historial y comparación
+## 4.7 Historial y comparación
 
 - **RF-053:** conservar snapshots de análisis.
 - **RF-054:** consultar un análisis por commit.
@@ -768,7 +712,7 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 - **RF-058:** detectar dependencias actualizadas.
 - **RF-059:** conservar fecha, fuente y procedencia de cada snapshot.
 
-## 4.9 Recomendaciones de actualización
+## 4.8 Recomendaciones de actualización
 
 - **RF-060:** sugerir versiones candidatas de actualización cuando exista información fiable.
 - **RF-061:** identificar versiones corregidas.
@@ -777,7 +721,7 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 - **RF-064:** mostrar fuentes y evidencia de la recomendación.
 - **RF-065:** sugerir pruebas que deberían ejecutarse antes de actualizar.
 
-## 4.10 Alertas y seguimiento
+## 4.9 Alertas y seguimiento
 
 - **RF-066:** detectar cambios relevantes en dependencias.
 - **RF-067:** detectar nuevas vulnerabilidades.
@@ -785,14 +729,14 @@ Los siguientes requisitos son el borrador funcional que se propuso en la convers
 - **RF-069:** permitir consultar el estado de una alerta.
 - **RF-070:** evitar notificaciones duplicadas.
 
-## 4.11 SBOM y exportación
+## 4.10 SBOM y exportación
 
 - **RF-071:** conservar SBOM generados.
 - **RF-072:** consultar SBOM por repositorio y análisis.
 - **RF-073:** exportar SBOM.
 - **RF-074:** comparar SBOM/snapshots.
 
-## 4.12 Documentación, IA, análisis de cambios y reportes
+## 4.11 Documentación, IA, análisis de cambios y reportes
 
 - **RF-075:** permitir cargar documentación técnica.
 - **RF-076:** asociar documentos con organizaciones, repositorios y componentes.
@@ -895,7 +839,6 @@ Los siguientes requisitos se plantearon como categorías y criterios iniciales. 
 - Interfaz consistente.
 - Navegación clara entre repositorios, dependencias y vulnerabilidades.
 - Resultados técnicos explicados de forma comprensible.
-- Grafo navegable y legible.
 - Diseño responsive.
 - Estados vacíos, de carga y error bien definidos.
 
@@ -960,7 +903,6 @@ Se planteó una interfaz SaaS B2B con navegación lateral.
    - Overview.
    - Dependencies.
    - Vulnerabilities.
-   - Dependency Graph.
    - Scan History.
    - Commit analizado y fecha.
 
@@ -989,8 +931,6 @@ Se planteó una interfaz SaaS B2B con navegación lateral.
    - Estado de corrección.
    - Fuente.
 
-9. **Impact Graph**
-   - Grafo de repositorios, paquetes y versiones.
    - Filtros por repositorio, paquete y riesgo.
    - Navegación por rutas.
 
@@ -1046,7 +986,6 @@ Se planteó una interfaz SaaS B2B con navegación lateral.
 - Repositories
 - Dependencies
 - Vulnerabilities
-- Impact Graph
 - Documentation
 - Change Impact
 - AI Assistant
@@ -1061,7 +1000,6 @@ No es necesario construir toda la navegación en la primera entrega. Las pantall
 
 - Dashboard: permite entender el estado general.
 - Dependency Detail: concentra el contexto de un paquete.
-- Impact Graph: muestra visualmente las relaciones.
 - Change Impact Analysis: puede convertirse en diferenciador si se implementa con evidencia real.
 
 Las imágenes o mockups previos eran ilustrativos; no representan datos reales ni un diseño final aprobado.
@@ -1083,7 +1021,6 @@ Las imágenes o mockups previos eran ilustrativos; no representan datos reales n
 | Formato SBOM | CycloneDX | Inventario interoperable |
 | Vulnerabilidades | OSV API | Consulta de vulnerabilidades |
 | Contenedores | Docker | Aislamiento de ejecución |
-| Grafo visual | Cytoscape.js | Visualización de dependencias |
 | Fuente opcional | deps.dev | Metadatos adicionales, sujeto a validación |
 | Scanner opcional | OSV-Scanner | Alternativa o complemento, sujeto a evaluación |
 | PostgreSQL alojado opcional | Neon Free | Prototipo remoto, sujeto a límites del plan |
@@ -1102,12 +1039,11 @@ El usuario trabaja con Java/Spring Boot, Angular/TypeScript y PostgreSQL, por lo
 8. Se ejecuta cdxgen en un entorno aislado y limitado.
 9. Se genera un SBOM CycloneDX.
 10. El backend parsea el SBOM.
-11. Se normalizan componentes, versiones, PURL y relaciones.
-12. Se persisten el análisis, componentes y relaciones.
+11. Se normalizan componentes, versiones, PURL y clasificacion.
+12. Se persisten el análisis, componentes.
 13. Se consultan vulnerabilidades en OSV por lotes.
 14. Se normalizan vulnerabilidades y se asocian con componentes.
 15. Se actualiza el estado del análisis.
-16. El frontend muestra inventario, vulnerabilidades, grafo e historial.
 
 ## 7.3 Integración OSV
 
@@ -1120,7 +1056,6 @@ La consulta requiere datos adecuados de paquete, ecosistema y versión. Para el 
 
 La respuesta de OSV debe mapearse a un modelo interno. No se debe acoplar el dominio al JSON externo.
 
-**Implementación actual (bloque 42):** Application expone una evaluación por repositorio y Infrastructure consulta versiones exactas de Maven/npm en lotes. La evidencia cruda se conserva tenant-scoped en V22; el inventario muestra aviso, consulta sin avisos conocidos, resultado incompleto/indisponible y datos desactualizados. Esta consulta todavía no representa ingestión del catálogo público ni análisis de rangos, hallazgo normalizado, versiones corregidas, recomendación, grafo ni cobertura completa. La ausencia de coincidencias OSV no demuestra que un paquete sea seguro. Detalle y verificación: [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
 ## 7.4 SBOM y cdxgen
 
@@ -1165,7 +1100,6 @@ Posibles módulos de dominio:
 - Integration.
 - Scan.
 - SBOM / Component.
-- Dependency Relationship.
 - Vulnerability.
 - Documentation.
 - Impact Analysis.
@@ -1191,7 +1125,7 @@ No se ha aprobado un esquema SQL definitivo. Las siguientes entidades son una ba
 - **ScanArtifact:** SBOM u otros artefactos generados.
 - **Component:** paquete/componente normalizado.
 - **ScanComponent:** presencia de un componente en un análisis.
-- **DependencyRelationship:** relación entre componentes.
+- relación entre componentes.
 - **Vulnerability:** vulnerabilidad normalizada.
 - **ComponentVulnerability:** asociación entre componente y vulnerabilidad.
 - **Document:** documento cargado o sincronizado.
@@ -1263,11 +1197,7 @@ No se han cerrado endpoints definitivos. Los siguientes son ejemplos de organiza
 - `GET /api/vulnerabilities/{vulnerabilityId}`
 - `GET /api/repositories/{repositoryId}/vulnerabilities`
 
-## 9.5 Grafo
 
-- `GET /api/graph`
-- `GET /api/repositories/{repositoryId}/graph`
-- `GET /api/dependencies/{dependencyId}/graph`
 
 ## 9.6 Documentación e IA
 
@@ -1338,13 +1268,12 @@ Alcance mínimo:
 3. Iniciar análisis manual.
 4. Ejecutar cdxgen de forma aislada.
 5. Generar CycloneDX SBOM.
-6. Parsear componentes y relaciones.
+6. Parsear y clasificar componentes.
 7. Guardar resultados en PostgreSQL.
 8. Consultar OSV.
 9. Mostrar inventario.
 10. Mostrar vulnerabilidades.
 11. Mostrar detalle de repositorio.
-12. Mostrar grafo sencillo.
 13. Guardar historial de análisis.
 14. Comparar snapshots de forma básica.
 15. Generar un reporte/exportación básica.
@@ -1379,7 +1308,6 @@ Salvo que el MVP ya esté terminado y exista capacidad real:
 - OSV.
 - Vulnerabilidades.
 - Dashboard.
-- Primer Impact Graph.
 - Historial.
 - Reporte básico.
 
@@ -1421,7 +1349,6 @@ En una conversación se propusieron cinco decisiones para cerrar el MVP. El usua
 1. **Ecosistemas:** Java/Maven + JavaScript/npm (recomendación inicial).
 2. **Scanner:** cdxgen + OSV API.
 3. **Alcance:** inventario + vulnerabilidades + historial.
-4. **Grafo:** repositorio → dependencia → versión.
 5. **Ejecución:** análisis manual + webhook push.
 
 No presentar estas opciones como decisiones definitivas. Retomarlas y confirmarlas cuando se cierre el alcance.
@@ -1475,16 +1402,7 @@ Estas son las áreas que se identificaron para investigar antes de afirmar capac
 - CISA KEV como fuente complementaria futura.
 - Cómo mostrar incertidumbre o datos incompletos.
 
-## 13.4 Impact Graph
-
-- Qué relaciones incluye realmente CycloneDX.
-- Cómo representar rutas transitivas.
-- Cómo diferenciar dependencia directa y transitiva.
-- Qué significa “impacto” y qué no.
-- Cómo evitar confundir dependencias de paquetes con comunicación real entre microservicios.
-- Qué otras fuentes harían falta para analizar arquitectura de ejecución.
-
-## 13.5 Seguridad
+## 13.4 Seguridad
 
 - Aislamiento de scanner.
 - Contenedores.
@@ -1498,7 +1416,7 @@ Estas son las áreas que se identificaron para investigar antes de afirmar capac
 - Seguridad de archivos PDF/DOCX.
 - Permisos de IA.
 
-## 13.6 Compatibilidad y cambios
+## 13.5 Compatibilidad y cambios
 
 - Changelogs.
 - Release notes.
@@ -1510,7 +1428,7 @@ Estas son las áreas que se identificaron para investigar antes de afirmar capac
 - Diferencia entre una actualización con versión mayor y un breaking change real.
 - Cómo justificar una recomendación con evidencia.
 
-## 13.7 Enterprise readiness
+## 13.6 Enterprise readiness
 
 - SSO.
 - SAML/OIDC.
@@ -1522,7 +1440,7 @@ Estas son las áreas que se identificaron para investigar antes de afirmar capac
 - Requisitos de vendor security.
 - Exportación y cumplimiento.
 
-## 13.8 Validación comercial
+## 13.7 Validación comercial
 
 - Quién es el comprador.
 - Quién usa el producto.
@@ -1621,10 +1539,8 @@ Este contexto ayuda a adaptar futuras explicaciones y planes técnicos:
 - cdxgen y CycloneDX.
 - OSV API.
 - PostgreSQL.
-- Cytoscape.js.
 - Arquitectura modular/hexagonal.
 - Inventario y vulnerabilidades.
-- Dependency Graph / Impact Graph.
 - Historial y snapshots.
 - Documentación técnica.
 - IA contextual con RAG.
@@ -1642,7 +1558,6 @@ Este contexto ayuda a adaptar futuras explicaciones y planes técnicos:
 - No se ha demostrado una integración GitHub funcional.
 - No se ha ejecutado cdxgen contra repositorios reales en el contexto disponible.
 - No se ha validado la cobertura real de OSV para los ecosistemas objetivo.
-- No se ha implementado el grafo.
 - No se ha implementado el asistente IA.
 - No se ha implementado el centro documental.
 - No se ha implementado Change Impact.
@@ -1663,7 +1578,6 @@ Confirmar:
 - Herramienta de SBOM.
 - Fuente de vulnerabilidades.
 - Tipo de análisis.
-- Alcance del grafo.
 - Qué quedó fuera del demo histórico de dos semanas.
 
 ## Paso 2 — Investigar las integraciones críticas
@@ -1701,7 +1615,6 @@ Crear OpenAPI para:
 - SBOM.
 - Componentes.
 - Vulnerabilidades.
-- Grafo.
 - Historial.
 
 ## Paso 6 — Construir el flujo vertical
@@ -1709,10 +1622,6 @@ Crear OpenAPI para:
 Priorizar un flujo que funcione de principio a fin:
 
 **Conectar repositorio → analizar commit → generar SBOM → persistir dependencias → consultar OSV → mostrar resultados.**
-
-## Paso 7 — Añadir visualización y reporte
-
-Dashboard, detalle de repositorio, inventario, vulnerabilidades, grafo simple e informe exportable.
 
 ## Paso 8 — Validar diferenciación y mercado
 

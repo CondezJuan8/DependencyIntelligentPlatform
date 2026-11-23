@@ -5,8 +5,6 @@ const paths: Record<string, string> = {
   dashboard: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
   box: 'm12 3 9 5-9 5-9-5 9-5Z M3 8v9l9 5 9-5V8 M12 13v9 M7.5 5.5l9 5',
   shield: 'm12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z m-4 9 3 3 5-6',
-  graph:
-    'M6 7l12 3M6 7l4 12m8-9-8 9 M3 7a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M15 10a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M7 19a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
   analysis: 'M4 20h16 M7 16V9 M12 16V4 M17 16v-5',
   document: 'M14 3H5v18h14V8l-5-5Z M14 3v5h5 M8 12h8 M8 16h5',
   report: 'M14 3H5v18h14V8l-5-5Z M14 3v5h5 M8 17v-3 M12 17v-6 M16 17v-2',

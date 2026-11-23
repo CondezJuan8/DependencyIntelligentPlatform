@@ -67,41 +67,6 @@
 <div class="primary-grid">
   <section class="panel">
     <div class="panel-title">
-      <h2>Grafo de dependencias</h2>
-      <span class="di-tag">Sin datos</span>
-    </div>
-    <div class="graph-empty">
-      <svg viewBox="0 0 440 200" aria-hidden="true">
-        <g stroke="#bfdbfe" stroke-width="1.3">
-          <path
-            d="m45 105 65-60 55 45 65-55 65 65 90-30 M45 105l75 70 45-85 65 70 65-60 65 60 M110 45l10 130 110-15 65-60 90-30 M165 90l65 70"
-          />
-        </g>
-        <g fill="#dbeafe" stroke="#93c5fd">
-          <circle cx="45" cy="105" r="8" />
-          <circle cx="110" cy="45" r="7" />
-          <circle cx="165" cy="90" r="10" />
-          <circle cx="230" cy="35" r="7" />
-          <circle cx="295" cy="100" r="9" />
-          <circle cx="385" cy="70" r="6" />
-          <circle cx="120" cy="175" r="8" />
-          <circle cx="230" cy="160" r="6" />
-          <circle cx="360" cy="160" r="7" />
-        </g>
-      </svg>
-      <div class="empty-copy">
-        <span class="empty-icon"><app-di-icon name="graph" /></span>
-        <h3>{{ repositories().length ? 'Repositorios conectados; el grafo aún no está disponible' : 'Todo empieza con un repositorio' }}</h3>
-        <p>{{ repositories().length ? 'El dashboard ya muestra tus repositorios. Las relaciones aparecerán cuando esté lista la lectura de dependencias transitivas.' : 'Cuando conectes un repositorio, el dashboard lo mostrará aquí.' }}</p>
-      </div>
-    </div>
-    <div class="legend">
-      <span><i></i>Directas</span><span><i></i>Transitivas</span><span><i></i>Con riesgo</span
-      ><small>Vista pendiente de datos de análisis</small>
-    </div>
-  </section>
-  <section class="panel">
-    <div class="panel-title">
       <h2>Evolución del riesgo</h2>
       <span class="di-tag">Sin historial</span>
     </div>

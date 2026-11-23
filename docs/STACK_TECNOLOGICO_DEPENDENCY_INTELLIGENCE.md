@@ -8,16 +8,10 @@ Java 21 / Infrastructure: fallback estático Maven desde POM incluidos, con here
 
 # Dependency Intelligence — Stack tecnológico oficial propuesto
 
-### Bloque 51 — mapa de dependencias por capas
 
-El grafo de Inventario ahora distribuye proyecto, directas y transitivas de izquierda a derecha por profundidad. Angular consolida ocurrencias con la misma identidad de paquete, versión y ecosistema en una tarjeta y conserva rutas/ámbitos para el detalle; las relaciones compartidas convergen en ese nodo. Las tarjetas muestran nombre/versión, los bordes identifican tipo, y búsqueda resalta coincidencias con su ruta de padres. El panel separa dependencias declaradas y paquetes que utilizan el nodo. El listado accesible mantiene todas las entradas; el canvas limita a 1.000 nodos por respuesta, prioriza niveles cercanos y enfoca búsquedas/selecciones grandes. Cytoscape usa layout preset y cálculo BFS O(V+E); no se añadió biblioteca ni se cambió API/base de datos. La revisión de tipos de TypeScript (44 archivos) y el parseo del template pasan; build completa y revisión visual en Compose quedan pendientes porque Node/npm CLI y el host de navegador no están disponibles. Ver [diseño](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
-### Bloque 48 — distribución y lectura del grafo
 
-Cytoscape.js 3.35 usa posiciones radiales controladas por Angular: raíz del repositorio al centro; directas y transitivas en anillos por nivel. Los nombres del canvas se orientan hacia fuera y se reducen para evitar cruces; detalle/lista conservan la identidad completa. No se agrega paquete. Build y revisión visual en Compose: ver [bitácora](BITACORA_TRABAJO.md) y [diseño frontend](DISENO_FRONTEND.md).
 
-### Bloque 45 — grafo inicial
 
-Se reutiliza Cytoscape.js 3.35 ya presente en Angular para navegar nodos/relaciones; no se añade paquete npm. El backend usa Java 21, Application ports/use case y lectura JDBC de PostgreSQL. `package-lock` npm v2/v3 aporta paths instalados y relaciones resolubles; el parser POM existente solo respalda dependencias directas con versión explícita. La tabla `dependency_edges` guarda las aristas observadas del scan. El grafo se consulta con autorización `repository.read`, organiza una fuente por cada último scan completado y deja visibles SHA-256/commit. Los colores del canvas se adaptan a los tokens CSS de tema. Compilación frontend y backend y prueba focal del parser registradas en la [bitácora](BITACORA_TRABAJO.md). Límite pendiente: resolver Maven transitivo sin inferir paquetes.
 
 **Versión:** 1.0  
 
@@ -88,7 +82,7 @@ Esta nota complementa la propuesta histórica sin convertir todas sus opciones e
 - Codex no se implementa ni se agenda como proveedor del producto hasta nueva instrucción explícita del usuario. No se asume uso de SDK, CLI, API ni suscripción como integración futura.
 - Originales documentales en almacenamiento privado, descargables/reindexables con permisos y retención/eliminación configurables; temporales eliminados al terminar o expirar. No se contrató almacenamiento.
 - Pruebas de cambios aisladas y propuesta de PR aprobable en el primer piloto. Notificaciones iniciales in-app; correo de notificaciones después, separado del correo de verificación/recuperación.
-- Núcleo database V1-V24 con 128 tablas, 91 con RLS forzado y 227 FK. V18 configura tema/idioma; V19 guarda repositorios locales; V22/V23 conservan evaluaciones OSV tenant-scoped append-only; V24 permite metadatos de hasta 50.000 archivos locales. Catálogo y diagramas no cambian de relaciones en V24.
+- Núcleo database V1-V27 con 126 tablas, 90 con RLS forzado y 224 FK. V18 configura tema/idioma; V19 guarda repositorios locales; V22/V23 conservan evaluaciones OSV tenant-scoped append-only; V24 permite metadatos de hasta 50.000 archivos locales. Catálogo y diagramas no cambian de relaciones en V24.
 - Importación local usa `MultipartFile`, Java ZIP/I/O y el volumen Docker privado `repository_data`. Límite de 300 MiB de contenido y 50.000 archivos, con hasta 512 MiB de cuerpo multipart. Maven y npm comparten la fuente de una misma petición. El scanner sigue ejecutándose en su servicio aislado.
 
 - Backend actual: Java con destino 21, Spring Boot 3.5.16 y módulos Maven Domain/Application/Infrastructure. Dominio y aplicación permanecen sin frameworks.
@@ -126,7 +120,6 @@ El stack debe cumplir estos criterios:
 |---|---|---|---|
 | Frontend | Angular + TypeScript | Aplicación web SaaS | MVP |
 | UI | Angular Material o PrimeNG | Componentes de interfaz y tablas | MVP |
-| Visualización de grafos | Cytoscape.js | Relaciones entre repositorios, paquetes y versiones | MVP |
 | Backend | Java + Spring Boot | API, reglas de negocio e integraciones | MVP |
 | Seguridad backend | Spring Security | Autenticación, autorización y protección de endpoints | MVP |
 | Persistencia | Spring Data JPA + Hibernate | Persistencia relacional | MVP |
@@ -155,7 +148,6 @@ El stack debe cumplir estos criterios:
 - Angular.
 - TypeScript.
 - Angular Material o PrimeNG.
-- Cytoscape.js para el grafo.
 - Cliente HTTP de Angular para consumir la API REST.
 
 **Responsabilidades:**
@@ -165,13 +157,11 @@ El stack debe cumplir estos criterios:
 - Inventario de dependencias.
 - Consulta de vulnerabilidades.
 - Historial de análisis.
-- Visualización del grafo.
 - Centro documental y asistente de IA en una fase posterior.
 - Reportes y exportaciones.
 
 **Recomendación:** escoger una sola biblioteca principal de componentes visuales. Angular Material y PrimeNG son alternativas; no se recomienda introducir ambas sin una necesidad concreta. La selección final debe considerar la calidad de tablas, filtros, formularios, accesibilidad y personalización visual.
 
-Cytoscape.js debe encargarse de la representación y exploración del grafo. La API del backend debe entregar nodos y relaciones; el frontend no debe inventar relaciones ni inferir impactos que el backend no haya identificado.
 
 ### 3.3 Backend
 
@@ -192,7 +182,7 @@ Cytoscape.js debe encargarse de la representación y exploración del grafo. La 
 - Gestionar usuarios, organizaciones, roles y permisos.
 - Coordinar integraciones.
 - Crear y consultar análisis.
-- Persistir SBOM, componentes, relaciones y vulnerabilidades.
+- Persistir SBOM, componentes clasificados y vulnerabilidades.
 - Aplicar aislamiento multi-tenant.
 - Gestionar documentación y consultas RAG cuando se incorpore ese módulo.
 - Generar reportes y auditoría.
@@ -217,7 +207,6 @@ Almacenará, entre otros:
 - Análisis y snapshots.
 - Artefactos SBOM y referencias a ellos.
 - Componentes y versiones.
-- Relaciones entre dependencias.
 - Vulnerabilidades y asociaciones.
 - Documentos y metadatos.
 - Fragmentos documentales.
@@ -290,7 +279,7 @@ Flujo:
 4. Ejecutar cdxgen en un contenedor aislado.
 5. Generar el SBOM CycloneDX.
 6. Parsear y validar el documento.
-7. Normalizar componentes, versiones y relaciones.
+7. Normalizar componentes, versiones y procedencia.
 8. Persistir los resultados asociados al snapshot.
 
 La cobertura debe comprobarse por ecosistema y tipo de proyecto. No prometer detección completa de transitivas si no se dispone de lockfiles o de información suficiente del gestor de paquetes.
@@ -352,7 +341,6 @@ Para producción, los archivos temporales y documentos deben tener una política
 ┌─────────────────────────────────────────────────────────────┐
 │                     Angular + TypeScript                    │
 │ Dashboard | Repositories | Inventory | Vulnerabilities      │
-│ Graph | History | Documentation | AI Assistant | Reports    │
 └──────────────────────────────┬──────────────────────────────┘
                                │ HTTPS / REST
 ┌──────────────────────────────▼──────────────────────────────┐
@@ -416,9 +404,7 @@ Se recomienda organizar el backend por módulos de negocio y mantener separació
 - Repository Management
 - Scan Management
 - SBOM & Components
-- Dependency Relationships
 - Vulnerability Intelligence
-- Dependency Graph
 - Scan History
 - Documentation
 - AI Assistant
@@ -573,14 +559,13 @@ Incluye:
 - CycloneDX.
 - OSV API.
 - Docker para scanner aislado.
-- Cytoscape.js para grafo inicial.
 - OpenAPI / Swagger.
 - JUnit y pruebas de integración.
 - CI/CD básico.
 
 Flujo vertical:
 
-**Conectar GitHub → seleccionar repositorio → analizar commit → generar SBOM → persistir componentes y relaciones → consultar OSV → mostrar inventario y vulnerabilidades.**
+**Conectar GitHub → seleccionar repositorio → analizar commit → generar SBOM → persistir componentes clasificados → consultar OSV → mostrar inventario y vulnerabilidades.**
 
 El procesamiento documental avanzado, RAG y el asistente de IA no deben bloquear la entrega de este flujo.
 
@@ -678,7 +663,6 @@ Antes de congelar el stack, el equipo debe confirmar:
 
 El stack recomendado para Dependency Intelligence es:
 
-**Angular + TypeScript + Java + Spring Boot + PostgreSQL + Docker**, complementado con **GitHub App, cdxgen, CycloneDX, OSV y Cytoscape.js**.
 
 Para la evolución documental:
 
@@ -706,7 +690,6 @@ Se conservan como base:
 - CycloneDX.
 - OSV API.
 - Docker.
-- Cytoscape.js.
 - Arquitectura hexagonal, DDD y monolito modular.
 - Separación entre MVP y fases posteriores.
 - Requisitos de seguridad, multi-tenancy, trazabilidad y evidencia.

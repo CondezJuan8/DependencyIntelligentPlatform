@@ -43,7 +43,7 @@ h1 {
 }
 .primary-grid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 .panel {
@@ -61,21 +61,12 @@ h2 {
   margin: 0;
   letter-spacing: -0.2px;
 }
-.graph-empty,
 .trend-empty {
   height: 240px;
   position: relative;
   display: grid;
   place-items: center;
 }
-.graph-empty svg {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0.55;
-}
-.graph-empty svg g:first-child { stroke: var(--di-illustration-line); }
-.graph-empty svg g:last-child { fill: var(--di-illustration-node); stroke: var(--di-illustration-node-border); }
 .empty-copy {
   position: relative;
   text-align: center;

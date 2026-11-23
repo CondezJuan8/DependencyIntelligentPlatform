@@ -5,7 +5,6 @@ import static com.dependencyintelligence.repository.application.RepositorySource
 import com.dependencyintelligence.component.domain.PackageCoordinates;
 import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
 import com.dependencyintelligence.scan.application.dto.ManifestDependency;
-import com.dependencyintelligence.scan.application.dto.ManifestDependencyEdge;
 import com.dependencyintelligence.scan.application.port.out.NpmLockfileReader;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,7 +46,6 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
     @Override public ManifestAnalysis read(InputStream input) {
         var locks = readLocks(input);
         var dependencies = new ArrayList<ManifestDependency>();
-        var edges = new ArrayList<ManifestDependencyEdge>();
         int unresolved = 0;
         int valid = 0;
         IllegalArgumentException firstFailure = null;
@@ -67,11 +65,9 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
             unresolved += analysis.unresolvedCount();
             analysis.dependencies().forEach(item -> dependencies.add(new ManifestDependency(prefix + item.manifestPath(),
                 item.coordinates(), item.scope(), item.dependencyType())));
-            analysis.edges().forEach(edge -> edges.add(new ManifestDependencyEdge(
-                prefix + edge.parentManifestPath(), prefix + edge.childManifestPath())));
         }
         if (valid == 0 && firstFailure != null) throw firstFailure;
-        return new ManifestAnalysis(dependencies, edges, locks.size(), unresolved);
+        return new ManifestAnalysis(dependencies, locks.size(), unresolved);
     }
 
     private ManifestAnalysis parseLock(byte[] lock) {
@@ -108,7 +104,6 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
 
             JsonNode rootPackage = packages.path("");
             Set<String> directPaths = new LinkedHashSet<>();
-            Set<ManifestDependencyEdge> edges = new LinkedHashSet<>();
             int unresolved = unresolvedPackages + connectDependencies("", rootPackage, entries, directPaths);
             for (var workspace : packages.properties()) {
                 if (!workspace.getKey().isEmpty() && !isInstalledPath(workspace.getKey()))
@@ -125,7 +120,6 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
                 for (String name : dependencyNames(parent.node(), PACKAGE_DEPENDENCY_SECTIONS)) {
                     String target = resolveInstalledPath(parentPath, name, entries);
                     if (target == null) { unresolved++; continue; }
-                    if (!target.equals(parentPath)) edges.add(new ManifestDependencyEdge(parentPath, target));
                     if (!reachable.contains(target)) pending.addLast(target);
                 }
             }
@@ -137,11 +131,8 @@ public final class BoundedNpmLockReader implements NpmLockfileReader {
                     directPaths.contains(path) ? "DIRECT" : reachable.contains(path) ? "TRANSITIVE" : "UNKNOWN"));
             }
             dependencies.sort((left, right) -> left.manifestPath().compareTo(right.manifestPath()));
-            List<ManifestDependencyEdge> resolvedEdges = edges.stream()
-                .filter(edge -> reachable.contains(edge.parentManifestPath()) && reachable.contains(edge.childManifestPath()))
-                .toList();
             int unreachable = Math.max(0, entries.size() - reachable.size());
-            return new ManifestAnalysis(dependencies, resolvedEdges, 1, unresolved + unreachable);
+            return new ManifestAnalysis(dependencies, 1, unresolved + unreachable);
         } catch (IOException failure) {
             throw new IllegalArgumentException("package-lock.json no es JSON válido.", failure);
         }

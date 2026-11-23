@@ -1,6 +1,6 @@
 # Diccionario de datos del esquema aplicado
 
-Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V24. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
+Generado desde `schema.json`, exportado de PostgreSQL tras Flyway V27. No contiene filas de negocio ni secretos. Los nombres, columnas, restricciones e índices son del catálogo real.
 
 PK/U: clave primaria/única, posiblemente compuesta. FK: referencia. NO ACTION/RESTRICT preservan historia; no se aplican cascadas indiscriminadas.
 
@@ -839,69 +839,6 @@ Retención/borrado: sin borrado automático; aplicar políticas del tenant y res
 
 - Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
 - Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
-
-## dependency_edges
-
-Arista entre dos apariciones del mismo snapshot; no demuestra comunicación runtime.
-
-Módulo: **scan**. Ámbito: **tenant**. RLS: True; FORCE: True.
-
-| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
-| --- | --- | --- | --- | --- |
-| `organization_id` | `uuid` | No | — | FK, U |
-| `scan_id` | `uuid` | No | — | FK, U |
-| `id` | `uuid` | No | gen_random_uuid() | PK |
-| `source_scan_component_id` | `uuid` | No | — | FK, U |
-| `target_scan_component_id` | `uuid` | No | — | FK, U |
-| `relationship_type_id` | `uuid` | No | — | FK, U |
-
-Restricciones:
-
-- `ck_dependency_edge_not_self`: `CHECK ((source_scan_component_id <> target_scan_component_id))`. Validada: True.
-- `dependency_edges_pkey`: `PRIMARY KEY (id)`. Validada: True.
-- `dependency_edges_relationship_type_id_fkey`: `FOREIGN KEY (relationship_type_id) REFERENCES dependency_relationship_types(id) ON DELETE RESTRICT`. Validada: True.
-- `fk_edge_source`: `FOREIGN KEY (organization_id, scan_id, source_scan_component_id) REFERENCES scan_components(organization_id, scan_id, id) ON DELETE RESTRICT`. Validada: True.
-- `fk_edge_target`: `FOREIGN KEY (organization_id, scan_id, target_scan_component_id) REFERENCES scan_components(organization_id, scan_id, id) ON DELETE RESTRICT`. Validada: True.
-- `uq_dependency_edge`: `UNIQUE (organization_id, scan_id, source_scan_component_id, target_scan_component_id, relationship_type_id)`. Validada: True.
-
-Referencias entrantes: ninguna.
-
-Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
-
-- `CREATE UNIQUE INDEX dependency_edges_pkey ON public.dependency_edges USING btree (id)`
-- `CREATE INDEX ix_dependency_edge_target ON public.dependency_edges USING btree (organization_id, scan_id, target_scan_component_id)`
-- `CREATE INDEX ix_fk_dependency_edges_e6cd24f84dab ON public.dependency_edges USING btree (relationship_type_id)`
-- `CREATE UNIQUE INDEX uq_dependency_edge ON public.dependency_edges USING btree (organization_id, scan_id, source_scan_component_id, target_scan_component_id, relationship_type_id)`
-
-Retención/borrado: sin borrado automático; aplicar políticas del tenant y resolver referencias antes de eliminar historia.
-
-- Política `schema_migration_access`, roles dependency_migrator: USING `true`; CHECK `true`.
-- Política `tenant_isolation`, roles public: USING `(organization_id = app_private.current_organization_id())`; CHECK `(organization_id = app_private.current_organization_id())`.
-
-## dependency_relationship_types
-
-Tipos semánticos de aristas.
-
-Módulo: **component**. Ámbito: **global**. RLS: False; FORCE: False.
-
-| Columna | Tipo PostgreSQL | NULL | Default / generado | Claves |
-| --- | --- | --- | --- | --- |
-| `id` | `uuid` | No | gen_random_uuid() | PK |
-| `code` | `text` | No | — | U |
-
-Restricciones:
-
-- `dependency_relationship_types_code_key`: `UNIQUE (code)`. Validada: True.
-- `dependency_relationship_types_pkey`: `PRIMARY KEY (id)`. Validada: True.
-
-Referencias entrantes: `dependency_edges` (relationship_type_id).
-
-Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
-
-- `CREATE UNIQUE INDEX dependency_relationship_types_code_key ON public.dependency_relationship_types USING btree (code)`
-- `CREATE UNIQUE INDEX dependency_relationship_types_pkey ON public.dependency_relationship_types USING btree (id)`
-
-Retención/borrado: catálogo/identidad referenciada; RESTRICT evita borrar valores todavía utilizados.
 
 
 ## dependency_scopes
@@ -3569,7 +3506,6 @@ Módulo: **scan**. Ámbito: **tenant**. RLS: True; FORCE: True.
 | `id` | `uuid` | No | gen_random_uuid() | U |
 | `component_version_id` | `uuid` | No | — | FK |
 | `dependency_scope_id` | `uuid` | Sí | — | FK |
-| `is_root` | `boolean` | No | false |  |
 
 Restricciones:
 
@@ -3582,7 +3518,6 @@ Restricciones:
 - `uq_scan_component_id`: `UNIQUE (organization_id, scan_id, id)`. Validada: True.
 - `uq_scan_component_tenant_id`: `UNIQUE (organization_id, id)`. Validada: True.
 
-Referencias entrantes: `assistant_message_evidences` (organization_id, scan_component_id), `dependency_edges` (organization_id, scan_id, source_scan_component_id), `dependency_edges` (organization_id, scan_id, target_scan_component_id), `scan_component_licenses` (organization_id, scan_component_id), `scan_vulnerability_assessments` (organization_id, scan_id, scan_component_id), `scan_vulnerability_findings` (organization_id, scan_id, scan_component_id).
 
 Índices — UNIQUE/PK protegen identidad; los índices FK cubren búsquedas de referencias/prefijos y no duplican índices completos existentes:
 

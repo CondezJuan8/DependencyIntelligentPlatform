@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BoundedNpmLockReaderTest {
-    @Test void recordsExactDirectAndTransitiveRelationshipsFromLockfilePaths() throws Exception {
+    @Test void classifiesExactDirectAndTransitivePackagesFromLockfilePaths() throws Exception {
         String lock = """
             {"lockfileVersion":3,"packages":{
               "":{"dependencies":{"alpha":{"version":"1.0.0"}}},
@@ -24,9 +24,6 @@ class BoundedNpmLockReaderTest {
         assertEquals(3, analysis.dependencies().size());
         assertEquals(1, analysis.dependencies().stream().filter(item -> item.dependencyType().equals("DIRECT")).count());
         assertEquals(2, analysis.dependencies().stream().filter(item -> item.dependencyType().equals("TRANSITIVE")).count());
-        assertEquals(2, analysis.edges().size());
-        assertTrue(analysis.edges().stream().anyMatch(edge -> edge.parentManifestPath().equals("node_modules/alpha")
-            && edge.childManifestPath().equals("node_modules/alpha/node_modules/beta")));
         assertEquals(0, analysis.unresolvedCount());
     }
 
@@ -44,7 +41,6 @@ class BoundedNpmLockReaderTest {
         assertEquals("@scope", scoped.coordinates().namespace());
         assertEquals("pkg:npm/%40scope/widget@2.3.0", scoped.coordinates().purl());
         assertEquals("DIRECT", scoped.dependencyType());
-        assertEquals(1, analysis.edges().size());
         assertEquals(0, analysis.unresolvedCount());
     }
 

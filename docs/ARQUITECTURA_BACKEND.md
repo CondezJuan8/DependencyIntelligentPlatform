@@ -19,15 +19,12 @@ Infrastructure incorpora `MavenPomDependencyResolver`, usado como fallback del p
 `CdxgenMavenManifestReader` conserva el ZIP autorizado en un temporal limitado y usa `BoundedMavenArchiveReader` si cdxgen informa POM pero no componentes. El fallback solo guarda coordenadas con versiones exactas observadas en POM/propiedades locales, no inventa transitivas, y marca cobertura parcial. Luego OSV evalúa las versiones persistidas por el flujo independiente `VulnerabilityAssessmentController`; la evidencia queda asociada a cada scan y componente.
 ## Bloque 56 — Inventario y evaluación OSV independientes
 
-Los endpoints `POST /maven-analysis` y `POST /npm-analysis` generan CycloneDX con cdxgen y persisten scans/componentes/relaciones. OSV no ejecuta ese scanner: `POST/GET /vulnerability-analysis` lee el último scan completado por ecosistema (`cdxgen-*` o los nombres legacy), consulta versiones exactas y persiste los resultados vinculados a `scan_component_id`. Una respuesta OSV fallida no borra ni revierte el inventario; queda indicada como `UNAVAILABLE`/`INCOMPLETE` y la UI permite volver a consultar OSV sin repetir cdxgen.
+Los endpoints `POST /maven-analysis` y `POST /npm-analysis` generan CycloneDX con cdxgen y persisten scans, componentes y clasificaciones respaldadas por la fuente. OSV no ejecuta ese scanner: `POST/GET /vulnerability-analysis` lee el último scan completado por ecosistema (`cdxgen-*` o los nombres legacy), consulta versiones exactas y persiste los resultados vinculados a `scan_component_id`. Una respuesta OSV fallida no borra ni revierte el inventario; queda indicada como `UNAVAILABLE`/`INCOMPLETE` y la UI permite volver a consultar OSV sin repetir cdxgen.
 
 Cuando cdxgen detecta `package-lock.json` pero emite cero componentes, el lector npm reabre el archivo con el parser de lockfile ya existente; el resultado recuperado queda con cobertura parcial y procedencia clara. Los archives se reproducen desde un temporal limitado a 100 MiB, borrado al terminar. No se lanzan npm ni scripts del proyecto. Ver [guía del scanner](../infra/scanner/README.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
 
-## Bloque 45 — consulta tenant-scoped del grafo
 
-Application agrega `GetRepositoryDependencyGraph` y su puerto `RepositoryDependencyGraphReader`, con DTO inmutable para fuentes, nodos y aristas. Infrastructure implementa una lectura JDBC con la organización establecida por `TenantTransactions`, consulta los últimos scans completados de `maven-manifest` y `npm-lockfile`, construye nodos de ocurrencias y lee `dependency_edges` del mismo scan. La raíz virtual y sus enlaces a ocurrencias `DIRECT` se construyen en la proyección de lectura; no se persiste como paquete ficticio. El controlador REST aplica `repository.read` antes del caso de uso. No hay dependencia del framework en Application ni cambios al esquema.
 
-`JdbcMavenAnalysisAdapter` traduce paths npm del lockfile a `scan_components` y persiste sus relaciones como `depends_on`. Maven continúa registrando las declaraciones directas que el parser reconoce; las transitivas solo estarán disponibles al implementar una resolución Maven verificable. Endpoint: `GET /api/organizations/{organizationId}/repositories/{repositoryId}/dependency-graph`.
 
 ## Bloque 44 — evidencia estática de código y repositorios
 
@@ -130,7 +127,6 @@ Los contextos de negocio (`repository`, `scan`, `organization`, etc.) se conserv
 4. `FindRepositoryUseCase` siempre consulta por organización e identificador.
 5. `RequestScanUseCase` verifica el repositorio dentro de la organización y persiste un análisis `PENDING` mediante `ScanStore`.
 
-Los DTO no son entidades JPA. `RepositoryId` y `OrganizationId` evitan intercambiar identificadores por accidente. `Scan` protege las transiciones y la cronología mediante operaciones explícitas e inmutables. Las referencias a otros agregados son identificadores; no hay grafos JPA cruzando contextos.
 
 `UseCaseConfiguration` es la raíz de composición. Allí se inyecta `Clock`; `TenantTransactions` delimita lecturas/escrituras y establece `app.organization_id` local a la transacción, sin anotar Application con Spring. JPA y JDBC parametrizado comparten datasource y gestor. Impide cambiar de tenant dentro de una transacción activa y el contexto se limpia por commit/rollback. No se crea una entidad ORM para cada tabla sin un caso de uso que la necesite.
 
@@ -158,7 +154,6 @@ Las pruebas focalizadas de este bloque son `CycloneDxJsonParserTest` y `Hexagona
 
 V3 introdujo namespace, origen y `sbom_imports`; V4–V11 conservan esa información en catálogo normalizado y `sbom_documents`. Una importación crea snapshot `COMPLETED`, origen `SBOM_IMPORT`, trigger `IMPORT`, sin referencia Git ni scanner. Sus tiempos son de importación, no ejecución medida. Los análisis normales conservan origen `REPOSITORY_SCAN` y referencia Git obligatoria; los commits observados tienen entidad propia y FK al repositorio.
 
-El adaptador reutiliza paquete por organización/ecosistema/namespace/nombre y versión exacta por paquete; los PURL se conservan como identificadores alternativos. Usa `ON CONFLICT` y comprueba coordenadas; rechaza incompatibilidades sin sobrescribirlas. Cada importación crea un snapshot y cada `bom-ref` una aparición distinta `UNKNOWN`. No crea aristas, hallazgos ni artefactos ficticios.
 
 `sbom_documents` conserva formato, versión de especificación, serial cuando existe y SHA-256. El importador aún no retiene el original; el esquema admite asociar un artefacto privado cuando se implemente almacenamiento. El hash no reconstruye el archivo. F04 se verifica con ImportSbomUseCaseTest, SbomImportIT y RuntimeDatabaseIT; transición y reglas del modelo mediante DatabaseIT/NormalizedSchemaIT. Resultado y entorno exactos en el informe.
 
@@ -208,5 +203,3 @@ Se implementaron preferencias compartidas de tema e idioma por organizacion medi
 ## Bloque 41 - Vista unificada de inventario
 
 El frontend consume las consultas Maven/npm ya existentes de forma paralela y combina los últimos snapshots por repositorio. La acción de análisis dispara ambos casos de uso y tolera que solo uno encuentre un manifiesto compatible; los fallos de autorización o servidor se presentan por ecosistema. La agregación de presentación usa la identidad compuesta `ecosistema + namespace + nombre` y agrupa por versión exacta, preservando ocurrencias y su manifiesto/ámbito.
-
-La vista no reemplaza los casos de uso ni inventa un scanner genérico. Los adapters Domain/Application/Infrastructure, la detección adicional de ecosistemas, aristas transitivas, análisis OSV y vistas multi-repositorio quedan como capacidades backend pendientes. No hubo cambios de esquema, migraciones, permisos ni dependencias en este bloque.

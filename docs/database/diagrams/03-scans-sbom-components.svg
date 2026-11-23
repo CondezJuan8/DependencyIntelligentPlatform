@@ -15,8 +15,6 @@
 <polyline points="440,619.0 470,619.0 470,768.0 2297,768.0 2297,490.0 755.0,490.0 755.0,551.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="975,609.6666666666666 1015,609.6666666666666 1015,780.0 2165,780.0 2165,2424.0 1825.0,2424.0 1825.0,2497.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="975,648.3333333333334 1025,648.3333333333334 1025,792.0 2177,792.0 2177,777.0 755.0,777.0 755.0,862.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1238.3333333333333 1570,1238.3333333333333 1570,1446.0 2189,1446.0 2189,454.0 1290.0,454.0 1290.0,551.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<polyline points="1510,1283.6666666666667 1530,1283.6666666666667 1530,1458.0 2201,1458.0 2201,1706.0 1290.0,1706.0 1290.0,1815.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="975,1562.6666666666667 1005,1562.6666666666667 1005,1685.0 2213,1685.0 2213,1479.0 1825.0,1479.0 1825.0,1504.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="975,1601.3333333333333 1015,1601.3333333333333 1015,1697.0 2225,1697.0 2225,2460.0 755.0,2460.0 755.0,2497.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="1510,1582.0 1560,1582.0 1560,1709.0 2237,1709.0 2237,1455.0 755.0,1455.0 755.0,1504.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
@@ -43,7 +41,7 @@
 <polyline points="975,2640.4285714285716 1035,2640.4285714285716 1035,2862.0 2201,2862.0 2201,2388.0 1290.0,2388.0 1290.0,2497.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="975,2671.285714285714 995,2671.285714285714 995,2778.0 2213,2778.0 2213,2472.0 220.0,2472.0 220.0,2497.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
 <polyline points="975,2702.1428571428573 1005,2702.1428571428573 1005,2790.0 2225,2790.0 2225,2871.0 220.0,2871.0 220.0,2908.0" fill="none" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrow)"/>
-<text x="0" y="24.0" font-family="monospace" font-size="24" fill="#1e293b">Scans, SBOM, versiones y grafo</text>
+<text x="0" y="24.0" font-family="monospace" font-size="24" fill="#1e293b">Scans, SBOM y componentes</text>
 <text x="0" y="56.0" font-family="monospace" font-size="14" fill="#1e293b">Entidades y FK exportadas del SQL aplicado; los catálogos no prueban funcionalidades de aplicación.</text>
 <text x="0" y="86.0" font-family="monospace" font-size="14" fill="#1e293b">PK / U = participa en clave (puede ser compuesta); FK = referencia; ? = nullable</text>
 <text x="0" y="103.5" font-family="monospace" font-size="14" fill="#1e293b">Azul: tenant/RLS · Gris: global · Blanco: referencia externa al módulo · conectores ER: 0..N → 1/0..1</text>
@@ -85,8 +83,8 @@
 <text x="547" y="639.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U package_ecosystem_id: uuid</text>
 <text x="547" y="656.5" font-family="monospace" font-size="14" fill="#1e293b">U namespace?: text</text>
 <text x="547" y="674.0" font-family="monospace" font-size="14" fill="#1e293b">U name: text</text>
-<rect x="1070" y="551" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
-<text x="1082" y="577.0" font-family="monospace" font-size="16" fill="#1e293b">dependency_relationship_types</text>
+
+
 <text x="1082" y="604.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
 <text x="1082" y="621.5" font-family="monospace" font-size="14" fill="#1e293b">U code: text</text>
 <rect x="1605" y="551" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
@@ -126,14 +124,11 @@
 <text x="547" y="1243.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
 <text x="547" y="1261.0" font-family="monospace" font-size="14" fill="#1e293b">FK job_type: text</text>
 <text x="547" y="1278.5" font-family="monospace" font-size="14" fill="#1e293b">FK status: text</text>
-<rect x="1070" y="1173" width="440" height="176" rx="4" fill="#e7f2ff" stroke="#334155"/>
-<text x="1082" y="1199.0" font-family="monospace" font-size="16" fill="#1e293b">dependency_edges</text>
+
+
 <text x="1082" y="1226.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U organization_id: uuid</text>
 <text x="1082" y="1243.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U scan_id: uuid</text>
 <text x="1082" y="1261.0" font-family="monospace" font-size="14" fill="#1e293b">PK id: uuid</text>
-<text x="1082" y="1278.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U source_scan_component_id: uuid</text>
-<text x="1082" y="1296.0" font-family="monospace" font-size="14" fill="#1e293b">FK/U target_scan_component_id: uuid</text>
-<text x="1082" y="1313.5" font-family="monospace" font-size="14" fill="#1e293b">FK/U relationship_type_id: uuid</text>
 <rect x="1605" y="1173" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
 <text x="1617" y="1199.0" font-family="monospace" font-size="16" fill="#1e293b">job_statuses</text>
 <text x="1617" y="1226.0" font-family="monospace" font-size="14" fill="#1e293b">PK code: text</text>

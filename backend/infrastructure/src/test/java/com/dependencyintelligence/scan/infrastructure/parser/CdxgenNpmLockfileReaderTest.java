@@ -34,7 +34,6 @@ class CdxgenNpmLockfileReaderTest {
         assertEquals(2, result.dependencies().size());
         assertEquals(1, result.dependencies().stream().filter(item -> "DIRECT".equals(item.dependencyType())).count());
         assertEquals(1, result.dependencies().stream().filter(item -> "TRANSITIVE".equals(item.dependencyType())).count());
-        assertEquals(1, result.edges().size());
         assertEquals("PARTIAL", result.coverageStatus());
         assertTrue(result.coverageMessage().contains("recuperó directamente de package-lock.json"));
         assertTrue(result.dependencies().stream().anyMatch(item -> item.coordinates().name().equals("@scope/widget")));
@@ -71,7 +70,6 @@ class CdxgenNpmLockfileReaderTest {
 
         assertEquals(2, result.manifestCount());
         assertEquals(3, result.dependencies().size());
-        assertEquals(1, result.edges().size());
         assertTrue(result.dependencies().stream().anyMatch(item -> "@scope/leaf".equals(item.coordinates().name())
             && "TRANSITIVE".equals(item.dependencyType()) && item.manifestPath().startsWith("first/package-lock.json/")));
     }

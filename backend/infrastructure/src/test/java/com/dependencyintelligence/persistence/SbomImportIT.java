@@ -59,7 +59,7 @@ class SbomImportIT extends PostgresIntegrationSupport {
         assertEquals(0, count("sbom_documents", tenant));
     }
 
-    @Test void persistsScopedNpmComponentsAndTheirDirectAndTransitiveEdges() {
+    @Test void persistsScopedNpmComponentsAndTheirDirectAndTransitiveClassification() {
         var tenant = organization();
         var repository = repository(tenant);
         String content = """
@@ -74,7 +74,6 @@ class SbomImportIT extends PostgresIntegrationSupport {
         assertEquals(2, imported.componentCount());
         assertEquals(1, jdbc.queryForObject("select count(*) from scan_components where organization_id=? and scan_id=? and dependency_type='DIRECT'", Integer.class, tenant, imported.scanId()));
         assertEquals(1, jdbc.queryForObject("select count(*) from scan_components where organization_id=? and scan_id=? and dependency_type='TRANSITIVE'", Integer.class, tenant, imported.scanId()));
-        assertEquals(1, jdbc.queryForObject("select count(*) from dependency_edges where organization_id=? and scan_id=?", Integer.class, tenant, imported.scanId()));
         assertEquals("@scope/widget", jdbc.queryForObject("select c.name from scan_components sc join component_versions cv on cv.organization_id=sc.organization_id and cv.id=sc.component_version_id join components c on c.organization_id=cv.organization_id and c.id=cv.component_id where sc.organization_id=? and sc.scan_id=? and sc.bom_ref='scoped'", String.class, tenant, imported.scanId()));
     }
 

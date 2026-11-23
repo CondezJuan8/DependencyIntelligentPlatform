@@ -4,16 +4,10 @@
 
 Inventario abre el catálogo del espacio y ofrece la vista por repositorio para iniciar escaneos, repetir OSV o consultar un aviso completo. El catálogo mantiene los filtros al volver de una revisión. La lista se pagina y solo carga apariciones al abrir una fila. Las apariciones muestran repositorio, versión, relación, ruta y procedencia desplegable. Los controles tienen etiquetas, foco visible y estados anunciados. El diseño se adapta a una columna en pantallas reducidas y usa los tokens existentes para ambos temas.
 
-### Bloque 51 — mapa de dependencias por capas
 
-El grafo de Inventario ahora distribuye proyecto, directas y transitivas de izquierda a derecha por profundidad. Angular consolida ocurrencias con la misma identidad de paquete, versión y ecosistema en una tarjeta y conserva rutas/ámbitos para el detalle; las relaciones compartidas convergen en ese nodo. Las tarjetas muestran nombre/versión, los bordes identifican tipo, y búsqueda resalta coincidencias con su ruta de padres. El panel separa dependencias declaradas y paquetes que utilizan el nodo. El listado accesible mantiene todas las entradas; el canvas limita a 1.000 nodos por respuesta, prioriza niveles cercanos y enfoca búsquedas/selecciones grandes. Cytoscape usa layout preset y cálculo BFS O(V+E); no se añadió biblioteca ni se cambió API/base de datos. La revisión de tipos de TypeScript (44 archivos) y el parseo del template pasan; build completa y revisión visual en Compose quedan pendientes porque Node/npm CLI y el host de navegador no están disponibles. Ver [diseño](DISENO_FRONTEND.md), [stack](STACK_TECNOLOGICO_DEPENDENCY_INTELLIGENCE.md), [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md).
-## Bloque 48 — grafo legible por niveles
 
-El canvas representa el proyecto en el centro, las dependencias directas en el anillo interior y las transitivas en el exterior. Las etiquetas se orientan hacia fuera, se resumen en el dibujo y conservan su nombre completo en la lista y el detalle. Las aristas no repiten texto: flecha y leyenda explican el sentido. La guía está localizada en inglés/español y conserva la alternativa de lista accesible, selección, búsqueda, zoom y ajuste. Verificado visualmente con un snapshot Maven de seis dependencias directas; el anillo transitivo se llena solo con relaciones observadas. Sigue pendiente la revisión responsive con un lockfile npm/transitivas y datos grandes.
 
-## Bloque 45 — grafo interactivo responsive y accesible
 
-Inventario añade controles etiquetados para repositorio, ecosistema y búsqueda; la visualización permite zoom y ajuste. El canvas se presenta como imagen interactiva y se acompaña de una lista HTML de paquetes con botones operables por teclado, estado seleccionado anunciado, panel de detalle y rutas/fuente legibles. Los colores de etiqueta/superficie/borde Cytoscape se vuelven a leer cuando cambia `data-theme`, además del fondo SCSS basado en tokens. En móvil, filtros y leyenda se apilan, los contadores pasan a dos columnas y la lista/detalle usan una columna. Se comunica un estado vacío útil si no hay fuentes o dependencias soportadas. Revisar en móvil/escritorio, tema claro/oscuro y un lockfile grande: la generación/revisión visual automática no se hizo.
 
 ## Bloque 44 — avisos expandibles, procedencia y ciclo de repositorio
 
@@ -39,7 +33,6 @@ El riesgo no se colorea como seguro o vulnerable: aparece como **sin evaluar** h
 
 - **Acceso y registro:** composición de dos paneles, marca navy con ilustración propia de red/escudo en SVG, formulario claro, pestañas de acceso, iconos y control de visibilidad de contraseña. Registro con nombre, correo, contraseña/confirmación y reglas existentes. No se añade un «recordarme» que prometa persistencia distinta de la sesión actual. Google/GitHub aparecen según la disponibilidad real; si no están habilitados, botones desactivados con explicación.
 - **Espacio de trabajo:** sidebar navy con indicador activo, topbar con búsqueda de secciones, avatar con iniciales reales, opciones de cuenta, cierre de sesión, navegación móvil y enlace de salto al contenido. Navegación `?view=` con lista de páginas permitidas, recarga y atrás/adelante del navegador.
-- **Dashboard:** tarjetas, panel de grafo, evolución y organizaciones siguiendo la distribución de la referencia. El número de organizaciones procede de la API. Repositorios/dependencias/riesgo permanecen sin cifra evaluada; el grafo es una ilustración de estado vacío. No se inventan vulnerabilidades, tendencias, porcentajes, actividad ni respuestas del asistente. Los módulos futuros llevan estado «En preparación».
 - **Organización:** selección de espacio, pestañas Miembros/Invitaciones/Equipos/Permisos, tabla con iniciales, equipos, roles y estados, búsqueda/filtro local, paginación de miembros en bloques de diez y diálogos para las operaciones existentes. Foco atrapado/restaurado con CDK, Escape y confirmaciones; un formulario cancelado de acceso se reinicializa al abrirlo otra vez. La lista de invitaciones conserva el límite de cien del backend.
 - **Configuración:** perfil real y métodos conectados en su sección propia. Las invitaciones recibidas abren Organización para mantener accesible la aceptación tras iniciar sesión.
 
@@ -108,7 +101,6 @@ El usuario quiere probar recorridos interactivos y dar observaciones de diseño 
 | --- | --- | --- |
 | Primera revisión local de acceso y colores | Registro, login, organización, correo en Mailpit, verificación, recuperación y logout | Código disponible con API/SMTP/build comprobados. Pendientes el arranque mediante Compose y la revisión visual con el usuario |
 | Primera revisión con datos reales | GitHub autorizado, repositorio elegido, análisis de un commit y consulta del inventario con estados de carga/error | Pendiente de integración GitHub, worker/scanner e inventario HTTP/UI. Avisar al completar el recorrido reproducible |
-| Revisión del primer piloto | Equipos/permisos, grafo, vulnerabilidades e impacto con pruebas aisladas y propuesta de PR aprobable | Pendiente según el contexto maestro |
 
 La primera revisión puede comenzar por acceso y apariencia al levantar el entorno. La revisión con dependencias reales llegará al completar el segundo recorrido. Antes de anunciar un hito como disponible, verificar su arranque y recorrido, documentar errores conocidos y señalar cualquier parte pendiente de comprobar. Las instrucciones actuales de acceso y correo están en [ACCESO_LOCAL](ACCESO_LOCAL.md) y [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md).
 

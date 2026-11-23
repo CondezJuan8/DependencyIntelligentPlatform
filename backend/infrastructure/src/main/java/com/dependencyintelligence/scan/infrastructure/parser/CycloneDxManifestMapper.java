@@ -3,7 +3,6 @@ package com.dependencyintelligence.scan.infrastructure.parser;
 import com.dependencyintelligence.component.domain.PackageCoordinates;
 import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
 import com.dependencyintelligence.scan.application.dto.ManifestDependency;
-import com.dependencyintelligence.scan.application.dto.ManifestDependencyEdge;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/** Maps cdxgen's CycloneDX component references and evidence-backed edges to the inventory model. */
+/** Maps cdxgen's CycloneDX components and source-backed direct/transitive classifications to inventory. */
 @Component
 public final class CycloneDxManifestMapper {
     private static final int MAX_SBOM_BYTES = 25 * 1024 * 1024;
@@ -75,25 +74,17 @@ public final class CycloneDxManifestMapper {
                 outgoing.getOrDefault(ref, Set.of()).forEach(pending::addLast);
             }
 
-            Map<String, String> paths = new HashMap<>();
             List<ManifestDependency> dependencies = new ArrayList<>();
             int index = 0;
             for (Map.Entry<String, Component> entry : byRef.entrySet()) {
                 String ref = entry.getKey();
                 Component component = entry.getValue();
                 String path = "sbom/component-" + (++index);
-                paths.put(ref, path);
                 String dependencyType = direct.contains(ref) ? "DIRECT"
                     : reachable.contains(ref) ? "TRANSITIVE" : "UNKNOWN";
                 if ("UNKNOWN".equals(dependencyType)) unresolved++;
                 dependencies.add(new ManifestDependency(path, component.coordinates(), component.scope(),
                     dependencyType));
-            }
-            List<ManifestDependencyEdge> edges = new ArrayList<>();
-            for (String ref : byRef.keySet()) for (String child : outgoing.getOrDefault(ref, Set.of())) {
-                String from = paths.get(ref), to = paths.get(child);
-                if (from != null && to != null && !from.equals(to)) edges.add(new ManifestDependencyEdge(from, to));
-                else unresolvedRefs.add(child);
             }
             unresolved += unresolvedRefs.size();
             int manifests = manifestCount(root);
@@ -105,10 +96,10 @@ public final class CycloneDxManifestMapper {
                 ? "Se detectó un manifiesto, pero cdxgen no devolvió componentes; no se marcará este inventario como completo."
                 : mavenResolutionIsPartial
                 ? "Cobertura Maven parcial: el modo seguro lee POM y SBOM sin ejecutar Maven; no confirma todas las dependencias transitivas."
-                : unresolved > 0 ? "Hay componentes o relaciones del SBOM sin versión o vínculo verificable." : null;
+                : unresolved > 0 ? "Hay componentes del SBOM sin versión o vínculo verificable." : null;
             if (message == null && missingManifest)
-                message = "No se encontró package-lock.json; no se pueden confirmar todas las versiones ni relaciones de npm.";
-            return new ManifestAnalysis(dependencies, edges, manifests, unresolved,
+                message = "No se encontró package-lock.json; no se pueden confirmar las versiones exactas ni clasificar transitivas de npm.";
+            return new ManifestAnalysis(dependencies, manifests, unresolved,
                 partial ? "PARTIAL" : "COMPLETE", message);
         } catch (IOException failure) {
             throw new IllegalArgumentException("cdxgen devolvió JSON CycloneDX no válido.", failure);

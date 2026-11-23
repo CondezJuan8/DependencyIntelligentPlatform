@@ -11,8 +11,6 @@ documentar, no inventar.
 
 ## Decisiones vigentes y estado real
 
-Bloque 65. V26 añade `scan_components.source_manifest_path` para conservar rutas completas de POM y lockfiles. Los nuevos análisis usan un identificador de ocurrencia de longitud fija. Inventario y Grafo siguen leyendo las ocurrencias históricas mediante su referencia original. La migración no crea tablas ni cambia las relaciones.
-
 Bloque 42: V22 agrega `scan_vulnerability_assessments`, historial de consultas OSV por componente/versión de scan, con estados explícitos, SHA-256, JSON fuente, referencias y `source_modified_at`. La tabla referencia `scan_components` y aplica ENABLE+FORCE RLS. V23 limita al runtime a SELECT/INSERT para que el historial sea append-only; la consulta no escribe el catálogo global `vulnerabilities`, que conserva su rol dedicado de ingestión. Verificación de aplicación y conteo de catálogo en [informe de implementación](database/implementation-report.md); mapeo y semántica en [OSV_VULNERABILIDADES](OSV_VULNERABILIDADES.md).
 
 Bloque 23: V16 agrega `repository.manage` al rol MEMBER, efectivo solo con grant de equipo y repositorio. Bloque 24: V17 crea `member_repository_permissions` para permisos directos por miembro/repositorio, con FK, índice, FORCE RLS y grants runtime/migrator. Las acciones organizacionales sin repo siguen restringidas a OWNER/ADMIN y los grants se intersecan con el rol. Bloque 25: V16/V17 aplicadas y validadas en PostgreSQL; prueba IT focalizada correcta. Catálogo regenerado: 125 tablas, 88 con FORCE RLS y 221 FK.
@@ -62,12 +60,12 @@ Antes de modificar archivos:
 6.  Ejecuta las pruebas disponibles. Si hay Docker y Testcontainers
     configurados, valida las migraciones contra una instancia real de
     PostgreSQL.
-7.  No afirmes que una migración o diagrama está validado si no lo
+6.  No afirmes que una migración o diagrama está validado si no lo
     ejecutaste.
 
 **No generes una base de datos CRUD mínima.** El modelo debe cubrir la
 visión funcional completa del producto: identidad, organizaciones,
-permisos, GitHub, repositorios, análisis, SBOM, componentes, relaciones,
+permisos, GitHub, repositorios, análisis, SBOM, componentes clasificados,
 vulnerabilidades, inventario, historial, cambios, documentos, RAG, IA,
 reportes, notificaciones, auditoría y procesamiento asíncrono.
 
@@ -102,7 +100,6 @@ Sus módulos son:
 -   Repository Management.
 -   Scan Management / Scan History.
 -   SBOM & Components.
--   Dependency Relationships / Dependency Graph.
 -   Vulnerability Intelligence.
 -   Inventory.
 -   Snapshot Comparison.
@@ -116,8 +113,6 @@ Sus módulos son:
 -   Background Jobs / Processing.
 
 ### 1.2 Flujo principal del producto
-
-`Organización → instala GitHub App → selecciona repositorios → se solicita un análisis → se obtiene un commit concreto → cdxgen genera SBOM CycloneDX → se normalizan componentes y relaciones → se consultan vulnerabilidades OSV → se persisten hallazgos y evidencias → se visualizan inventario, riesgos, historial y grafo.`
 
 ### 1.3 Flujo documental posterior
 
@@ -140,11 +135,10 @@ anterior de `Requerimientos.md` queda como antecedente histórico.
     repositorio, commit, análisis, herramienta, versión y fuente.
 -   Separar el catálogo lógico de un paquete de su versión y de su
     presencia en un repositorio/scan.
--   Las relaciones entre dependencias pertenecen al snapshot que las
     detectó.
 -   Diferenciar impacto **KNOWN**, **POTENTIAL** y **VALIDATED**. No
     afirmar que un servicio se comunica con otro porque aparezcan
-    dependencias relacionadas.
+    componentes registrados.
 -   No almacenar tokens de GitHub ni secretos en texto plano.
 -   La IA no es fuente de verdad para vulnerabilidades ni puede ejecutar
     SQL libre.
@@ -353,11 +347,6 @@ una tabla `user_identities` con `provider`, `provider_subject`,
 
   `dependency_scopes`                 `runtime`, `development`, `test`,
                                       `optional`, `provided`, etc.
-
-  `dependency_relationship_types`     `depends_on`, `contains`,
-                                      `provides`, `optional_dependency`,
-                                      etc. según CycloneDX y mapeo
-                                      interno.
 
   `vulnerability_sources`             Fuentes como OSV; código, nombre y
                                       URL base.
@@ -600,23 +589,7 @@ Separar el paquete de su versión y de su aparición concreta en un scan.
                                       asumir que toda versión sigue
                                       SemVer.
 
-  `scan_components`                   Aparición de un component_version
-                                      en un scan: tenant, scan,
-                                      component_version, bom_ref, group,
-                                      scope, direct/transitive derivado
-                                      del grafo, hashes/metadata de
-                                      fuente solo si necesario. Unique
-                                      `(scan_id, bom_ref)` y restricción
-                                      de pertenencia.
-
-  `dependency_edges`                  Relación dirigida dentro de un
-                                      scan: `scan_id`,
-                                      `source_scan_component_id`,
-                                      `target_scan_component_id`,
-                                      `relationship_type_id`, optional
-                                      scope/evidence. Evitar duplicados.
-                                      El grafo se reconstruye desde esta
-                                      tabla.
+  `scan_components`                   Aparici?n de una versi?n en un scan: tenant, scan, bom_ref, scope y tipo (directa/transitiva/UNKNOWN) solo cuando hay evidencia. Unique `(scan_id, bom_ref)` y FK tenant.
 
   `component_hashes`                  Hashes de artefactos/paquetes:
                                       component_version, algoritmo,
@@ -647,22 +620,7 @@ Separar el paquete de su versión y de su aparición concreta en un scan.
                                       especulación.
   -----------------------------------------------------------------------
 
-Reglas fundamentales: - `components` representa identidad del paquete,
-no una instalación. - `component_versions` representa una versión
-publicada/referenciable del paquete. - `scan_components` representa que
-esa versión aparece en un análisis concreto. - `dependency_edges`
-representa la relación observada entre dos apariciones dentro del mismo
-scan. - La condición directa/transitiva debe derivarse de la estructura
-de aristas o almacenarse como clasificación de la aparición solo si el
-SBOM proporciona evidencia clara. No mantener dos fuentes de verdad
-inconsistentes. - El componente raíz de la aplicación puede modelarse
-como componente raíz del SBOM, separado de dependencias de terceros. -
-Las rutas del grafo se calculan desde `dependency_edges`; no almacenar
-todas las rutas posibles en una tabla salvo necesidad demostrada. -
-`bom_ref` es una referencia dentro de un SBOM, no necesariamente un PURL
-ni un ID global.
-
-**Uso implementado en el bloque 45 (sin cambios de esquema):** las aristas npm se guardan en la tabla existente `dependency_edges`, enlazando los `scan_components` de origen y destino que tienen el mismo `scan_id`; `relationship_type` se registra como `depends_on`. `bom_ref` conserva el path del paquete instalado en `package-lock` para resolver cada extremo de forma exacta, incluso con versiones duplicadas/anidadas. El nodo proyecto no se inserta en `scan_components`; la API lo proyecta virtualmente y enlaza con las ocurrencias clasificadas `DIRECT`. Para Maven solo se crean esos enlaces a dependencias explícitas del POM. Una nueva ejecución npm es necesaria para producir aristas en los scans anteriores a este cambio. No se añadieron tablas, columnas, migraciones, diagramas físicos ni índices.
+Reglas fundamentales: `components` representa la identidad del paquete; `component_versions`, su versi?n; `scan_components`, su presencia en un an?lisis. La clasificaci?n directa/transitiva solo se conserva si el scanner la confirma con manifiestos o SBOM. `bom_ref` identifica un componente dentro de un SBOM; no es necesariamente un PURL ni un ID global.
 
 ### 3.7 Vulnerability Intelligence
 
@@ -991,12 +949,11 @@ corresponda, índices y validaciones de dominio:
 4.  `scans` pertenece a un repositorio de la misma organización.
 5.  `scan_components` pertenece a un scan y una component_version
     existente.
-6.  `dependency_edges` conecta dos `scan_components` del mismo scan.
-7.  `scan_vulnerability_findings` asocia un hallazgo con un
+6.  `scan_vulnerability_findings` asocia un hallazgo con un
     `scan_component` del mismo tenant y una vulnerabilidad canónica.
-8.  `scan_comparisons` compara dos scans del mismo repositorio/tenant y
+7.  `scan_comparisons` compara dos scans del mismo repositorio/tenant y
     no debe permitir comparar un scan consigo mismo.
-9.  `document_chunks` pertenece a una `document_version`.
+8.  `document_chunks` pertenece a una `document_version`.
 10. `document_chunk_embeddings` pertenece a un fragmento y un modelo de
     embedding.
 11. `assistant_message_evidences` solo referencia evidencia accesible al
@@ -1034,8 +991,6 @@ Diseñar índices a partir de consultas reales. Como mínimo evaluar:
     idempotencia según política.
 -   `scan_components(scan_id, component_version_id)`.
 -   `scan_components(organization_id, component_version_id)`.
--   `dependency_edges(scan_id, source_scan_component_id)` y
-    `(scan_id, target_scan_component_id)`.
 -   `components(package_ecosystem_id, normalized_name, namespace)`.
 -   `component_versions(component_id, version)` UNIQUE.
 -   `vulnerabilities(vulnerability_source_id, external_id)` UNIQUE.
@@ -1064,10 +1019,10 @@ de consulta y orden de columnas.
     secret manager o valores cifrados con clave externa.
 6.  Redacción de tokens/secretos en `scan_logs`,
     `background_job_attempts`, `webhook_events` y auditoría.
-7.  Evitar payloads completos con código fuente o datos privados salvo
+6.  Evitar payloads completos con código fuente o datos privados salvo
     necesidad.
-8.  RLS y autorización de aplicación en tablas documentales y RAG.
-9.  No permitir consultas del LLM a SQL libre.
+7.  RLS y autorización de aplicación en tablas documentales y RAG.
+8.  No permitir consultas del LLM a SQL libre.
 10. Definir retención y borrado para documentos, logs, artefactos y
     datos de proveedor.
 
@@ -1088,7 +1043,6 @@ src/main/resources/db/migration/
   V004__create_integrations_and_repositories.sql
   V005__create_background_jobs.sql
   V006__create_scans_and_artifacts.sql
-  V007__create_components_and_dependency_graph.sql
   V008__create_vulnerability_intelligence.sql
   V009__create_scan_comparisons_and_changes.sql
   V010__create_change_impact.sql
@@ -1139,7 +1093,6 @@ docs/database/
   diagrams/
     01-system-data-context.excalidraw
     02-identity-access-integrations.excalidraw
-    03-scans-sbom-components-graph.excalidraw
     04-vulnerability-intelligence.excalidraw
     05-documentation-rag-pgvector.excalidraw
     06-change-impact-reporting-notifications.excalidraw
@@ -1183,11 +1136,8 @@ memberships, roles, permissions, role_permissions, membership_roles. -
 integrations, github_installations, repositories, repository_branches,
 repository_commits, webhook_events. - Cardinalidades y tenant boundary.
 
-**03 --- Scans, SBOM, Components & Graph** - background_jobs, scans,
 scan_stages, scan_stage_executions, scan_artifacts, sbom_documents. -
 components, component_identifiers, component_versions, scan_components,
-dependency_edges. - Mostrar separación catálogo/versión/presencia en
-scan y grafo snapshot-scoped.
 
 **04 --- Vulnerability Intelligence** - vulnerabilities,
 vulnerability_sources, vulnerability_aliases, vulnerability_references,
@@ -1251,14 +1201,13 @@ Crear `docs/database/normalization.md` con:
 5.  Excepciones y proyecciones de lectura.
 6.  Casos que podrían parecer redundantes pero son snapshots históricos
     intencionales.
-7.  Cómo evitar anomalías de inserción, actualización y eliminación.
+6.  Cómo evitar anomalías de inserción, actualización y eliminación.
 
 No basta con escribir "está en 5NF". Mostrar ejemplos concretos: -
 usuario ↔ organización ↔ rol separados en memberships y
 membership_roles. - rol ↔ permiso separado en role_permissions. -
 paquete ↔ versión separado en components/component_versions. - versión ↔
 scan separado en scan_components. - scan_component ↔ scan_component
-separado por dependency_edges. - vulnerabilidad ↔ alias y vulnerabilidad
 ↔ referencias separados. - documento ↔ repositorio/componente/versión
 separado en puentes. - chunk ↔ embedding_model separado en
 document_chunk_embeddings. - notificación ↔ canal/destinatario separado
@@ -1286,12 +1235,10 @@ en deliveries. - recomendación ↔ evidencia separado en tabla puente.
 -   No asumir SemVer universal.
 -   No asumir que una dependencia transitiva siempre puede detectarse.
 -   No asumir que un paquete vulnerable está explotable en runtime.
--   No afirmar comunicación runtime entre microservicios desde el grafo
     de dependencias.
 -   Conservar originales en almacenamiento privado y aplicar la política
     de retención/eliminación de cada organización.
 -   No almacenar tokens, claves privadas ni secretos en claro.
--   No crear microservicios ni una base de grafos para este modelo
     inicial.
 -   No agregar Redis, RabbitMQ o Kubernetes sin necesidad comprobada.
 -   No activar pgvector en el núcleo si la fase RAG no está siendo
@@ -1358,7 +1305,7 @@ Crear fixtures que demuestren: 1. Una organización tiene varios
 usuarios. 2. Un usuario pertenece a varias organizaciones. 3. Una
 organización conecta una GitHub App y varios repositorios. 4. Un
 repositorio tiene múltiples scans para commits distintos. 5. Un scan
-tiene múltiples componentes y relaciones. 6. Un mismo paquete tiene
+tiene múltiples componentes. 6. Un mismo paquete tiene
 múltiples versiones en diferentes repositorios. 7. Una versión puede
 aparecer en múltiples scans. 8. Una vulnerabilidad puede tener varios
 aliases, referencias, rangos y severidades. 9. Un hallazgo se asocia a
@@ -1377,7 +1324,6 @@ entregas. 17. Auditoría conserva eventos append-only.
 
 -   Usar Spring Data JPA/Hibernate para persistencia habitual.
 -   Usar JDBC/SQL nativo cuando una consulta compleja, RLS, pgvector o
-    análisis de grafo lo requiera.
 -   Mantener entidades JPA sin lógica de negocio excesiva.
 -   No mapear payloads JSONB a objetos de dominio como si fueran datos
     canónicos.
@@ -1390,7 +1336,6 @@ entregas. 17. Auditoría conserva eventos append-only.
 -   Evitar N+1 y colecciones grandes.
 -   No serializar entidades JPA directamente en endpoints.
 -   Usar DTOs y consultas de lectura específicas.
--   Para tablas de alta cardinalidad (scan_components, dependency_edges,
     findings, chunks), evaluar batch inserts y paginación por cursor.
 -   El contexto de tenant debe estar integrado con la transacción de
     Spring y la política RLS.
@@ -1408,9 +1353,9 @@ Al terminar, entregar:
 4.  Seeds idempotentes.
 5.  Índices, FKs, UNIQUE, CHECK y políticas RLS.
 6.  `docs/database/README.md`.
-7.  `docs/database/data-dictionary.md`.
-8.  `docs/database/normalization.md`.
-9.  Los siete archivos `.excalidraw` indicados.
+6.  `docs/database/data-dictionary.md`.
+7.  `docs/database/normalization.md`.
+8.  Los siete archivos `.excalidraw` indicados.
 10. Exportaciones SVG/PNG si el entorno permite generarlas.
 11. Tests de migración, integridad, multi-tenancy y RLS.
 12. `docs/database/implementation-report.md` con:
@@ -1441,7 +1386,6 @@ Estado del bloque 05: la cobertura de esquema, creación/actualización Flyway, 
     implementarlo todavía, existe una ADR con el bloqueo exacto y una
     alternativa temporal segura.
 -   [ ] Los paquetes, versiones y apariciones por scan están separados.
--   [ ] Las relaciones del grafo están vinculadas a un scan.
 -   [ ] Los hallazgos de vulnerabilidad tienen fuente y evidencia.
 -   [ ] El historial de scans y comparaciones es reproducible.
 -   [ ] Change Impact conserva clasificación KNOWN/POTENTIAL/VALIDATED.
@@ -1468,9 +1412,9 @@ arbitrariamente:
 5.  Periodos concretos y excepciones de retención por organización.
 6.  Configuración concreta de los métodos confirmados: correo/contraseña,
     Google y GitHub; vinculación de identidades y sesiones.
-7.  Política de severidad/priorización de vulnerabilidades.
-8.  Retención de logs, SBOM, scans y auditoría.
-9.  Roles personalizados y excepciones; equipos y permisos por repositorio
+6.  Política de severidad/priorización de vulnerabilidades.
+7.  Retención de logs, SBOM, scans y auditoría.
+8.  Roles personalizados y excepciones; equipos y permisos por repositorio
     ya están confirmados para el primer piloto.
 10. Si se persistirán todas las comparaciones o se calcularán bajo
     demanda.

@@ -27,7 +27,7 @@
 <text x="1082" y="293.0" font-family="monospace" font-size="14" fill="#1e293b">Puertos/casos de uso; transacciones</text>
 <rect x="0" y="505" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
 <text x="12" y="531.0" font-family="monospace" font-size="16" fill="#1e293b">PostgreSQL</text>
-<text x="12" y="558.0" font-family="monospace" font-size="14" fill="#1e293b">128 tablas; 91 con RLS</text>
+<text x="12" y="558.0" font-family="monospace" font-size="14" fill="#1e293b">126 tablas; 90 con RLS</text>
 <text x="12" y="575.5" font-family="monospace" font-size="14" fill="#1e293b">Catálogo y snapshots separados</text>
 <rect x="535" y="505" width="440" height="110" rx="4" fill="#f1f5f9" stroke="#334155"/>
 <text x="547" y="531.0" font-family="monospace" font-size="16" fill="#1e293b">Worker aislado</text>

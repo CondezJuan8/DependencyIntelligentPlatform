@@ -25,7 +25,6 @@ Cada aviso presenta el identificador, resumen disponible, severidad disponible, 
 
 ## Persistencia y límites
 
-V22 agrega `scan_vulnerability_assessments`, snapshots asociados a la organización, scan y componente. La tabla aplica ENABLE+FORCE RLS; V23 deja al rol runtime solo SELECT/INSERT para conservar el historial append-only. El catálogo público de vulnerabilidades y el rol dedicado `dependency_catalog_writer` permanecen aislados: esta primera integración **no** agrega ni modifica registros globales, y tampoco genera recomendaciones, cambios, PR, hallazgos históricos o aristas transitivas.
 
 OSV es una fuente externa susceptible a retrasos, cobertura desigual y fallos de red. Una consulta completa sin avisos indica “sin avisos conocidos según OSV a la hora indicada”. Maven y npm se evalúan por versión exacta. Para actualizar la evidencia de los scans guardados, pulsa **Consultar OSV** en Inventario. Esta acción usa las coordenadas persistidas. El rango propio y la comparación con una segunda fuente siguen pendientes.
 

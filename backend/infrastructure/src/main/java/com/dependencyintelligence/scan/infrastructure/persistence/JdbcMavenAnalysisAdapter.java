@@ -3,7 +3,6 @@ package com.dependencyintelligence.scan.infrastructure.persistence;
 import com.dependencyintelligence.component.domain.PackageCoordinates;
 import com.dependencyintelligence.scan.application.dto.ManifestAnalysis;
 import com.dependencyintelligence.scan.application.dto.ManifestDependency;
-import com.dependencyintelligence.scan.application.dto.ManifestDependencyEdge;
 import com.dependencyintelligence.scan.application.dto.MavenInventory;
 import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
@@ -48,8 +47,6 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
                     organizationId, repositoryId, commitSha, organizationId, scanId);
             }
 
-            Map<String, UUID> occurrences = new HashMap<>();
-            Map<String, String> refsByPath = new HashMap<>();
             for (ManifestDependency dependency : analysis.dependencies()) {
                 PackageCoordinates coordinates = dependency.coordinates();
                 UUID ecosystemId = jdbc.queryForObject("select id from package_ecosystems where code=?", UUID.class, coordinates.ecosystem());
@@ -68,26 +65,6 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
                     insert into scan_components(organization_id,scan_id,bom_ref,component_version_id,dependency_type,dependency_scope_id,source_manifest_path)
                     values(?,?,?,?,?,(select id from dependency_scopes where code=?),?) on conflict do nothing
                     """, organizationId, scanId, bomRef, versionId, dependency.dependencyType(), dependency.scope(), dependency.manifestPath());
-                UUID scanComponentId = jdbc.queryForObject("select id from scan_components where organization_id=? and scan_id=? and bom_ref=?",
-                    UUID.class, organizationId, scanId, bomRef);
-                occurrences.put(bomRef, scanComponentId);
-                refsByPath.put(dependency.manifestPath(), bomRef);
-            }
-
-            UUID relationTypeId = null;
-            if (!analysis.edges().isEmpty()) {
-                relationTypeId = jdbc.queryForObject("select id from dependency_relationship_types where code='depends_on'", UUID.class);
-            }
-            for (ManifestDependencyEdge edge : analysis.edges()) {
-                String sourceRef = refsByPath.get(edge.parentManifestPath());
-                String targetRef = refsByPath.get(edge.childManifestPath());
-                UUID sourceId = sourceRef == null ? null : occurrences.get(sourceRef);
-                UUID targetId = targetRef == null ? null : occurrences.get(targetRef);
-                if (sourceId == null || targetId == null || sourceId.equals(targetId)) continue;
-                jdbc.update("""
-                    insert into dependency_edges(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id)
-                    values(?,?,?,?,?) on conflict(organization_id,scan_id,source_scan_component_id,target_scan_component_id,relationship_type_id) do nothing
-                    """, organizationId, scanId, sourceId, targetId, relationTypeId);
             }
             return readInventory(scannerName, organizationId, repositoryId, scanId).orElseThrow();
         });

@@ -1,10 +1,9 @@
-# Normalización del esquema aplicado V13
+# Normalización del esquema aplicado V27
 
 Fuente en catálogo real, diccionario y migraciones V4–V17. V13 incorpora credential_version, atributo escalar determinado por el usuario, e índice de solicitudes de tokens. V17 normaliza los permisos directos por miembro/repositorio en una tabla de asociación con FK e índice. Los cambios de contraseña actualizan hash y versión dentro de la transacción. El inventario de claves mantiene su estructura. La revisión de 1NF–5NF analiza dependencias declaradas y excepciones técnicas. [Catálogo](schema.json), [diccionario](data-dictionary.md).
 
 ## Criterios y decisiones
 
-- 1NF: relaciones canónicas como filas, valores escalares y claves. No hay columnas SQL array en el núcleo. JSONB solo conserva payloads/evidencia fuente, parámetros técnicos, configuración extensible o detalles de auditoría; no reemplaza membresías, permisos, aristas, fixes, citas ni listas canónicas consultables.
 - 2NF/3NF: cada atributo describe el hecho de la fila y su clave completa. Se separan identidad global, membresía tenant y asignación de roles; paquete, versión y aparición; advisory, evaluación de severidad y hallazgo. Datos de proveedor/modelo no se copian en cada mensaje.
 - BCNF: las identidades naturales declaradas determinan su fila en su ámbito. Se conservan claves técnicas redundantes para FK compuestas. No se certifica BCNF universal: algunas repeticiones deliberadas de tenant/procedencia y valores generados se justifican abajo. Un UNIQUE con NULL no siempre es una clave candidata relacional total.
 - 4NF: hechos multivaluados independientes se separan: roles/permisos, miembros/equipos, identificadores/licencias/hashes, aliases/referencias, paquetes afectados/rangos/fixes, documentos/repositorios/versiones, evidencia/hallazgos, scope/reportes y suscripciones/entregas. Por ejemplo, los roles de una membresía no multiplican sus equipos en una única tabla.
@@ -17,7 +16,6 @@ Fuente en catálogo real, diccionario y migraciones V4–V17. V13 incorpora cred
 | Identidad/acceso | usuario → correo normalizado/estado; (proveedor, subject) → usuario; (organización, usuario) → membresía | Credenciales/tokens separados; roles y permisos M:N; equipos y permisos con FK tenant. Invitación no es una membresía activa |
 | Integraciones | conexión → proveedor/cuenta; (organización, proveedor, ID externo) → repositorio; (repositorio, SHA) → commit | Instalación GitHub como subtipo, ramas/commits/webhooks/sincronizaciones separados. Delivery idempotente según su clave SQL |
 | Paquetes | (organización, ecosistema, namespace, nombre) → paquete; (paquete, versión textual) → versión | Identificadores alternativos separados: dos PURL con qualifiers pueden pertenecer a la misma versión. NULLS NOT DISTINCT conserva unicidad del namespace ausente |
-| Snapshots/grafo | (scan, bom_ref) → aparición; arista → extremos del mismo scan | Snapshot no es paquete. Directa/transitiva permanece UNKNOWN sin evidencia; licencias observadas separadas de las de versión |
 | Jobs/pipeline | job → límites/estado; (job, número) → intento; ejecución → etapa/intento | Eventos/logs/artefactos como filas; intentos no exceden máximo. Todos los jobs iniciales tienen organización; no se introduce cola global implícita |
 | Vulnerabilidades | (fuente, advisory ID) → advisory; registro fuente → payload/hash/base; hallazgo → advisory/aparición | Fuentes/severidades/aliases/referencias y rangos/eventos/fixes separados. Un fix legado del hallazgo no se promueve a verdad pública sin evidencia |
 | Documentos/RAG | documento → identidad/política; (documento, versión) → original; (versión, ordinal) → chunk | Asociaciones M:N tipadas. Modelo/revisión/dimensión separados de metadatos chunk/modelo. Original privado y temporal con expiración son hechos distintos |
@@ -67,8 +65,6 @@ Listado obtenido del catálogo aplicado. Cada PK determina los atributos de su f
 | `components` | `(id)` → atributos de fila | `(organization_id, id)` — soporte FK; no mínima; `(organization_id, package_ecosystem_id, namespace, name)` — anulable; revisar semántica NULL |
 | `data_deletion_requests` | `(id)` → atributos de fila | — |
 | `data_retention_policies` | `(id)` → atributos de fila | `(organization_id, id)` — soporte FK; no mínima; `(organization_id, resource_type)` — identidad alternativa declarada |
-| `dependency_edges` | `(id)` → atributos de fila | `(organization_id, scan_id, source_scan_component_id, target_scan_component_id, relationship_type_id)` — identidad alternativa declarada |
-| `dependency_relationship_types` | `(id)` → atributos de fila | `(code)` — identidad alternativa declarada |
 | `dependency_scopes` | `(id)` → atributos de fila | `(code)` — identidad alternativa declarada |
 | `document_chunk_embeddings` | `(id)` → atributos de fila | `(organization_id, document_chunk_id, embedding_model_id)` — identidad alternativa declarada; `(organization_id, id, embedding_model_id)` — soporte FK; no mínima; `(organization_id, id)` — soporte FK; no mínima |
 | `document_chunks` | `(id)` → atributos de fila | `(organization_id, document_version_id, ordinal)` — identidad alternativa declarada; `(organization_id, id)` — soporte FK; no mínima |

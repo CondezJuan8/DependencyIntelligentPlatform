@@ -25,7 +25,7 @@ La base persiste en el volumen `postgres_data`. `down` conserva los datos. Las i
 ## Estructura
 
 - `backend/`: Java 21, Spring Boot 3.5 y Maven; proyectos independientes **Domain**, **Application** e **Infrastructure**, con contextos DDD dentro de cada capa. Importar `backend/pom.xml` en el IDE.
-- `frontend/`: Angular 22, TypeScript, Angular Material y Cytoscape.js; `core`, `shared` y funcionalidades del MVP.
+- `frontend/`: Angular 22, TypeScript y Angular Material; `core`, `shared` y funcionalidades del MVP.
 - `infra/`: límites y documentación de infraestructura local y scanner.
 - `docs/`: requisitos, contexto, stack y convenciones de commits.
 
@@ -41,9 +41,9 @@ Objetivo vigente: producto completo listo para usar por fases, primero local y d
 
 El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Referencias de datos: [nueva especificación](docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable/pendientes](docs/database/implementation-report.md).
 
-Incluye PostgreSQL/Flyway hasta V13 con 121 tablas, 85 con RLS forzado y 208 FK. Acceso local, verificación/recuperación de correo y organizaciones disponibles en Angular y API. Contratos y verificación en [ACCESO_LOCAL](docs/ACCESO_LOCAL.md). Diccionario y siete diagramas en [database](docs/database/README.md).
+Incluye PostgreSQL/Flyway hasta V27 con 126 tablas, 90 con RLS forzado y 224 FK. Acceso local, verificación/recuperación de correo y organizaciones disponibles en Angular y API. Contratos y verificación en [ACCESO_LOCAL](docs/ACCESO_LOCAL.md). Diccionario y siete diagramas en [database](docs/database/README.md).
 
-Están implementados registro/consulta de repositorios, solicitud de análisis e importación persistente de SBOM bajo contexto tenant transaccional. El parser CycloneDX 1.6/Maven acotado alimenta una importación atómica con catálogo normalizado paquete/versión/aparición. Faltan carga HTTP e inventario visual. Las solicitudes quedan `PENDING`; importaciones manuales crean snapshots `COMPLETED` con origen explícito, sin inventar commit ni scanner. No existen worker, GitHub, scanner, OSV ni pantallas de inventario/grafo. Se verificaron migraciones hasta V11, transición con datos, rollback y acceso con login runtime real limitado.
+El backend normaliza paquetes, versiones y apariciones de análisis tenant-scoped. El scanner procesa Maven y npm con cdxgen; el inventario consulta resultados OSV por versión exacta. Consulta el contexto maestro para el alcance y estado de las pantallas.
 
 Los endpoints de repositorios/scans comprueban sesión, membresía y permisos de rol/equipo. Flyway y datasource usan credenciales separadas. Verificación y recuperación de correo disponibles con Mailpit local en `http://localhost:8025`, tokens de un uso y revocación de sesiones. Google/GitHub y vinculación explícita disponibles en backend/Angular, deshabilitados hasta configurar clientes propios: [activación y límites](docs/IDENTIDAD_GOOGLE_GITHUB.md). El consentimiento real sigue pendiente. Disponibles [invitaciones y gestión de miembros/equipos/permisos](docs/INVITACIONES_EQUIPOS_PERMISOS.md), con SMTP y autorización probados; falta revisión visual conjunta. Sesiones y cola de recuperación en memoria. Configuración SMTP en [verificación y recuperación](docs/VERIFICACION_Y_RECUPERACION.md).
 

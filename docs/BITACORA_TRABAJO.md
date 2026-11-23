@@ -1,3 +1,19 @@
+## Bloque 69 - retiro de pantalla y almacenamiento
+
+Fecha: 23 de noviembre de 2026 (America/Bogota).
+
+**Petición:** retirar de forma permanente esta pantalla y sus restos de implementación y documentación.
+
+**Cambios:** retirados la ruta, componentes, API, adaptadores y dependencia visual. El scanner conserva componentes, versiones y clasificación directa/transitiva respaldada por el SBOM; OSV mantiene su evaluación independiente. V27 elimina las tablas y el campo de almacenamiento que ya no se utilizan. Se actualizaron alcance, diagramas, catálogo y documentos técnicos.
+
+**Herramientas utilizadas:** `rg`, Maven/JDK 21, Angular CLI/Node 24, npm offline y Git. No se añadieron dependencias.
+
+**Verificación:** pruebas Java focales del lockfile npm, mapper CycloneDX y parser CycloneDX correctas. Build Angular de producción correcto; conserva avisos de presupuesto existentes. La IT de esquema no pudo completarse porque Testcontainers no encontró un daemon Docker accesible. La migración no se aplicó a los entornos activos.
+
+**Siguiente paso:** continuar la siguiente petición del plan maestro cuando el usuario lo indique.
+
+---
+
 # Bitácora de trabajo
 
 Este documento se actualiza en cada bloque de trabajo. Registra cambios, herramientas, validación, limitaciones y siguiente paso. Las horas estimadas del roadmap no se registran como horas reales consumidas.
@@ -44,7 +60,7 @@ Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 
 ### Cambios
 
-- npm vuelve a leer el ZIP de forma acotada (máximo 100 MiB) y, si cdxgen no produjo componentes, recupera versiones y relaciones desde el `package-lock.json` con el parser existente. La cobertura queda `PARTIAL` y explica el fallback; si el lockfile tampoco se puede resolver, devuelve un mensaje accionable.
+- npm vuelve a leer el ZIP de forma acotada (máximo 100 MiB) y, si cdxgen no produjo componentes, recupera versiones y clasifica paquetes desde el `package-lock.json` con el parser existente. La cobertura queda `PARTIAL` y explica el fallback; si el lockfile tampoco se puede resolver, devuelve un mensaje accionable.
 - CycloneDX ya no marca completo un proyecto con manifiesto detectado y cero componentes.
 - OSV ahora consulta el último scan completado por ecosistema, admitiendo nombres legacy y cdxgen y eligiendo solo uno si existen ambos. Sus resultados se asocian a los IDs de componente del scan seleccionado.
 - Inventario tiene acción **Consultar OSV** separada del botón de análisis. Los errores de lectura/consulta se muestran por separado, y el frontend conserva los detalles ProblemDetail que entrega la API.
@@ -72,17 +88,14 @@ Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 ### Petición y diagnóstico comprobado
 
 - La pantalla Inventario ejecuta `POST /maven-analysis` y `POST /npm-analysis`, después solicita `/vulnerability-analysis`. El endpoint genérico `/scans` solo guarda una solicitud; no ejecuta el scanner.
-- Los readers anteriores leían directamente POM/package-lock; CycloneDX aceptaba solo 1.6/Maven, limitaba a 500 componentes y descartaba relaciones. El parser Maven directo no resolvía herencia/`dependencyManagement`/BOM; el lockfile npm ya reconstruía transitivas, pero generaba PURL de scope codificando también la barra.
+- Los readers anteriores leían directamente POM/package-lock; CycloneDX aceptaba solo 1.6/Maven y limitaba a 500 componentes. El parser Maven directo no resolvía herencia/`dependencyManagement`/BOM; el lockfile npm ya reconstruía transitivas, pero generaba PURL de scope codificando también la barra.
 - La inspección del adaptador OSV confirma paginación por `next_page_token`, asociación de la fila por índice de consulta, Maven `group:artifact`, npm conserva el nombre scoped y el ID OSV se conserva en detalle mínimo cuando falla la descarga; no encontré una omisión comprobada en ese adaptador.
 
 ### Cambios realizados
 
 - Los readers conectados a los endpoints de Inventario ahora invocan cdxgen por HTTP a través de la salida Application `CycloneDxGenerator`; el backend crea una fuente temporal validada, aplica topes y la pone en solo lectura para el scanner. No inicia contenedores ni monta el socket de Docker.
 - `compose.yaml` define cdxgen-secure 13.8.0 como sidecar sin puerto publicado, red interna, filesystem/volumen de fuente read-only, sin capabilities, `no-new-privileges`, límites de memoria/CPU/procesos/tiempo y sin ejecución de instalaciones. La imagen está fijada por digest OCI multi-arquitectura. Se conservan los permisos de Node de la imagen segura, se limita la red a una red Docker interna y se espera su healthcheck antes de iniciar la API.
-- CycloneDX 1.6/1.7 mapea paquetes Maven/npm y sus relaciones respaldadas por el SBOM. Aumenta el límite a 50.000 componentes/25 MiB; PURL npm conserva `@scope/paquete`. Importación manual persiste tipo, ámbito y aristas.
 - V25 agrega estado/mensaje de cobertura. Maven siempre se informa parcial porque el modo seguro no ejecuta Maven ni promete el árbol transitivo; npm se marca parcial cuando el SBOM carece de versión, alcance o relaciones verificables. Inventario histórico se mantiene consultable por nombre de scanner anterior.
-- UI de Inventario muestra la cobertura parcial y el número de componentes/aristas pendientes.
-- Se añadieron tests controlados para mapping Maven/npm, relaciones, `@scope`, paginación/ID OSV sin aliases/severidad y fallo del proveedor; se amplió el IT de importación para validar persistencia de scoped npm y aristas.
 
 ### Herramientas y tecnologías
 
@@ -90,7 +103,6 @@ Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 | --- | --- | --- |
 | cdxgen secure 13.8.0 | Generación CycloneDX Maven/npm separada de la API | Imagen de contenedor fijada por digest |
 | Spring `RestClient`, Java NIO/ZIP, Jackson | Cliente sidecar, extracción acotada, metadatos/manifiesto y conversión a modelo existente | No |
-| PostgreSQL/Flyway | Nueva V25 de cobertura; persistencia de las aristas del importador existente | No |
 | Angular/TypeScript | Mostrar cobertura parcial de cada ecosistema | No |
 | JDK 21, Maven 3.9.11 | Compilar y ejecutar pruebas focales/IT | No |
 
@@ -100,7 +112,6 @@ Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 - Se ejecutaron en una copia temporal del backend con JDK 21/Maven 3.9.11: 18 pruebas focales de parser CycloneDX (9), lockfile npm (2), adapter cdxgen (2), mapper (3) y OSV (2); 18 pasaron. El intento inicial reveló tres fallos de prueba/conteo; se corrigieron y se repitió la suite limpia.
 - Build Angular ejecutado: correcto. Quedaron advertencias de presupuesto de bundle y SCSS; no se modificaron esos presupuestos.
 - La seguridad del modo cdxgen-secure se contrastó con el Threat Model/CLI/release oficial 13.8.0 y se validó el runtime real del sidecar mediante healthcheck y fixtures Maven/npm.
-- Pasaron 5 pruebas `SbomImportIT` con PostgreSQL desechable. El scanner real encontró el paquete npm scoped directo y el transitivo, incluyendo sus dos aristas verificadas; encontró dos paquetes en el fixture Maven multimódulo y resolvió las versiones locales gestionadas/heredadas, pero no generó relaciones Maven en modo seguro, por lo que quedaron `UNKNOWN` y con cobertura parcial.
 - V25 se aplicó en Compose, backend/frontend fueron actualizados y el frontend respondió HTTP 200. OSV se verificó con respuestas controladas, sin consulta en vivo. Falta un recorrido autenticado de usuario desde Inventario; no se afirma validación de punta a punta en la sesión real.
 - El build Angular fue correcto con advertencias preexistentes de presupuesto de bundle/SCSS. La suite completa del backend no se ejecutó: se corrieron solo las regresiones focales y el IT de persistencia necesarios para este cambio.
 
@@ -108,14 +119,12 @@ Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 
 Siguiente: hacer el recorrido autenticado desde Inventario con un repositorio real y revisar el resultado recibido en la UI, incluyendo el estado OSV. La cobertura Maven transitiva requiere un resolver compatible con el aislamiento seguro; hasta implementarlo se presenta explícitamente como parcial.
 
-## Bloque 52 — filtros de seguridad, grafo en red y flujo de invitación
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 
 ### Petición y cambios
 
 - Inventario incorpora un filtro de estado de seguridad: todos, versiones con avisos, sin avisos conocidos, y sin evaluar/con revisión. El filtro opera a nivel de versión y oculta paquetes sin versiones coincidentes; los contadores directos/transitivos se recalculan con lo visible.
-- El grafo ahora conserva el mapa por capas y agrega una vista de red force-directed con Cytoscape `cose`, etiquetas que aparecen al acercar/buscar/seleccionar, nodos compactos diferenciados por directas/transitivas y aristas discretas. Para proteger la respuesta, la red renderiza hasta 350 paquetes y mantiene el catálogo accesible completo; el mapa por capas conserva el tope de 1.000.
 - Se corrigió el texto de estado OSV «OSV no reporta avisos para esta versión» y se conecta a traducciones. Se añadió explicación de que SHA-256 identifica el ZIP exacto analizado; no es el hash de un paquete ni una puntuación de riesgo.
 - El diálogo de invitación selecciona inicialmente un equipo que tenga al menos un repositorio con `Consultar repositorio`. Al cambiar el equipo, se selecciona su primer repositorio elegible. Si no hay acceso configurado, el selector se deshabilita, explica cómo conceder el permiso y ofrece ir a Equipos y permisos. Se muestra el flujo: verificación/aceptación de invitación y aprobación final del propietario.
 
@@ -123,55 +132,19 @@ Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
 
 | Herramienta/tecnología | Uso | Dependencia nueva |
 | --- | --- | --- |
-| Angular signals, TypeScript y templates | Filtro de versiones, alternancia del grafo y estado inicial coherente para la invitación | No |
-| Cytoscape.js ya instalado (`cose`) | Distribución de red acotada, etiquetas por zoom/foco y relación visible entre paquetes | No |
 | Traducciones existentes | Etiquetas nuevas para español e inglés | No |
 | SCSS y tokens de tema | Leyenda de red, botones de modo, explicación SHA y flujo responsive | No |
 
 ### Verificación y límites
 
 - TypeScript de la aplicación: 0 diagnósticos.
-- Parser de templates Angular: Inventario, grafo y gestión de organización, 0 errores.
 - No se modificaron API, políticas de autorización, esquemas ni datos. El servidor Compose 8089/8088 no se reinició y no se validó con los repositorios Omega/Bot de WhatsApp ni con un recorrido real de invitación.
-- La red `cose` con hasta 350 paquetes está limitada para reducir el coste de repulsión; el resto permanece en lista completa. Falta revisar visualmente distribución y legibilidad con esos repositorios, desktop/móvil y ambos temas, además de observar el comportamiento de la selección elegible con datos reales.
-- Build de Angular completado correctamente. Generó advertencias de presupuesto de bundle y estilos; se ajustó el límite de error del estilo del grafo a 12 KB, dejando las advertencias visibles.
 - Se levantó una vista actualizada en `http://localhost:8090/?view=inventory`, con la API redirigida al backend de `localhost:8089`. Los servicios existentes en 8088 y 8089 siguen activos.
-- Se crearon tres commits separados para inventario, grafo e invitaciones/documentación. No se afirma una revisión visual completa ni pruebas conductuales con los repositorios del usuario.
 
 ### Siguiente paso
 
-Abrir Inventario en el puerto 8090, usar «Con vulnerabilidades» y «Sin evaluar o requiere revisión» en Omega/Bot de WhatsApp; alternar «Por capas»/«Red libre» y comprobar búsqueda, zoom y selección. Después confirmar el diálogo de invitación con un equipo que tenga acceso al repositorio deseado. Ajustar el grafo según el recorrido visual real.
 
-## Bloque 51 — grafo estético y entendible por capas
 
-Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
-
-### Petición y cambios
-
-El usuario eligió el mapa por capas y pidió más detalle visual sin degradar el rendimiento. El proyecto queda en la primera columna; las directas en nivel 1 y las transitivas en las columnas siguientes según la menor distancia al proyecto. Los nodos son tarjetas compactas con nombre/versión, borde azul para directas y cian para transitivas; el fondo usa una retícula discreta y las flechas conservan la dirección real.
-
-La vista consolida ocurrencias iguales por ecosistema, paquete y versión; mezcla sus rutas/ámbitos en el detalle y conserva una relación compartida como un solo nodo. El detalle separa lo que declara y quién usa el paquete. La búsqueda resalta el camino de dependencias. Para grafos mayores, el canvas dibuja hasta 1.000 nodos y prioriza los niveles próximos o el camino buscado/seleccionado; la lista conserva el inventario completo y carga 100 filas por tanda. El cálculo de niveles es BFS O(V+E), y se quitaron redibujos completos provocados solo por redimensionar.
-
-### Herramientas utilizadas e implementadas
-
-| Herramienta/tecnología | Uso | Dependencia nueva |
-| --- | --- | --- |
-| Angular signals/computed y TypeScript | Normalizar entidades visibles, agrupar ocurrencias, filtrar y mantener estadísticas derivadas | No |
-| Cytoscape.js ya instalado | Tarjetas, aristas, posicionamiento `preset`, BFS y foco de rutas | No |
-| SCSS y tokens de tema existentes | Guía de capas, tarjeta/leyenda y respuesta móvil con paleta de producto | No |
-| Traducciones existentes | Nuevas leyendas y panel de relaciones en español/inglés | No |
-
-### Verificación y límites
-
-- Revisión estática del flujo Angular y cálculo por capas; no se cambiaron API, backend, migraciones ni datos.
-- TypeScript type-check de 44 archivos correcto con la API del compilador; el parser de template Angular también pasó. La build Angular completa no se ejecutó.
-- No se ejecutaron pruebas conductuales ni revisión visual en Chrome; Node/npm CLI y el host de navegador no estaban disponibles. La carga del compilador Sass se detuvo en su módulo nativo antes de compilar por un error de export `sass.node.js` del runtime.
-- No se añadió una biblioteca de layout. La visibilidad de grafos reales npm/transitivos y la aceptación visual responsive quedan pendientes.
-- No pude crear commit: `git.exe` no está disponible en el PATH de este entorno.
-
-### Siguiente paso
-
-Cuando esté disponible Node/npm, compilar el frontend y revisar el grafo con seis dependencias Maven y una muestra npm transitiva, en tema claro/oscuro y móvil. Ajustar separaciones si esos datos muestran cruces o etiquetas pequeñas.
 ## Bloque 50 — carpeta npm lista para probar en la plataforma
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
@@ -197,7 +170,7 @@ El usuario indicó que no puede probar npm. La sesión de Chrome muestra que Inv
 
 ### Siguiente paso
 
-En localhost:8089 abre Mis repositorios → Importar carpeta local → elige `C:\Users\yazst\DependencyIntelligentPlatform\samples\npm-axios-demo` → Subir a la organización. Luego Inventario → selecciona `npm-axios-demo` → Analizar repositorio. El resultado esperado es Axios directo, ocho transitivas y sus relaciones del lockfile. Si la pantalla muestra error, usar ese mensaje y los logs backend para corregirlo.
+En localhost:8089 abre Mis repositorios → Importar carpeta local → elige `C:\Users\yazst\DependencyIntelligentPlatform\samples\npm-axios-demo` → Subir a la organización. Luego Inventario → selecciona `npm-axios-demo` → Analizar repositorio. El resultado esperado es Axios directo y ocho transitivas, clasificados con evidencia del lockfile. Si la pantalla muestra error, usar ese mensaje y los logs backend para corregirlo.
 ## Bloque 49 — diagnóstico de Inventario npm sin resultados
 
 Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
@@ -224,69 +197,6 @@ El usuario reportó que Inventario no muestra dependencias npm. En la pantalla r
 
 Importar Axios (`axios/axios`, rama `v1.x`) a la organización, ya sea habilitando su acceso GitHub o descargando/descomprimiendo el ZIP y usando «Importar carpeta local». Seleccionarlo en Inventario, pulsar «Analizar repositorio» y comprobar el estado/npm y los paquetes. Si aparece un error, usar ese resultado concreto para corregir el parser o la persistencia.
 
-## Bloque 48 — Lectura visual más clara del grafo
-
-Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
-
-### Petición y cambios
-
-El usuario pidió que el grafo se entienda mejor y no se vea tan simple. Se sustituyó el layout automático por posiciones radiales deterministas: proyecto al centro, dependencias directas en el primer anillo y transitivas en el anillo exterior. Las etiquetas de nodos se orientan hacia fuera según su posición, usan un tamaño más compacto y mantienen el nombre completo en la lista/detalle. Se quitaron los rótulos repetidos de cada arista; la punta de flecha y la leyenda indican hacia dónde va la dependencia. Se añadió una guía debajo del canvas, traducida a inglés/español.
-
-### Herramientas utilizadas e implementadas
-
-| Herramienta / tecnología | Uso | Dependencia nueva |
-| --- | --- | --- |
-| Angular y Cytoscape.js | Posicionar nodos por nivel, orientar etiquetas y conservar selección, zoom y búsqueda | No; Cytoscape ya estaba instalado |
-| SCSS y tokens de tema existentes | Dar jerarquía a leyenda y guía de lectura | No |
-| Docker Compose | Compilar y actualizar solo el frontend | Herramienta de despliegue local |
-| Chrome | Revisar el layout en `localhost:8089` con el snapshot de Maven | Herramienta de revisión |
-
-### Verificación y límites
-
-- `docker compose build frontend`: correcto. Se mantienen avisos previos de presupuesto de bundle/SCSS.
-- Compose recreó solo el servicio frontend; backend, PostgreSQL, Mailpit y entorno nativo no se reiniciaron.
-- La revisión visual muestra `Formula1Simulator` al centro y sus seis dependencias Maven directas distribuidas alrededor, con etiquetas legibles y selección conectada al panel de detalle. El dataset no tiene transitivas; el anillo exterior queda vacío y no se simulan nodos.
-- No se agregaron paquetes, cambios de API ni migraciones. La adaptación de grafos grandes y la revisión móvil siguen pendientes.
-
-### Siguiente paso
-
-Validar esta lectura con un repositorio npm que tenga relaciones transitivas y revisar la escala en móvil/grafos grandes.
-
-### Commits
-
-Se guardan dos commits: layout/interacción visual y documentación de diseño/estado, ambos con emoji y Conventional Commits en español.
-
-## Bloque 47 — Corrección de visualización del grafo
-
-Fecha: 20 de noviembre de 2026 (America/Bogota). Horas reales: no medidas.
-
-### Petición y cambios
-
-El usuario informó que la pantalla del grafo no mostraba nada. La inspección confirmó que había datos visibles en el resumen/lista (seis paquetes Maven), pero Cytoscape creaba su contenedor después de `ngAfterViewInit`; por eso el canvas no llegaba a dibujarse. Se inicializa al aparecer el `ViewChild`, se redibuja cuando el tamaño del canvas queda disponible y al cambiar de repositorio. El layout radial distribuye el proyecto y sus dependencias; los nodos se distinguen por clase para evitar que el booleano `project=false` active el estilo del proyecto. Las etiquetas Maven del canvas muestran el artefacto y versión; la lista conserva la coordenada completa y la búsqueda sigue usando el nombre completo.
-
-### Herramientas utilizadas e implementadas
-
-| Herramienta / tecnología | Uso | Dependencia nueva |
-| --- | --- | --- |
-| Angular `ViewChild`, `requestAnimationFrame`, `ResizeObserver` | Inicializar y redimensionar el canvas cuando el DOM está listo | No |
-| Cytoscape.js | Dibujar layout radial y relaciones del snapshot | No; ya estaba instalado |
-| Docker Compose | Compilar y recrear únicamente el frontend | Herramienta de despliegue local |
-| Chrome | Revisar el grafo con los datos reales de `Formula1Simulator` | Herramienta de revisión |
-
-### Verificación y límites
-
-- `docker compose build frontend`: correcto. Conserva avisos de presupuesto de bundle/SCSS existentes; no bloquean el build.
-- Frontend actualizado en `http://localhost:8089`; no se reiniciaron backend, PostgreSQL, Mailpit ni el entorno nativo.
-- Revisión visual confirmada: aparecen el nodo del proyecto y seis paquetes Maven; resumen de 6 paquetes, 6 directas, 0 transitivas y 6 relaciones. Estas relaciones son declaraciones directas; no se añadieron transitivas Maven ni se infirieron.
-- No se añadieron dependencias ni cambios de base de datos.
-
-### Siguiente paso
-
-Comprobar con el usuario que el trazado/etiquetas se entienden en su pantalla y, después, revisar un repositorio npm con lockfile para validar el grafo transitivo.
-
-### Commits
-
-Se guardan dos commits: corrección visual/vida del canvas y actualización documental, ambos con emoji y Conventional Commits en español.
 
 ## Bloque 20 — Aprobación y rechazo inmediatos desde el correo
 
@@ -551,7 +461,6 @@ Priorizar la base de datos usando CODEX_DATABASE_DEPENDENCY_INTELLIGENCE como fu
 ### Cambios realizados
 
 - Ocho migraciones nuevas V4–V11; V1–V3 intactas. Núcleo aplicado: 121 tablas de negocio, 85 con ENABLE/FORCE RLS y 208 FK, sin contar Flyway.
-- Paquete/versión/identificadores/aparición separados y aristas del mismo snapshot; conversión conserva IDs/referencias y PURL alternativos. Membresías y roles históricos normalizados; identidad local/externa, equipos y acceso por repositorio; instalación GitHub separada de login.
 - Jobs/intentos/etapas/logs/artefactos, commits, SBOM y comparaciones; advisories/fuentes/aliases/severidades/rangos/fixes/evidencia normalizados. El hash de payload legado se etiqueta CANONICAL_JSON, sin afirmar que sean bytes HTTP originales.
 - Documentos/versiones/originales privados, temporales con expiración, chunks, procesamiento, metadatos de modelos, conversaciones y citas con FK reales. No se inventa modelo/dimensión ni se agrega Codex al producto.
 - Impacto ADD/UPDATE/REMOVE/REPLACE, evidencia KNOWN/POTENTIAL/VALIDATED, simulaciones/pruebas, propuestas PR con aprobación; reportes, notificaciones, auditoría append-only, retención/eliminación tipadas. Tablas no equivalen a servicios ejecutables.
@@ -577,7 +486,6 @@ Priorizar la base de datos usando CODEX_DATABASE_DEPENDENCY_INTELLIGENCE como fu
 
 Primera selección: 8 unitarias/arquitectura/seguridad y 22 de integración, todas correctas. Incluyó ImportSbomUseCaseTest, SecurityConfigurationTest, HexagonalArchitectureTest, DatabaseIT, DemoBootstrapIT, SbomImportIT, NormalizedSchemaIT y RuntimeDatabaseIT. Tras endurecer integridad en V11 se ejecutaron solo NormalizedSchemaIT (7) y dos métodos afectados de DatabaseIT: 9 correctas. Total: **31 casos distintos**, con 8 repeticiones justificadas; no se presenta el total de ejecuciones como casos adicionales.
 
-Se comprobaron arranque limpio, actualización desde V1/V3 con datos/checksums, deduplicación paquete/versión sin perder PURL/apariciones/aristas, transformación de roles/sujetos/advisories/fixes, FK compuestas, rollback y bootstrap. Login runtime real: no propietario ni DDL, aislamiento de lecturas/escrituras/asociaciones, catálogos sin escritura, auditoría sin UPDATE/DELETE y contexto eliminado al terminar. JPA e importador operaron con ese login. Integridad focalizada en documentos/citas/reportes/notificaciones, evidencia VALIDATED de la misma prueba/análisis, inmutabilidad terminada, aprobación PR y reintentos máximos. El aprovisionamiento SQL se ejecutó dos veces correctamente en la base desechable.
 
 Exportación estructural y verificación de diagramas: 121 tablas, 208 FK, siete archivos nativos, IDs únicos y bindings válidos. Inspección de lámina conjunta y detalle PNG. Diccionario y catálogo no contienen filas de negocio ni credenciales. Se revisan diferencias, enlaces locales y formato antes de cerrar los commits. El servidor temporal se detiene al finalizar; no se actualiza una base externa del usuario.
 
@@ -797,7 +705,6 @@ Fecha: 16 de noviembre de 2026, America/Bogota. Horas reales sin medir. Petició
 
 - AuthFrame de dos paneles, marca navy y red/escudo en SVG propios, login/registro/recuperación sobre superficie clara. Formularios con iconos, errores, visibilidad de contraseña y confirmación de registro, conservando validación/API. Pestañas de acceso operables con teclado. Google/GitHub visibles pero desactivados si la API los declara indisponibles; sin «recordarme» ficticio ni cambios de sesión.
 - ApplicationShell con Sidebar y Topbar separados, navegación activa y móvil, búsqueda de secciones, menú de cuenta/logout y perfil real con iniciales. Lista permitida de páginas en URL ?view= y soporte de recarga/atrás/adelante. La invitación pendiente abre Organización sin aceptarse automáticamente.
-- Dashboard separado en métricas y vista previa del asistente. Número real de organizaciones desde API; el resto de métricas sin cifra evaluada. Paneles de grafo/historial con estados vacíos y navegación de módulos futuros explícitamente En preparación. Sin cifras, riesgos, actividad, planes comerciales ni respuestas IA inventados.
 - Organización con selector, pestañas Miembros/Invitaciones/Equipos/Permisos, tabla, búsqueda/filtro, paginación local de diez miembros, iniciales y estados. Diálogos de invitación, rol/estado, creación y eliminación/revocación; foco contenido/restaurado mediante CDK A11y, Escape y confirmaciones. Formularios cancelados de membresía se reinicializan al abrirlos; página se ajusta si cambia el número filtrado. Se reutilizan las operaciones backend del bloque 11.
 - Layout adaptable, scroll de tablas y modales, enlace de salto y respeto de reducción de movimiento. Paleta oficial reutilizada por tokens y cuatro tokens auxiliares de texto/superficie/contorno; utilidades visuales compartidas con prefijo di-. SVG/typografía locales, sin fuentes/imágenes externas ni copia de archivos de Pictures al repositorio. Código formateado con Prettier.
 - Actualizados diseño, maestro, arquitectura, stack, pendientes, roadmap y recorrido de organización. Backend, permisos y V1–V13 sin cambios; permanecen 121 tablas. No se ejecutan otras funciones de PENDIENTES.
@@ -1212,11 +1119,9 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 
 **Implementación:** `POST/GET /api/organizations/{organizationId}/repositories/{repositoryId}/npm-analysis`. Lee `package-lock.json` v2/v3 desde el ZIP sin extraer archivos ni ejecutar `npm install` o scripts. Guarda versiones resueltas del mapa `packages`, clasifica directas/transitivas desde las dependencias raíz y marcas del lockfile, y registra ámbito runtime/development/optional. V21 registra scanner; el catálogo normalizado ahora persiste ecosistema y tipo de dependencia. Inventario ofrece acciones Maven y npm y muestra ambos tipos. Mantiene permisos `scan.create`/`repository.read` y hash de fuente/commit.
 
-**Límites:** lockfiles v1, múltiples `package-lock.json` en un ZIP, enlaces locales y metadatos sin versión se excluyen o rechazan; el parser no ejecuta gestor ni valida integridad de instalación. No hay aún aristas padre-hijo de transitivas, OSV ni actualización del resumen del dashboard para contar npm.
 
 **Verificación:** build Docker backend/frontend correcto (BUILD SUCCESS; pruebas de módulos ejecutadas sin errores), V21 aplicada, backend/frontend activos, `/health` HTTP 200 en `localhost:8089`. No se probó un repositorio npm real autenticado por el usuario.
 
-**Siguiente paso:** probar un repositorio con `package-lock.json` v2/v3 en Inventario; luego guardar aristas de dependencia, agregar npm al dashboard y conectar avisos OSV con su evidencia.
 
 ## Bloque 41 - Catálogo visual unificado del inventario
 
@@ -1224,13 +1129,12 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 
 **Cambios:** se reemplazó la vista que obligaba a pulsar botones separados Maven/npm por una pantalla con una acción coordinada que solicita ambos análisis existentes en paralelo y conserva resultados parciales. El catálogo agrupa por ecosistema + namespace + paquete y anida versiones exactas; expone búsquedas y filtros por ecosistema, tipo directo/transitivo y ámbito. Añade resumen de identidades/versiones/ocurrencias, estados por scanner, llamadas claras a la acción, estado de riesgo sin evaluar y procedencia desplegable por ocurrencia (origen, SHA-256, commit, manifiesto y fecha). La vista usa etiquetas visibles, estados anunciados a lectores de pantalla, foco de teclado, `details/summary` accesible y layout mobile-first con tokens de color existentes.
 
-**Archivos y alcance:** `frontend/src/app/features/inventory/inventory-workspace.ts`, su plantilla y SCSS, traducciones ES/EN; documentación del contexto maestro, arquitectura, stack, diseño visual y pendientes. Sin cambios Domain/Application/Infrastructure, endpoints, base de datos, permisos ni dependencias externas. Se actualizó el estado de pendientes: UI agregada lista en código; aristas de grafo, más cobertura/resolución, agregación multi-repositorio, npm en dashboard y OSV continúan pendientes.
 
 **Herramientas y tecnologías usadas:** Angular 22, TypeScript, RxJS `forkJoin`, HTML semántico, SCSS, tokens oficiales y APIs Maven/npm existentes. No se implementó una dependencia nueva.
 
 **Verificación:** build de producción Angular mediante `docker compose build frontend` correcto. El chunk de Inventario sigue lazy; sus estilos se separaron en dos hojas encapsuladas (4,32 KB y 5,51 KB), ambas bajo el error máximo de 8 KB. Permanecen avisos de presupuesto ya aplicables al producto: bundle inicial 565,21 KB frente a 500 KB de aviso y estilos grandes de otras pantallas. Se actualizó únicamente el frontend con `docker compose up -d --no-deps --force-recreate frontend`; `/` respondió HTTP 200 y el contenedor quedó activo en `127.0.0.1:8089`. No se ejecutaron pruebas automatizadas; el backend no cambió.
 
-**Siguiente paso:** revisar Inventario en escritorio/móvil y el recorrido Maven + npm con un repositorio real; después priorizar relaciones transitivas verificables y la agregación npm del dashboard.
+**Siguiente paso:** revisar Inventario en escritorio/móvil y el recorrido Maven + npm con un repositorio real; después priorizar la detecci?n segura de paquetes transitivos y la agregación npm del dashboard.
 
 ## Bloque 42 — evaluación OSV por versión exacta
 
@@ -1244,9 +1148,7 @@ El operador reportó un fallo al iniciar el bootstrap. Spring intentaba resolver
 
 **Verificación:** se añadieron dos pruebas de Application que comprueban que respuesta vacía y respuesta ausente no se mezclan; pasaron. El build backend pasó: 47 pruebas unitarias en Domain/Application/Infrastructure (incluye ambas pruebas), compilación de los cuatro módulos y comprobación arquitectónica hexagonal. Build Angular pasó; persisten avisos anteriores del bundle inicial 566.55 KB/500 KB y hojas grandes debajo del máximo de error 8 KB. V22/V23 se aplicaron en PostgreSQL local desde V21 sin modificar ni borrar el volumen; health y portada respondieron HTTP 200; `scan_vulnerability_assessments` tiene ENABLE+FORCE RLS. Catálogo y siete diagramas se regeneraron: 128 tablas de negocio, 91 tenant tables con FORCE RLS, 227 FK, IDs/bindings únicos y cobertura de todas las FK. No se probó con un repositorio real en esta sesión.
 
-**Límites:** no se han validado datos reales de advisories para los repositorios del usuario, cobertura OSV, rango completo de versiones, hallazgos normalizados/globales, recomendaciones, fixes, segunda fuente, aristas ni remediación. Una respuesta vacía significa solo que OSV no reportó avisos conocidos en esa consulta.
 
-**Siguiente paso:** abrir Inventario en `http://localhost:8089` con un repositorio Maven/npm real; comprobar visualmente aviso, respuesta sin avisos y fallos de red antes de añadir el resumen npm al dashboard o avanzar al grafo. Los contenedores backend/frontend quedaron recreados y health/portada responden HTTP 200.
 
 ## Bloque 43 — vulnerabilidades claras en Dashboard e Inventario
 
@@ -1282,17 +1184,11 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Siguiente paso:** probar en la UI una dependencia vulnerable expandiendo aviso → «Buscar dónde revisar en el código» y revisar ruta/línea/commit; verificar procedencia completa. Luego sincronizar GitHub tras retirar un repositorio de la instalación y usar la eliminación confirmada sobre un repositorio de prueba. En esta instancia Compose, la base indicada por el estado operativo está vacía; el entorno nativo se mantuvo activo.
 
-## Bloque 45 — grafo de dependencias Maven/npm
 
-**Petición y alcance:** implementar el grafo con JavaScript/Cytoscape existente. Decisión confirmada: npm completo según relaciones del lockfile; Maven directo declarado, sin iniciar resolución transitiva en este bloque.
 
-**Cambios:** Angular agrega la vista `dependencies` con selector por repositorio/ecosistema, búsqueda, resumen, Cytoscape con zoom/ajuste, lista textual accesible, selección/detalle de paquete, procedencia y estado vacío. El canvas toma colores desde tokens CSS y reacciona a cambio de tema. Application incorpora `GetRepositoryDependencyGraph`, DTO/puerto; Infrastructure expone lectura JDBC tenant-scoped con autorización `repository.read`. La consulta compone los últimos scans Maven/npm exitosos, nodos por ocurrencia, aristas observadas y raíces virtuales del proyecto. El parser npm lee paths instalados y secciones de dependencias en package-lock v2/v3; persiste relaciones como `depends_on` en `dependency_edges`. El POM mantiene únicamente dependencias directas con versión explícita. Sin cambios de esquema ni dependencias nuevas. Scans npm previos requieren reanálisis para generar relaciones.
 
-**Herramientas/tecnologías utilizadas:** Java 21, Spring MVC, JDBC, PostgreSQL/`TenantTransactions`, casos de uso y puertos hexagonales existentes; Angular 22, TypeScript, RxJS, Cytoscape.js 3.35 instalado, HTML/SCSS, tokens CSS; PowerShell, Node local y Maven local. Se reutiliza `dependency_edges`; no se implementan librerías ni servicios nuevos.
 
-**Verificación:** build de producción Angular completado, bundle inicial 577,15 kB (77,15 kB por encima del presupuesto de 500 kB); SCSS del grafo 7,64 kB con advertencia de presupuesto de 4 kB. Build Maven reactor Domain/Application/Infrastructure y prueba focal `BoundedNpmLockReaderTest`: 1 test, 0 fallos. Build Docker de ambas imágenes correcto. Se recrearon únicamente backend/frontend; PostgreSQL y Mailpit siguen saludables y sin reiniciarse. Log confirma Spring Boot iniciado y Flyway V23 al día. `http://localhost:8089/` y `/?view=dependencies` responden HTTP 200. `/api/actuator/health` devolvió 401 por la capa de acceso; no se usó como indicador de salud. No se ejecutó suite completa ni prueba JDBC/PostgreSQL autenticada. La base Compose descrita en AGENTS está vacía, por lo que no se validaron nodos/relaciones reales ni el aspecto visual autenticado; se requiere importar/analisar datos para completar ese recorrido. No se detuvo ni alteró el entorno nativo.
 
-**Siguiente paso:** desde `http://localhost:8089`, importar/reanalizar un npm y un Maven y recorrer la vista en móvil/escritorio, claro/oscuro. Después implementar resolución Maven transitiva y evaluar rendimiento/legibilidad con grafos grandes. Riesgo actual: carga del grafo sin paginación/límite de nodos.
 
 ## Bloque 46 — hasta 50.000 archivos por carpeta local
 
@@ -1306,35 +1202,23 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Siguiente paso:** probar en la pantalla de repositorios una carpeta representativa con muchos archivos, sin superar 100 MiB. Confirmar progreso y uso de almacenamiento del host; mantener volumen libre para multipart temporal y el ZIP privado final.
 
-## Bloque 53 — grafo de dependencias estilo Obsidian
 
-**Petición:** hacer que el grafo recuerde a Obsidian: más visual, legible y exploratorio, sin penalizar de forma desproporcionada los repositorios grandes. El usuario aclaró que los errores «Bad Request» reportados eran de mis tareas/ejecuciones, no de la plataforma.
 
-**Cambios:** la vista de red conserva posiciones al filtrar o redibujar nodos; colorea y escala los nodos según tipo y número de relaciones; al pasar el cursor o seleccionar un paquete resalta sus conexiones y reduce el contraste del resto. Las etiquetas aparecen para el nodo central y su vecindad, o al acercar, para mantener legible la red amplia. Se agregaron instrucciones visibles y traducibles, cursor de desplazamiento y leyenda más clara. Reutiliza Cytoscape.js y tokens de tema ya presentes; no agrega dependencias, endpoints ni tablas.
 
-**Herramientas y tecnologías utilizadas:** TypeScript, Angular 22, Cytoscape.js existente, HTML/SCSS y diccionario de traducciones; Node.js local para el build; PowerShell para la verificación HTTP y documentación.
 
-**Verificación:** `node.exe node_modules/@angular/cli/bin/ng.js build` terminó correctamente. Angular reporta advertencias de presupuesto: bundle inicial 581,91 kB/500 kB y `dependency-graph-workspace.scss` 11,35 kB/4 kB; no impiden compilar. `http://localhost:8090/?view=graph` respondió HTTP 200. No hice un recorrido visual autenticado ni medí un grafo real grande; siguen pendientes la revisión del usuario con Omega y bot de WhatsApp, temas claro/oscuro y móvil/escritorio. Los servicios 8088/8089 se mantuvieron intactos.
 
-**Siguiente paso:** abrir la vista de grafo en localhost:8090 y revisar la exploración de un repositorio de más de 200 dependencias; confirmar agrupación, legibilidad y rendimiento en escritorio/móvil antes de ajustar más.
 
-## Bloque 54 — vista general y exploración local del grafo
 
-**Petición:** rediseñar el grafo para repositorios grandes con una vista global legible y exploración local de una dependencia, filtros combinables, búsqueda centrada y controles de navegación al estilo Obsidian.
 
-**Cambios:** la vista general usa la distribución force-directed como opción inicial, conserva las posiciones de nodos conocidos al cambiar filtros y evita recomputar el layout si todos conservan coordenadas. La vista local empieza a un salto del paquete seleccionado y permite profundidad de 1 a 5 y dirección «Depende de», «Usada por» o ambas. Se agregan filtros combinables de ecosistema, namespace/módulo, dependencia directa/transitiva y ámbito; grupos de namespace desplegables por selección para inventarios superiores a 200; contador de paquetes visibles y aristas; filtros activos y limpieza global. Buscar centra y resalta el resultado y su contexto. El grafo local y los filtros solo conservan aristas observadas cuyos dos extremos siguen visibles: no se puentean nodos ocultos. Los nodos pequeños muestran sus etiquetas; en redes grandes se priorizan proyecto/directas y el zoom revela transitivas. Cytoscape existente. La API no expone severidad de vulnerabilidad en su DTO, así que no se añadió ese filtro.
 
-**Herramientas y tecnologías utilizadas:** Angular 22, TypeScript, señales y computed existentes, Cytoscape.js 3.35, SCSS y diccionario de traducciones; Node.js local para build y medición headless; PostgreSQL local vía Docker Compose en solo lectura para contar los scans; PowerShell. Sin dependencias nuevas ni cambios de API/base de datos.
 
-**Verificación:** build de producción Angular completado. Advertencias: bundle inicial 583,00 kB/500 kB; SCSS del grafo 13,09 kB/4 kB (máximo de error del componente ajustado de 12 a 14 kB, mantiene advertencia visible). Medición headless de Cytoscape `cose` con nodos/aristas reales: `OMEGA-main`, 277 paquetes, 492 relaciones entre paquetes y 27 declaraciones desde raíz; layout 297 ms. `Bot-de-Whatsapp-plantilla--main`, 284 paquetes consolidados, 411 relaciones entre paquetes y 13 declaraciones desde raíz; layout 306 ms. En ambos, se probaron recorridos locales y aristas inducidas sin extremos ocultos; además se comprobó combinación de filtros por módulo/tipo/ámbito. El caso pequeño fue un fixture de 6 paquetes tomado de OMEGA (6 paquetes, 6 relaciones internas, una declaración raíz, 3 ms), no un repositorio independiente de seis dependencias. No hay un repositorio real de ese tamaño en la base Compose activa. No se pudo hacer revisión visual/navegación automatizada: el host de navegador rechazó la sesión porque no pudo determinar la URL de Chrome con suficiente confianza. `localhost:8088` no respondió. Se actualizó solo el frontend Compose; `localhost:8089/?view=graph` y `chunk-CMkQCyj5.js` respondieron HTTP 200 y el bundle servido contiene el texto «Vista local». Backend, PostgreSQL y Mailpit permanecieron en ejecución. No se afirma que se hayan verificado en UI zoom, responsive o ausencia de bloqueo.
 
-**Siguiente paso:** revisar interactivamente `http://localhost:8089/?view=graph` con el usuario: probar el fixture pequeño de seis paquetes y ambos repositorios reales, incluyendo búsqueda, filtro combinado, vista local, profundidad, dirección, zoom, ajuste y vuelta al mapa general en móvil/escritorio.
 
 ## Bloque 57 — validación de scanner y OSV (22 de noviembre de 2026)
 
 **Petición:** validar scanner y OSV como herramientas distintas que se complementan.
 
-**Hallazgo del flujo:** los endpoints Maven/npm ejecutan cdxgen, mapean CycloneDX y guardan los componentes/relaciones del scan. El endpoint OSV lee el último snapshot completado por ecosistema (incluye los nombres históricos), consulta versiones exactas y guarda las evaluaciones ligadas a los componentes. No reescanea; un fallo OSV no debe revertir ni borrar inventario. El lector npm tiene recuperación acotada desde `package-lock.json` y declara `PARTIAL` cuando cdxgen devuelve un BOM vacío. Maven se mantiene parcial en transitivas no resueltas por modo seguro.
+**Hallazgo del flujo:** los endpoints Maven/npm ejecutan cdxgen, mapean CycloneDX y guardan los componentes y su clasificacion. El endpoint OSV lee el último snapshot completado por ecosistema (incluye los nombres históricos), consulta versiones exactas y guarda las evaluaciones ligadas a los componentes. No reescanea; un fallo OSV no debe revertir ni borrar inventario. El lector npm tiene recuperación acotada desde `package-lock.json` y declara `PARTIAL` cuando cdxgen devuelve un BOM vacío. Maven se mantiene parcial en transitivas no resueltas por modo seguro.
 
 **Verificación realizada:** la instancia `localhost:8089/health` respondió `UP`; el health API protegido devolvió 401 sin sesión, y Mailpit `localhost:8026` respondió 200. Reportes existentes del 20/11: `CdxgenScannerAdapterTest` 2/2, `CdxgenNpmLockfileReaderTest` 1/1 y `OsvRestAdapterTest` 2/2, sin fallos. El README registra además smoke tests anteriores de cdxgen 13.8.0 con npm scoped/transitivo y Maven multimódulo, solo en fixtures. Consulta directa de solo lectura a OSV el 22/11: Log4j 2.14.1 incluyó `CVE-2021-44228` y 2.17.1 no; lodash 4.17.20 incluyó `CVE-2021-23337` y 4.17.21 no. Las versiones corregidas aún tuvieron otros avisos OSV, por lo que no se interpretan como limpias en general.
 
@@ -1359,7 +1243,6 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Petición:** revisar el proyecto y explicar las pantallas y la función de cada opción del sidebar antes de seguir con cuatro pantallas restantes.
 
-**Revisión:** contrasté el array de navegación (`ready`), el switch de `application-shell.html`, los componentes y acciones Angular, y los controladores REST existentes. Confirmé que Vulnerabilidades, Análisis, Documentación y Reportes usan el fallback de “En preparación” y no tienen páginas funcionales propias. OSV se muestra desde Dashboard/Inventario y el scanner se ejecuta desde Inventario. Identifiqué que Dashboard conserva placeholders fijos de grafo/evolución y que su lista de análisis recientes solo lee Maven. Las otras opciones del menú sí cargan sus componentes; el alcance real está descrito en el bloque 60 del contexto maestro.
 
 **Herramientas utilizadas:** búsqueda `rg`, inspección de templates/TypeScript, controladores Spring y documentación del proyecto. Sin cambios de producto.
 
@@ -1422,11 +1305,9 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Petición.** Corregir los fallos encontrados en la petición 4, admitir 300 MiB y 50.000 archivos en una sola carga y entregar la plataforma en ejecución.
 
-**Cambios.** Los límites de la interfaz, multipart, almacenamiento y lectores quedaron alineados. Application analiza Maven y npm sobre la misma fuente autorizada. Se contrastan los componentes de CycloneDX con POM y lockfiles para recuperar omisiones, también en un SBOM que ya trae paquetes. Se amplió el respaldo npm a varios lockfiles compatibles y se eliminó la búsqueda repetida de todas las aristas al recorrerlo. V26 conserva rutas completas de manifiestos. Inventario distingue ausencia, cobertura parcial y fallo. Si falla un reanálisis, presenta la fecha del inventario previo. OSV evalúa los IDs solicitados y conserva las respuestas completas cuando falla otra página del lote. La interfaz limita las versiones corregidas al paquete afectado.
 
 **Herramientas utilizadas.** Java 21, Maven 3.9.11, JUnit, Spring Boot, PostgreSQL/Flyway, Angular y TypeScript, Node.js para la comprobación HTTP, Docker Compose, Nginx y cdxgen seguro 13.8.0 existente. El adaptador OSV sigue siendo el del proyecto.
 
-**Verificación.** Pasaron 25 pruebas focales de backend, la compilación Angular y una comprobación TypeScript de coincidencias por ID de scan, ecosistema y nombre. Con una cuenta y base desechables, la API autenticada aceptó en una solicitud 314.572.800 bytes y 50.000 archivos. El scanner guardó 1 dependencia Maven y 2 npm sobre el mismo SHA-256. El grafo devolvió 3 aristas. OSV devolvió 4 avisos para la versión probada de lodash, ninguno para la de `@babel/parser` y 12 avisos para la dependencia Maven probada. El resultado de cada consulta quedó restringido al scan seleccionado. También se comprobó que la ausencia de manifiesto perdura al recargar y que otro repositorio no puede obtener sus evaluaciones por ID. La prueba usó la API que consume Inventario.
 
 **Operación.** Se aplicó V26 a Compose y se recrearon los contenedores de API y web para servir el nuevo código en `localhost:8089`. El despliegue conserva los servicios de PostgreSQL, Mailpit y scanner. `/health` devolvió `UP` y la página de Inventario devolvió HTTP 200.
 
@@ -1436,14 +1317,10 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Petición.** Completar el catálogo de paquetes y versiones, facilitar la priorización de avisos y conservar la procedencia al navegar al repositorio.
 
-**Cambios.** Se añadió la vista por organización con páginas de 25 identidades. Las búsquedas y los filtros se aplican a las apariciones autorizadas. El detalle ordena por versión y repositorio y permite abrir la evidencia completa del repositorio o buscar la versión en Grafo. El catálogo mantiene los filtros al volver del detalle. La vista por repositorio conserva sus acciones de scanner y OSV y también pagina sus paquetes.
 
 **Herramientas utilizadas.** Java 21, Maven, JUnit, Spring JDBC, PostgreSQL y RLS, Angular, RxJS, TypeScript, SCSS, Node.js, Chrome y Docker Compose. Las consultas leen las tablas vigentes en V26. Se reutilizaron los permisos de `FindAccountWorkspace`, la evidencia OSV existente y los tokens de ambos temas.
 
 **Verificación.** Pasó la prueba unitaria de alcance por repositorio y Angular compiló con advertencias de presupuesto. La API autenticada, con dos repositorios desechables, devolvió 223 paquetes y 224 versiones. Se verificaron páginas, consulta por archivo, severidad combinada con tipo y exclusión del repositorio sin permiso para el miembro. Las diez lecturas del catálogo y el detalle del caso de propietario sumaron aproximadamente 21 segundos en Compose local. La consulta inicial excedía el tiempo límite y se cambió por lecturas acotadas de snapshots, apariciones y evidencia.
 
-**Navegador y datos de usuario.** Chrome automatizado pasó la paginación, búsqueda, apertura de dos apariciones, detalle OSV, filtro conservado al volver, tema oscuro y enlace al Grafo. Se comprobó una ventana de 375 px sin desplazamiento horizontal. En solo lectura, los análisis guardados de OMEGA tienen 270 versiones npm y 7 Maven y los de Bot de WhatsApp tienen 284 versiones npm. El recorrido interactivo se hizo con el espacio desechable.
 
 **Operación.** Compose quedó actualizado en `localhost:8089`. La ruta de Inventario respondió HTTP 200 y `/health` devolvió `UP`. PostgreSQL, Mailpit y cdxgen conservaron sus servicios y volúmenes.
-
-**Siguiente paso.** Petición 6, Grafo. Mantener la comparación de presencia entre análisis en la petición 12.

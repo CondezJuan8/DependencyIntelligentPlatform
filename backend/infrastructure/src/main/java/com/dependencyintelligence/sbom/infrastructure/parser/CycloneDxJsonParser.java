@@ -4,7 +4,6 @@ import com.dependencyintelligence.component.domain.PackageCoordinates;
 import com.dependencyintelligence.sbom.application.SbomLimits;
 import com.dependencyintelligence.sbom.application.dto.ParsedSbom;
 import com.dependencyintelligence.sbom.application.dto.SbomComponent;
-import com.dependencyintelligence.sbom.application.dto.SbomDependencyEdge;
 import com.dependencyintelligence.sbom.application.exception.InvalidSbomException;
 import com.dependencyintelligence.sbom.application.port.out.SbomParser;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -118,8 +117,8 @@ public final class CycloneDxJsonParser implements SbomParser {
             componentIndexes.put(reference, parsed.size());
             parsed.add(new SbomComponent(reference, coordinates, "UNKNOWN", scope));
         }
-        var rootReferences = new LinkedHashSet<String>();
-        var edgeRefs = new ArrayList<SbomDependencyEdge>();
+        var directReferences = new LinkedHashSet<String>();
+        var incomingReferences = new HashSet<String>();
         JsonNode dependencyRows = root.path("dependencies");
         if (dependencyRows.isArray()) for (JsonNode relation : dependencyRows) {
             String parent = relation.path("ref").asText("");
@@ -128,18 +127,16 @@ public final class CycloneDxJsonParser implements SbomParser {
             if (!children.isArray()) continue;
             for (JsonNode child : children) if (child.isTextual()) {
                 String ref = child.asText();
-                if (parent.equals(rootReference(root)) && componentIndexes.containsKey(ref)) rootReferences.add(ref);
-                else if (references.contains(parent) && componentIndexes.containsKey(ref)) edgeRefs.add(new SbomDependencyEdge(parent, ref));
+                if (parent.equals(rootReference(root)) && componentIndexes.containsKey(ref)) directReferences.add(ref);
+                else if (references.contains(parent) && componentIndexes.containsKey(ref)) incomingReferences.add(ref);
             }
         }
-        var incoming = new HashSet<String>();
-        edgeRefs.forEach(edge -> incoming.add(edge.childBomRef()));
         var classified = new ArrayList<SbomComponent>();
         for (SbomComponent component : parsed) {
-            String kind = rootReferences.contains(component.bomRef()) ? "DIRECT" : incoming.contains(component.bomRef()) ? "TRANSITIVE" : "UNKNOWN";
+            String kind = directReferences.contains(component.bomRef()) ? "DIRECT" : incomingReferences.contains(component.bomRef()) ? "TRANSITIVE" : "UNKNOWN";
             classified.add(new SbomComponent(component.bomRef(), component.coordinates(), kind, component.scope()));
         }
-        return new ParsedSbom("CycloneDX", specVersion, serial, classified, edgeRefs);
+        return new ParsedSbom("CycloneDX", specVersion, serial, classified);
     }
 
     private static String npmName(String purl, String version) {
