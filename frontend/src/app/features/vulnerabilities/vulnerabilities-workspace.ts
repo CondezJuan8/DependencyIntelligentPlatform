@@ -39,23 +39,28 @@ export class VulnerabilitiesWorkspace implements OnInit {
   readonly saving = signal(new Set<string>());
   readonly expanded = signal(new Set<string>());
 
-  readonly visibleFindings = computed(() => {
+  readonly filteredOccurrences = computed(() => {
     const query = this.search().trim().toLocaleLowerCase();
-    return this.groupFindings(this.findings().filter(item => {
+    const severity = this.severityFilter();
+    const ecosystem = this.ecosystemFilter();
+    const repositoryId = this.repositoryFilter();
+    const reviewStatus = this.reviewFilter();
+    return this.findings().filter(item => {
       const haystack = `${item.advisory.id} ${item.advisory.summary ?? ''} ${item.advisory.details ?? ''} ${item.packageName} ${item.version} ${item.repository.fullName}`.toLocaleLowerCase();
       return (!query || haystack.includes(query))
-        && (this.severityFilter() === 'ALL' || item.risk === this.severityFilter())
-        && (this.ecosystemFilter() === 'ALL' || item.ecosystem === this.ecosystemFilter())
-        && (this.repositoryFilter() === 'ALL' || item.repository.id === this.repositoryFilter())
-        && (this.reviewFilter() === 'ALL' || item.reviewStatus === this.reviewFilter());
-    }));
+        && (severity === 'ALL' || item.risk === severity)
+        && (ecosystem === 'ALL' || item.ecosystem === ecosystem)
+        && (repositoryId === 'ALL' || item.repository.id === repositoryId)
+        && (reviewStatus === 'ALL' || item.reviewStatus === reviewStatus);
+    });
   });
-  readonly affectedCount = computed(() => new Set(this.visibleFindings().flatMap(group => group.occurrences.map(item => this.packageIdentity(item)))).size);
-  readonly packageCount = computed(() => new Set(this.findings().map(item => this.packageIdentity(item))).size);
+  readonly visibleFindings = computed(() => this.groupFindings(this.filteredOccurrences()));
+  readonly affectedCount = computed(() => new Set(this.filteredOccurrences().map(item => this.packageIdentity(item))).size);
+  readonly packageCount = computed(() => new Set(this.filteredOccurrences().map(item => this.packageIdentity(item))).size);
   readonly severityCounts = computed(() => ({
-    CRITICAL: this.findings().filter(item => item.risk === 'CRITICAL').length,
-    HIGH: this.findings().filter(item => item.risk === 'HIGH').length,
-    WARNING: this.findings().filter(item => item.risk === 'WARNING').length,
+    CRITICAL: this.filteredOccurrences().filter(item => item.risk === 'CRITICAL').length,
+    HIGH: this.filteredOccurrences().filter(item => item.risk === 'HIGH').length,
+    WARNING: this.filteredOccurrences().filter(item => item.risk === 'WARNING').length,
   }));
 
   ngOnInit(): void { this.load(); }
