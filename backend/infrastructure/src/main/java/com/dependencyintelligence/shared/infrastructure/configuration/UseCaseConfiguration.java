@@ -1,5 +1,10 @@
 package com.dependencyintelligence.shared.infrastructure.configuration;
 
+import com.dependencyintelligence.identity.application.port.in.FindAccountWorkspace;
+import com.dependencyintelligence.inventory.application.port.in.FilterInventory;
+import com.dependencyintelligence.inventory.application.port.out.InventoryCatalogReader;
+import com.dependencyintelligence.inventory.application.usecase.FilterInventoryUseCase;
+
 import com.dependencyintelligence.organization.application.port.out.OrganizationLookup;
 import com.dependencyintelligence.repository.application.port.in.FindRepository;
 import com.dependencyintelligence.repository.application.port.in.RegisterRepository;
@@ -101,6 +106,10 @@ public class UseCaseConfiguration {
     @Bean AnalyzeRepositoryUseCase analyzeRepository(RepositoryAnalysisSource source, AnalyzeMavenRepositoryUseCase maven,
             AnalyzeNpmRepositoryUseCase npm) {
         return new AnalyzeRepositoryUseCase(source, maven, npm);
+    }
+
+    @Bean FilterInventory filterInventory(FindAccountWorkspace workspace, InventoryCatalogReader reader) {
+        return new FilterInventoryUseCase(workspace, reader);
     }
 
     @Bean GetRepositoryDependencyGraph getRepositoryDependencyGraph(RepositoryDependencyGraphReader reader, TenantTransactions transactions) {
