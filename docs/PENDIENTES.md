@@ -10,6 +10,7 @@
 - [ ] Aplicar V29 en Compose y validar RLS/runtime grants. Se construyó la imagen con pgvector, pero no se aplicó la migración ni se recreó PostgreSQL.
 - [ ] Ejecutar regresiones focalizadas: permisos tenant/repositorio, dimensión incorrecta, persistencia/citas, abstención y fallos Ollama/Gemini. La compilación Java/Angular pasó; aún no se escribieron ni ejecutaron pruebas nuevas.
 - [ ] Indexación durable con progreso/reintentos, listado/recarga de conversaciones, evaluación de calidad y recorrido autenticado de extremo a extremo; validar UI móvil/desktop, tema e idioma.
+- [x] Explicar la integración, el almacenamiento vectorial, el flujo RAG y los límites de red en [OLLAMA_PGVECTOR_RAG](OLLAMA_PGVECTOR_RAG.md).
 
 La indexación HTTP actual procesa hasta 32 fragmentos por llamada en lotes internos; puede repetirse si hay más. Ollama se configura con `OLLAMA_BASE_URL`, `OLLAMA_EMBEDDING_MODEL` y `OLLAMA_EMBEDDING_REVISION`; Gemini con `GEMINI_API_KEY` y `GEMINI_MODEL`. No se inventaron modelos ni dimensiones. La API y el frontend compilan; aún no están listos para uso hasta aplicar V29, configurar proveedores y completar el recorrido autenticado.
 
