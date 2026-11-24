@@ -2,6 +2,15 @@
 // identifiers stay untouched because they are not translation keys.
 export const english: Record<string, string> = {
   'Asistente': 'Assistant',
+  'ASISTENTE DEL ESPACIO': 'WORKSPACE ASSISTANT',
+  'Tu espacio, con respuestas basadas en evidencia.': 'Your workspace, with evidence-based answers.',
+  'Consulta la documentación autorizada de tus repositorios y revisa las citas de cada respuesta.': 'Ask about authorized repository documentation and review citations in every answer.',
+  'Abrir asistente': 'Open assistant',
+  'El asistente propone; tú revisas. No modifica archivos ni ejecuta cambios.': 'The assistant suggests; you review. It does not edit files or apply changes.',
+  'Cerrar asistente': 'Close assistant',
+  'Documentación autorizada, con citas': 'Authorized documentation, with citations',
+  'Mover panel a la izquierda': 'Move panel to the left',
+  'Mover panel a la derecha': 'Move panel to the right',
   'Respuestas basadas en documentación autorizada, con citas verificables.': 'Answers grounded in authorized documentation with verifiable citations.',
   'DOCUMENTACIÓN CON EVIDENCIA': 'DOCUMENTATION WITH EVIDENCE',
   'Asistente de documentación': 'Documentation assistant',

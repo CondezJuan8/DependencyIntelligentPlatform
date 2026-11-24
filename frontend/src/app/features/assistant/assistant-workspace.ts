@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
 import { PreferencesService } from '../../core/preferences.service';
@@ -9,6 +9,7 @@ interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citati
 
 @Component({ selector: 'app-assistant-workspace', templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
 export class AssistantWorkspace {
+  @Input() compact = false;
   private readonly api = inject(SessionApiService);
   readonly preferences = inject(PreferencesService);
   readonly organizations = signal<Organization[]>([]);

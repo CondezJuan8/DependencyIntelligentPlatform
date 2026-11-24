@@ -1726,3 +1726,7 @@ Springdoc se controla con `SPRINGDOC_ENABLED`, apagado por defecto y activado en
 ### Bloque 82 - Candado CSRF en Swagger (24/11/2026)
 
 La autenticacion de API es mediante sesion `JSESSIONID`; no hay Bearer/JWT. OpenAPI ahora declara `X-CSRF-TOKEN` como esquema apiKey para que Swagger muestre Authorize y candados. El usuario debe iniciar sesion en el mismo navegador y copiar el campo `token` de `GET /api/auth/csrf`. El header CSRF permite las escrituras contra la proteccion CSRF; la cookie HttpOnly se adjunta automaticamente y sigue siendo la credencial de sesion.
+
+### Bloque 83 - Asistente como panel fijo del Dashboard (24/11/2026)
+
+La tarjeta del Dashboard ahora abre el `AssistantWorkspace` existente en un panel fijo que se desliza desde un borde. Un control interno mueve el panel entre izquierda y derecha y conserva la preferencia localmente. La vista compacta mantiene el chat, selector de organizacion, indexacion, citas y prompt de reparacion revisable. El panel cierra con Escape o al pulsar el fondo; el foco queda atrapado dentro mientras esta abierto y se restaura al cerrar. Es responsive y respeta `prefers-reduced-motion`. La implementacion no cambia el LLM, permisos, ni el alcance de no modificar repositorios.

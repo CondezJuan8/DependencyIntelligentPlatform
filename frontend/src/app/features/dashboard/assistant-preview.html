@@ -1,10 +1,69 @@
-<section class="assistant-card">
-  <span class="di-tag">EN PREPARACIÓN</span>
-  <h2>Más contexto.<br />Mejores decisiones.</h2>
-  <p>
-    Consulta evidencia y entiende el impacto de tus cambios con el futuro asistente de la
-    plataforma.
-  </p>
+<section class="assistant-card" aria-labelledby="assistant-card-title">
+  <div class="assistant-copy">
+    <span class="di-tag">{{ preferences.text('ASISTENTE DEL ESPACIO') }}</span>
+    <h2 id="assistant-card-title">{{ preferences.text('Tu espacio, con respuestas basadas en evidencia.') }}</h2>
+    <p>{{ preferences.text('Consulta la documentación autorizada de tus repositorios y revisa las citas de cada respuesta.') }}</p>
+    <button
+      class="assistant-launcher"
+      type="button"
+      (click)="open()"
+      [attr.aria-expanded]="opened()"
+      aria-controls="assistant-panel"
+    >
+      <app-di-icon name="analysis" />
+      {{ preferences.text('Abrir asistente') }}
+    </button>
+    <small>{{ preferences.text('El asistente propone; tú revisas. No modifica archivos ni ejecuta cambios.') }}</small>
+  </div>
   <div class="assistant-mark" aria-hidden="true"><app-di-icon name="analysis" /></div>
-  <small>Las respuestas con IA todavía no están disponibles.</small>
 </section>
+
+@if (opened()) {
+  <button
+    class="assistant-backdrop"
+    type="button"
+    [attr.aria-label]="preferences.text('Cerrar asistente')"
+    (click)="close()"
+  ></button>
+  <aside
+    id="assistant-panel"
+    class="assistant-drawer"
+    [class.left]="side() === 'left'"
+    [class.right]="side() === 'right'"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="assistant-drawer-title"
+    (keydown.escape)="close()"
+    [cdkTrapFocus]="true"
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <header class="assistant-drawer-header">
+      <div class="assistant-drawer-title">
+        <span class="assistant-drawer-icon"><app-di-icon name="analysis" /></span>
+        <div>
+          <h2 id="assistant-drawer-title">{{ preferences.text('Asistente del espacio') }}</h2>
+          <p>{{ preferences.text('Documentación autorizada, con citas') }}</p>
+        </div>
+      </div>
+      <div class="assistant-drawer-actions">
+        <button
+          class="assistant-icon-button"
+          type="button"
+          [attr.aria-label]="preferences.text(side() === 'right' ? 'Mover panel a la izquierda' : 'Mover panel a la derecha')"
+          [attr.title]="preferences.text(side() === 'right' ? 'Mover panel a la izquierda' : 'Mover panel a la derecha')"
+          (click)="moveToOtherSide()"
+        ><app-di-icon name="arrow" [class.points-left]="side() === 'right'" /></button>
+        <button
+          class="assistant-icon-button"
+          type="button"
+          [attr.aria-label]="preferences.text('Cerrar asistente')"
+          [attr.title]="preferences.text('Cerrar asistente')"
+          (click)="close()"
+        ><app-di-icon name="close" /></button>
+      </div>
+    </header>
+    <div class="assistant-drawer-body">
+      <app-assistant-workspace [compact]="true" />
+    </div>
+  </aside>
+}

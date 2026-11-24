@@ -1506,3 +1506,13 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificacion.** Build Docker del backend correcto con pruebas omitidas. Backend recreado sin reiniciar la base ni los otros servicios. Swagger HTML HTTP 200; recursos JS HTTP 200; `/v3/api-docs` HTTP 200 `application/json`, con `securitySchemes.csrfToken` (`apiKey`, header `X-CSRF-TOKEN`) y requisito global. No se hizo una mutacion autenticada: requiere login de usuario y token de su sesion.
 
 **Uso.** En el mismo navegador, inicia sesion en Dependency Intelligence; abre `GET http://localhost:8089/api/auth/csrf`, copia el campo `token`, pulsa Authorize en Swagger y pegalo en `X-CSRF-TOKEN`. La cookie HttpOnly se envia automaticamente. Si se cierra sesion o se vuelve a autenticar, consulta un token CSRF nuevo.
+
+## Bloque 83 - Panel fijo del asistente en Dashboard (24/11/2026)
+
+**Peticion.** Reemplazar la tarjeta vacia del Dashboard con un boton para abrir un asistente tipo panel de Visual Studio Code, fijo al borde de la ventana y movible a izquierda/derecha.
+
+**Cambios.** La tarjeta ahora abre el AssistantWorkspace existente en un drawer superpuesto fijo; se conserva el acceso a los documentos autorizados, citas y propuesta de prompt revisable. El encabezado tiene controles de mover y cerrar, el lado preferido se recuerda en el navegador, Escape/clic fuera cierran, el foco queda contenido y se devuelve al launcher. El panel tiene version compacta responsive y transicion lateral con respeto a `prefers-reduced-motion`. No se integra Codex ni se cambian proveedor o permisos del asistente.
+
+**Herramientas y verificacion.** Angular/TypeScript, Sass, CDK A11y, Docker Compose. Build de produccion del frontend correcto; persisten avisos de presupuesto Angular ya existentes y otros estilos largos. Frontend Compose actualizado sin reiniciar backend/base. Se verifico HTTP 200 en la pantalla del Dashboard. No se hizo recorrido visual autenticado en el navegador ni se envio una pregunta al LLM.
+
+**Siguiente paso.** Abrir Dashboard en escritorio y celular, probar abrir/cerrar, traslado de lado, teclado y envio con documentacion autorizada.
