@@ -7,19 +7,6 @@ services:
     ports:
       - "127.0.0.1:${MAILPIT_WEB_PORT:-8025}:8025"
       - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
-  ollama:
-    image: ollama/ollama:0.40.17
-    environment:
-      OLLAMA_HOST: 0.0.0.0:11434
-    volumes:
-      - type: bind
-        source: ${OLLAMA_MODELS_HOST_PATH:?Define OLLAMA_MODELS_HOST_PATH en .env}
-        target: /root/.ollama/models
-        read_only: true
-        bind:
-          create_host_path: false
-    networks:
-      - assistant_internal
   database:
     image: dependency-intelligence-postgres:17.7-alpine-pgvector-0.8.7
     build:
@@ -84,10 +71,9 @@ services:
       OSV_READ_TIMEOUT: ${OSV_READ_TIMEOUT:-PT15S}
       OSV_ASSESSMENT_MAX_AGE: ${OSV_ASSESSMENT_MAX_AGE:-PT24H}
       OSV_BATCH_SIZE: ${OSV_BATCH_SIZE:-100}
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-}
       OLLAMA_EMBEDDING_REVISION: ${OLLAMA_EMBEDDING_REVISION:-}
-      AI_REQUEST_TIMEOUT: ${AI_REQUEST_TIMEOUT:-PT45S}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-}
       DEPENDENCY_INTELLIGENCE_SCANNER_CDXGEN_URL: http://cdxgen-scanner:9090
@@ -102,7 +88,6 @@ services:
     networks:
       - default
       - scanner_internal
-      - assistant_internal
     depends_on:
       database:
         condition: service_healthy
@@ -112,8 +97,6 @@ services:
         condition: service_completed_successfully
       cdxgen-scanner:
         condition: service_healthy
-      ollama:
-        condition: service_started
   scanner-work-init:
     image: dependency-intelligence-backend
     user: "0:0"
@@ -210,6 +193,4 @@ volumes:
   scanner_work:
 networks:
   scanner_internal:
-    internal: true
-  assistant_internal:
     internal: true
