@@ -1,3 +1,22 @@
+## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
+
+Se trabaja con el prompt recibido en conversación; el usuario indicó ignorar el documento de corrección. **Vulnerabilidades no se toca.** Este bloque reemplaza el orden histórico de otros pendientes mientras se resuelven sus puntos juntos.
+**Decisión vigente:** se descarta la actualización upstream automática cada 12 horas. El análisis sigue iniciándose manualmente; no hay código que sincronice releases/npm/Maven en segundo plano.
+
+- [ ] Exposición de código: enlazar declaraciones npm transitivas con `package-lock.json`, localizar referencias a paquetes en fuentes y conservar como inconclusa cualquier relación OSV→API sin regla validada. Falta reproducir con el snapshot real del usuario.
+- [x] Comparar snapshots: nombres editables asociados a cada ejecución del repositorio y numeración cronológica (`#1`, `#2`...) en historial, selectores y resumen de comparación. Persiste en base de datos; falta aplicar migración V33 al entorno para habilitarlo allí.
+- [x] Análisis: ventana de carga con rueda personalizada, mensajes por etapas confirmadas (fuente, Maven, npm, resultados y OSV), cancelación y movimiento reducido; compilación Angular 0 diagnósticos. Pendiente revisión visual con análisis real en la instancia.
+- [ ] Procedencia de Inventario/Comparar: repositorio visible, revisión/fecha e IDs cortos; explicar SHA-256 como huella del código analizado y ofrecer su valor completo para comparación.
+- [ ] Explicar cobertura parcial, puntuación/severidad y límites sin afirmar cobertura que el scanner no demuestra.
+- [ ] Ampliar Documentación a fuentes oficiales y foros de lenguajes/dependencias con origen verificable y privacidad clara.
+- [x] OCR Tika/Tesseract activado en la JVM aislada: `AUTO`, inglés/español y hasta 50 páginas OCR. El texto extraído queda disponible para Nexo tras preparar los embeddings; la UI procesa lotes sucesivos automáticamente y avisa si quedan pendientes por fallos o por alcanzar su límite. Separada queda la verificación de un PDF escaneado real en runtime Compose.
+- [ ] Validar de extremo a extremo con un PDF escaneado de prueba en Compose: texto reconocible en la biblioteca, embeddings completados y respuesta de Nexo con cita.
+- [ ] Extender embeddings/RAG a datos autorizados de módulos, análisis, inventario, hallazgos, organización y reportes, conservando filtros tenant/repositorio y citas.
+- [x] Dar nombre al asistente: Nexo. Pendiente vincularlo a evidencia legible sobre acciones, versiones, snapshots y responsables.
+- [x] Reportes ejecutivos/técnicos limitados a hallazgos de severidad conocida: el ejecutivo explica prioridad y siguiente paso para cada paquete/version (incluidas severidades media y baja); el técnico incluye versión afectada, resumen y detalle OSV, versión corregida y referencia. JSON y CSV reflejan el alcance. TypeScript y compilador Angular sin emisión: 0 diagnósticos; no se pudo correr npm build ni comprobar el runtime en esta sesión. Ver [bitácora, bloque 93](BITACORA_TRABAJO.md).
+
+Avance comprobado al registrar el bloque 92: exposición npm distingue declaración del lockfile y referencias reales; prueba focal 7/7. Backend empaquetado, Angular `tsc`/`ngc` y bundle pasan; el bundle presenta los avisos de presupuesto registrados. Los IDs visibles bajaron a 8 caracteres. No se actualizó la instancia en `localhost:8088` porque no fue accesible desde esta sesión, y no se reinició ningún servicio. Sigue pendiente probar el snapshot real, confirmar la UI servida y completar los demás puntos del prompt; ver [bitácora, bloque 92](BITACORA_TRABAJO.md). No se tocó Vulnerabilidades.
+
 ### Estado vigente — OpenAI y harness de solo lectura (23/11/2026)
 
 OpenAI reemplaza a Gemini para generación; Ollama conserva embeddings y pgvector la recuperación. El adaptador de OpenAI usa salida estructurada y no ofrece herramientas para cambiar repositorios. Solo devuelve diagnóstico y un prompt de reparación para revisión humana. La clave `OPENAI_API_KEY` está vacía en `.env` local; configura tu propia clave allí, nunca en el chat. Los siguientes registros de Gemini son históricos y quedaron sustituidos por el bloque 79. Ver [controles OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).
@@ -54,7 +73,7 @@ La indexación HTTP actual procesa hasta 32 fragmentos por llamada. Ollama, pgve
 - [x] Integración con `document.read`/`document.manage`, preferencias de idioma y tokens responsive/accesibles del tema.
 - [ ] Asociar documentos con componentes/versiones y filtrar documentos por componente.
 - [ ] Implementar configuración y ejecución automática de las políticas de retención ya modeladas en V9.
-- [ ] Evaluar OCR de PDF escaneado y persistir una explicación legible del resultado de extracción en la UI.
+- [x] La biblioteca expone el estado de texto extraído; Tika OCR se configura explícitamente y Nexo puede recuperar ese texto tras indexarlo. Validación con PDF escaneado real en Compose pendiente.
 - [ ] Implementar la fase semántica del siguiente bloque: definir modelo/dimensión de embeddings de Ollama, vector store, recuperación con citas y orquestación Gemini. No asumir modelo ni habilitar pgvector antes de fijar esa configuración.
 - [ ] Recorrido autenticado de carga/búsqueda/versionado/descarga/eliminación en Compose después de bootstrap del administrador; la base actual está vacía y no permite login funcional.
 

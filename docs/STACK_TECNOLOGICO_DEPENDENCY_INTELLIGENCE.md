@@ -1,10 +1,14 @@
+### Estado vigente — OCR y asistente documental (24/11/2026)
+
+Apache Tika 4.2.0 se configura con `tika-config.json`: motor Tesseract `eng+spa` explícito; el parser PDF usa `AUTO` y procesa hasta 50 páginas con OCR. El backend instala Tesseract y su idioma español. El texto extraído, incluido OCR, pasa a fragmentos y Nexo procesa automáticamente hasta 100 lotes de embeddings al iniciar la preparación; la recuperación usa Ollama/pgvector y respeta permisos documentales. Se registra pendiente la prueba de un PDF escaneado real en el runtime de Compose.
+
 ### Bloque 75 — Asistente documental RAG (código inicial; runtime pendiente)
 
 Java 21 separa los puertos de Application de los adaptadores Infrastructure. Ollama se consume por REST `/api/embed`, validando nombre y digest mediante `/api/tags`; Ollama 0.40.17 y `embeddinggemma-2:latest` están instalados localmente y se midieron 768 dimensiones (`f4981a15…b5f62f`). `.env` local ignorado por Git contiene la configuración. Para mantener la API privada, Ollama permanece enlazado a loopback; el firewall administrado rechazó crear una regla limitada a la subred Compose y el backend aún no puede alcanzarlo. Gemini usa `generateContent` con API key en header y modelo configurable, pendiente de credenciales. Un Dockerfile construye pgvector 0.8.7 encima de la misma base `postgres:17.7-alpine` que usa el volumen actual. V29 crea tipo vector sin dimensión fija, registra dimensiones observadas y las valida en base. El retrieval usa distancia cosine y filtro tenant/repositorio/documento; no se crea índice ANN hasta medir volumen. Angular añade UI del asistente y citas. No se añadieron librerías Java/Node. Builds aislados de pgvector, backend y frontend pasaron; V29 aún no está aplicada.
 
 ### Bloque 74 — Centro de documentación (23/11/2026)
 
-Java 21 y Apache Tika 4.2.0 `tika-pipes-fork-parser` extraen texto en proceso aislado con límite temporal y heap. Spring MVC recibe multipart y JDBC/PostgreSQL reutilizan V8/V9 para versiones, relaciones, texto completo y auditoría de eliminación. Angular 22, TypeScript y SCSS incorporan biblioteca responsive, upload, asociación a repositorios, búsqueda, versiones y descarga. Docker Compose monta `document_data` como almacenamiento privado. Se añadió solo la dependencia Tika para el backend; no hay migración ni paquetes frontend nuevos. OCR, política automática de retención, asociaciones de componentes, pgvector, embeddings y chatbot quedan fuera del alcance verificado.
+Java 21 y Apache Tika 4.2.0 `tika-pipes-fork-parser` extraen texto en proceso aislado con límite temporal/heap y Tesseract OCR explícito para PDF escaneados (inglés/español, hasta 50 páginas). Spring MVC recibe multipart y JDBC/PostgreSQL reutilizan V8/V9 para versiones, relaciones, texto completo y auditoría de eliminación. Angular 22 incluye biblioteca, búsqueda, versiones y descarga; Compose conserva originales privados. El texto OCR pasa a fragmentos que Nexo indexa en embeddings para RAG con citas/permisos; el runtime requiere preparar sus lotes. No se añade migración ni dependencia frontend.
 ### Bloque 73 — pantalla de Análisis (23/11/2026)
 
 Angular/TypeScript/SCSS incorpora una página móvil primero con selector de repositorio, estado durante la petición síncrona, resultados Maven/npm, acción de reintento y hasta 50 ejecuciones. Java 21 añade DTO/puertos/caso de uso de historial y adaptador JDBC sobre PostgreSQL, protegido por `scan.read` y contexto RLS. Los errores de lectura de manifiestos quedan como scans fallidos; OSV se invoca después del scanner como integración separada. Sin paquetes ni migraciones nuevos. Las builds Maven y Angular terminaron correctamente; la compilación mantiene avisos de presupuesto, incluido SCSS del nuevo módulo.
@@ -143,7 +147,7 @@ El stack debe cumplir estos criterios:
 | Formato SBOM | CycloneDX | Intercambio normalizado de inventarios | MVP |
 | Vulnerabilidades | OSV API | Consulta de vulnerabilidades | MVP |
 | Procesamiento documental | Apache Tika / Apache PDFBox | Extracción de texto y metadatos | Fase 2 |
-| OCR | Tesseract OCR | Extracción de texto de páginas escaneadas | Fase 2 |
+| OCR | Tesseract OCR | Texto OCR de páginas escaneadas para la biblioteca y Nexo | Implementado en código; falta validar PDF real en Compose |
 | Embeddings | Ollama, modelo por fijar | Representación vectorial de fragmentos | Fase documental |
 | LLM | Gemini API, modelo por fijar | Generación de respuestas fundamentadas | Fase documental |
 | Contenedores | Docker | Empaquetado y aislamiento | MVP |
@@ -738,7 +742,7 @@ Por indicación del usuario, la estructura inicial se ejecuta exclusivamente en 
 
 GitHub, OSV y la descarga inicial de imágenes y dependencias necesitan internet. Los webhooks de GitHub no son accesibles desde GitHub sin conectividad entrante: el flujo inicial deberá usar análisis manual. No se configura ningún túnel público.
 
-La base técnica es Java 21, Spring Boot 3.5, Angular 22 y Angular Material. Las integraciones y el alcance funcional permanecen pendientes de implementación y validación. RAG, OCR, pgvector y proveedores de IA se reservan para fase 2.
+La plataforma usa Java 21, Spring Boot 3.5, Angular 22 y Angular Material. OCR PDF, pgvector, embeddings Ollama y RAG están implementados en código; la biblioteca extrae el texto y Nexo lo consulta después de preparar los embeddings. Falta la validación de extremo a extremo con un PDF escaneado en Compose.
 
 ## Estado al bloque 26 (18 de noviembre de 2026)
 

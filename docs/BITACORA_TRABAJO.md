@@ -1,3 +1,84 @@
+## Bloque 97 — ventana de progreso del análisis (24/11/2026)
+
+**Petición.** Mostrar una ventana de carga al iniciar un análisis, con rueda personalizada y mensajes claros que expliquen qué tarea está realizando el sistema.
+
+**Cambios.** Se agregó una ventana superpuesta con rueda animada de marca, descripción del paso actual y lista de etapas. El mensaje cambia según estados que confirma el backend: lectura/preparación de la fuente, análisis Maven, análisis npm, preparación de resultados y solicitud de evaluación OSV. No muestra porcentajes inventados. El indicador cubre también el breve armado de resultados y la consulta OSV, y conserva el botón para cancelar mientras el trabajo sigue en curso. Incluye traducciones al inglés y respeta `prefers-reduced-motion`.
+
+**Herramientas/tecnologías.** Angular, signals y estados ya existentes del worker, plantilla HTML, SCSS y diccionario de traducción. No se añadieron dependencias ni se modificó el backend.
+
+**Verificación.** `performCompilation` de Angular sin emisión: 0 diagnósticos, incluidas las plantillas. No se ejecutaron pruebas ni build de producción. No se hizo revisión visual en el navegador ni se reiniciaron servicios activos; el comportamiento comprobado es de compilación estática.
+
+**Siguiente paso.** Confirmar visualmente la ventana al probar un análisis Maven/npm y una evaluación OSV desde la instancia activa.
+
+## Bloque 96 — nombres legibles y orden de snapshots (24/11/2026)
+
+**Petición.** El usuario indicó que los UUID/commits y fechas no permiten distinguir con claridad qué snapshot fue primero y pidió poder asignar nombres o asociarlos al repositorio.
+
+**Cambios.** Cada análisis completado puede recibir un nombre de hasta 100 caracteres, persistido como metadato del snapshot y limitado por organización, repositorio y scan. Se agregó la migración V33. El historial y ambos selectores del comparador muestran ordinal cronológico por repositorio (`#1`, `#2`...), el nombre personalizado y la fecha; si no se asigna nombre, se usa la revisión corta. Al comparar, el resumen vuelve a indicar el repositorio y los dos snapshots etiquetados en orden base → objetivo. Los UUID siguen disponibles como identificadores técnicos cortos en el historial.
+
+**Herramientas/tecnologías.** Angular/TypeScript, API REST, puertos y caso de uso de Application, adaptador JDBC multi-tenant y Flyway/PostgreSQL. No se añadieron dependencias.
+
+**Verificación.** Angular `performCompilation` sin emisión terminó con 0 diagnósticos, incluidas las plantillas. Revisión estática del flujo UI/API, aislamiento por organización/repositorio, restricción de nombre y protección existente de inmutabilidad de procedencia; la nueva columna es metadato y no modifica el commit/origen. No se ejecutaron pruebas. No había comandos Java/Maven/Docker disponibles para compilar backend o aplicar V33; no se reinició ningún servicio, así que no se afirma que la interfaz activa ya muestre la mejora.
+
+**Siguiente paso.** Aplicar V33 y desplegar frontend/backend en el entorno acordado; después guardar dos nombres de ejemplo y confirmar que aparecen en el historial, comparación y relación base → objetivo.
+
+## Bloque 95 — se descarta sincronización upstream cada 12 horas (24/11/2026)
+
+**Petición.** El usuario cancela la actualización automática de metadata/release cada 12 horas y pide olvidar ese requisito.
+
+**Cambios.** Se retiró de `docs/PENDIENTES.md` la sincronización en segundo plano como tarea pendiente y se registró la decisión vigente en PENDIENTES y contexto maestro. No se añadieron tareas programadas ni se modificó el análisis manual o la consulta OSV.
+
+**Verificación.** La búsqueda de código confirmó que no existía sincronizador de releases npm/Maven cada 12 horas. El único `@Scheduled` encontrado es el sondeo del worker de análisis manual durable, no actualizador upstream. No se ejecutaron builds ni pruebas porque no hubo cambios de producto.
+
+
+## Bloque 94 — conexión de OCR PDF con Nexo (24/11/2026)
+
+**Petición.** Confirmar si Nexo puede leer PDFs escaneados mediante OCR, corregir el flujo si hacía falta y retirar la afirmación obsoleta de que no los lee.
+
+**Cambios.** Se añadió `tika-config.json` con el reconocedor Tesseract nombrado explícitamente y los idiomas `eng+spa`. `JdbcDocumentLibrary` carga esa configuración en el proceso aislado de Tika, inicia el parser al levantar el backend y conserva `AUTO` para que PDFBox extraiga texto digital y aplique OCR cuando la página lo requiera (hasta 50 páginas OCR). El Dockerfile ya instala Tesseract y el paquete español. El texto extraído se guarda en los mismos fragmentos que Nexo indexa y recupera; se añadió a su interfaz la secuencia necesaria: preparar embeddings tras cargarlo; la acción recorre hasta 100 lotes de 32, informa progreso y avisa si no progresa o alcanza el límite. Se corrigió el estado actual en PENDIENTES, arquitectura y contexto maestro; quedan como historia los informes que registraban que estaba deshabilitado.
+
+**Herramientas/tecnologías.** Apache Tika 4.2.0, PipesForkParser, Tesseract OCR, Ollama/pgvector para recuperación y Angular. La configuración sigue la guía oficial de Tika 4.2 para `engines` y `text-recognizers`. No se añadieron dependencias ni migraciones.
+
+**Verificación y límite.** La revisión del código confirma el camino OCR → `document_chunks` → embeddings → búsqueda/citas autorizadas. Se solicita `PipesForkParser.start()` para fallar al arrancar si la configuración global no puede cargar. No fue posible ejecutar Maven ni reconstruir/reiniciar Compose en esta sesión; por eso no se afirma una prueba de extracción y respuesta con un PDF escaneado real. Los documentos actuales indican que Nexo puede consultarlo una vez indexado; esta prueba de runtime permanece pendiente.
+
+**Siguiente paso.** Con el administrador inicial y una sesión OWNER disponibles en Compose, cargar un PDF escaneado de prueba, comprobar texto OCR en la biblioteca, preparar embeddings y preguntar una frase exclusiva del PDF para revisar la cita.
+
+## Bloque 93 — contenido de reportes técnicos y ejecutivos (24/11/2026)
+
+**Petición.** Ambos reportes deben mostrar exclusivamente paquetes con avisos relevantes y explicar cada problema según su audiencia: desarrollo para el técnico y motivo de corrección para dirección.
+
+**Cambios.** El ejecutivo ahora incluye todos los hallazgos con severidad conocida (crítica, alta, media y baja), la dependencia y versión afectada, el resumen OSV, una explicación sencilla de la prioridad y el siguiente paso, incluida la versión corregida cuando está publicada. El técnico conserva solo esos hallazgos y expone severidad, versión afectada, resumen y detalle OSV, versión corregida y referencia. JSON y CSV mantienen el mismo alcance; CSV ejecutivo incorpora motivo y acción, y CSV técnico incluye detalle. No se cambió el módulo Vulnerabilidades.
+
+**Herramientas/tecnologías.** Angular, TypeScript, plantillas HTML y preferencias de traducción. No se añadieron dependencias.
+
+**Verificación.** TypeScript `createProgram` sin emisión: 0 diagnósticos. Angular `performCompilation` sin emisión: configuración válida y 0 diagnósticos, incluidas las plantillas. No fue posible ejecutar el build de producción con `npm`: npm/node no están en el PATH ni en las rutas de instalación comprobadas. No se desplegó ni reinició ningún servicio. La instancia en ejecución no se comprobó.
+
+**Límite.** La explicación ejecutiva describe el nivel de severidad publicado por OSV y no afirma que una ruta de explotación esté presente. El informe solo muestra severidades conocidas; la cobertura parcial se sigue indicando por separado.
+
+## Bloque 92 — declaración y uso de axios en exposición de código (24/11/2026)
+
+**Petición.** Ante un resultado OSV de axios que mostraba el manifiesto sin referencias de código y un UUID/SHA largos, aclarar el alcance real de la revisión y hacer comparables las ejecuciones sin cambiar Vulnerabilidades.
+
+**Cambios.** La búsqueda npm también reconoce import estático/dinámico, import `from`, `require` y llamadas a aliases importados. Las declaraciones encontradas en `package-lock.json` se muestran aunque el proyecto no tenga una referencia directa. La UI separa la línea del manifiesto de las referencias JavaScript/TypeScript y explica que la falta de uso directo no descarta consumo indirecto ni demuestra seguridad. El detalle muestra el repositorio, un ID de scan de 8 caracteres y el estado de verificación; las huellas completas quedan desplegables. El historial/comparador usa IDs de 8 caracteres con revisión/fecha para identificar cada ejecución.
+
+**Herramientas/tecnologías.** PowerShell, `apply_patch`, Maven/JUnit y Angular CLI/TypeScript/ngc. No se añadieron dependencias.
+
+**Verificación.** `FindRepositoryVulnerabilityEvidenceUseCaseTest`: 7/7, incluidos lockfile axios con llamada directa y lockfile sin referencia de código. Maven `package -DskipTests` empaquetó backend correctamente. `tsc --noEmit`, `ngc --noEmit` y `npm run build` pasaron; Angular reporta presupuesto inicial 590.31 KB/500 KB y avisos SCSS ya descritos, entre ellos Inventory y Reports. La petición HEAD a `localhost:8088` expiró y no hay CLI `docker` disponible en esta sesión; no se reinició ni reemplazó ningún servicio y no se pudo validar el snapshot real que compartió el usuario. El bundle frontend quedó en `frontend/dist/dependency-intelligence-web`.
+
+**Límite.** El código fuente y artefactos locales están actualizados; la instancia que mostró el resultado no fue actualizada. El estado `INCONCLUSIVE` permanece si OSV no publica una relación validada entre ese aviso y una API vulnerable.
+
+## Bloque 91 — correcciones del prompt directo: exposición e identificación (24/11/2026)
+
+**Petición.** Trabajar desde el prompt del usuario, ignorar el documento de corrección, mantener intacto el módulo Vulnerabilidades y resolver los puntos de Inventario sobre exposición de código, procedencia, IDs, huellas y lenguaje del vector CVSS.
+
+**Causa y cambios.** Una dependencia npm transitiva guarda `source_manifest_path` como `node_modules/<paquete>`, que no coincide con el nombre `package-lock.json`; por eso el código de exposición no revisaba la declaración del lockfile. Ahora se busca esa declaración en los lockfiles del snapshot y se muestran imports, referencias y llamadas mediante alias importados, sin declararlas API vulnerable. El estado sigue siendo `INCONCLUSIVE` cuando OSV no tiene una regla validada. La procedencia de exposición muestra IDs abreviados, explica qué confirma SHA-256 y permite desplegar los valores completos. Análisis y comparación muestran el repositorio, revisión, fecha e ID corto; SHA-256 se presenta como huella comparativa. El vector CVSS quedó como detalle técnico desplegable con explicación legible. Reportes ahora usa los hallazgos OSV guardados: el ejecutivo resume severidades y prioridades; el técnico contiene paquete, versión afectada, explicación OSV, severidad, posible versión corregida y enlace. Ambos excluyen filas sin severidad conocida y declaran consultas parciales. Se nombró el asistente «Nexo». Para Documentación, el parser PDF se configuró con OCR automático Tika/Tesseract en inglés y español (50 páginas OCR, 500 páginas totales); el Dockerfile instala Tesseract y el paquete de idioma español. Se actualizó el texto de carga. No se tocó la sección Vulnerabilidades ni se añadieron dependencias Maven/npm ni migraciones; sí se añadieron paquetes del sistema a la imagen backend.
+
+**Herramientas/tecnologías.** `rg`, PowerShell, `apply_patch`, consulta de documentación oficial Apache Tika/Ubuntu, Java 21, Maven 3.9.11/JUnit y Angular/TypeScript/HTML. Se añadieron paquetes de SO Tesseract/spa; no se añadieron dependencias Maven/npm.
+
+**Verificación.** Prueba focal `FindRepositoryVulnerabilityEvidenceUseCaseTest`: 6/6 correcto, incluida declaración `node_modules/axios` en `package-lock.json`, llamada `axios.get` y estado inconcluso. `tsc -p tsconfig.app.json --noEmit` y compilación Angular `ngc -p tsconfig.app.json --noEmit` terminaron correctamente, incluyendo las plantillas nuevas. Tika 4.2.0 Javadocs/clases locales confirman `PDFParserConfig.pages().setText(AUTO)`, el tope OCR y la configuración `eng+spa`. No se pudo compilar Infrastructure: Javac recibió `Access denied` al cerrar un JAR de Maven; la caché alterna no tenía Tika offline. El bundle Angular falló al leer SCSS/fuentes fuera del árbol permitido; `docker` no está en PATH, por lo que no se pudo repetir el build Docker. OCR no se probó en runtime ni se actualizó contenedor. No se inspeccionó el repositorio real de la cuenta. Git tampoco está en PATH.
+
+**Pendiente del bloque.** Completar los puntos restantes del prompt: análisis upstream actualizable y cobertura, OCR PDF, fuentes oficiales externas, contexto global del asistente/RAG, e informes ejecutivos/técnicos. Validar en la instalación del usuario cuando haya herramienta/sesión disponibles. No declarar cerrada la exposición sobre el caso real hasta probarla con su repositorio.
+
 ## Bloque 90 — cerrar Análisis e Inventario para clonación local (24/11/2026)
 
 **Petición.** Dejar Análisis e Inventario funcionales para una instalación clonada, corregir el bloqueo reportado sin abrir permisos globales y registrar commits coherentes.
