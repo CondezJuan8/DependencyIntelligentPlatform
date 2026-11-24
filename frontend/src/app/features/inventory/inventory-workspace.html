@@ -183,6 +183,7 @@
                                       <section class="code-evidence" [attr.aria-label]="'Coincidencias encontradas en el código' | t">
                                         <h4>{{ evidence.packageName }} <code>{{ evidence.packageVersion }}</code></h4>
                                         <p><strong>{{ 'Estado de exposición:' | t }}</strong> <code>{{ evidence.status }}</code></p>
+                                        <div class="kind-tags" aria-label="Estados comprobados">@for (state of evidence.states; track state) { <span class="tag">{{ state }}</span> }<span class="tag">OSV: {{ evidence.osvStatus }}</span></div>
                                         <p>{{ evidence.explanation }}</p>
                                         <p class="evidence-source"><span>{{ 'Origen del snapshot:' | t }}</span> <strong>{{ evidence.sourceProvider | t }}</strong> · scan <code>{{ evidence.scanId }}</code>@if(evidence.sourceCommit){ · commit <code>{{ evidence.sourceCommit }}</code>} · SHA-256 esperado <code>{{ evidence.expectedSourceSha256 }}</code>@if(evidence.sourceSha256){ · verificado <code>{{ evidence.sourceSha256 }}</code>}</p>
                                         @if (evidence.manifestPath) { <p><strong>{{ 'Declaración de la dependencia:' | t }}</strong> <code>{{ evidence.manifestPath }}</code></p> }
