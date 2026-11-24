@@ -1,3 +1,18 @@
+## Bloque 88 — inicio del prompt maestro: transparencia del CSV de reportes (24/11/2026)
+
+**Petición.** Empezar el trabajo definido en `PROMPT_MAESTRO_CORRECCION_REPOSITORIO.md`, mantener intacto Vulnerabilidades y recordar commits coherentes.
+
+**Auditoría inicial.** El prompt contiene instrucciones para corregir módulos, no evidencia de que estén corregidos. `docs/PENDIENTES.md` y el código muestran que el endpoint de Análisis ejecuta Maven/npm síncronamente, aunque existen tablas de trabajos; las decisiones del calendario, fuentes upstream, límites, reintentos y progreso quedaron preguntadas al usuario. El bootstrap está implementado según `docs/ACCESO_LOCAL.md`, por lo que el estado operativo del bloque 16 está desactualizado y no se intentó ejecutarlo. En Reportes, el límite de 5.000 se explica en la vista previa y JSON, pero el CSV no incluía metadatos ni advertencia de recorte.
+
+**Cambios.** CSV ahora incluye organización, repositorio, origen, filtros, fecha, cantidad de paquetes/versiones coincidentes, filas incluidas, estado `PARTIAL`/`COMPLETE` y nota de cobertura. Se actualizó `docs/PENDIENTES.md`. No se tocaron Vulnerabilidades, análisis, esquema ni dependencias.
+
+**Herramientas/tecnologías.** Lectura estática con PowerShell y `rg`; edición con `apply_patch`; Angular/TypeScript ya existente. No se añadieron dependencias.
+
+**Verificación.** El build host `npm run build` no pudo iniciarse porque `npm` no está en el PATH; se verificó con `docker compose build frontend`, que compiló Angular y construyó la imagen correctamente. Persisten avisos Angular de presupuesto en chunk/estilos existentes. No se ejecutó suite de pruebas (el frontend no define script de test). `git diff --check` pasó. Commit de código: `d5c79f0`.
+
+**Decisiones recibidas para Análisis.** Manual, sin calendario; solo registries oficiales npm/Maven para una consulta upstream futura, con límites conservadores; estados por etapas reales, sin porcentajes. La política consultada para trabajos programados no aplica mientras no haya calendario.
+
+**Siguiente paso.** Implementar el trabajo durable manual de Análisis sobre las tablas existentes, con estado consultable y las etapas que realmente registre el backend.
 ## Bloque 75 — Petición 10: primera fase del asistente RAG (23/11/2026)
 
 **Petición.** Empezar la petición 10 del contexto maestro: pgvector, embeddings Ollama, RAG con fuentes, orquestador y chat Gemini, sin adivinar los modelos o la dimensión.

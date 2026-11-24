@@ -1,3 +1,9 @@
+### Bloque 88 — inicio de correcciones del prompt maestro (24/11/2026)
+
+La primera corrección acotada hace explícito en CSV el origen, filtros, fecha, cantidad total frente a filas incluidas y si el límite de 5.000 paquetes recortó el archivo. La vista previa y JSON ya exponían parcialidad. `docker compose build frontend` compiló Angular correctamente; persisten avisos de presupuesto en estilos/chunk. No se agregaron dependencias ni se ejecutó una suite de pruebas frontend. Commit de código: `d5c79f0`. La auditoría inicial confirma que el análisis HTTP sigue síncrono pese a las tablas de trabajos existentes; no se inicia calendario de versiones upstream. El bootstrap se documenta como implementado en `ACCESO_LOCAL.md`; la instancia no se alteró. Ver [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md), bloque 88.
+
+**Decisiones del usuario para Análisis:** los análisis se inician manualmente, sin calendario; la consulta de metadata upstream queda autorizada solo para registries oficiales npm/Maven, con límites conservadores; progreso solo por etapas confirmadas, nunca porcentajes inventados. La opción de reintento/aviso para fallos programados no aplica mientras no exista calendario. El estado de cada job manual deberá quedar consultable. La implementación de análisis durable manual es el siguiente subbloque.
+
 ### Bloque 84 — asistente global y avisos derivados de OSV (24/11/2026)
 
 El acceso al asistente ahora está en el encabezado global y abre el mismo panel fijo movible izquierda/derecha desde cualquier pantalla; se retiró la tarjeta duplicada del Dashboard. En el cuadro de pregunta, Enter envía y Shift+Enter conserva el salto de línea.

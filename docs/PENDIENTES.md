@@ -273,6 +273,8 @@ El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAES
 
 - [x] Peticion 11: comparacion de snapshots completados del mismo repositorio, cambios de paquetes/versiones y diferencias OSV con evidencia.
 - [~] Peticion 12: filtros, vista ejecutiva/tecnica, vista previa y exportacion CSV/JSON/impresion PDF hasta 5.000 paquetes. Pendientes destinatarios, artefactos persistidos, SBOM/SPDX y programacion/envio.
+- [x] CSV incluye metadatos del reporte y declara si las filas están completas o limitadas por el tope de 5.000 paquetes.
+- [x] Build de la imagen `frontend` completado tras el cambio; no se ejecutó suite frontend porque no existe script de test.
 - [ ] Peticion 13: sandbox desechable para impacto y pruebas, con aprobacion humana; no habilitar ejecucion del repositorio antes de verificarlo.
 
 ### Revisión de exposición de avisos OSV en el código (24/11/2026)
