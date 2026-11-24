@@ -27,6 +27,9 @@ import com.dependencyintelligence.scan.application.port.out.ScanHistoryReader;
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
 import com.dependencyintelligence.scan.application.usecase.RequestScanUseCase;
 import com.dependencyintelligence.scan.application.usecase.FindScanHistoryUseCase;
+import com.dependencyintelligence.scan.application.port.in.CompareScans;
+import com.dependencyintelligence.scan.application.port.out.ScanComparisonReader;
+import com.dependencyintelligence.scan.application.usecase.CompareScansUseCase;
 import com.dependencyintelligence.scan.application.port.in.AnalyzeMavenRepository;
 import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSource;
 import com.dependencyintelligence.scan.application.port.out.MavenManifestReader;
@@ -109,6 +112,8 @@ public class UseCaseConfiguration {
     @Bean FindScanHistory findScanHistory(ScanHistoryReader history) {
         return new FindScanHistoryUseCase(history);
     }
+
+    @Bean CompareScans compareScans(ScanComparisonReader reader) { return new CompareScansUseCase(reader); }
 
     @Bean AnalyzeMavenRepositoryUseCase analyzeMavenRepository(RepositoryAnalysisSource source, MavenManifestReader reader,
             MavenAnalysisStore store, Clock clock) {

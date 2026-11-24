@@ -5,6 +5,8 @@ import com.dependencyintelligence.scan.application.dto.ScanResult;
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
 import com.dependencyintelligence.scan.application.port.in.FindScanHistory;
 import com.dependencyintelligence.scan.application.dto.ScanHistoryItem;
+import com.dependencyintelligence.scan.application.dto.ScanComparison;
+import com.dependencyintelligence.scan.application.port.in.CompareScans;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,11 +21,13 @@ import com.dependencyintelligence.identity.infrastructure.security.AuthorizedRep
 public class ScanController {
     private final RequestScan requestScan;
     private final FindScanHistory history;
+    private final CompareScans comparison;
     private final AuthorizedRepositoryActions access;
 
-    public ScanController(RequestScan requestScan, FindScanHistory history, AuthorizedRepositoryActions access) {
+    public ScanController(RequestScan requestScan, FindScanHistory history, CompareScans comparison, AuthorizedRepositoryActions access) {
         this.requestScan = requestScan;
         this.history = history;
+        this.comparison = comparison;
         this.access = access;
     }
 
@@ -32,6 +36,13 @@ public class ScanController {
             @PathVariable UUID repositoryId, Principal principal) {
         return ResponseEntity.ok(access.execute(principal, organizationId, repositoryId, "scan.read",
             () -> history.execute(organizationId, repositoryId)));
+    }
+
+    @GetMapping("/compare")
+    public ScanComparison compare(@PathVariable UUID organizationId, @PathVariable UUID repositoryId,
+            @RequestParam UUID baseScanId, @RequestParam UUID targetScanId, Principal principal) {
+        return access.execute(principal, organizationId, repositoryId, "scan.read",
+            () -> comparison.execute(organizationId, repositoryId, baseScanId, targetScanId));
     }
 
     @PostMapping

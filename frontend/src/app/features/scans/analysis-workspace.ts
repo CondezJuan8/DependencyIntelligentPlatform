@@ -13,6 +13,14 @@ interface ScanHistory {
   sourceSha256: string | null; manifestCount: number; dependencyCount: number; unresolvedCount: number;
   coverageStatus: 'COMPLETE' | 'PARTIAL'; coverageMessage: string | null;
 }
+interface Comparison {
+  base: { id: string; commitSha: string | null; completedAt: string | null; coverageStatus: string | null; coverageMessage: string | null };
+  target: { id: string; commitSha: string | null; completedAt: string | null; coverageStatus: string | null; coverageMessage: string | null };
+  added: number; removed: number; updated: number; unchanged: number;
+  dependencies: { ecosystem: string; namespace: string; name: string; change: string; baseVersions: string[]; targetVersions: string[]; baseOccurrences: number; targetOccurrences: number; baseAdvisories: string[]; targetAdvisories: string[]; baseAssessment: string; targetAssessment: string }[];
+  securityChanges: { advisoryId: string; change: string; packageName: string; sourceUrl: string }[];
+  recommendations: { packageName: string; priority: string; explanation: string; evidenceIds: string[] }[];
+}
 
 @Component({
   selector: 'app-analysis-workspace',
@@ -33,6 +41,10 @@ export class AnalysisWorkspace implements OnInit {
   readonly error = signal('');
   readonly notice = signal('');
   readonly latestResult = signal<AnalysisResult[] | null>(null);
+  readonly baseScanId = signal('');
+  readonly targetScanId = signal('');
+  readonly comparing = signal(false);
+  readonly comparison = signal<Comparison | null>(null);
 
   ngOnInit(): void {
     this.api.get<Repository[]>('/api/account/workspace').pipe(finalize(() => this.loading.set(false))).subscribe({
@@ -49,6 +61,7 @@ export class AnalysisWorkspace implements OnInit {
   select(repository: Repository | null): void {
     this.selected.set(repository);
     this.latestResult.set(null);
+    this.comparison.set(null);
     this.error.set('');
     this.notice.set('');
     if (!repository) { this.history.set([]); return; }
@@ -104,9 +117,25 @@ export class AnalysisWorkspace implements OnInit {
     this.api.get<ScanHistory[]>(this.endpoint(repo, 'scans')).pipe(
       finalize(() => this.loadingHistory.set(false)),
     ).subscribe({
-      next: items => this.history.set(items),
+      next: items => {
+        this.history.set(items);
+        const complete = items.filter(item => item.status === 'COMPLETED');
+        if (!complete.some(item => item.id === this.targetScanId())) this.targetScanId.set(complete[0]?.id ?? '');
+        const alternative = complete.find(item => item.id !== this.targetScanId());
+        if (!complete.some(item => item.id === this.baseScanId()) || this.baseScanId() === this.targetScanId()) this.baseScanId.set(alternative?.id ?? '');
+      },
       error: failure => this.error.set(accessError(failure)),
     });
+  }
+
+  compareScans(): void {
+    const repo = this.selected(), base = this.baseScanId(), target = this.targetScanId();
+    if (!repo || !base || !target || base === target || this.comparing()) return;
+    this.comparing.set(true); this.error.set(''); this.comparison.set(null);
+    const query = new URLSearchParams({ baseScanId: base, targetScanId: target });
+    this.api.get<Comparison>(`${this.endpoint(repo, 'scans')}/compare?${query}`)
+      .pipe(finalize(() => this.comparing.set(false)))
+      .subscribe({ next: result => this.comparison.set(result), error: failure => this.error.set(accessError(failure)) });
   }
 
   private endpoint(repo: Repository, suffix: string): string {
@@ -129,4 +158,5 @@ export class AnalysisWorkspace implements OnInit {
     const seconds = Math.max(0, Math.round((Date.parse(item.finishedAt) - Date.parse(item.startedAt)) / 1000));
     return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
   }
+  completedScans(): ScanHistory[] { return this.history().filter(item => item.status === 'COMPLETED'); }
 }

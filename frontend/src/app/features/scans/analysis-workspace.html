@@ -41,6 +41,44 @@
     </section>
   }
 
+  @if (selected()) {
+    <section class="compare-section" aria-labelledby="compare-title">
+      <div class="section-heading"><div><h2 id="compare-title">{{ 'Comparar snapshots' | t }}</h2><p>{{ 'Compara las dependencias y los avisos OSV de dos análisis completados del mismo repositorio.' | t }}</p></div></div>
+      @if (completedScans().length < 2) {
+        <div class="empty compact"><h3>{{ 'Necesitas dos análisis completados' | t }}</h3><p>{{ 'Ejecuta otro análisis después de cambiar el repositorio o sus dependencias para ver qué cambió.' | t }}</p></div>
+      } @else {
+        <div class="compare-controls">
+          <label>{{ 'Análisis base' | t }}<select [value]="baseScanId()" (change)="baseScanId.set($any($event.target).value)">
+            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== targetScanId()) { <option [value]="item.id">{{ item.commitSha || item.gitReference || item.id }} · {{ item.requestedAt | date:'short' }}</option> } }
+          </select></label>
+          <label>{{ 'Análisis objetivo' | t }}<select [value]="targetScanId()" (change)="targetScanId.set($any($event.target).value)">
+            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== baseScanId()) { <option [value]="item.id">{{ item.commitSha || item.gitReference || item.id }} · {{ item.requestedAt | date:'short' }}</option> } }
+          </select></label>
+          <button class="primary" type="button" (click)="compareScans()" [disabled]="comparing() || !baseScanId() || !targetScanId()">{{ comparing() ? ('Comparando…' | t) : ('Comparar' | t) }}</button>
+        </div>
+      }
+      @if (comparison(); as diff) {
+        <div class="compare-summary" aria-label="{{ 'Resumen de cambios' | t }}">
+          <article><strong>{{ diff.added }}</strong><span>{{ 'Agregadas' | t }}</span></article><article><strong>{{ diff.updated }}</strong><span>{{ 'Actualizadas' | t }}</span></article>
+          <article><strong>{{ diff.removed }}</strong><span>{{ 'Retiradas' | t }}</span></article><article><strong>{{ diff.unchanged }}</strong><span>{{ 'Sin cambios' | t }}</span></article>
+        </div>
+        @if (diff.base.coverageStatus === 'PARTIAL' || diff.target.coverageStatus === 'PARTIAL') { <p class="coverage">{{ 'Uno o ambos snapshots tienen cobertura parcial; la comparación no incluye dependencias que el scanner no pudo resolver.' | t }}</p> }
+        @if (diff.recommendations.length) { <div class="recommendations"><h3>{{ 'Recomendaciones sustentadas en los snapshots' | t }}</h3>
+          @for (item of diff.recommendations; track item.packageName + item.priority) { <article><strong>{{ item.packageName }} · {{ item.priority | t }}</strong><p>{{ item.explanation | t }}</p>@if(item.evidenceIds.length){<span>{{ 'Avisos OSV' | t }}: {{ item.evidenceIds.join(', ') }}</span>}</article> }
+        </div> }
+        @if (diff.securityChanges.length) { <div class="security-deltas"><h3>{{ 'Cambios en avisos OSV' | t }}</h3>
+          @for (item of diff.securityChanges; track item.advisoryId + item.change + item.packageName) { <p><strong>{{ item.change === 'NEW' ? ('Nuevo' | t) : ('Ya no reportado' | t) }} · {{ item.advisoryId }}</strong> — {{ item.packageName }} @if(item.sourceUrl){<a [href]="item.sourceUrl" target="_blank" rel="noopener noreferrer">{{ 'Fuente OSV' | t }}</a>}</p> }
+        </div> }
+        <div class="compare-table-wrap"><table><thead><tr><th>{{ 'Paquete' | t }}</th><th>{{ 'Cambio' | t }}</th><th>{{ 'Versiones base' | t }}</th><th>{{ 'Versiones objetivo' | t }}</th><th>{{ 'Avisos OSV objetivo' | t }}</th><th>{{ 'Evaluación OSV objetivo' | t }}</th></tr></thead><tbody>
+          @for (item of diff.dependencies; track item.ecosystem + item.namespace + item.name) { @if (item.change !== 'UNCHANGED') {
+            <tr><td>{{ item.ecosystem }} · {{ item.namespace ? item.namespace + ':' : '' }}{{ item.name }}</td><td>{{ item.change | t }}</td><td>{{ item.baseVersions.join(', ') || '—' }}</td><td>{{ item.targetVersions.join(', ') || '—' }}</td><td>{{ item.targetAdvisories.join(', ') || '—' }}</td><td>{{ item.targetAssessment | t }}</td></tr>
+          } }
+          @if (!diff.added && !diff.removed && !diff.updated) { <tr><td colspan="6">{{ 'No hay cambios de paquetes entre estos snapshots.' | t }}</td></tr> }
+        </tbody></table></div>
+      }
+    </section>
+  }
+
   <section class="history-section" aria-labelledby="history-title">
     <div class="section-heading"><div><h2 id="history-title">{{ 'Historial reciente' | t }}</h2><p>{{ 'Hasta 50 ejecuciones del repositorio seleccionado.' | t }}</p></div>
       @if (selected()) { <span class="repo-label">{{ selected()?.fullName }}</span> }</div>
