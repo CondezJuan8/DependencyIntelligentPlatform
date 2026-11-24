@@ -29,6 +29,7 @@
 @case ('analysis') { @defer(on immediate){<app-analysis-workspace (openInventory)="openInventory($event)"/>}@loading{<p role="status">Cargando análisis…</p>} }
         @case ('documentation') { @defer(on immediate){<app-document-center/>}@loading{<p role="status">Loading documentation…</p>} }
         @case ('assistant') { @defer(on immediate){<app-assistant-workspace/>}@loading{<p role="status">Cargando asistente…</p>} }
+        @case ('reports') { @defer(on immediate){<app-reports-workspace/>}@loading{<p role="status">Cargando reportes…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
             <app-dashboard (manage)="go('organization')" (connectRepository)="go('repositories')" (openInventory)="openInventory($event)" />

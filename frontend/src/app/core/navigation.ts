@@ -51,9 +51,9 @@ export const navigation = [
     id: 'reports',
     label: 'Reportes',
     icon: 'report',
-    ready: false,
+    ready: true,
     description:
-      'Comparte informes trazables sobre dependencias y riesgos. Pendiente de inventario y hallazgos reales.',
+      'Previsualiza y exporta informes de dependencias y riesgos con datos autorizados.',
   },
   {
     id: 'organization',

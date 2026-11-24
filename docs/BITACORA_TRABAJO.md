@@ -1471,3 +1471,16 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** `docker compose build --build-arg OPERATOR_TOOL_IMAGE=true backend` terminó `BUILD SUCCESS` con `-DskipTests`; Angular producción compiló correctamente (persisten avisos previos de presupuesto del bundle/SCSS). `docker compose config --quiet` y `git diff --check` pasaron. Compose recreó backend/frontend; Flyway validó 30 migraciones y aplicó V30. `/health` HTTP 200 y la ruta web se sirve en `localhost:8089`. No se ejecutaron pruebas. La generación real no puede probarse hasta configurar la clave y no se hizo recorrido RAG autenticado porque esta instancia no tiene documentos/cuentas configurados.
 
 **Siguiente.** Configurar `OPENAI_API_KEY` solo en `.env`, reconstruir backend/frontend para aplicar V30 y probar el recorrido autenticado con evidencia autorizada. Revisar la política de datos/retención de OpenAI para documentos transmitidos al proveedor.
+
+
+## Bloque 80 ? peticiones 11 y 12; evaluaci?n de petici?n 13 (23/11/2026)
+
+**Petici?n.** Implementar historial/comparaci?n y reportes del contexto maestro y avanzar la petici?n 13 solo si el entorno permite verificarla con seguridad.
+
+**Cambios.** A?adidos el caso de uso/puerto de comparaci?n de snapshots, adaptador JDBC tenant-scoped y endpoint de lectura. La pantalla An?lisis compara dos scans completados del mismo repositorio y muestra cambios de versiones, ocurrencias, OSV y recomendaciones limitadas a evidencia OSV. A?adidos endpoints de vista previa/exportaci?n protegidos por permisos distintos, navegaci?n Reportes, pantalla con filtros repositorio/ecosistema/severidad, vistas ejecutiva/t?cnica y exportaci?n CSV/JSON/impresi?n PDF desde navegador. La exportaci?n se limita a 5.000 paquetes. No se a?adi? migraci?n. Se documentaron expresamente funciones de reportes pendientes (destinatarios/artefactos/SBOM/agenda). Petici?n 13 se mantiene pendiente porque el scanner est?tico cdxgen no acredita sandbox para ejecutar builds o tests del c?digo del usuario.
+
+**Herramientas/tecnolog?as utilizadas.** Java 21, puertos/caso de uso hexagonales, Spring REST/JDBC en Infrastructure, PostgreSQL existente, Angular y Docker Compose. No se agregaron dependencias externas.
+
+**Verificaci?n.** `docker compose build frontend` y `docker compose --progress plain build --build-arg OPERATOR_TOOL_IMAGE=true backend` finalizaron correctamente; el empaquetado Maven compil? Domain, Application e Infrastructure con pruebas omitidas. Angular report? avisos de presupuesto del bundle y estilos. `git diff --check` pas?. Se recrearon solo backend y frontend con `docker compose up -d --no-build backend frontend`; PostgreSQL, Ollama, Mailpit y scanner siguieron activos. Health interno del backend devolvi? `UP`; `/?view=reports` devolvi? HTTP 200. Los endpoints de comparaci?n y reportes devolvieron 401 sin sesi?n, confirmando que requieren autenticaci?n. No se corrieron suites unitarias/integraci?n ni se verific? el flujo con una sesi?n OWNER y datos reales.
+
+**Siguiente paso.** Probar comparaci?n y generaci?n/exportaci?n de reportes con una sesi?n OWNER y an?lisis existentes; cerrar destinatarios/artefactos/programaci?n. Mantener petici?n 13 pendiente hasta implementar/verificar sandbox desechable y criterios de aprobaci?n humana.

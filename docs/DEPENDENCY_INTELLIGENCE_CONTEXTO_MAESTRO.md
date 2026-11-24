@@ -192,7 +192,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 9. **Centro de documentación:** tipos de archivo, carga, extracción, asociación a repositorios/componentes, versiones, permisos, retención y eliminación.
 10. **Arquitectura de IA documental, explícita:** Ollama y selección verificable de modelo/dimensión para embeddings; pgvector, migración, esquema, índices y aislamiento por organización; recuperación (incluida búsqueda híbrida si se decide); RAG con fragmentos y citas; orquestador; chat asistente con OpenAI; permisos en recuperación, respuesta sin evidencia, fallos y evaluación de calidad. No activar pgvector en el núcleo antes de decidir e implementar esta fase documental.
 11. **Historial, comparación y recomendaciones:** snapshots por commit, cambios de paquetes/versiones y recomendación sustentada en fuentes.
-12. **Reportes:** destinatarios, informes técnicos/ejecutivos, filtros, vista previa, formatos exportables y programación.
+12. **Reportes:** destinatarios, informes t?cnicos/ejecutivos, filtros, vista previa, formatos exportables y programaci?n posterior. **Primera entrega en el bloque 80:** filtros, vista previa, modos ejecutivo/t?cnico y CSV/JSON/impresi?n PDF; quedan destinatarios, artefactos retenidos, SBOM/SPDX y programaci?n/env?o.
 13. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
 14. **Notificaciones y requisitos transversales:** eventos in-app y preferencias; seguridad/privacidad, accesibilidad, rendimiento, retención, observabilidad, HTTPS/secretos, servidor, backup/restauración y criterios de aceptación final.
 
@@ -1709,3 +1709,18 @@ El flujo real todavia requiere configurar la GitHub App del propietario. Las var
 ### Estado actual — IA documental con OpenAI y harness de solo lectura (23/11/2026)
 
 OpenAI reemplaza a Gemini para generación; Ollama sigue haciendo embeddings. El asistente usa la Responses API, devuelve diagnóstico y prompt de reparación estructurado y no dispone de herramientas para leer/escribir repositorios directamente ni ejecutar acciones. Backend valida acceso a documentos, salida y etiquetas de citas; la interfaz requiere revisión humana y solo copia el prompt. La clave `OPENAI_API_KEY` está en `.env` local y vacía, pendiente de configuración por el usuario; por ello falta validar generación real y el recorrido con documentos. Detalle y límites: [ASISTENTE_IA_SEGURIDAD_OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).
+
+
+### Bloque 80 ? peticiones 11 y 12; evaluaci?n de la 13 (23/11/2026)
+
+**Petici?n 11 ? historial y comparaci?n.** Se a?adi? una lectura comparativa de dos an?lisis completados del mismo repositorio. Contrasta identidad de paquete, versiones, ocurrencias y evidencia/estado OSV; clasifica incorporados, retirados, modificados y sin cambios. La API valida organizaci?n y repositorio y el acceso requiere `scan.read`. La recomendaci?n solo usa advisories OSV presentes; no inventa una versi?n objetivo. La pantalla An?lisis permite seleccionar los snapshots y revisar la comparaci?n sin recalcular ni modificar los datos originales.
+
+**Petici?n 12 ? reportes, primera entrega utilizable.** Se a?adi? vista de reportes ejecutiva/t?cnica por repositorio, filtros de ecosistema y severidad, previsualizaci?n, m?tricas del inventario y exportaci?n CSV/JSON o impresi?n del navegador a PDF. Lectura y exportaci?n usan permisos separados (`report.read` / `report.export`) y consultan el cat?logo autorizado existente. El reporte se construye en el navegador, con l?mite visible de 5.000 paquetes; los datos no se env?an por correo. No se a?adieron tablas ni migraciones.
+
+**Cobertura a?n pendiente de la petici?n 12:** destinatarios, generaci?n/retenci?n de artefactos en servidor, formatos CycloneDX/SPDX y programaci?n/env?o. La interfaz distingue la exportaci?n PDF mediante ?Guardar como PDF? del navegador; no se presenta como un generador PDF del servidor.
+
+**Petici?n 13 ? no iniciada.** No se habilit? ejecuci?n de c?digo del repositorio ni una prueba en sandbox. El contenedor cdxgen actual es para an?lisis est?tico y no demuestra aislamiento adecuado para compilar/probar cambios. Antes de simular escenarios o proponer PR se necesita un entorno desechable con l?mites y separaci?n de secretos/red, y una pol?tica de aprobaci?n humana verificable.
+
+**Herramientas implementadas:** puertos/caso de uso Java puro en Application, adaptadores JDBC y controladores REST en Infrastructure, Angular para las pantallas y el cat?logo existente para autorizaci?n/filtros. Sin dependencias externas nuevas ni cambio de esquema.
+
+**Verificaci?n:** build de frontend Docker completado; presupuesto de bundle y estilos report? advertencias existentes y estilos por encima de presupuesto. Build del backend Docker sigue en ejecuci?n al redactar esta actualizaci?n; resultado final y puesta en marcha quedan pendientes de registrar en la bit?cora. No se ejecutaron pruebas unitarias/integraci?n adicionales. Sin sesi?n con datos autorizados no se puede afirmar validaci?n visual de comparaci?n/reporte en vivo.

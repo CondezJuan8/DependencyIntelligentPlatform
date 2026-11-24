@@ -102,3 +102,12 @@ button:focus-visible {
   outline: 2px solid var(--di-primary);
   outline-offset: 3px;
 }
+@media print {
+  body.di-printing-report app-workspace-sidebar,
+  body.di-printing-report app-workspace-topbar,
+  body.di-printing-report #workspace-main > :not(app-reports-workspace) { display:none !important; }
+  body.di-printing-report .app-layout,
+  body.di-printing-report .workspace,
+  body.di-printing-report #workspace-main { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; overflow:visible !important; }
+  body.di-printing-report app-reports-workspace { display:block !important; }
+}

@@ -222,3 +222,10 @@ Se implementaron preferencias compartidas de tema e idioma por organizacion medi
 ## Bloque 41 - Vista unificada de inventario
 
 El frontend consume las consultas Maven/npm ya existentes de forma paralela y combina los últimos snapshots por repositorio. La acción de análisis dispara ambos casos de uso y tolera que solo uno encuentre un manifiesto compatible; los fallos de autorización o servidor se presentan por ecosistema. La agregación de presentación usa la identidad compuesta `ecosistema + namespace + nombre` y agrupa por versión exacta, preservando ocurrencias y su manifiesto/ámbito.
+
+
+## Peticiones 11 y 12 ? comparaci?n y reportes (bloque 80)
+
+`CompareScansUseCase` en Application valida dos IDs distintos y delega la comparaci?n por el puerto `ScanComparisonReader`. `JdbcScanComparisonAdapter` consulta dos scans completos del mismo repositorio y organizaci?n y calcula diferencias por identidad de paquete, versiones, ocurrencias y estado/ID OSV. El endpoint `GET /api/organizations/{organizationId}/repositories/{repositoryId}/scans/compare` requiere `scan.read`; es de solo lectura y no persiste una copia de la comparaci?n. Las recomendaciones no eligen versiones arbitrarias: se?alan si hay advisory OSV presente o ausente en el snapshot de destino.
+
+`ReportCatalogController` expone vista previa y p?ginas de exportaci?n sobre `FilterInventory`, con validaci?n de acceso por `report.read` o `report.export`. Los datos siguen el mismo filtro tenant/repository del inventario. Angular presenta resumen ejecutivo/t?cnico y produce CSV/JSON o usa la impresi?n del navegador para PDF, con un m?ximo expl?cito de 5.000 paquetes. No se introdujo almacenamiento de artefactos, entrega a destinatarios, agenda ni formatos SBOM en este bloque. No cambia el esquema.
