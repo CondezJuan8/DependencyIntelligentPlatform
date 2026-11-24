@@ -1722,3 +1722,7 @@ OpenAI reemplaza a Gemini para generación; Ollama sigue haciendo embeddings. El
 ### Bloque 81 - Swagger UI y OpenAPI en local (24/11/2026)
 
 Springdoc se controla con `SPRINGDOC_ENABLED`, apagado por defecto y activado en el `.env` local. Nginx reenvia `/swagger-ui.html`, `/swagger-ui/` y `/v3/api-docs` al backend. Las rutas de documentacion se pueden consultar sin sesion, pero las operaciones protegidas siguen requiriendo autenticacion/permisos. En servidor, mantener apagado salvo habilitacion deliberada. Backend/frontend se reconstruyeron y recrearon. `/swagger-ui/index.html` respondio 200 y `/v3/api-docs` respondio 200 como JSON con rutas. Mantener apagado en servidor por defecto.
+
+### Bloque 82 - Candado CSRF en Swagger (24/11/2026)
+
+La autenticacion de API es mediante sesion `JSESSIONID`; no hay Bearer/JWT. OpenAPI ahora declara `X-CSRF-TOKEN` como esquema apiKey para que Swagger muestre Authorize y candados. El usuario debe iniciar sesion en el mismo navegador y copiar el campo `token` de `GET /api/auth/csrf`. El header CSRF permite las escrituras contra la proteccion CSRF; la cookie HttpOnly se adjunta automaticamente y sigue siendo la credencial de sesion.

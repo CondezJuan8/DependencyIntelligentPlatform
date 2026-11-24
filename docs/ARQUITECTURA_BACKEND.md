@@ -233,3 +233,7 @@ El frontend consume las consultas Maven/npm ya existentes de forma paralela y co
 ## Documentacion HTTP (bloque 81)
 
 Springdoc OpenAPI y Swagger UI se habilitan con `SPRINGDOC_ENABLED`; el valor de aplicacion/Compose predeterminado es `false`. El `.env` local puede activarlo. Nginx reenvia `/swagger-ui.html`, `/swagger-ui/**` y `/v3/api-docs/**` al backend. Security permite servir el esquema y la interfaz; los controladores API mantienen su autorizacion propia. En un despliegue de servidor, dejar la variable apagada salvo que se configure intencionalmente.
+
+### Autorizacion desde Swagger (bloque 82)
+
+La API no emite ni valida JWT/Bearer tokens. El login usa `JSESSIONID` (cookie HttpOnly) y las operaciones de escritura exigen el token CSRF de la sesion en `X-CSRF-TOKEN`. OpenAPI declara el esquema de este header para mostrar el candado y exponer el boton Authorize. En Swagger, inicia sesion primero en el mismo navegador, consulta `GET /api/auth/csrf` y copia `token` al campo `X-CSRF-TOKEN`. El navegador envia la cookie de sesion automaticamente al mismo origen. El token CSRF por si solo no autentica.

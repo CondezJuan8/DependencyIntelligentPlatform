@@ -1494,3 +1494,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificacion.** El build de frontend y backend termino correctamente (Maven con pruebas omitidas). Compose recreo backend/frontend. Tras esperar el arranque, `/swagger-ui/index.html` respondio HTTP 200 y `/v3/api-docs` HTTP 200 con `application/json` y rutas API. Durante el arranque hubo 502 transitorios; la segunda comprobacion paso. Docker/Git no estan disponibles en el PATH normal; Docker se ejecuto desde su ruta instalada. No se pudo crear commit porque Git tampoco esta en PATH. `SPRINGDOC_ENABLED` conserva `false` como valor predeterminado fuera del `.env` local.
 
 **Siguiente paso.** Abrir `http://localhost:8089/swagger-ui/index.html` para explorar rutas. Dejar `SPRINGDOC_ENABLED=false` al desplegar en servidor, salvo que se decida exponer la documentacion.
+
+## Bloque 82 - Candado de seguridad en Swagger (24/11/2026)
+
+**Peticion.** Mostrar en Swagger el candado para autorizar peticiones con el token.
+
+**Hallazgo.** El backend no usa JWT/Bearer. Inicia sesion con cookie HttpOnly `JSESSIONID` y exige token CSRF en `X-CSRF-TOKEN` para operaciones de escritura.
+
+**Cambios.** Se agrego el esquema OpenAPI `csrfToken` para `X-CSRF-TOKEN` y se asocia globalmente a las operaciones; Swagger UI muestra Authorize/candados. La descripcion explica que el header CSRF no sustituye el login. La cookie de sesion se adjunta por el navegador al usar el mismo origen. No se agrego un mecanismo Bearer inventado ni una nueva dependencia.
+
+**Verificacion.** Build Docker del backend correcto con pruebas omitidas. Backend recreado sin reiniciar la base ni los otros servicios. Swagger HTML HTTP 200; recursos JS HTTP 200; `/v3/api-docs` HTTP 200 `application/json`, con `securitySchemes.csrfToken` (`apiKey`, header `X-CSRF-TOKEN`) y requisito global. No se hizo una mutacion autenticada: requiere login de usuario y token de su sesion.
+
+**Uso.** En el mismo navegador, inicia sesion en Dependency Intelligence; abre `GET http://localhost:8089/api/auth/csrf`, copia el campo `token`, pulsa Authorize en Swagger y pegalo en `X-CSRF-TOKEN`. La cookie HttpOnly se envia automaticamente. Si se cierra sesion o se vuelve a autenticar, consulta un token CSRF nuevo.
