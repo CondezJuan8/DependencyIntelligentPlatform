@@ -111,7 +111,10 @@ export class RepositoryWorkspace implements OnInit {
       .subscribe({
         next: status => {
           if (this.organizationId() !== organizationId) return;
-          this.githubStatus.set(status);
+          const accountIsOrganizationOwner = this.api.account()?.accountType === 'OWNER';
+          this.githubStatus.set(accountIsOrganizationOwner && !status.canManage
+            ? { ...status, detail: 'Tu cuenta figura como propietaria a nivel de cuenta, pero el acceso se decide por tu rol en esta organización. Para importar carpetas aquí necesitas ser propietario o administrador de la organización.' }
+            : status);
             if (status.canManage) this.loadLocalRepositories(organizationId);
             if (status.canManage) this.loadAccessibleRepositories();
             if (status.configured && status.canManage) this.loadWorkspace();
@@ -172,7 +175,7 @@ export class RepositoryWorkspace implements OnInit {
             const total = event.total ?? 0;
             if (total > 0) this.uploadProgress.set(Math.round(100 * event.loaded / total));
           } else if (event instanceof HttpResponse && event.body) {
-            this.message.set(`Carpeta «${event.body.name}» importada. ${event.body.fileCount} archivos guardados; lista para asignar al equipo.`);
+            this.message.set(`Carpeta «${event.body.name}» importada en la organización. ${event.body.fileCount} archivos guardados. Los propietarios y administradores pueden analizarla de inmediato; los demás miembros necesitan acceso al repositorio.`);
             this.localFiles.set([]); this.localName.set(''); this.loadLocalRepositories(organizationId);
             this.loadAccessibleRepositories();
           }

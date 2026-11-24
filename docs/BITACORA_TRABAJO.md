@@ -28,6 +28,18 @@
 
 **Commits.** Implementación y pruebas: `2518528` (`🔄 feat: procesa análisis manual con trabajos durables`). Contexto y pendientes: `604c3d4` (`🧭 docs: actualiza alcance de análisis durable`). Esta bitácora entra en un commit separado; no se hizo push.
 
+## Bloque 85 — análisis y prompt maestro de corrección (24/11/2026)
+
+**Petición.** Analizar el contexto vigente y los problemas de Inventario/scanner/OSV, snapshots, puntajes, análisis, documentación/OCR, asistente/RAG y reportes; preservar explícitamente el módulo Vulnerabilidades y preparar un prompt accionable con al menos cinco preguntas por herramienta.
+
+**Cambios.** Se añadió [PROMPT_MAESTRO_CORRECCION_REPOSITORIO](PROMPT_MAESTRO_CORRECCION_REPOSITORIO.md), con límites vigentes, causas y criterios para investigar, plan de corrección por áreas, controles de arquitectura/seguridad, aceptación por bloque y banco de preguntas para Mis repositorios, Dashboard, Inventario, Vulnerabilidades (solo lectura), Análisis, Documentación/OCR, Asistente, reportes ejecutivos/técnicos, Organización y Configuración. La revisión documental y estática confirmó que cdxgen puede dejar cero componentes y existen respaldos parciales; la exposición de código tiene reglas validadas limitadas; los análisis HTTP son síncronos; Tika extrae PDF pero OCR no está habilitado; hay una fase de embeddings Ollama/pgvector y RAG, pero su uso efectivo depende de fuentes autorizadas y configuración; los informes exportan desde el frontend y requieren revisar filtros, límite y presentación.
+
+**Herramientas y tecnologías usadas.** PowerShell, `rg` y `apply_patch`; lectura de documentación Markdown y fuentes Java/TypeScript/HTML. No se modificó código de aplicación, esquema, configuración runtime ni dependencias.
+
+**Verificación.** Revisión estática de los cuatro documentos obligatorios, pendientes, contexto, bitácora y código relacionado. No se ejecutaron pruebas ni builds porque este bloque produce un prompt/documento, no cambia comportamiento ejecutable. No se validó una sesión autenticada ni se consultaron datos de runtime.
+
+**Límites y siguiente paso.** Este prompt no corrige por sí mismo los módulos ni confirma el caso del scan en runtime. Para implementar, responder/confirmar las decisiones materiales del banco de preguntas y elegir el primer bloque; mantener Vulnerabilidades intacto y validar cada corrección con datos autorizados y evidencia real.
+
 ## Bloque 75 — Petición 10: primera fase del asistente RAG (23/11/2026)
 
 **Petición.** Empezar la petición 10 del contexto maestro: pgvector, embeddings Ollama, RAG con fuentes, orquestador y chat Gemini, sin adivinar los modelos o la dimensión.
@@ -1601,3 +1613,17 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Herramientas/dependencias.** Java 21, Maven local, JUnit, Angular, TypeScript, Sass, PowerShell y `apply_patch`; no se agregaron dependencias.
 
 **Verificacion.** `FindRepositoryVulnerabilityEvidenceUseCaseTest`: 5/5 correctas. `npm run build`: correcto; mantiene avisos de presupuesto Angular en estilos y chunk inicial. Se intento una compilacion limpia, pero el plugin Maven Clean no esta en el cache offline. La compilacion anterior de Infrastructure y test-compile concluyo correctamente, aunque Maven reporto fuentes actualizadas y no recompilo. Falta el IT contra base y el clic autenticado con datos reales. No se ejecuto codigo del repositorio analizado. Seguimiento operativo: se localizaron Docker Desktop y Git en sus rutas de instalacion. `docker compose up -d --build --no-deps backend frontend` reconstruyo y recreo solo esos dos servicios. La base conservó ID `d03b99c30618` y siguio saludable; scanner, Mailpit y Ollama no se recrearon. Las pruebas del Docker build sumaron 74: Domain 5, Application 31, Infrastructure 38, todas correctas. Flyway validó V30 sin migraciones. `localhost:8089/`, `/api/auth/csrf`, el bundle principal y los chunks perezosos nuevos responden 200. Falta el clic autenticado desde un navegador con sesion y datos de scan OSV. Commits convencionales creados: `0c584fd` 🐛 fix: conserva hallazgos de scans sin SHA verificable; `f2ef885` 🧭 feat: aclara el flujo de analisis y hallazgos. El clic autenticado queda pendiente porque el pipe nativo del navegador no esta disponible en esta sesion; no se usaron credenciales por API.
+
+## Bloque 88 — Mensaje de permisos de repositorio local (24/11/2026)
+
+**Petición.** Corregir el caso donde la cuenta aparece como propietaria, pero la plataforma informa que no tiene permisos para importar o analizar un repositorio local.
+
+**Hallazgo.** La pantalla identifica la cuenta como `OWNER` a nivel global, mientras que la autorización del backend se evalúa por membresía y permisos en la organización seleccionada. El mensaje posterior a la importación también sugería que siempre era necesaria una asignación a equipo, aunque los propietarios y administradores organizacionales pueden analizar el repositorio directamente.
+
+**Cambios.** La pantalla ahora aclara que el tipo de cuenta no sustituye el rol en la organización cuando falta permiso de gestión. El mensaje de importación explica que propietarios/administradores pueden analizar de inmediato y que otros miembros necesitan acceso al repositorio. No se amplió la autorización ni se concedieron privilegios fuera de la organización.
+
+**Herramientas/dependencias.** `apply_patch`, TypeScript, Angular y Git existentes; no se agregaron dependencias.
+
+**Verificación.** Revisión del flujo de autorización y diff. No se ejecutaron pruebas ni build para este ajuste de mensajes. La prueba funcional requiere confirmar si el 403 ocurre al importar, iniciar el análisis o consultar su estado; también queda por verificar la membresía OWNER en la organización seleccionada.
+
+**Siguiente paso.** Repetir la acción en la organización seleccionada. Si persiste el 403, obtener la ruta de la petición fallida y confirmar el rol organizacional para corregir la regla concreta sin conceder acceso global.
