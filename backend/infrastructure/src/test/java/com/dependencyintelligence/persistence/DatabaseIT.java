@@ -28,7 +28,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @AutoConfigureMockMvc
 class DatabaseIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false, DatabaseIT.class.getSimpleName()); }
 
     @Autowired JdbcTemplate jdbc;
     @Autowired DataSource dataSource;
@@ -50,7 +50,7 @@ class DatabaseIT extends PostgresIntegrationSupport {
     }
 
     @Test void migrationsAndJpaValidationBootSuccessfully() {
-        assertEquals("31", flyway.info().current().getVersion().getVersion());
+        assertEquals("32", flyway.info().current().getVersion().getVersion());
         flyway.validate();
         assertEquals(128, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
     }
@@ -90,9 +90,9 @@ class DatabaseIT extends PostgresIntegrationSupport {
         jdbc.execute("create table " + schema + ".retained_record (value text not null)");
         jdbc.update("insert into " + schema + ".retained_record values ('existing data')");
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(30, latest.migrate().migrationsExecuted);
+        assertEquals(31, latest.migrate().migrationsExecuted);
         latest.validate();
-        assertEquals("31", latest.info().current().getVersion().getVersion());
+        assertEquals("32", latest.info().current().getVersion().getVersion());
         assertEquals("existing data", jdbc.queryForObject("select value from " + schema + ".retained_record", String.class));
         assertEquals(0, latest.migrate().migrationsExecuted);
     }

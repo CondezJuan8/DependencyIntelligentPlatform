@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {"app.database.enforce-runtime-role=true", "app.security.authentication.max-attempts-per-minute=1000"})
 @AutoConfigureMockMvc
 class LocalAccessIT extends PostgresIntegrationSupport {
-    @DynamicPropertySource static void configure(DynamicPropertyRegistry registry) { database(registry, true); }
+    @DynamicPropertySource static void configure(DynamicPropertyRegistry registry) { database(registry, true, LocalAccessIT.class.getSimpleName()); }
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
     @Autowired JdbcTemplate jdbc;
@@ -50,6 +50,10 @@ class LocalAccessIT extends PostgresIntegrationSupport {
         var result = postJson("/api/organizations", session, Map.of("name", name));
         assertEquals(201, result.getResponse().getStatus(), result.getResponse().getContentAsString());
         return UUID.fromString(json.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    }
+
+    private void approveOwner(UUID userId) {
+        jdbc.update("update users set email_verified_at = coalesce(email_verified_at, current_timestamp), admission_status = 'APPROVED' where id = ?", userId);
     }
 
     @Test void registrationLoginLogoutAndRevokedAccountsUseRealSessions() throws Exception {
@@ -86,7 +90,7 @@ class LocalAccessIT extends PostgresIntegrationSupport {
             .andExpect(status().isForbidden());
         var before = mvc.perform(get("/api/auth/csrf").session(session)).andReturn();
         JsonNode token = json.readTree(before.getResponse().getContentAsString());
-        register(session, email());
+        approveOwner(register(session, email()));
         mvc.perform(post("/api/organizations").session(session).header(token.get("headerName").asText(), token.get("token").asText())
             .contentType("application/json").content("{\"name\":\"stale token\"}"))
             .andExpect(status().isForbidden());
@@ -97,7 +101,7 @@ class LocalAccessIT extends PostgresIntegrationSupport {
 
     @Test void usersDiscoverOnlyActiveOwnOrganizationsAndCannotCrossTenants() throws Exception {
         var first = new MockHttpSession();
-        register(first, email());
+        approveOwner(register(first, email()));
         var org = organization(first, "Private organization");
         var other = new MockHttpSession();
         register(other, email());
@@ -115,7 +119,7 @@ class LocalAccessIT extends PostgresIntegrationSupport {
 
     @Test void repositoryActionsRequireRoleAndTeamPermissionsAndReflectRevocation() throws Exception {
         var owner = new MockHttpSession();
-        register(owner, email());
+        approveOwner(register(owner, email()));
         var org = organization(owner, "Permission fixtures");
         var created = postJson("/api/organizations/"+org+"/repositories", owner, Map.of(
             "provider", "demo", "externalId", UUID.randomUUID().toString(), "fullName", "fixture/repo", "defaultBranch", "main"));
@@ -125,6 +129,7 @@ class LocalAccessIT extends PostgresIntegrationSupport {
         mvc.perform(get(path).session(owner)).andExpect(status().isOk());
         var viewer = new MockHttpSession();
         UUID userId = register(viewer, email());
+        approveOwner(userId);
         UUID team = UUID.randomUUID();
         tenants.execute(org, () -> {
             UUID membership = jdbc.queryForObject("insert into organization_memberships(organization_id, user_id) values (?, ?) returning id", UUID.class, org, userId);

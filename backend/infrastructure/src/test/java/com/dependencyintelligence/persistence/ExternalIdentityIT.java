@@ -53,7 +53,7 @@ class ExternalIdentityIT extends PostgresIntegrationSupport {
     }
 
     @DynamicPropertySource static void configure(DynamicPropertyRegistry registry) {
-        database(registry, true);
+        database(registry, true, ExternalIdentityIT.class.getSimpleName());
         registry.add("app.identity.public-base-url", () -> "http://localhost:8088");
         provider();
     }

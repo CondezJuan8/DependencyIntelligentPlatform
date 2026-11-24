@@ -5,6 +5,7 @@ import com.dependencyintelligence.repository.application.port.in.FindRepository;
 import com.dependencyintelligence.repository.application.port.in.RegisterRepository;
 import com.dependencyintelligence.sbom.application.dto.ImportSbomCommand;
 import com.dependencyintelligence.sbom.application.port.in.ImportSbom;
+import com.dependencyintelligence.scan.application.port.out.AnalysisJobStore;
 import com.dependencyintelligence.shared.application.ResourceNotFoundException;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import org.junit.jupiter.api.Test;
@@ -16,18 +17,20 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(properties = "app.database.enforce-runtime-role=true")
+@SpringBootTest(properties = {"app.database.enforce-runtime-role=true", "app.analysis-worker.poll-delay-ms=3600000"})
 class RuntimeDatabaseIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, true); }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, true, RuntimeDatabaseIT.class.getSimpleName()); }
     @Autowired JdbcTemplate jdbc;
     @Autowired TenantTransactions transactions;
     @Autowired RegisterRepository register;
     @Autowired FindRepository find;
     @Autowired ImportSbom importer;
+    @Autowired AnalysisJobStore analysisJobs;
 
     private UUID organization() {
         var id = UUID.randomUUID();
@@ -81,5 +84,27 @@ class RuntimeDatabaseIT extends PostgresIntegrationSupport {
         assertEquals(1, result.componentCount());
         assertEquals(1, transactions.execute(tenant, () -> jdbc.queryForObject("select count(*) from component_versions", Integer.class)));
         assertEquals(1, transactions.execute(tenant, () -> jdbc.queryForObject("select count(*) from sbom_documents where scan_id = ?", Integer.class, result.scanId())));
+    }
+
+    @Test void runtimeWorkerClaimsAndCompletesDurableAnalysisJob() {
+        var tenant = organization();
+        var repository = register.execute(new RegisterRepositoryCommand(tenant, "local", UUID.randomUUID().toString(), "fixture/worker", "local"));
+        var ticket = analysisJobs.enqueue(tenant, repository.id(), UUID.randomUUID().toString(), Instant.now());
+
+        var claimed = analysisJobs.claim("runtime-integration-worker");
+        assertTrue(claimed.stream().anyMatch(job -> job.jobId().equals(ticket.jobId())
+            && job.organizationId().equals(tenant) && job.repositoryId().equals(repository.id()) && job.attemptNumber() == 1));
+
+        assertTrue(analysisJobs.pinSource(tenant, ticket.jobId(), "runtime-integration-worker", "local", "a".repeat(64), null));
+        analysisJobs.recordStage(tenant, ticket.jobId(), "SOURCE_PREPARED");
+        assertEquals("local", transactions.execute(tenant, () -> jdbc.queryForObject(
+            "select payload->>'sourceProvider' from background_jobs where organization_id=? and id=?",
+            String.class, tenant, ticket.jobId())));
+        analysisJobs.complete(tenant, ticket.jobId(), "runtime-integration-worker", 1);
+        assertEquals("COMPLETED", transactions.execute(tenant, () -> jdbc.queryForObject(
+            "select status from background_jobs where organization_id=? and id=?", String.class, tenant, ticket.jobId())));
+        assertEquals("COMPLETED", transactions.execute(tenant, () -> jdbc.queryForObject(
+            "select status from background_job_attempts where organization_id=? and job_id=? and attempt_number=1",
+            String.class, tenant, ticket.jobId())));
     }
 }

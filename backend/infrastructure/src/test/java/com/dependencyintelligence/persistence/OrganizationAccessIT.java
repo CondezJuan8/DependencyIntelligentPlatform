@@ -5,6 +5,7 @@ import com.dependencyintelligence.identity.application.port.out.AccountTokenCode
 import com.dependencyintelligence.organization.infrastructure.mail.SmtpInvitationDelivery;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import com.dependencyintelligence.repository.infrastructure.storage.RepositorySourceService;
+import com.dependencyintelligence.scan.infrastructure.job.AnalysisJobWorker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(properties = {"app.database.enforce-runtime-role=true", "app.security.authentication.max-attempts-per-minute=1000"})
+@SpringBootTest(properties = {"app.database.enforce-runtime-role=true", "app.security.authentication.max-attempts-per-minute=1000",
+    "app.analysis-worker.poll-delay-ms=3600000"})
 @AutoConfigureMockMvc
 class OrganizationAccessIT extends PostgresIntegrationSupport {
     private static final Path LOCAL_REPOSITORY_STORAGE = Path.of(System.getProperty("java.io.tmpdir"), "di-local-repository-it-" + UUID.randomUUID());
@@ -49,11 +51,12 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
     @Autowired JdbcTemplate jdbc;
     @Autowired TenantTransactions tenants;
     @Autowired RepositorySourceService sourceService;
+    @Autowired AnalysisJobWorker analysisWorker;
     @Autowired AccountTokenCodec tokens;
     @MockitoSpyBean SmtpInvitationDelivery mail;
 
     @DynamicPropertySource static void configure(DynamicPropertyRegistry registry) {
-        database(registry, true);
+        database(registry, true, OrganizationAccessIT.class.getSimpleName());
         inbox = System.getenv("TEST_MAILPIT_URL");
         if (inbox == null || inbox.isBlank()) {
             mailpit = new GenericContainer<>("axllent/mailpit:v1.33.1").withExposedPorts(1025, 8025).withEnv("MP_DISABLE_VERSION_CHECK", "true");
@@ -77,6 +80,7 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
     }
     private record Person(UUID id, String email, MockHttpSession session) { }
     private record Invitation(UUID id, String token) { }
+    private record InvitationTarget(UUID teamId, UUID repositoryId) { }
     private MvcResult postJson(String path, MockHttpSession session, Map<String, ?> body) throws Exception {
         var csrf = mvc.perform(get("/api/auth/csrf").session(session)).andExpect(status().isOk()).andReturn();
         var token = json.readTree(csrf.getResponse().getContentAsString());
@@ -102,10 +106,23 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         UUID org = organization(owner);
         var csrfResponse = mvc.perform(get("/api/auth/csrf").session(owner.session())).andExpect(status().isOk()).andReturn();
         var csrf = json.readTree(csrfResponse.getResponse().getContentAsString());
-        String source = "<project><modelVersion>4.0.0</modelVersion></project>";
+        String mavenSource = """
+            <project><modelVersion>4.0.0</modelVersion><groupId>fixture</groupId><artifactId>local-fixture</artifactId><version>1.0.0</version>
+              <dependencies><dependency><groupId>org.example</groupId><artifactId>core</artifactId><version>1.2.3</version></dependency></dependencies>
+            </project>
+            """;
+        String npmSource = """
+            {"name":"local-fixture","version":"1.0.0","lockfileVersion":3,"requires":true,"packages":{
+              "":{"name":"local-fixture","version":"1.0.0","dependencies":{"axios":"^1.7.0"}},
+              "node_modules/axios":{"version":"1.7.2"}
+            }}
+            """;
         var upload = multipart(path(org) + "/repositories/local-folder");
-        upload.file(new MockMultipartFile("files", "pom.xml", "application/xml", source.getBytes(StandardCharsets.UTF_8)));
-        upload.param("name", "local-fixture"); upload.param("paths", "local-fixture/pom.xml"); upload.session(owner.session());
+        upload.file(new MockMultipartFile("files", "pom.xml", "application/xml", mavenSource.getBytes(StandardCharsets.UTF_8)));
+        upload.file(new MockMultipartFile("files", "package-lock.json", "application/json", npmSource.getBytes(StandardCharsets.UTF_8)));
+        upload.param("name", "local-fixture");
+        upload.param("paths", "local-fixture/pom.xml", "local-fixture/package-lock.json");
+        upload.session(owner.session());
         upload.header(csrf.path("headerName").asText(), csrf.path("token").asText());
         upload.servletPath(path(org) + "/repositories/local-folder");
         var result = mvc.perform(upload)
@@ -113,13 +130,15 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         JsonNode imported = json.readTree(result.getResponse().getContentAsString());
         UUID repository = UUID.fromString(imported.path("id").asText());
         assertEquals("local-fixture", imported.path("name").asText());
-        assertEquals(1, imported.path("fileCount").asInt());
+        assertEquals(2, imported.path("fileCount").asInt());
         assertEquals("local", tenants.execute(org, () -> jdbc.queryForObject("select provider from repositories where organization_id=? and id=?", String.class, org, repository)));
         String storageKey = tenants.execute(org, () -> jdbc.queryForObject("select storage_key from local_repository_sources where organization_id=? and repository_id=?", String.class, org, repository));
         Path archive = LOCAL_REPOSITORY_STORAGE.resolve(storageKey).normalize();
         assertTrue(archive.startsWith(LOCAL_REPOSITORY_STORAGE) && Files.isRegularFile(archive));
         try (var zip = new java.util.zip.ZipInputStream(Files.newInputStream(archive))) {
-            assertEquals("pom.xml", zip.getNextEntry().getName());
+            var entries = new HashSet<String>();
+            for (var entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) entries.add(entry.getName());
+            assertEquals(Set.of("pom.xml", "package-lock.json"), entries);
         }
         try (var snapshot = sourceService.prepare(sourceService.locate(org, repository))) {
             assertEquals("local", snapshot.provider());
@@ -129,6 +148,67 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         var listing = mvc.perform(get(path(org) + "/repositories/local-folders").session(owner.session()))
             .andExpect(status().isOk()).andReturn();
         assertEquals(repository.toString(), json.readTree(listing.getResponse().getContentAsString()).get(0).path("id").asText());
+
+        var workspace = mvc.perform(get("/api/account/workspace").session(owner.session())).andExpect(status().isOk()).andReturn();
+        assertTrue(java.util.stream.StreamSupport.stream(json.readTree(workspace.getResponse().getContentAsString()).spliterator(), false)
+            .anyMatch(item -> repository.toString().equals(item.path("id").asText())), "OWNER sees its enabled local repository in Inventory");
+        mvc.perform(get(path(org) + "/repositories/" + repository + "/maven-analysis").session(owner.session()))
+            .andExpect(status().isOk());
+        mvc.perform(get(path(org) + "/repositories/" + repository + "/npm-analysis").session(owner.session()))
+            .andExpect(status().isOk());
+
+        String jobPath = path(org) + "/repositories/" + repository + "/dependency-analysis";
+        var jobCsrfResponse = mvc.perform(get("/api/auth/csrf").session(owner.session())).andExpect(status().isOk()).andReturn();
+        JsonNode jobCsrf = json.readTree(jobCsrfResponse.getResponse().getContentAsString());
+        var requested = mvc.perform(post(jobPath).servletPath(jobPath).session(owner.session())
+            .header(jobCsrf.path("headerName").asText(), jobCsrf.path("token").asText())
+            .header("Idempotency-Key", UUID.randomUUID().toString())
+            .contentType("application/json").content("{}"))
+            .andExpect(status().isAccepted()).andReturn();
+        UUID jobId = UUID.fromString(json.readTree(requested.getResponse().getContentAsString()).path("jobId").asText());
+        mvc.perform(get(jobPath + "/active").session(owner.session()).servletPath(jobPath + "/active"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.jobId").value(jobId.toString()));
+        mvc.perform(get(jobPath + "/" + jobId).session(owner.session()).servletPath(jobPath + "/" + jobId))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.jobId").value(jobId.toString()));
+        var cancelCsrfResponse = mvc.perform(get("/api/auth/csrf").session(owner.session())).andExpect(status().isOk()).andReturn();
+        JsonNode cancelCsrf = json.readTree(cancelCsrfResponse.getResponse().getContentAsString());
+        String cancelPath = jobPath + "/" + jobId;
+        mvc.perform(delete(cancelPath).servletPath(cancelPath).session(owner.session())
+            .header(cancelCsrf.path("headerName").asText(), cancelCsrf.path("token").asText()))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELLED"));
+
+        var secondRequest = mvc.perform(post(jobPath).servletPath(jobPath).session(owner.session())
+            .header(jobCsrf.path("headerName").asText(), jobCsrf.path("token").asText())
+            .header("Idempotency-Key", UUID.randomUUID().toString())
+            .contentType("application/json").content("{}"))
+            .andExpect(status().isAccepted()).andReturn();
+        UUID completedJobId = UUID.fromString(json.readTree(secondRequest.getResponse().getContentAsString()).path("jobId").asText());
+        analysisWorker.poll();
+        var finished = mvc.perform(get(jobPath + "/" + completedJobId).session(owner.session()).servletPath(jobPath + "/" + completedJobId))
+            .andExpect(status().isOk()).andReturn();
+        JsonNode finishedStatus = json.readTree(finished.getResponse().getContentAsString());
+        assertEquals("COMPLETED", finishedStatus.path("status").asText());
+        assertEquals(3, finishedStatus.path("completedStages").size());
+        assertEquals(2, finishedStatus.path("scans").size());
+        UUID mavenScanId = null;
+        UUID npmScanId = null;
+        for (var scan : finishedStatus.path("scans")) {
+            assertEquals(1, scan.path("dependencyCount").asInt());
+            if ("MAVEN".equals(scan.path("ecosystem").asText())) mavenScanId = UUID.fromString(scan.path("scanId").asText());
+            if ("NPM".equals(scan.path("ecosystem").asText())) npmScanId = UUID.fromString(scan.path("scanId").asText());
+        }
+        assertNotNull(mavenScanId);
+        assertNotNull(npmScanId);
+        var mavenInventory = mvc.perform(get(path(org) + "/repositories/" + repository + "/maven-analysis")
+            .param("scanId", mavenScanId.toString()).session(owner.session())).andExpect(status().isOk()).andReturn();
+        var npmInventory = mvc.perform(get(path(org) + "/repositories/" + repository + "/npm-analysis")
+            .param("scanId", npmScanId.toString()).session(owner.session())).andExpect(status().isOk()).andReturn();
+        JsonNode mavenResult = json.readTree(mavenInventory.getResponse().getContentAsString());
+        JsonNode npmResult = json.readTree(npmInventory.getResponse().getContentAsString());
+        assertEquals(1, mavenResult.path("dependencies").size());
+        assertEquals("core", mavenResult.path("dependencies").get(0).path("coordinates").path("name").asText());
+        assertEquals(1, npmResult.path("dependencies").size());
+        assertEquals("axios", npmResult.path("dependencies").get(0).path("coordinates").path("name").asText());
     }
     private JsonNode overview(Person person, UUID org) throws Exception {
         return ok(200, mvc.perform(get(path(org)+"/access").session(person.session())).andReturn());
@@ -142,11 +222,16 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         assertEquals(200, response.statusCode()); return json.readTree(response.body());
     }
     private Invitation invite(Person owner, UUID org, Person target, String role) throws Exception {
+        var destination = invitationTarget(owner, org);
+        return invite(owner, org, target, role, destination.teamId(), destination.repositoryId());
+    }
+    private InvitationTarget invitationTarget(Person owner, UUID org) throws Exception {
         UUID repository = UUID.fromString(ok(201, postJson(path(org)+"/repositories", owner.session(), Map.of(
             "provider", "demo", "externalId", UUID.randomUUID().toString(), "fullName", "fixture/invitation-" + UUID.randomUUID(), "defaultBranch", "main"))).path("id").asText());
         JsonNode teamResponse = ok(201, postJson(path(org)+"/teams", owner.session(), Map.of("name", "Invite " + UUID.randomUUID())));
         UUID team = UUID.fromString(teamResponse.path("id").asText());
-        return invite(owner, org, target, role, team, repository);
+        ok(204, postJson(path(org)+"/teams/"+team+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read"))));
+        return new InvitationTarget(team, repository);
     }
     private Invitation invite(Person owner, UUID org, Person target, String role, UUID team, UUID repository) throws Exception {
         ok(204, postJson(path(org)+"/teams/"+team+"/repositories/"+repository+"/permissions", owner.session(), Map.of("permissions", List.of("repository.read"))));
@@ -168,12 +253,17 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
     }
     private MvcResult accept(Person person, UUID org, Invitation invitation) throws Exception { return postJson(path(org)+"/invitations/"+invitation.id()+"/accept", person.session(), Map.of("token", invitation.token())); }
     private UUID join(Person owner, UUID org, Person target, String role) throws Exception {
-        var invitation = invite(owner, org, target, role);
-        return join(owner, org, target, invitation);
+        var invitation = invite(owner, org, target, invitationRole(role));
+        return promoteIfNeeded(owner, org, join(owner, org, target, invitation), role);
     }
     private UUID join(Person owner, UUID org, Person target, String role, UUID team, UUID repository) throws Exception {
-        var invitation = invite(owner, org, target, role, team, repository);
-        return join(owner, org, target, invitation);
+        var invitation = invite(owner, org, target, invitationRole(role), team, repository);
+        return promoteIfNeeded(owner, org, join(owner, org, target, invitation), role);
+    }
+    private static String invitationRole(String role) { return "OWNER".equals(role) || "ADMIN".equals(role) ? "MEMBER" : role; }
+    private UUID promoteIfNeeded(Person owner, UUID org, UUID membership, String role) throws Exception {
+        if (!invitationRole(role).equals(role)) ok(204, change(owner, org, membership, role, "ACTIVE"));
+        return membership;
     }
     private UUID join(Person owner, UUID org, Person target, Invitation invitation) throws Exception {
         ok(204, accept(target, org, invitation));
@@ -191,15 +281,27 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         ok(409, accept(wrong, org, invitation)); ok(409, accept(target, org, invitation));
         jdbc.update("update users set email_verified_at = current_timestamp, admission_status = 'APPROVED' where id = ?", target.id());
         ok(204, accept(target, org, invitation)); ok(409, accept(target, org, invitation));
+        assertEquals(0, ok(200, mvc.perform(get("/api/organizations").session(target.session())).andReturn()).size(),
+            "Accepting an invitation waits for explicit owner approval");
+        ok(204, postJson(path(org)+"/invitations/"+invitation.id()+"/approve", owner.session(), Map.of()));
         assertEquals(1, ok(200, mvc.perform(get("/api/organizations").session(target.session())).andReturn()).size());
         for (var member : overview(owner, org).path("members")) if (member.path("userId").asText().equals(target.id().toString())) assertEquals("MEMBER", member.path("roles").get(0).asText());
-        ok(409, postJson(path(org)+"/invitations", owner.session(), Map.of("email", target.email(), "role", "MEMBER")));
-        assertEquals(1, tenants.execute(org, () -> jdbc.queryForObject("select count(*) from audit_events where organization_id = ? and action = 'invitation.accept'", Integer.class, org)));
+        var duplicateTarget = invitationTarget(owner, org);
+        ok(409, postJson(path(org)+"/invitations", owner.session(), Map.of("email", target.email(), "role", "MEMBER",
+            "teamId", duplicateTarget.teamId(), "repositoryId", duplicateTarget.repositoryId())));
+        var invitationAudit = tenants.execute(org, () -> {
+            jdbc.queryForObject("select set_config('app.user_id', ?, true)", String.class, target.id().toString());
+            return jdbc.queryForList("select actor_id::text, action from audit_events where organization_id = ? order by occurred_at", org);
+        });
+        assertTrue(invitationAudit.stream().anyMatch(event -> target.id().toString().equals(event.get("actor_id"))
+            && "invitation.accept".equals(event.get("action"))), invitationAudit.toString());
     }
     @Test void revokedExpiredTamperedAndDuplicateInvitationsCannotGrantAccess() throws Exception {
         var owner = person(true); var target = person(true); var org = organization(owner);
         var first = invite(owner, org, target, "VIEWER");
-        ok(409, postJson(path(org)+"/invitations", owner.session(), Map.of("email", target.email(), "role", "VIEWER")));
+        var duplicateTarget = invitationTarget(owner, org);
+        ok(409, postJson(path(org)+"/invitations", owner.session(), Map.of("email", target.email(), "role", "VIEWER",
+            "teamId", duplicateTarget.teamId(), "repositoryId", duplicateTarget.repositoryId())));
         var tampered = new Invitation(first.id(), tokens.generate()); ok(409, accept(target, org, tampered));
         ok(204, postJson(path(org)+"/invitations/"+first.id()+"/revoke", owner.session(), Map.of())); ok(409, accept(target, org, first));
         var second = invite(owner, org, target, "MEMBER");
@@ -214,7 +316,9 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         ok(409, change(owner, org, ownerMember, "MEMBER", "ACTIVE")); ok(409, change(owner, org, ownerMember, "OWNER", "SUSPENDED"));
         ok(403, change(admin, org, ownerMember, "VIEWER", "ACTIVE")); ok(403, change(admin, org, adminMember, "MEMBER", "ACTIVE"));
         ok(403, change(admin, org, memberId, "ADMIN", "ACTIVE"));
-        ok(403, postJson(path(org)+"/invitations", admin.session(), Map.of("email", "denied@example.test", "role", "OWNER")));
+        var deniedInvitationTarget = invitationTarget(owner, org);
+        ok(403, postJson(path(org)+"/invitations", admin.session(), Map.of("email", "denied@example.test", "role", "OWNER",
+            "teamId", deniedInvitationTarget.teamId(), "repositoryId", deniedInvitationTarget.repositoryId())));
         ok(204, change(admin, org, memberId, "VIEWER", "SUSPENDED")); ok(204, change(admin, org, memberId, "MEMBER", "ACTIVE"));
         mvc.perform(get(path(org)+"/access").session(member.session())).andExpect(status().isForbidden());
         ok(403, postJson(path(org)+"/teams", member.session(), Map.of("name", "Escalation")));
@@ -312,21 +416,26 @@ class OrganizationAccessIT extends PostgresIntegrationSupport {
         }
         String failedEmail = "failed-" + UUID.randomUUID() + "@example.test";
         doThrow(new AccountMailUnavailableException()).when(mail).send(eq(failedEmail), anyString(), any(), any(), anyString());
-        ok(503, postJson(path(org)+"/invitations", owner.session(), Map.of("email", failedEmail, "role", "MEMBER")));
+        var failedTarget = invitationTarget(owner, org);
+        ok(503, postJson(path(org)+"/invitations", owner.session(), Map.of("email", failedEmail, "role", "MEMBER",
+            "teamId", failedTarget.teamId(), "repositoryId", failedTarget.repositoryId())));
         assertEquals(0, tenants.execute(org, () -> jdbc.queryForObject("select count(*) from membership_invitations where email_normalized = ?", Integer.class, failedEmail)));
-        assertEquals(2, overview(owner, org).path("members").size());
+        assertEquals(1, overview(owner, org).path("members").size(), "Acceptance awaits explicit approval, so the target is not a member yet");
     }
     @Test void inviterDemotionInvalidatesPrivilegeAndReturningMembersLoseOldTeamAccess() throws Exception {
         var owner = person(true); var admin = person(true); var target = person(true); var org = organization(owner);
-        UUID adminMember = join(owner, org, admin, "ADMIN"); var pending = invite(admin, org, target, "MEMBER");
+        UUID adminMember = join(owner, org, admin, "OWNER"); var pending = invite(admin, org, target, "MEMBER");
         ok(204, change(owner, org, adminMember, "MEMBER", "ACTIVE")); ok(403, accept(target, org, pending));
         ok(204, postJson(path(org)+"/invitations/"+pending.id()+"/revoke", owner.session(), Map.of()));
         UUID membership = join(owner, org, target, "MEMBER");
         UUID team = UUID.fromString(ok(201, postJson(path(org)+"/teams", owner.session(), Map.of("name", "Old team"))).path("id").asText());
         ok(204, postJson(path(org)+"/teams/"+team+"/members/"+membership, owner.session(), Map.of("included", true)));
         ok(204, change(owner, org, membership, "MEMBER", "LEFT"));
-        var returning = invite(owner, org, target, "VIEWER"); ok(204, accept(target, org, returning));
-        var data = overview(owner, org); assertEquals(0, data.path("teams").get(0).path("membershipIds").size());
+        var returning = invite(owner, org, target, "VIEWER"); join(owner, org, target, returning);
+        var data = overview(owner, org);
+        var oldTeam = java.util.stream.StreamSupport.stream(data.path("teams").spliterator(), false)
+            .filter(item -> "Old team".equals(item.path("name").asText())).findFirst().orElseThrow();
+        assertEquals(0, oldTeam.path("membershipIds").size());
         for (var member : data.path("members")) if (member.path("userId").asText().equals(target.id().toString())) assertEquals("VIEWER", member.path("roles").get(0).asText());
     }
 }

@@ -54,7 +54,7 @@ class AccountRecoveryIT extends PostgresIntegrationSupport {
     @MockitoSpyBean SmtpAccountMailAdapter mail;
 
     @DynamicPropertySource static void configure(DynamicPropertyRegistry registry) {
-        database(registry, true);
+        database(registry, true, AccountRecoveryIT.class.getSimpleName());
         inboxUrl = System.getenv("TEST_MAILPIT_URL");
         if (inboxUrl == null || inboxUrl.isBlank()) {
             mailpit = new GenericContainer<>("axllent/mailpit:v1.33.1").withExposedPorts(1025, 8025)

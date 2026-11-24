@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SbomImportIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false, SbomImportIT.class.getSimpleName()); }
 
     @Autowired JdbcTemplate jdbc;
     @Autowired RegisterRepository register;

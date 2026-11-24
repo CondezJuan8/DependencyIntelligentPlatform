@@ -15,7 +15,7 @@ class PlatformAdministratorBootstrapIT extends PostgresIntegrationSupport {
     private static final String INITIAL_PASSWORD = "Local-bootstrap-passphrase-2026";
 
     @DynamicPropertySource
-    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false, PlatformAdministratorBootstrapIT.class.getSimpleName()); }
 
     @Autowired BootstrapPlatformAdministrator bootstrap;
     @Autowired PasswordHashing passwords;

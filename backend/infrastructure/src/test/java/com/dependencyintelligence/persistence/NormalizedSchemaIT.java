@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Behavioural fixtures for normalization and cross-module/tenant integrity, not a CRUD test per table. */
 class NormalizedSchemaIT extends PostgresIntegrationSupport {
     @DynamicPropertySource
-    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false); }
+    static void configureDatabase(DynamicPropertyRegistry registry) { database(registry, false, NormalizedSchemaIT.class.getSimpleName()); }
     @Autowired JdbcTemplate jdbc;
     @Autowired DataSource dataSource;
 
@@ -130,7 +130,7 @@ class NormalizedSchemaIT extends PostgresIntegrationSupport {
         jdbc.update("insert into " + schema + ".vulnerabilities(id,source,external_id,raw_payload) values (?,'OSV','legacy-advisory','{\"fixture\":true}')", advisory);
         jdbc.update("insert into " + schema + ".vulnerability_findings(organization_id,scan_id,bom_ref,vulnerability_id,fixed_versions) values (?,?,'parent',?,'[\"2\",\"2\"]')", tenant, scan, advisory);
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(24, latest.migrate().migrationsExecuted);
+        assertEquals(29, latest.migrate().migrationsExecuted);
         latest.validate();
         assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".components", Integer.class));
         assertEquals(1, jdbc.queryForObject("select count(*) from " + schema + ".component_versions", Integer.class));
@@ -152,7 +152,8 @@ class NormalizedSchemaIT extends PostgresIntegrationSupport {
               and not (relation.relrowsecurity and relation.relforcerowsecurity)
             """, Integer.class));
         assertEquals(0, jdbc.queryForObject("select count(*) from information_schema.columns where table_schema='public' and data_type='ARRAY'", Integer.class));
-        assertFalse(jdbc.queryForObject("select exists(select 1 from pg_extension where extname='vector')", Boolean.class));
+        assertTrue(jdbc.queryForObject("select exists(select 1 from pg_extension where extname='vector')", Boolean.class));
+        assertTrue(jdbc.queryForObject("select relrowsecurity and relforcerowsecurity from pg_class where oid='public.document_chunk_vectors'::regclass", Boolean.class));
     }
 
     @Test void jobRetriesCannotExceedTheirConfiguredLimit() {
