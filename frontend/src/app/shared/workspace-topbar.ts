@@ -7,8 +7,9 @@ import { SessionApiService, accessError } from '../core/session-api.service';
 import { PreferencesService } from '../core/preferences.service';
 import { TranslatePipe } from '../core/translate.pipe';
 import { DiIcon } from './di-icon';
+import { fixesForPackage } from '../features/inventory/inventory-evidence';
 interface AlertRepository { id:string; organizationId:string; organizationName:string; fullName:string; }
-interface AlertAdvisory { id:string; summary:string|null; severity:string; url:string; modifiedAt:string|null; }
+interface AlertAdvisory { id:string; summary:string|null; severity:string; url:string; modifiedAt:string|null; affectedJson:string; }
 interface AlertAssessment { packageVersion:{ecosystem:string;namespace:string|null;name:string;version:string}; status:string; checkedAt:string|null; advisories:AlertAdvisory[]; }
 interface AlertPayload { assessments:AlertAssessment[]; }
 interface WorkspaceAlert { title:string; summary:string; repository:string; href:'vulnerabilities'|'inventory'; severity:string; }
@@ -98,7 +99,10 @@ export class WorkspaceTopbar {
             const modifiedAt=advisory.modifiedAt?Date.parse(advisory.modifiedAt):Number.NaN;
             const updated=Number.isFinite(modifiedAt)&&modifiedAt>Date.now()-7*24*60*60*1000;
             const key=`${repository.id}|${packageName}|${version}|${advisory.id}`;
-            alerts.set(key,{title:updated?'Actualización reciente en OSV':'Versión afectada',summary:`${packageName}@${version} · ${advisory.id}${advisory.summary?` · ${advisory.summary}`:''}`,repository:repository.fullName,href:'vulnerabilities',severity:advisory.severity||'UNKNOWN'});
+            const packageCoordinate=ecosystem==='MAVEN'&&namespace?`${namespace}:${name}`:name;
+            const fixed=fixesForPackage(advisory.affectedJson,ecosystem,packageCoordinate);
+            const fixSummary=fixed.length?` · ${this.preferences.text('Versión corregida:')} ${fixed.join(', ')}`:'';
+            alerts.set(key,{title:updated?'Actualización reciente en OSV':'Versión vulnerable',summary:`${packageName}@${version} · ${advisory.id}${advisory.summary?` · ${advisory.summary}`:''}${fixSummary}`,repository:repository.fullName,href:'vulnerabilities',severity:advisory.severity||'UNKNOWN'});
           }
           if(['STALE','INCOMPLETE','UNAVAILABLE','NOT_ASSESSED'].includes(assessment.status)) alerts.set(`${repository.id}|${packageName}|${version}|${assessment.status}`,{title:'Evaluación OSV pendiente',summary:`${packageName}@${version} · ${assessment.status}`,repository:repository.fullName,href:'inventory',severity:'REVIEW'});
         }

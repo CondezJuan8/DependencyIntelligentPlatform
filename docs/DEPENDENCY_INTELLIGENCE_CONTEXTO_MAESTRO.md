@@ -2,7 +2,7 @@
 
 El acceso al asistente ahora está en el encabezado global y abre el mismo panel fijo movible izquierda/derecha desde cualquier pantalla; se retiró la tarjeta duplicada del Dashboard. En el cuadro de pregunta, Enter envía y Shift+Enter conserva el salto de línea.
 
-El timbre consulta repositorios accesibles y sus evaluaciones OSV guardadas. Presenta versiones con avisos, registros OSV modificados durante los últimos siete días y evaluaciones pendientes/desactualizadas, con enlaces a Vulnerabilidades o Inventario. Errores parciales de repositorio no se presentan como «sin avisos»; se informa que la consulta quedó incompleta.
+El timbre consulta repositorios accesibles y sus evaluaciones OSV guardadas. Presenta versiones vulnerables, la versión corregida cuando OSV la publica para el paquete, registros OSV modificados durante los últimos siete días y evaluaciones pendientes/desactualizadas, con enlaces a Vulnerabilidades o Inventario. Errores parciales de repositorio no se presentan como «sin avisos»; se informa que la consulta quedó incompleta.
 
 **Límite:** este panel resume evidencia que ya existe en los snapshots OSV; no persiste lecturas/vistos ni vigila periódicamente npm/Maven para comparar todas las dependencias con su versión más reciente. Los documentos oficiales que puede detectar son registros OSV modificados y guardados, no cambios arbitrarios en sitios externos. La prueba autenticada requiere una cuenta y repositorios, que aún no existen en la base Compose vacía.
 
