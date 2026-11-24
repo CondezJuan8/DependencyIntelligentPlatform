@@ -2,7 +2,17 @@
 
 La primera corrección acotada hace explícito en CSV el origen, filtros, fecha, cantidad total frente a filas incluidas y si el límite de 5.000 paquetes recortó el archivo. La vista previa y JSON ya exponían parcialidad. `docker compose build frontend` compiló Angular correctamente; persisten avisos de presupuesto en estilos/chunk. No se agregaron dependencias ni se ejecutó una suite de pruebas frontend. Commit de código: `d5c79f0`. La auditoría inicial confirma que el análisis HTTP sigue síncrono pese a las tablas de trabajos existentes; no se inicia calendario de versiones upstream. El bootstrap se documenta como implementado en `ACCESO_LOCAL.md`; la instancia no se alteró. Ver [pendientes](PENDIENTES.md) y [bitácora](BITACORA_TRABAJO.md), bloque 88.
 
-**Decisiones del usuario para Análisis:** los análisis se inician manualmente, sin calendario; la consulta de metadata upstream queda autorizada solo para registries oficiales npm/Maven, con límites conservadores; progreso solo por etapas confirmadas, nunca porcentajes inventados. La opción de reintento/aviso para fallos programados no aplica mientras no exista calendario. El estado de cada job manual deberá quedar consultable. La implementación de análisis durable manual es el siguiente subbloque.
+**Decisiones del usuario para Análisis:** los análisis se inician manualmente, sin calendario; la consulta de metadata upstream queda autorizada solo para registries oficiales npm/Maven, con límites conservadores; progreso solo por etapas confirmadas, nunca porcentajes inventados. La opción de reintento/aviso para fallos programados no aplica mientras no exista calendario. El estado de cada job manual deberá quedar consultable.
+
+### Bloque 89 — análisis manual durable (24/11/2026)
+
+La petición HTTP ahora encola un job SCAN y devuelve `202 Accepted` con ID consultable. Los endpoints históricos POST de Maven/npm también usan esa cola; `GET /dependency-analysis/{jobId}`, `/active` y `DELETE /{jobId}` consultan/cancelan con permisos de repositorio. V31 agrega exclusión de job activo por repositorio, unicidad de scan por job/ecosistema y una función `SECURITY DEFINER` para reclamar un job con `SKIP LOCKED`. El worker registra intentos/etapas, recupera leases mayores de 30 minutos, limita reintentos al `max_attempts` ya persistido, fija proveedor/hash/commit al primer intento y evita duplicar resultados al reintentar. No hay calendario ni consulta upstream.
+
+Inventario y Análisis reanudan el job activo tras recargar, consultan sin porcentaje y permiten cancelación; el resultado lee cada scan por su ID exacto. La cancelación es cooperativa en los límites entre etapas: una herramienta ya iniciada puede finalizar y guardar ese ecosistema antes de detener el siguiente. La base real de Compose no se cambió ni se reiniciaron servicios. El IT de PostgreSQL usa una base Testcontainers desechable con la imagen local PostgreSQL 17.7/pgvector para validar la migración completa.
+
+**Verificación y límites.** Build Docker de backend: 77 pruebas unitarias (Domain 5, Application 34, Infrastructure 38), correcto. `DatabaseIT` aislado: 6/6, incluida migración hasta V31, JPA y actualización desde V1. Build Docker de frontend correcto, con avisos de presupuesto Angular existentes. Aún falta una solicitud autenticada con repositorio accesible para observar procesamiento real, reintento/reinicio de worker y cancelación durante cdxgen; no se inició el módulo Vulnerabilidades ni su código. No se añadieron dependencias.
+
+**Commits.** Código y pruebas: `🔄 feat: procesa análisis manual con trabajos durables`. Documentación/bitácora: `📝 docs: registra el análisis manual asíncrono`. No se hizo push.
 
 ### Bloque 84 — asistente global y avisos derivados de OSV (24/11/2026)
 
