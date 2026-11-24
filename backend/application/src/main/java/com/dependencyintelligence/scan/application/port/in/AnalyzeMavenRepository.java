@@ -7,4 +7,7 @@ import java.util.UUID;
 public interface AnalyzeMavenRepository {
     MavenInventory run(UUID organizationId, UUID repositoryId);
     Optional<MavenInventory> latest(UUID organizationId, UUID repositoryId);
+    default Optional<MavenInventory> find(UUID organizationId, UUID repositoryId, UUID scanId) {
+        return latest(organizationId, repositoryId);
+    }
 }

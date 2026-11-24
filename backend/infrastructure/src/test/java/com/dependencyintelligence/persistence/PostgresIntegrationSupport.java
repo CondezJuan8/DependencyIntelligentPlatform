@@ -3,6 +3,7 @@ package com.dependencyintelligence.persistence;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 import java.sql.DriverManager;
 
 /** Shared disposable database; fixture setup uses the migration login, runtime tests opt into the real app login. */
@@ -18,7 +19,9 @@ abstract class PostgresIntegrationSupport {
         if (url == null) {
             url = System.getenv("TEST_DATABASE_URL");
             if (url == null || url.isBlank()) {
-                postgres = new PostgreSQLContainer<>("postgres:17.7-alpine");
+                var postgresImage = DockerImageName.parse("dependency-intelligence-postgres:17.7-alpine-pgvector-0.8.7")
+                    .asCompatibleSubstituteFor("postgres");
+                postgres = new PostgreSQLContainer<>(postgresImage);
                 postgres.start();
                 url = postgres.getJdbcUrl(); user = postgres.getUsername(); password = postgres.getPassword();
             } else {

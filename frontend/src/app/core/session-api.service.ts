@@ -36,10 +36,10 @@ export class SessionApiService {
     return this.http.get<T>(path).pipe(catchError(error => this.handleFailure(error)));
   }
 
-  post<T>(path: string, body: unknown): Observable<T> {
+  post<T>(path: string, body: unknown, extraHeaders: Record<string, string> = {}): Observable<T> {
     // Fetch a fresh masked token because authentication/logout rotates the server token.
     return this.http.get<CsrfToken>('/api/auth/csrf').pipe(
-      switchMap(csrf => this.http.post<T>(path, body, { headers: { [csrf.headerName]: csrf.token } })),
+      switchMap(csrf => this.http.post<T>(path, body, { headers: { [csrf.headerName]: csrf.token, ...extraHeaders } })),
       catchError(error => this.handleFailure(error)),
     );
   }

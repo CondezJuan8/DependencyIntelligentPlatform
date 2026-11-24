@@ -1,11 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, output, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
+import { AnalysisJobService, AnalysisJobStatus, AnalysisResult } from '../../core/analysis-job.service';
 import { accessError, SessionApiService } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 
 interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; source: string; }
-interface AnalysisResult { ecosystem: string; status: 'COMPLETED' | 'NO_MANIFEST' | 'FAILED'; message: string | null; scan: { scanId: string; dependencies: unknown[] } | null; }
 interface ScanHistory {
   id: string; repositoryId: string; repositoryName: string; gitReference: string | null; commitSha: string | null;
   status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED'; requestedAt: string; startedAt: string | null; finishedAt: string | null;
@@ -30,6 +30,8 @@ interface Comparison {
 })
 export class AnalysisWorkspace implements OnInit {
   private readonly api = inject(SessionApiService);
+  private readonly analysisJobs = inject(AnalysisJobService);
+  private jobSubscription?: Subscription;
   readonly openInventory = output<string>();
   readonly repositories = signal<Repository[]>([]);
   readonly selected = signal<Repository | null>(null);
@@ -41,6 +43,7 @@ export class AnalysisWorkspace implements OnInit {
   readonly error = signal('');
   readonly notice = signal('');
   readonly latestResult = signal<AnalysisResult[] | null>(null);
+  readonly jobStatus = signal<AnalysisJobStatus | null>(null);
   readonly baseScanId = signal('');
   readonly targetScanId = signal('');
   readonly comparing = signal(false);
@@ -59,6 +62,10 @@ export class AnalysisWorkspace implements OnInit {
   }
 
   select(repository: Repository | null): void {
+    this.jobSubscription?.unsubscribe();
+    this.jobSubscription = undefined;
+    this.running.set(false);
+    this.jobStatus.set(null);
     this.selected.set(repository);
     this.latestResult.set(null);
     this.comparison.set(null);
@@ -66,6 +73,7 @@ export class AnalysisWorkspace implements OnInit {
     this.notice.set('');
     if (!repository) { this.history.set([]); return; }
     this.refreshHistory(repository);
+    this.resumeActiveJob(repository);
   }
 
   selectFromControl(event: Event): void {
@@ -82,19 +90,64 @@ export class AnalysisWorkspace implements OnInit {
     this.error.set('');
     this.notice.set('');
     this.latestResult.set(null);
-    this.api.post<AnalysisResult[]>(this.endpoint(repo, 'dependency-analysis'), {}).pipe(
-      finalize(() => this.running.set(false)),
-    ).subscribe({
+    this.analysisJobs.request(repo).subscribe({
+      next: ticket => this.watchJob(repo, ticket.jobId),
+      error: failure => { this.running.set(false); this.error.set(accessError(failure)); },
+    });
+  }
+
+  cancelAnalysis(): void {
+    const repo = this.selected(), jobId = this.jobStatus()?.jobId;
+    if (!repo || !jobId) return;
+    this.analysisJobs.cancel(repo, jobId).subscribe({
+      next: status => this.jobStatus.set(status),
+      error: failure => this.error.set(accessError(failure)),
+    });
+  }
+
+  stageLabel(stage: string): string {
+    return ({ SOURCE_PREPARED: 'Fuente preparada', MAVEN_FINISHED: 'Maven terminado', NPM_FINISHED: 'npm terminado' })[stage] ?? stage;
+  }
+
+  private resumeActiveJob(repo: Repository): void {
+    this.analysisJobs.active(repo).subscribe({
+      next: job => { if (job && this.selected()?.id === repo.id) this.watchJob(repo, job.jobId); },
+      error: failure => this.error.set(accessError(failure)),
+    });
+  }
+
+  private watchJob(repo: Repository, jobId: string): void {
+    this.jobSubscription?.unsubscribe();
+    this.running.set(true);
+    this.jobSubscription = this.analysisJobs.watch(repo, jobId).pipe(finalize(() => {
+      if (this.selected()?.id === repo.id) this.running.set(false);
+    })).subscribe({
+      next: status => {
+        if (this.selected()?.id !== repo.id) return;
+        this.jobStatus.set(status);
+        if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(status.status)) this.finishJob(repo, status);
+      },
+      error: failure => { if (this.selected()?.id === repo.id) { this.running.set(false); this.error.set(accessError(failure)); } },
+    });
+  }
+
+  private finishJob(repo: Repository, status: AnalysisJobStatus): void {
+    this.analysisJobs.results(repo, status).subscribe({
       next: results => {
+        if (this.selected()?.id !== repo.id) return;
         this.latestResult.set(results);
+        this.refreshHistory(repo);
         const completed = results.filter(result => result.status === 'COMPLETED');
         const failed = results.filter(result => result.status === 'FAILED');
-        this.notice.set(failed.length
-          ? 'El análisis terminó con errores en algunos ecosistemas. Revisa el resultado y el historial.'
-          : completed.length
-            ? 'Análisis terminado. El inventario se actualizó con la fuente y el commit observados.'
-            : 'No se encontró un manifiesto Maven ni un lockfile npm compatible en este repositorio.');
-        this.refreshHistory(repo);
+        this.notice.set(status.status === 'CANCELLED'
+          ? 'El análisis se canceló. Los resultados completados siguen disponibles en el inventario.'
+          : status.status === 'FAILED'
+            ? `El trabajo no pudo completarse (${status.errorCode ?? 'error'}). Revisa el historial.`
+            : failed.length
+              ? 'El análisis terminó con errores en algunos ecosistemas. Revisa el resultado y el historial.'
+              : completed.length
+                ? 'Análisis terminado. El inventario se actualizó con la fuente y el commit observados.'
+                : 'No se encontró un manifiesto Maven ni un lockfile npm compatible en este repositorio.');
         const scanIds = completed.flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
         if (scanIds.length) this.assess(repo, scanIds);
       },

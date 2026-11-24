@@ -56,11 +56,18 @@
         <button class="primary" type="button" [disabled]="busy() || loadingScans() || assessingVulnerabilities() || !repository()" (click)="analyzeRepository()">
           @if (busy()) { <span class="button-spinner" aria-hidden="true"></span> Analizando… } @else { Analizar repositorio }
         </button>
+        @if (busy() && analysisJob()) { <button class="secondary" type="button" (click)="cancelAnalysis()">Cancelar análisis</button> }
       </div>
     </section>
 
     @if (busy()) {
-      <p class="progress-copy" role="status" aria-live="polite">Analizando Maven y npm. Puedes esperar aquí mientras se actualiza el inventario.</p>
+      <div class="progress-copy" role="status" aria-live="polite">
+        <p>Trabajo {{ analysisJob()?.jobId ?? 'en cola' }} · {{ analysisJob()?.status ?? 'PENDING' }}</p>
+        <p>Etapas confirmadas:
+          @if (analysisJob(); as job) { @if (job.completedStages.length) { @for (stage of job.completedStages; track stage) { <span>{{ stageLabel(stage) }}@if (!$last) { · }</span> } } @else { <span>Ninguna todavía</span> } }
+          @else { <span>Ninguna todavía</span> }
+        </p>
+      </div>
     }
 
     @if (scanResults().length > 0) {

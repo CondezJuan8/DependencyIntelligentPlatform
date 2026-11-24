@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
-import { catchError, finalize, forkJoin, map, of } from 'rxjs';
+import { catchError, finalize, forkJoin, map, of, Subscription } from 'rxjs';
+import { AnalysisJobService, AnalysisJobStatus, type AnalysisResult } from '../../core/analysis-job.service';
 import { SessionApiService, accessError } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 import { evidenceKey, fixesForPackage } from './inventory-evidence';
@@ -43,13 +44,6 @@ interface ScanResult {
   scan: Scan | null;
   status: 'complete' | 'partial' | 'not-analyzed' | 'no-manifest' | 'error';
   message: string;
-}
-
-interface AnalysisResponse {
-  ecosystem: Ecosystem;
-  scan: Scan | null;
-  status: 'COMPLETED' | 'NO_MANIFEST' | 'FAILED';
-  message: string | null;
 }
 
 interface Occurrence {
@@ -117,6 +111,8 @@ interface RepositoryCodeEvidence {
 })
 export class InventoryWorkspace implements OnInit {
   private readonly api = inject(SessionApiService);
+  private readonly analysisJobs = inject(AnalysisJobService);
+  private jobSubscription?: Subscription;
   private readonly catalog = viewChild(InventorySpaceCatalog);
   private scanLoadSequence = 0;
   private catalogDirty = false;
@@ -160,6 +156,7 @@ export class InventoryWorkspace implements OnInit {
   readonly loading = signal(true);
   readonly loadingScans = signal(false);
   readonly busy = signal(false);
+  readonly analysisJob = signal<AnalysisJobStatus | null>(null);
   readonly error = signal('');
   readonly notice = signal('');
 
@@ -316,6 +313,10 @@ export class InventoryWorkspace implements OnInit {
   }
 
   setRepository(repository: Repository | null): void {
+    this.jobSubscription?.unsubscribe();
+    this.jobSubscription = undefined;
+    this.analysisJob.set(null);
+    this.busy.set(false);
     const requestSequence = ++this.scanLoadSequence;
     this.repository.set(repository);
     this.occurrences.set([]);
@@ -402,31 +403,83 @@ export class InventoryWorkspace implements OnInit {
 
     this.assessmentError.set('');
 
-    this.api.post<AnalysisResponse[]>(this.repositoryEndpoint(repository, 'dependency-analysis'), {})
-      .pipe(finalize(() => this.busy.set(false)))
-      .subscribe({
-        next: (response) => {
+    const previous = new Map(this.scanResults().map(result => [result.ecosystem, result.scan]));
+    this.busy.set(true);
+    this.error.set('');
+    this.notice.set('');
+    this.analysisJob.set(null);
+    this.analysisJobs.request(repository).subscribe({
+      next: ticket => this.watchAnalysisJob(repository, ticket.jobId, previous),
+      error: failure => { this.busy.set(false); this.error.set(accessError(failure)); },
+    });
+  }
+
+  cancelAnalysis(): void {
+    const repository = this.repository(), jobId = this.analysisJob()?.jobId;
+    if (!repository || !jobId) return;
+    this.analysisJobs.cancel(repository, jobId).subscribe({
+      next: job => this.analysisJob.set(job),
+      error: failure => this.error.set(accessError(failure)),
+    });
+  }
+
+  stageLabel(stage: string): string {
+    return ({ SOURCE_PREPARED: 'Fuente preparada', MAVEN_FINISHED: 'Maven terminado', NPM_FINISHED: 'npm terminado' })[stage] ?? stage;
+  }
+
+  private resumeActiveAnalysis(repository: Repository): void {
+    this.analysisJobs.active(repository).subscribe({
+      next: job => {
+        if (job && this.repository()?.id === repository.id) {
           const previous = new Map(this.scanResults().map(result => [result.ecosystem, result.scan]));
-          const results = response.map((result): ScanResult => {
-            if (result.status === 'FAILED') {
-              return { ecosystem: result.ecosystem, scan: previous.get(result.ecosystem) ?? null,
-                status: 'error', message: result.message ?? 'No se pudo completar el análisis' };
-            }
-            return this.scanResult(result.ecosystem, result.scan, result.status === 'NO_MANIFEST');
-          });
-          this.scanResults.set(results);
-          this.occurrences.set(this.toOccurrences(results));
-          const visible = new Set(results.flatMap(result => result.scan ? [result.scan.scanId] : []));
-          this.osvEvidence.update(items => items.filter(item => visible.has(item.scanId)));
-          const completed = response.filter(result => result.status === 'COMPLETED');
-          this.catalogDirty ||= response.some(result => result.status !== 'FAILED');
-          if (completed.length > 0)
-            this.notice.set('Análisis actualizado. Consulta el estado de cada ecosistema para ver su alcance.');
-          const newScans = completed.flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
-          if (newScans.length) this.assessVulnerabilities(repository, newScans);
-        },
-        error: failure => this.error.set(accessError(failure)),
-      });
+          this.watchAnalysisJob(repository, job.jobId, previous);
+        }
+      },
+      error: failure => this.error.set(accessError(failure)),
+    });
+  }
+
+  private watchAnalysisJob(repository: Repository, jobId: string, previous: Map<Ecosystem, Scan | null>): void {
+    this.jobSubscription?.unsubscribe();
+    this.busy.set(true);
+    this.jobSubscription = this.analysisJobs.watch(repository, jobId).pipe(finalize(() => {
+      if (this.repository()?.id === repository.id) this.busy.set(false);
+    })).subscribe({
+      next: job => {
+        if (this.repository()?.id !== repository.id) return;
+        this.analysisJob.set(job);
+        if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(job.status)) this.finishAnalysisJob(repository, job, previous);
+      },
+      error: failure => { if (this.repository()?.id === repository.id) { this.busy.set(false); this.error.set(accessError(failure)); } },
+    });
+  }
+
+  private finishAnalysisJob(repository: Repository, job: AnalysisJobStatus, previous: Map<Ecosystem, Scan | null>): void {
+    this.analysisJobs.results(repository, job).subscribe({
+      next: response => {
+        if (this.repository()?.id !== repository.id) return;
+        const results = response.map((result): ScanResult => {
+          const ecosystem = result.ecosystem as Ecosystem;
+          if (result.status === 'FAILED') return { ecosystem, scan: previous.get(ecosystem) ?? null,
+            status: 'error', message: result.message ?? 'No se pudo completar el análisis' };
+          return this.scanResult(ecosystem, result.scan as Scan | null, result.status === 'NO_MANIFEST');
+        });
+        this.scanResults.set(results);
+        this.occurrences.set(this.toOccurrences(results));
+        const visible = new Set(results.flatMap(result => result.scan ? [result.scan.scanId] : []));
+        this.osvEvidence.update(items => items.filter(item => visible.has(item.scanId)));
+        this.catalogDirty ||= response.some(result => result.status !== 'FAILED');
+        if (job.status === 'CANCELLED') this.notice.set('El análisis se canceló; se conservan los resultados de las etapas completadas.');
+        else if (job.status === 'FAILED') this.error.set(`El trabajo no pudo completarse (${job.errorCode ?? 'error'}).`);
+        else if (response.some(result => result.status === 'COMPLETED'))
+          this.notice.set('Análisis actualizado. Consulta el estado de cada ecosistema para ver su alcance.');
+        else this.notice.set('El análisis terminó sin encontrar manifiestos compatibles.');
+        const newScans = response.filter(result => result.status === 'COMPLETED')
+          .flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
+        if (newScans.length) this.assessVulnerabilities(repository, newScans);
+      },
+      error: failure => this.error.set(accessError(failure)),
+    });
   }
 
   private loadScans(repository: Repository, requestSequence: number): void {
@@ -445,6 +498,7 @@ export class InventoryWorkspace implements OnInit {
       this.osvEvidence.set(assessment?.assessments ?? []);
       const scanError = results.find((result) => result.status === 'error');
       if (scanError) this.error.set(scanError.message);
+      this.resumeActiveAnalysis(repository);
     });
   }
 

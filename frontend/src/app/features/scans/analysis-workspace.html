@@ -30,7 +30,16 @@
     </section>
   }
 
-  @if (running()) { <p class="running" role="status" aria-live="polite">{{ 'El análisis se está ejecutando. El tiempo depende del tamaño del repositorio; no se muestra un porcentaje estimado.' | t }}</p> }
+  @if (jobStatus(); as job) {
+    <section class="running" role="status" aria-live="polite">
+      <p>Trabajo {{ job.jobId }} · {{ job.status }}</p>
+      <p>Etapas confirmadas:
+        @if (job.completedStages.length) { @for (stage of job.completedStages; track stage) { <span>{{ stageLabel(stage) }}@if (!$last) { · }</span> } }
+        @else { <span>Ninguna todavía</span> }
+      </p>
+      @if (running()) { <button type="button" class="secondary" (click)="cancelAnalysis()">Cancelar análisis</button> }
+    </section>
+  } @else if (running()) { <p class="running" role="status" aria-live="polite">El análisis está en cola. Las etapas aparecerán cuando el backend las confirme.</p> }
   @if (assessing()) { <p class="feedback" role="status">{{ 'El scanner terminó; OSV está evaluando las versiones detectadas…' | t }}</p> }
   @if (error()) { <p class="alert" role="alert">{{ error() }}</p> }
   @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }

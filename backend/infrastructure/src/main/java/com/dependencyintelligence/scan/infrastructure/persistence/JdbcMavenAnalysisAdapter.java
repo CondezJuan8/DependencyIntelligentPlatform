@@ -31,15 +31,34 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
 
     @Override public MavenInventory save(String scannerName, UUID scanId, UUID organizationId, UUID repositoryId,
             String provider, String sourceSha256, String commitSha, Instant analyzedAt, ManifestAnalysis analysis) {
+        return saveInternal(null, scannerName, scanId, organizationId, repositoryId, provider, sourceSha256,
+            commitSha, analyzedAt, analysis);
+    }
+
+    @Override public MavenInventory saveForJob(UUID jobId, String scannerName, UUID scanId, UUID organizationId,
+            UUID repositoryId, String provider, String sourceSha256, String commitSha, Instant analyzedAt,
+            ManifestAnalysis analysis) {
+        return saveInternal(jobId, scannerName, scanId, organizationId, repositoryId, provider, sourceSha256,
+            commitSha, analyzedAt, analysis);
+    }
+
+    private MavenInventory saveInternal(UUID jobId, String scannerName, UUID scanId, UUID organizationId,
+            UUID repositoryId, String provider, String sourceSha256, String commitSha, Instant analyzedAt,
+            ManifestAnalysis analysis) {
         return tenants.execute(organizationId, () -> {
-            jdbc.update("""
+            int inserted = jdbc.update("""
                 insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
-                  origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,coverage_status,coverage_message)
-                values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,?,'MANUAL',?,?,?,?,?)
+                  origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,
+                  coverage_status,coverage_message,background_job_id)
+                values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,?,'MANUAL',?,?,?,?,?,?) on conflict do nothing
                 """, scanId, organizationId, repositoryId, commitSha, Timestamp.from(analyzedAt), Timestamp.from(analyzedAt),
                 Timestamp.from(analyzedAt), "local".equals(provider) ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN", scannerName,
                 scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, analysis.manifestCount(), analysis.unresolvedCount(),
-                analysis.coverageStatus(), analysis.coverageMessage());
+                analysis.coverageStatus(), analysis.coverageMessage(), jobId);
+            if (inserted == 0) {
+                if (jobId != null) return readInventoryForJob(jobId, scannerName, organizationId, repositoryId).orElseThrow();
+                throw new IllegalStateException("No se pudo guardar el resultado del análisis.");
+            }
             if (commitSha != null) {
                 jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
                     organizationId, repositoryId, commitSha);
@@ -74,19 +93,37 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
         return tenants.execute(organizationId, () -> readInventory(scannerName, organizationId, repositoryId, null));
     }
 
+    @Override public Optional<MavenInventory> findById(String scannerName, UUID organizationId, UUID repositoryId,
+            UUID scanId) {
+        return tenants.execute(organizationId, () -> readInventory(scannerName, organizationId, repositoryId, scanId));
+    }
+
     @Override public void saveFailure(String scannerName, UUID organizationId, UUID repositoryId, String provider,
             String sourceSha256, String commitSha, Instant failedAt, String reason) {
+        saveFailureInternal(null, scannerName, organizationId, repositoryId, provider, sourceSha256, commitSha,
+            failedAt, reason);
+    }
+
+    @Override public void saveFailureForJob(UUID jobId, String scannerName, UUID organizationId, UUID repositoryId,
+            String provider, String sourceSha256, String commitSha, Instant failedAt, String reason) {
+        saveFailureInternal(jobId, scannerName, organizationId, repositoryId, provider, sourceSha256, commitSha,
+            failedAt, reason);
+    }
+
+    private void saveFailureInternal(UUID jobId, String scannerName, UUID organizationId, UUID repositoryId,
+            String provider, String sourceSha256, String commitSha, Instant failedAt, String reason) {
         tenants.execute(organizationId, () -> {
             UUID scanId = UUID.randomUUID();
             boolean local = "local".equals(provider);
             String safeReason = reason == null || reason.isBlank() ? "El análisis falló sin detalle adicional." : reason;
             jdbc.update("""
                 insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
-                  failure_reason,origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,coverage_status,coverage_message)
-                values(?,?,?,?, 'FAILED',?,?,?, ?,?, ?,?,'MANUAL',?,0,0,'PARTIAL',?)
+                  failure_reason,origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,
+                  coverage_status,coverage_message,background_job_id)
+                values(?,?,?,?, 'FAILED',?,?,?, ?,?, ?,?,'MANUAL',?,0,0,'PARTIAL',?,?) on conflict do nothing
                 """, scanId, organizationId, repositoryId, local ? null : commitSha, Timestamp.from(failedAt),
                  Timestamp.from(failedAt), Timestamp.from(failedAt), safeReason, local ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN",
-                 scannerName, scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, safeReason);
+                 scannerName, scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, safeReason, jobId);
             if (commitSha != null && !local) {
                 jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
                     organizationId, repositoryId, commitSha);
@@ -95,6 +132,22 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
             }
             return null;
         });
+    }
+
+    @Override public Optional<MavenInventory> findForJob(UUID jobId, String scannerName, UUID organizationId,
+            UUID repositoryId) {
+        return tenants.execute(organizationId, () -> readInventoryForJob(jobId, scannerName, organizationId, repositoryId));
+    }
+
+    private Optional<MavenInventory> readInventoryForJob(UUID jobId, String scannerName, UUID organizationId,
+            UUID repositoryId) {
+        var matches = jdbc.query("""
+            select id from scans where organization_id=? and repository_id=? and background_job_id=?
+              and scanner_name in (?,?) and status='COMPLETED' order by id limit 1
+            """, (row, index) -> row.getObject(1, UUID.class), organizationId, repositoryId, jobId,
+            scannerName, legacyScannerName(scannerName));
+        return matches.isEmpty() ? Optional.empty()
+            : readInventory(scannerName, organizationId, repositoryId, matches.getFirst());
     }
 
     private Optional<MavenInventory> readInventory(String scannerName, UUID organizationId, UUID repositoryId, UUID scanId) {

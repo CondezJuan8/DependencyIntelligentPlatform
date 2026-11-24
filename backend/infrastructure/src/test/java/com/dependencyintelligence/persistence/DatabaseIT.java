@@ -40,19 +40,19 @@ class DatabaseIT extends PostgresIntegrationSupport {
 
     @Test void realBusinessControllersRemainDeniedEvenWithValidCsrf() throws Exception {
         var base = "/api/organizations/" + UUID.randomUUID() + "/repositories";
-        mvc.perform(get(base + "/" + UUID.randomUUID())).andExpect(status().isForbidden());
+        mvc.perform(get(base + "/" + UUID.randomUUID())).andExpect(status().isUnauthorized());
         mvc.perform(post(base).with(csrf()).contentType("application/json")
             .content("{\"provider\":\"github\",\"externalId\":\"42\",\"fullName\":\"acme/api\",\"defaultBranch\":\"main\"}"))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isUnauthorized());
         mvc.perform(post(base + "/" + UUID.randomUUID() + "/scans").with(csrf())
             .contentType("application/json").content("{\"gitReference\":\"main\"}"))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isUnauthorized());
     }
 
     @Test void migrationsAndJpaValidationBootSuccessfully() {
-        assertEquals("13", flyway.info().current().getVersion().getVersion());
+        assertEquals("31", flyway.info().current().getVersion().getVersion());
         flyway.validate();
-        assertEquals(121, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
+        assertEquals(128, jdbc.queryForObject("select count(*) from information_schema.tables where table_schema = 'public' and table_name <> 'flyway_schema_history'", Integer.class));
     }
 
     @Test void registersReadsAndQueuesScanThroughRealAdapters() {
@@ -90,9 +90,9 @@ class DatabaseIT extends PostgresIntegrationSupport {
         jdbc.execute("create table " + schema + ".retained_record (value text not null)");
         jdbc.update("insert into " + schema + ".retained_record values ('existing data')");
         var latest = Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load();
-        assertEquals(12, latest.migrate().migrationsExecuted);
+        assertEquals(30, latest.migrate().migrationsExecuted);
         latest.validate();
-        assertEquals("13", latest.info().current().getVersion().getVersion());
+        assertEquals("31", latest.info().current().getVersion().getVersion());
         assertEquals("existing data", jdbc.queryForObject("select value from " + schema + ".retained_record", String.class));
         assertEquals(0, latest.migrate().migrationsExecuted);
     }

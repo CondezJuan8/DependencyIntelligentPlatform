@@ -23,10 +23,17 @@ import com.dependencyintelligence.repository.application.usecase.DeleteRepositor
 import com.dependencyintelligence.repository.application.usecase.FindRepositoryVulnerabilityEvidenceUseCase;
 import com.dependencyintelligence.repository.application.usecase.RegisterRepositoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.RequestScan;
+import com.dependencyintelligence.scan.application.port.in.RequestRepositoryAnalysis;
+import com.dependencyintelligence.scan.application.port.in.FindAnalysisJob;
+import com.dependencyintelligence.scan.application.port.in.CancelAnalysisJob;
 import com.dependencyintelligence.scan.application.port.in.FindScanHistory;
 import com.dependencyintelligence.scan.application.port.out.ScanHistoryReader;
 import com.dependencyintelligence.scan.application.port.out.ScanStore;
+import com.dependencyintelligence.scan.application.port.out.AnalysisJobStore;
 import com.dependencyintelligence.scan.application.usecase.RequestScanUseCase;
+import com.dependencyintelligence.scan.application.usecase.RequestRepositoryAnalysisUseCase;
+import com.dependencyintelligence.scan.application.usecase.FindAnalysisJobUseCase;
+import com.dependencyintelligence.scan.application.usecase.CancelAnalysisJobUseCase;
 import com.dependencyintelligence.scan.application.usecase.FindScanHistoryUseCase;
 import com.dependencyintelligence.scan.application.port.in.CompareScans;
 import com.dependencyintelligence.scan.application.port.out.ScanComparisonReader;
@@ -116,6 +123,33 @@ public class UseCaseConfiguration {
     }
 
     @Bean CompareScans compareScans(ScanComparisonReader reader) { return new CompareScansUseCase(reader); }
+
+    @Bean RequestRepositoryAnalysis requestRepositoryAnalysis(RepositoryStore repositories, AnalysisJobStore jobs,
+            Clock clock, TenantTransactions transactions) {
+        var useCase = new RequestRepositoryAnalysisUseCase(repositories, jobs, clock);
+        return (organizationId, repositoryId, idempotencyKey) -> transactions.execute(organizationId,
+            () -> useCase.execute(organizationId, repositoryId, idempotencyKey));
+    }
+
+    @Bean FindAnalysisJob findAnalysisJob(AnalysisJobStore jobs, TenantTransactions transactions) {
+        var useCase = new FindAnalysisJobUseCase(jobs);
+        return new FindAnalysisJob() {
+            @Override public java.util.Optional<com.dependencyintelligence.scan.application.dto.AnalysisJobStatus>
+                    execute(java.util.UUID organizationId, java.util.UUID repositoryId, java.util.UUID jobId) {
+                return transactions.execute(organizationId, () -> useCase.execute(organizationId, repositoryId, jobId));
+            }
+            @Override public java.util.Optional<com.dependencyintelligence.scan.application.dto.AnalysisJobStatus>
+                    active(java.util.UUID organizationId, java.util.UUID repositoryId) {
+                return transactions.execute(organizationId, () -> useCase.active(organizationId, repositoryId));
+            }
+        };
+    }
+
+    @Bean CancelAnalysisJob cancelAnalysisJob(AnalysisJobStore jobs, TenantTransactions transactions) {
+        var useCase = new CancelAnalysisJobUseCase(jobs);
+        return (organizationId, repositoryId, jobId) -> transactions.execute(organizationId,
+            () -> useCase.execute(organizationId, repositoryId, jobId));
+    }
 
     @Bean AnalyzeMavenRepositoryUseCase analyzeMavenRepository(RepositoryAnalysisSource source, MavenManifestReader reader,
             MavenAnalysisStore store, Clock clock) {

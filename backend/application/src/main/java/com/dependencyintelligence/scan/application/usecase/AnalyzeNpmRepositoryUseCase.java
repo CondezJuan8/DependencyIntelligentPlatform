@@ -7,6 +7,7 @@ import com.dependencyintelligence.scan.application.port.out.MavenAnalysisStore;
 import com.dependencyintelligence.scan.application.port.out.NpmLockfileReader;
 import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSource;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.Clock;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -34,6 +35,11 @@ public final class AnalyzeNpmRepositoryUseCase implements AnalyzeNpmRepository {
 
     Optional<MavenInventory> analyze(UUID organizationId, UUID repositoryId, RepositoryAnalysisSource.Archive source,
                                      boolean recordMissingManifest) {
+        return analyze(organizationId, repositoryId, source, recordMissingManifest, null);
+    }
+
+    Optional<MavenInventory> analyze(UUID organizationId, UUID repositoryId, RepositoryAnalysisSource.Archive source,
+                                     boolean recordMissingManifest, UUID jobId) {
         ManifestAnalysis analysis;
         try (var input = source.content()) {
             analysis = reader.read(input);
@@ -43,11 +49,21 @@ public final class AnalyzeNpmRepositoryUseCase implements AnalyzeNpmRepository {
             throw new ManifestReadException(failure.getMessage(), failure);
         }
         if (analysis.manifestCount() == 0 && !recordMissingManifest) return Optional.empty();
-        return Optional.of(store.save("cdxgen-npm", UUID.randomUUID(), organizationId, repositoryId,
-            source.provider(), source.sha256(), source.commitSha(), clock.instant().truncatedTo(ChronoUnit.MICROS), analysis));
+        UUID scanId = UUID.randomUUID();
+        Instant analyzedAt = clock.instant().truncatedTo(ChronoUnit.MICROS);
+        MavenInventory saved = jobId == null
+            ? store.save("cdxgen-npm", scanId, organizationId, repositoryId, source.provider(), source.sha256(),
+                source.commitSha(), analyzedAt, analysis)
+            : store.saveForJob(jobId, "cdxgen-npm", scanId, organizationId, repositoryId, source.provider(),
+                source.sha256(), source.commitSha(), analyzedAt, analysis);
+        return Optional.of(saved);
     }
 
     @Override public Optional<MavenInventory> latest(UUID organizationId, UUID repositoryId) {
         return store.latest("cdxgen-npm", organizationId, repositoryId);
+    }
+
+    @Override public Optional<MavenInventory> find(UUID organizationId, UUID repositoryId, UUID scanId) {
+        return store.findById("cdxgen-npm", organizationId, repositoryId, scanId);
     }
 }
