@@ -1424,4 +1424,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Verificación.** `git status` limpio tras los reverts; `docker ps -a` confirmó que no quedó contenedor Ollama. `docker image ls ollama/ollama` no mostró imagen etiquetada. La descarga iniciada fue interrumpida antes de tener una imagen utilizable.
 
-**Pendiente.** El equipo administra el Firewall mediante directivas de grupo (`LocalFirewallRules` no admite reglas locales). El área de TI debe permitir TCP 11434 desde la red Docker privada y luego Ollama debe escuchar en una interfaz accesible desde Docker. Hasta entonces, no se confirma conectividad entre el backend y el servicio nativo.
+**Pendiente.** La necesidad de abrir Firewall quedo superada por la aclaracion del usuario: la conexion del producto se hara por una red privada de Compose, sin Ollama nativo como dependencia.
+## Bloque 76 — Ollama portable en Compose (23/11/2026)
+
+**Petición.** El usuario aclaró que el equipo es personal y el producto debe arrancar en otros computadores sin depender de TI ni de reglas manuales del Firewall.
+
+**Cambios.** Compose incluye Ollama `0.40.17` en una red privada sin puertos publicados, volumen persistente `ollama_data`, y un servicio independiente que descarga el modelo configurado. El backend se conecta a `http://ollama:11434`; no depende de la descarga para iniciar. Se actualizaron `.env.example`, el `.env` local ignorado y las guías de Ollama/pendientes. Se conservó la instalación nativa y el modelo de Windows. No se volvió a descargar la imagen por su tamaño.
+
+**Herramientas utilizadas.** Docker Compose para validar el manifiesto, PowerShell para editar configuración local y GitHub/README oficial de Ollama para contrastar el soporte Docker. No se añadieron librerías de la aplicación.
+
+**Verificación.** `docker compose config --quiet` terminó correctamente. No se descargó ni inició la imagen; por tanto, el enlace API–Ollama en runtime y pgvector V29 siguen sin comprobarse.
+
+**Siguiente.** Decidir si se descarga la imagen fijada (aprox. 3.16 GB en el intento previo), completar la validación de `/api/tags` y `/api/embed`, configurar Gemini y aplicar V29 en un volumen de PostgreSQL adecuado.

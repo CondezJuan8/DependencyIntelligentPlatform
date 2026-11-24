@@ -7,8 +7,8 @@ Estado de la configuración local: 23 de noviembre de 2026.
 - Ollama para Windows, versión cliente `0.40.17`, instalado mediante el instalador oficial. La firma del ejecutable instalado aparece como válida y emitida por Ollama Inc.
 - Modelo `embeddinggemma-2:latest`, descargado con Ollama. `/api/tags` reportó el digest completo `f4981a15b99858ad1f2e0729416e526be7b4f428291b40082b9e4f7b27b5f62f`.
 - Una llamada real a `POST /api/embed` generó un vector de **768 valores numéricos finitos**.
-- `.env` local contiene la URL que usaría el backend Docker (`http://host.docker.internal:11434`), el nombre completo del modelo y el digest. `.env` está ignorado por Git; esos valores no se añadieron al repositorio.
-- La API de Ollama sigue escuchando únicamente en `127.0.0.1:11434`. El backend corre dentro de Docker y necesita cruzar esa frontera. Crear una regla de Windows Firewall limitada a TCP `11434` y a la subred Compose `172.18.0.0/16` devolvió **Acceso denegado**. No abrí el puerto a toda la red. Por eso, aunque Ollama y el modelo funcionan en el equipo, todavía **no está comprobada la conexión entre el backend Docker y Ollama**.
+- `.env` local ignorado usa la URL interna `http://ollama:11434`, nombre del modelo y digest verificado. Los datos del volumen no se añadieron al repositorio.
+- La instalacion nativa de Windows y su modelo se conservaron, pero el backend ya no depende de ellos. Compose define un Ollama propio en una red privada y un volumen `ollama_data`; no publica el puerto 11434 en el anfitrion.
 - No se configuró Gemini: faltan `GEMINI_API_KEY` y `GEMINI_MODEL`. No se guardan claves en Git ni se envían en esta guía.
 
 ## Cómo se conecta cada parte
@@ -21,13 +21,12 @@ Navegador
               │
               ▼
        Spring Boot dentro de Docker
-          ├─ Ollama en Windows: host.docker.internal:11434
+          ├─ Ollama en Compose: ollama:11434
           ├─ PostgreSQL + extensión pgvector
           └─ Gemini: generación de respuesta, cuando sus credenciales estén configuradas
 ```
 
-La URL `host.docker.internal` permite que un contenedor se dirija al equipo anfitrión. Eso no basta por sí solo: Ollama debe escuchar en una interfaz alcanzable por Docker y el firewall debe permitir el tráfico desde la red interna prevista. Ahora Ollama solo escucha en loopback, y Windows no autorizó la regla restringida; por lo tanto, no se debe interpretar la URL guardada en `.env` como prueba de conectividad.
-
+Compose conecta el backend y Ollama por DNS interno (`http://ollama:11434`). El contenedor de Ollama descarga el modelo al volumen persistente; no publica puertos al anfitrion. La red privada de IA no tiene acceso desde el navegador ni desde la red local. La descarga inicial necesita Internet; si falla, el backend y los modulos no relacionados con IA pueden iniciar normalmente.
 La integración sigue la arquitectura hexagonal:
 
 - **Application:** `AskAssistant` e `IndexDocuments` son puertos de entrada; los casos de uso coordinan la indexación y el RAG. Sus puertos de salida describen embeddings, recuperación, generación y persistencia, sin depender de Spring ni JPA.
@@ -82,14 +81,16 @@ La aplicación devuelve un error de proveedor `503` si Ollama/Gemini no está di
 
 La imagen Compose de PostgreSQL se construye desde la base existente `postgres:17.7-alpine` y compila pgvector `0.8.7`, para mantener la misma base de sistema que usa el volumen actual. V29 está en el repositorio, pero **no se ha aplicado**: la base activa continúa en V28 y sus diagramas/catálogo siguen reflejando esa versión. Los builds aislados de la imagen, backend y frontend pasaron. No se recrearon los contenedores ni se alteró el volumen.
 
-## Qué falta para terminar la conexión
+## Que falta para terminar la conexion
 
-1. Un administrador de Windows/TI debe permitir el tráfico TCP local del backend Docker a `11434`, limitado al programa de Ollama y a `172.18.0.0/16`, y autorizar el enlace de Ollama necesario para ese acceso. El equipo indicó que las reglas locales del firewall están administradas; el usuario actual recibió `Acceso denegado`.
-2. Comprobar `GET /api/tags` y `POST /api/embed` desde la red del backend, no solo desde Windows.
-3. Actualizar PostgreSQL a la imagen pgvector y aplicar V29; después regenerar el catálogo y diagramas desde la base aplicada.
-4. Configurar el modelo Gemini y la clave en `.env` sin compartirlos por chat.
-5. Ejecutar pruebas focalizadas de RLS/permisos, dimensión, persistencia/citas, abstención y fallos de proveedores; después revisar el recorrido con documentos reales.
+1. Descargar la imagen fijada `ollama/ollama:0.40.17` y arrancar Compose. La descarga anterior se interrumpio a solicitud del usuario cuando llevaba unos 2.4 GB de una imagen de aproximadamente 3.16 GB.
+2. `ollama-model-init` descarga el modelo configurado en `ollama_data`. Si el primer arranque fue sin Internet, volver a intentar con `docker compose up --force-recreate ollama-model-init`.
+3. Comprobar desde el backend `GET /api/tags` y `POST /api/embed`, incluido el digest de `OLLAMA_EMBEDDING_REVISION`.
+4. Aplicar V29 en Compose y validar RLS/runtime grants; PostgreSQL activo aun no se recreo con pgvector.
+5. Configurar el modelo Gemini y su clave en `.env`, sin compartir secretos por chat.
+6. Ejecutar verificaciones focalizadas de permisos, dimension, persistencia/citas, abstencion y errores de proveedores; revisar el recorrido autenticado con documentos reales.
 
+No se requiere una regla del Firewall de Windows ni Ollama instalado por separado en cada computador. Docker descarga la imagen y el modelo una vez y los conserva en volumenes. La descarga inicial requiere Internet y espacio; la inferencia local depende de CPU/RAM disponibles.
 ## Archivos principales
 
 - Application: `backend/application/src/main/java/com/dependencyintelligence/assistant/`
