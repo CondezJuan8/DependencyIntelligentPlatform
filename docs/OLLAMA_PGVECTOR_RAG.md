@@ -1,6 +1,6 @@
 # Ollama, embeddings y pgvector en Dependency Intelligence
 
-Estado de la configuración local: 23 de noviembre de 2026.
+Estado operativo local: 24 de noviembre de 2026.
 
 ## Qué quedó instalado y comprobado
 
@@ -8,8 +8,8 @@ Estado de la configuración local: 23 de noviembre de 2026.
 - Modelo `embeddinggemma-2:latest`, descargado con Ollama. `/api/tags` reportó el digest completo `f4981a15b99858ad1f2e0729416e526be7b4f428291b40082b9e4f7b27b5f62f`.
 - Una llamada real a `POST /api/embed` generó un vector de **768 valores numéricos finitos**.
 - `.env` local ignorado usa la URL interna `http://ollama:11434`, nombre del modelo y digest verificado. Los datos del volumen no se añadieron al repositorio.
-- La instalacion nativa de Windows y su modelo se conservaron, pero el backend ya no depende de ellos. Compose define un Ollama propio en una red privada y un volumen `ollama_data`; no publica el puerto 11434 en el anfitrion.
-- No se configuró Gemini: faltan `GEMINI_API_KEY` y `GEMINI_MODEL`. No se guardan claves en Git ni se envían en esta guía.
+- Imagen oficial `ollama/ollama:0.40.17` descargada (8.52 GB extraida); contenedor Compose saludable y aislado, sin puerto publicado. El modelo persiste en `ollama_data`.
+- Modelo de generación fijado a `gemini-3.8-flash`; falta `GEMINI_API_KEY`, por lo que todavía no se puede probar la generación Gemini.
 
 ## Cómo se conecta cada parte
 
@@ -75,22 +75,20 @@ Por ahora la búsqueda es exacta y no hay un índice ANN como HNSW. Esto evita e
 5. Si hay evidencia, Gemini recibe la pregunta y esos pasajes; el prompt trata su contenido como datos no confiables, pide ignorar instrucciones incrustadas, responder en el idioma de la pregunta y citar afirmaciones como `[1]`.
 6. La respuesta, conversación y relaciones a los fragmentos citados se guardan. La respuesta API devuelve los extractos y metadatos para que la interfaz muestre sus fuentes.
 
-La aplicación devuelve un error de proveedor `503` si Ollama/Gemini no está disponible o no está configurado. Una consulta a Gemini no se ha probado en este equipo porque todavía no hay clave ni modelo configurados.
+El backend ya accede a Ollama. Desde su contenedor, `/api/tags` coincidió con el digest configurado y `/api/embed` devolvió HTTP 200 con un vector de 768 dimensiones y valores finitos. La generación final con Gemini no está probada: falta la clave. La base no contiene documentos todavía, así que no se ha validado una respuesta RAG con citas sobre archivos reales.
 
 ## PostgreSQL y Docker
 
-La imagen Compose de PostgreSQL se construye desde la base existente `postgres:17.7-alpine` y compila pgvector `0.8.7`, para mantener la misma base de sistema que usa el volumen actual. V29 está en el repositorio, pero **no se ha aplicado**: la base activa continúa en V28 y sus diagramas/catálogo siguen reflejando esa versión. Los builds aislados de la imagen, backend y frontend pasaron. No se recrearon los contenedores ni se alteró el volumen.
+Compose aplicó V29 sobre la base PostgreSQL existente sin borrar sus datos. La extensión `vector` está en versión 0.8.7; `document_chunk_vectors` tiene RLS habilitado y forzado, y el usuario runtime posee permisos. Se creó un respaldo pre-migración en `%TEMP%\dependency-intelligence-pre-v29.dump` (3.302.164 bytes). `/health` respondió `UP`.
 
-## Que falta para terminar la conexion
+## Qué falta para completar la petición 10
 
-1. Descargar la imagen fijada `ollama/ollama:0.40.17` y arrancar Compose. La descarga anterior se interrumpio a solicitud del usuario cuando llevaba unos 2.4 GB de una imagen de aproximadamente 3.16 GB.
-2. `ollama-model-init` descarga el modelo configurado en `ollama_data`. Si el primer arranque fue sin Internet, volver a intentar con `docker compose up --force-recreate ollama-model-init`.
-3. Comprobar desde el backend `GET /api/tags` y `POST /api/embed`, incluido el digest de `OLLAMA_EMBEDDING_REVISION`.
-4. Aplicar V29 en Compose y validar RLS/runtime grants; PostgreSQL activo aun no se recreo con pgvector.
-5. Configurar el modelo Gemini y su clave en `.env`, sin compartir secretos por chat.
-6. Ejecutar verificaciones focalizadas de permisos, dimension, persistencia/citas, abstencion y errores de proveedores; revisar el recorrido autenticado con documentos reales.
+1. Obtener una API key de Gemini AI Studio y guardarla solo en `.env` (`GEMINI_API_KEY`). El modelo `gemini-3.8-flash` ya está configurado.
+2. Cargar documentos de prueba autorizados, indexarlos y validar una respuesta RAG con citas, permisos y abstención.
+3. Completar las regresiones focalizadas de RLS, dimensiones, persistencia/citas y fallos de proveedores. El build de este bloque omitió la suite larga; no se añadieron pruebas.
+4. La vista del asistente está disponible en `http://localhost:8089/?view=assistant`; requiere sesión autenticada y documentos accesibles para producir respuestas con evidencia.
 
-No se requiere una regla del Firewall de Windows ni Ollama instalado por separado en cada computador. Docker descarga la imagen y el modelo una vez y los conserva en volumenes. La descarga inicial requiere Internet y espacio; la inferencia local depende de CPU/RAM disponibles.
+Ollama y pgvector ya funcionan en Compose; no se necesita Firewall de Windows. En otro equipo, `ollama_data` mantiene el modelo después de la primera descarga.
 ## Archivos principales
 
 - Application: `backend/application/src/main/java/com/dependencyintelligence/assistant/`

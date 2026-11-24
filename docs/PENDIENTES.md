@@ -1,10 +1,18 @@
+## Estado runtime de la petición 10 (24/11/2026)
+
+- [x] Imagen y contenedor Ollama `0.40.17` corriendo en Compose, aislados y sin puerto publicado; modelo guardado en `ollama_data`.
+- [x] Desde el backend, `/api/tags` coincidió con el digest fijado y `/api/embed` respondió HTTP 200 con 768 valores finitos.
+- [x] V29 aplicada sobre la base existente; pgvector 0.8.7, tabla vectorial con RLS forzado y permisos de `dependency_app` verificados. Respaldo previo en `%TEMP%\dependency-intelligence-pre-v29.dump`.
+- [x] Frontend y backend activos en `localhost:8089`; health `UP`; ruta Asistente HTTP 200.
+- [ ] Falta proporcionar `GEMINI_API_KEY` en el `.env` local. `GEMINI_MODEL=gemini-3.8-flash` está fijado. No enviar la clave por chat ni guardarla en Git.
+- [ ] Cargar e indexar documentos de prueba autenticados y validar respuestas Gemini con citas, RLS y abstención.
 ## Portabilidad de Ollama en Compose (23/11/2026)
 
 - [x] Se retiro la dependencia de Ollama instalado en Windows y de reglas de Firewall por equipo.
 - [x] Compose define servicio Ollama interno, volumen persistente para modelos y un descargador de modelo en el primer arranque.
 - [x] La descarga de IA no bloquea el backend ni los modulos normales si hay Internet lento o ausente.
-- [ ] Descargar y verificar la imagen `ollama/ollama:0.40.17` (aprox. 3.16 GB observados en el intento anterior) y el modelo configurado; no se repitio la descarga.
-- [ ] Validar desde el backend que `/api/tags` y `/api/embed` funcionan y que coincide el digest esperado.
+- [x] Descargar y verificar `ollama/ollama:0.40.17`; imagen de 8.52 GB extraída y modelo instalado en `ollama_data`.
+- [x] Desde el backend, verificar `/api/tags`, digest, `/api/embed` y vector de 768 dimensiones.
 ## Bloque 75 — Petición 10: IA documental (23/11/2026; implementación inicial, no validada)
 
 - [x] Contratos hexagonales y casos de uso para indexación y preguntas con recuperación de evidencia.
@@ -12,14 +20,14 @@
 - [x] Migración V29 agrega pgvector, dimensión flexible y RLS en la tabla vectorial; Compose construye pgvector 0.8.7 sobre la misma base postgres:17.7-alpine.
 - [x] API y pantalla de asistente, aislamiento por organización/repositorio, `assistant.query` + `document.read`, citas, abstención sin evidencia y error explícito de proveedor no disponible.
 - [x] Instalar Ollama 0.40.17, descargar `embeddinggemma-2:latest` y comprobar `/api/tags` y `/api/embed`: digest `f4981a15b99858ad1f2e0729416e526be7b4f428291b40082b9e4f7b27b5f62f`, vector de 768 dimensiones con valores finitos. Nombre/digest guardados en `.env` local, ignorado por Git.
-- [x] Despliegue portable definido en Compose: Ollama aislado, sin puerto publicado; el modelo se descarga al volumen `ollama_data` y no requiere Firewall de Windows. Falta descargar/probar la imagen en este equipo.
-- [ ] Configurar modelo y clave Gemini sin guardar secretos en Git.
-- [ ] Aplicar V29 en Compose y validar RLS/runtime grants. Se construyó la imagen con pgvector, pero no se aplicó la migración ni se recreó PostgreSQL.
+- [x] Despliegue portable en Compose verificado en runtime: Ollama aislado, modelo persistido en `ollama_data`, sin puerto ni Firewall del anfitrión.
+- [ ] Configurar `GEMINI_API_KEY` en `.env`; modelo `gemini-3.8-flash` ya fijado en configuración.
+- [x] Aplicar V29 en Compose y comprobar pgvector/RLS/runtime grants; migración aplicada correctamente a la base existente.
 - [ ] Ejecutar regresiones focalizadas: permisos tenant/repositorio, dimensión incorrecta, persistencia/citas, abstención y fallos Ollama/Gemini. La compilación Java/Angular pasó; aún no se escribieron ni ejecutaron pruebas nuevas.
 - [ ] Indexación durable con progreso/reintentos, listado/recarga de conversaciones, evaluación de calidad y recorrido autenticado de extremo a extremo; validar UI móvil/desktop, tema e idioma.
 - [x] Explicar la integración, el almacenamiento vectorial, el flujo RAG y los límites de red en [OLLAMA_PGVECTOR_RAG](OLLAMA_PGVECTOR_RAG.md).
 
-La indexación HTTP actual procesa hasta 32 fragmentos por llamada en lotes internos; puede repetirse si hay más. Ollama se configura con `OLLAMA_BASE_URL`, `OLLAMA_EMBEDDING_MODEL` y `OLLAMA_EMBEDDING_REVISION`; Gemini con `GEMINI_API_KEY` y `GEMINI_MODEL`. No se inventaron modelos ni dimensiones. La API y el frontend compilan; aún no están listos para uso hasta aplicar V29, configurar proveedores y completar el recorrido autenticado.
+La indexación HTTP actual procesa hasta 32 fragmentos por llamada. Ollama y pgvector están activos y probados en Compose. La generación del chat RAG no está lista hasta añadir `GEMINI_API_KEY` y validar documentos reales, citas y permisos.
 
 ## Bloque 74 — petición 9: Centro de documentación (23/11/2026)
 

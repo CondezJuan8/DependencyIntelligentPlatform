@@ -1436,3 +1436,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** `docker compose config --quiet` terminó correctamente. No se descargó ni inició la imagen; por tanto, el enlace API–Ollama en runtime y pgvector V29 siguen sin comprobarse.
 
 **Siguiente.** Decidir si se descarga la imagen fijada (aprox. 3.16 GB en el intento previo), completar la validación de `/api/tags` y `/api/embed`, configurar Gemini y aplicar V29 en un volumen de PostgreSQL adecuado.
+
+## Bloque 77 — runtime de la petición 10 (24/11/2026)
+
+**Petición.** Dejar lista la petición 10 de IA documental/RAG en Compose, sin requerir reglas de Firewall por equipo.
+
+**Cambios.** Se descargó y arrancó `ollama/ollama:0.40.17` (8.52 GB extraída); el servicio de inicialización instaló `embeddinggemma-2:latest` en `ollama_data`. Se reconstruyó el backend y se aplicó V29 sobre la base existente. Se actualizó el frontend y la aplicación quedó sirviendo en `localhost:8089`. `.env` local y plantilla fijan `gemini-3.8-flash`; la clave sigue vacía. Se guardó un respaldo PostgreSQL antes de migrar en `%TEMP%\dependency-intelligence-pre-v29.dump`.
+
+**Herramientas y tecnologías.** Docker Compose, Docker, Ollama REST, PostgreSQL 17/pgvector 0.8.7, Flyway V29, Spring Boot, Angular, PowerShell y Maven. No se añadieron dependencias de aplicación.
+
+**Verificación.** Compose válido; Ollama saludable; `/api/tags` coincide con el digest fijado; `/api/embed` desde backend devolvió HTTP 200 y 768 números finitos; extensión `vector` y RLS forzado verificados; permisos de tabla runtime confirmados; `/actuator/health` UP; `/?view=assistant` HTTP 200. El primer `mvn verify` se interrumpió durante Infrastructure luego de 5 pruebas Domain y 26 Application correctas; la imagen final se empaquetó con `-DskipTests`. Gemini y un recorrido RAG autenticado con documentos no se validaron: la clave falta y la biblioteca está vacía.
+
+**Siguiente.** Configurar `GEMINI_API_KEY` solo en `.env`, reiniciar backend, añadir documentos autorizados de prueba y validar citas, permisos y abstención. No compartir la clave por chat.
