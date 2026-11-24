@@ -1547,3 +1547,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **UI actualizada tras revisión.** Las etiquetas de todos los estados y el estado OSV ahora se muestran visibles, no solo el estado final. El frontend se reconstruyó y se actualizó sin tocar los demás servicios; el bundle inicial y el chunk lazy de Inventario responden 200 y contienen la clave `scanComponentId` y el texto de solo lectura. La ruta nueva responde 401 sin sesión, confirmando que sigue protegida. La base vacía impide verificar un hallazgo autenticado de extremo a extremo.
 
 **Pendiente.** Agregar reglas revisadas para más advisories Java y npm y modelar flujo entre archivos con un motor seguro, sin inferir explotación. Hacer recorrido visual autenticado cuando exista un scan OSV real disponible. No crear una rama ni un pull request.
+
+## Bloque 86 — GHSA mixtos impedían encontrar el hallazgo OSV (24/11/2026)
+
+**Problema reportado.** Al pulsar la revisión desde Inventario, la API respondía «El aviso OSV no pertenece a ese paquete y análisis», aunque el aviso estaba asociado al paquete.
+
+**Causa comprobada.** La UI normaliza el ID a mayúsculas. OSV persiste IDs GHSA con casing mixto (por ejemplo `GHSA-j8rh-479h-cp32`), pero el lector JDBC comparaba el campo JSON con igualdad exacta. La consulta read-only de la base Compose encontró 769 registros donde casing mixto hacía fallar una petición normalizada.
+
+**Corrección.** El lector compara `upper(advisory.id)` con `upper(requestId)` y conserva las condiciones estrictas de organización, repositorio, `scanId`, `scanComponentId` y hallazgo guardado. No se eliminó la validación ni se permite buscar el aviso en otro paquete o análisis. Se agregó una regresión de integración que persiste el GHSA en minúsculas mixtas y lo consulta como lo envía el frontend.
+
+**Verificación.** Dos pruebas del IT `VulnerabilityAssessmentScannerNamesIT` pasaron en PostgreSQL temporal con pgvector, incluida la regresión de casing. La primera ejecución con PostgreSQL genérico falló antes de ejecutar el test porque no tiene la extensión vector; se repitió con la imagen pgvector aislada y pasó. Backend Compose reconstruido y reiniciado solo; `http://localhost:8089/` y `/api/auth/csrf` respondieron 200. El contenido de la base Compose solo se consultó en lectura; no se modificaron scans ni evaluaciones existentes.
+
+**Herramientas.** Java 21, Spring JDBC, PostgreSQL JSONB/pgvector, JUnit/Spring Boot Test, Docker Compose, PowerShell y Git existentes; no se agregaron dependencias. Commit convencional creado: `🐛 fix: reconoce IDs GHSA con casing mixto`.

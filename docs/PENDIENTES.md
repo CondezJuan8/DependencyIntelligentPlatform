@@ -283,4 +283,4 @@ El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAES
 - [x] Límites de ZIP, expansión, entradas, archivo y duración documentados en el contexto maestro.
 - [ ] Ampliar reglas validadas para símbolos/APIs de avisos Java y npm; hoy solo hay dos reglas Jackson y la detección de imports npm no demuestra uso de función vulnerable.
 - [ ] Explorar análisis de flujo entre archivos en un sandbox separado; no atribuir alcanzabilidad/explotabilidad sin evidencia validada.
-- [ ] Recorrido visual autenticado con un scan y un aviso reales. Compose está documentado sin cuentas; el build comprueba la pantalla, pero falta validar datos reales en UI.
+- [ ] Recorrido visual autenticado con un aviso real. La base Compose contiene análisis y evaluaciones OSV; falta completar el clic autenticado desde Inventario con la sesión del usuario.

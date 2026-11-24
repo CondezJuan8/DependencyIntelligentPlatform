@@ -25,7 +25,7 @@ Cada aviso presenta el identificador, resumen disponible, severidad disponible, 
 
 ## Revisión de exposición en código
 
-Desde el aviso del Inventario se puede pedir una revisión estática del mismo componente y análisis. El endpoint `GET /api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis/{advisoryId}/code-evidence` requiere `scanId` y `scanComponentId`; consulta el resultado OSV guardado para esa relación antes de abrir archivos. No inicia otro scan ni otra consulta OSV.
+Desde el aviso del Inventario se puede pedir una revisión estática del mismo componente y análisis. El endpoint `GET /api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis/{advisoryId}/code-evidence` requiere `scanId` y `scanComponentId`; consulta el resultado OSV guardado para esa relación antes de abrir archivos. El ID OSV se compara sin distinción de mayúsculas/minúsculas, porque valores como `GHSA-j8rh-479h-cp32` se conservan con casing mixto mientras el cliente puede enviarlo normalizado. No inicia otro scan ni otra consulta OSV.
 
 La revisión comprueba que el ZIP disponible tenga exactamente el `source_sha256` del scan y, si proviene de GitHub, descarga el commit almacenado en ese scan. Los uploads locales solo se revisan si su ZIP retenido conserva el mismo hash. Un cambio de fuente produce `INCONCLUSIVE` y no se examina el código actual. El proceso solo lee un ZIP con límites; no ejecuta scripts/build/tests y no escribe al repositorio, crea ramas o PR.
 

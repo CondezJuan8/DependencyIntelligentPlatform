@@ -33,7 +33,8 @@ public final class JdbcVulnerableScanComponentReader implements VulnerableScanCo
                 from scan_vulnerability_assessments evidence
                 cross join lateral jsonb_array_elements(evidence.advisories) advisory(item)
                 where evidence.organization_id=sc.organization_id and evidence.scan_id=sc.scan_id
-                  and evidence.scan_component_id=sc.id and advisory.item->>'id'=?
+                  and evidence.scan_component_id=sc.id
+                  and upper(advisory.item->>'id')=upper(?)
                 order by evidence.checked_at desc, evidence.id desc limit 1
             ) assessment on true
             where s.organization_id=? and s.repository_id=? and s.id=? and sc.id=?
