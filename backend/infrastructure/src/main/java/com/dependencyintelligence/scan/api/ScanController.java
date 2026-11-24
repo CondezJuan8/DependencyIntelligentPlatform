@@ -7,6 +7,7 @@ import com.dependencyintelligence.scan.application.port.in.FindScanHistory;
 import com.dependencyintelligence.scan.application.dto.ScanHistoryItem;
 import com.dependencyintelligence.scan.application.dto.ScanComparison;
 import com.dependencyintelligence.scan.application.port.in.CompareScans;
+import com.dependencyintelligence.scan.application.port.in.UpdateScanLabel;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -23,12 +24,15 @@ public class ScanController {
     private final FindScanHistory history;
     private final CompareScans comparison;
     private final AuthorizedRepositoryActions access;
+    private final UpdateScanLabel updateScanLabel;
 
-    public ScanController(RequestScan requestScan, FindScanHistory history, CompareScans comparison, AuthorizedRepositoryActions access) {
+    public ScanController(RequestScan requestScan, FindScanHistory history, CompareScans comparison,
+            AuthorizedRepositoryActions access, UpdateScanLabel updateScanLabel) {
         this.requestScan = requestScan;
         this.history = history;
         this.comparison = comparison;
         this.access = access;
+        this.updateScanLabel = updateScanLabel;
     }
 
     @GetMapping
@@ -52,5 +56,14 @@ public class ScanController {
             requestScan.execute(new RequestScanCommand(organizationId, repositoryId, request.gitReference()))));
     }
 
+    @PutMapping("/{scanId}/label")
+    public ResponseEntity<Void> label(@PathVariable UUID organizationId, @PathVariable UUID repositoryId,
+            @PathVariable UUID scanId, @Valid @RequestBody ScanLabelRequest request, Principal principal) {
+        access.execute(principal, organizationId, repositoryId, "scan.create", () ->
+            updateScanLabel.execute(organizationId, repositoryId, scanId, request.displayName()));
+        return ResponseEntity.noContent().build();
+    }
+
     public record ScanRequest(@NotBlank @Size(max = 255) String gitReference) { }
+    public record ScanLabelRequest(@Size(max = 100) String displayName) { }
 }

@@ -24,8 +24,11 @@ public final class JdbcScanHistoryAdapter implements ScanHistoryReader {
                    s.requested_at, s.started_at, s.finished_at, s.failure_reason, s.origin,
                    s.scanner_name, s.scanner_version, s.source_sha256, s.manifest_count,
                    (select count(*) from scan_components component where component.organization_id=s.organization_id and component.scan_id=s.id),
-                   s.unresolved_count, s.coverage_status, s.coverage_message
-            from scans s
+                   s.unresolved_count, s.coverage_status, s.coverage_message, s.display_name, s.sequence_number
+            from (
+                select scans.*, row_number() over (partition by organization_id, repository_id order by requested_at, id) sequence_number
+                from scans where organization_id=? and repository_id=?
+            ) s
             join repositories r on r.organization_id=s.organization_id and r.id=s.repository_id
             left join repository_commits c on c.organization_id=s.organization_id and c.repository_id=s.repository_id and c.id=s.repository_commit_id
             where s.organization_id=? and s.repository_id=? and r.is_enabled
@@ -37,7 +40,8 @@ public final class JdbcScanHistoryAdapter implements ScanHistoryReader {
                 row.getTimestamp(9) == null ? null : row.getTimestamp(9).toInstant(), row.getString(10),
                 row.getString(11), row.getString(12), row.getString(13), row.getString(14),
                 row.getObject(15, Integer.class) == null ? 0 : row.getInt(15), row.getInt(16),
-                row.getObject(17, Integer.class) == null ? 0 : row.getInt(17), row.getString(18), row.getString(19)),
-            organizationId, repositoryId, Math.max(1, Math.min(limit, 100))));
+                row.getObject(17, Integer.class) == null ? 0 : row.getInt(17), row.getString(18), row.getString(19),
+                row.getString(20), row.getLong(21)),
+            organizationId, repositoryId, organizationId, repositoryId, Math.max(1, Math.min(limit, 100))));
     }
 }

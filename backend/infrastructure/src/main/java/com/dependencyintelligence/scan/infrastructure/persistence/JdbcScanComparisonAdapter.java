@@ -37,12 +37,15 @@ public final class JdbcScanComparisonAdapter implements ScanComparisonReader {
     @Override public ScanComparison compare(UUID organization, UUID repository, UUID baseId, UUID targetId) {
         return tenants.execute(organization, () -> {
             var points = jdbc.query("""
-                select s.id, c.commit_sha, s.finished_at, s.coverage_status, s.coverage_message
-                from scans s
+                select s.id, s.display_name, s.sequence_number, c.commit_sha, s.finished_at, s.coverage_status, s.coverage_message
+                from (
+                    select scans.*, row_number() over (partition by organization_id, repository_id order by requested_at, id) sequence_number
+                    from scans where organization_id=? and repository_id=?
+                ) s
                 left join repository_commits c on c.organization_id=s.organization_id and c.repository_id=s.repository_id and c.id=s.repository_commit_id
                 join repositories r on r.organization_id=s.organization_id and r.id=s.repository_id and r.is_enabled
                 where s.organization_id=? and s.repository_id=? and s.id in (?,?) and s.status='COMPLETED'
-                """, (row, index) -> point(row), organization, repository, baseId, targetId);
+                """, (row, index) -> point(row), organization, repository, organization, repository, baseId, targetId);
             Map<UUID, ScanPoint> byId = new HashMap<>(); points.forEach(point -> byId.put(point.id(), point));
             if (!byId.containsKey(baseId) || !byId.containsKey(targetId))
                 throw new IllegalArgumentException("Uno de los anÃ¡lisis no existe, no estÃ¡ completado o pertenece a otro repositorio.");
@@ -102,7 +105,7 @@ public final class JdbcScanComparisonAdapter implements ScanComparisonReader {
     }
 
     private ScanPoint point(ResultSet row) throws SQLException {
-        return new ScanPoint(row.getObject("id", UUID.class), row.getString("commit_sha"),
+        return new ScanPoint(row.getObject("id", UUID.class), row.getString("display_name"), row.getLong("sequence_number"), row.getString("commit_sha"),
             row.getTimestamp("finished_at") == null ? null : row.getTimestamp("finished_at").toInstant(),
             row.getString("coverage_status"), row.getString("coverage_message"));
     }

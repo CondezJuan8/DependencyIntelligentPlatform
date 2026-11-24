@@ -38,6 +38,9 @@ import com.dependencyintelligence.scan.application.usecase.FindScanHistoryUseCas
 import com.dependencyintelligence.scan.application.port.in.CompareScans;
 import com.dependencyintelligence.scan.application.port.out.ScanComparisonReader;
 import com.dependencyintelligence.scan.application.usecase.CompareScansUseCase;
+import com.dependencyintelligence.scan.application.port.in.UpdateScanLabel;
+import com.dependencyintelligence.scan.application.port.out.ScanLabelWriter;
+import com.dependencyintelligence.scan.application.usecase.UpdateScanLabelUseCase;
 import com.dependencyintelligence.scan.application.port.in.AnalyzeMavenRepository;
 import com.dependencyintelligence.scan.application.port.out.RepositoryAnalysisSource;
 import com.dependencyintelligence.scan.application.port.out.MavenManifestReader;
@@ -123,6 +126,12 @@ public class UseCaseConfiguration {
     }
 
     @Bean CompareScans compareScans(ScanComparisonReader reader) { return new CompareScansUseCase(reader); }
+
+    @Bean UpdateScanLabel updateScanLabel(ScanLabelWriter writer, TenantTransactions transactions) {
+        var useCase = new UpdateScanLabelUseCase(writer);
+        return (organizationId, repositoryId, scanId, displayName) -> transactions.execute(organizationId,
+            () -> { useCase.execute(organizationId, repositoryId, scanId, displayName); return null; });
+    }
 
     @Bean RequestRepositoryAnalysis requestRepositoryAnalysis(RepositoryStore repositories, AnalysisJobStore jobs,
             Clock clock, TenantTransactions transactions) {

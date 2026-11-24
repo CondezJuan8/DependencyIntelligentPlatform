@@ -1,4 +1,25 @@
 <section class="analysis-page" aria-labelledby="analysis-title">
+  @if (analysisBusy()) {
+    <div class="analysis-loading-backdrop">
+      <section class="analysis-loading-window" aria-labelledby="analysis-loading-title">
+        <div class="loading-mark" aria-hidden="true"><div class="loading-wheel"><span></span><i></i></div><b>DI</b></div>
+        <p class="eyebrow">{{ 'ANÁLISIS EN CURSO' | t }}</p>
+        <div class="loading-copy" aria-live="polite" aria-atomic="true">
+          <h2 id="analysis-loading-title">{{ loadingHeadline() | t }}</h2>
+          <p>{{ loadingExplanation() | t }}</p>
+        </div>
+        <ol class="loading-steps">
+          @for (step of loadingSteps(); track step.title) {
+            <li [class.is-complete]="step.state === 'completed'" [class.is-active]="step.state === 'active'">
+              <span class="loading-step-icon" aria-hidden="true">@if (step.state === 'completed') { ✓ } @else if (step.state === 'active') { <span class="mini-wheel"></span> } @else { · }</span>
+              <span><strong>{{ step.title | t }}</strong><small>{{ step.detail | t }}</small></span>
+            </li>
+          }
+        </ol>
+        @if (running()) { <button type="button" class="secondary loading-cancel" (click)="cancelAnalysis()">{{ 'Cancelar análisis' | t }}</button> }
+      </section>
+    </div>
+  }
   <header class="analysis-heading">
     <div><p class="eyebrow">{{ 'ANÁLISIS DE DEPENDENCIAS' | t }}</p><h1 id="analysis-title">{{ 'Ejecuciones de análisis' | t }}</h1>
       <p>{{ 'Analiza la fuente autorizada del repositorio y consulta qué commit, herramientas y cobertura quedaron registrados.' | t }}</p></div>
@@ -30,17 +51,6 @@
     </section>
   }
 
-  @if (jobStatus(); as job) {
-    <section class="running" role="status" aria-live="polite">
-      <p>Trabajo {{ job.jobId }} · {{ job.status }}</p>
-      <p>Etapas confirmadas:
-        @if (job.completedStages.length) { @for (stage of job.completedStages; track stage) { <span>{{ stageLabel(stage) }}@if (!$last) { · }</span> } }
-        @else { <span>Ninguna todavía</span> }
-      </p>
-      @if (running()) { <button type="button" class="secondary" (click)="cancelAnalysis()">Cancelar análisis</button> }
-    </section>
-  } @else if (running()) { <p class="running" role="status" aria-live="polite">El análisis está en cola. Las etapas aparecerán cuando el backend las confirme.</p> }
-  @if (assessing()) { <p class="feedback" role="status">{{ 'El scanner terminó; OSV está evaluando las versiones detectadas…' | t }}</p> }
   @if (error()) { <p class="alert" role="alert">{{ error() }}</p> }
   @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
 
@@ -67,15 +77,16 @@
       } @else {
         <div class="compare-controls">
           <label>{{ 'Análisis base' | t }}<select [value]="baseScanId()" (change)="baseScanId.set($any($event.target).value)">
-            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== targetScanId()) { <option [value]="item.id">{{ item.commitSha || item.gitReference || item.id }} · {{ item.requestedAt | date:'short' }}</option> } }
+            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== targetScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
           </select></label>
           <label>{{ 'Análisis objetivo' | t }}<select [value]="targetScanId()" (change)="targetScanId.set($any($event.target).value)">
-            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== baseScanId()) { <option [value]="item.id">{{ item.commitSha || item.gitReference || item.id }} · {{ item.requestedAt | date:'short' }}</option> } }
+            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== baseScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
           </select></label>
           <button class="primary" type="button" (click)="compareScans()" [disabled]="comparing() || !baseScanId() || !targetScanId()">{{ comparing() ? ('Comparando…' | t) : ('Comparar' | t) }}</button>
         </div>
       }
       @if (comparison(); as diff) {
+        <p class="compare-context"><strong>{{ selected()?.fullName }}</strong> · {{ comparisonScanName(diff.base) }} → {{ comparisonScanName(diff.target) }}</p>
         <div class="compare-summary" aria-label="{{ 'Resumen de cambios' | t }}">
           <article><strong>{{ diff.added }}</strong><span>{{ 'Agregadas' | t }}</span></article><article><strong>{{ diff.updated }}</strong><span>{{ 'Actualizadas' | t }}</span></article>
           <article><strong>{{ diff.removed }}</strong><span>{{ 'Retiradas' | t }}</span></article><article><strong>{{ diff.unchanged }}</strong><span>{{ 'Sin cambios' | t }}</span></article>
@@ -107,10 +118,11 @@
         @for (item of history(); track item.id) {
           <article class="history-card" [class.failed-card]="item.status === 'FAILED'">
             <div class="history-top"><div><span class="status" [class.failed]="item.status === 'FAILED'" [class.partial]="item.coverageStatus === 'PARTIAL' && item.status === 'COMPLETED'">{{ stateLabel(item) | t }}</span>
-                <h3>{{ item.scannerName || (sourceLabel(item) | t) }}</h3><p>{{ sourceLabel(item) | t }} · {{ item.requestedAt | date:'medium' }}</p></div>
+                <h3><span class="scan-order">#{{ item.sequenceNumber }}</span> {{ item.displayName || item.scannerName || (sourceLabel(item) | t) }}</h3><p>{{ selected()?.fullName }} · {{ sourceLabel(item) | t }} · {{ item.requestedAt | date:'medium' }} · {{ 'Análisis' | t }} <code [title]="item.id">{{ shortId(item.id) }}</code></p></div>
               @if (item.status === 'FAILED') { <button class="retry" type="button" (click)="runAnalysis()" [disabled]="running()">{{ 'Reintentar análisis' | t }}</button> }
               @if (item.status === 'COMPLETED') { <button class="text-action" type="button" (click)="openInventory.emit(item.repositoryId)">{{ 'Ver inventario' | t }}</button> }
             </div>
+            @if (item.status === 'COMPLETED') { <div class="scan-label-editor"><label [for]="'scan-label-' + item.id">{{ 'Nombre de este análisis' | t }}</label><input [id]="'scan-label-' + item.id" maxlength="100" [value]="labelDrafts()[item.id] ?? ''" (input)="updateLabelDraft(item.id, $event)" [placeholder]="'Ej.: Antes de actualizar dependencias' | t"><button class="secondary" type="button" (click)="saveScanLabel(item)" [disabled]="savingLabelId() === item.id">{{ (savingLabelId() === item.id ? 'Guardando…' : 'Guardar nombre') | t }}</button></div> }
             <dl><div><dt>{{ 'Commit o referencia' | t }}</dt><dd>{{ item.commitSha || item.gitReference || 'No aplica / no informado' }}</dd></div>
               <div><dt>{{ 'Dependencias' | t }}</dt><dd>{{ item.dependencyCount }}</dd></div><div><dt>{{ 'Manifiestos' | t }}</dt><dd>{{ item.manifestCount }}</dd></div>
               <div><dt>{{ 'Sin resolver' | t }}</dt><dd>{{ item.unresolvedCount }}</dd></div><div><dt>{{ 'Duración' | t }}</dt><dd>{{ duration(item) }}</dd></div>
@@ -118,7 +130,7 @@
             </dl>
             @if (item.failureReason) { <p class="failure-reason"><strong>{{ 'Qué falló:' | t }}</strong> {{ item.failureReason }}</p> }
             @if (item.coverageMessage) { <p class="coverage">{{ item.coverageMessage }}</p> }
-            @if (item.sourceSha256) { <details><summary>{{ 'Procedencia de la fuente' | t }}</summary><p>SHA-256: <code>{{ item.sourceSha256 }}</code></p></details> }
+            @if (item.sourceSha256) { <details><summary>{{ 'Huella de la fuente revisada' | t }} · <code>{{ shortHash(item.sourceSha256) }}</code></summary><p>{{ 'Identifica el archivo exacto usado en este análisis. Puedes compararla con otra ejecución para saber si la fuente cambió.' | t }}</p><p>SHA-256 completo: <code>{{ item.sourceSha256 }}</code></p></details> }
           </article>
         }
       </div>

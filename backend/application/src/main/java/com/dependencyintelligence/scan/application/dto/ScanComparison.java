@@ -11,7 +11,8 @@ public record ScanComparison(ScanPoint base, ScanPoint target, int added, int re
         securityChanges = List.copyOf(securityChanges);
         recommendations = List.copyOf(recommendations);
     }
-    public record ScanPoint(UUID id, String commitSha, Instant completedAt, String coverageStatus, String coverageMessage) { }
+    public record ScanPoint(UUID id, String displayName, long sequenceNumber, String commitSha, Instant completedAt,
+            String coverageStatus, String coverageMessage) { }
     public record DependencyDelta(String ecosystem, String namespace, String name, String change,
             List<String> baseVersions, List<String> targetVersions, int baseOccurrences, int targetOccurrences,
             List<String> baseAdvisories, List<String> targetAdvisories, String baseAssessment, String targetAssessment) {
