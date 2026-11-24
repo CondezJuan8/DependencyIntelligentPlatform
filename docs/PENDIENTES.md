@@ -255,10 +255,10 @@ Estado final del bloque 43: frontend compilado, desplegado y disponible en `http
 - [ ] El usuario configura `OPENAI_API_KEY` en `.env` local; no compartirla por chat.
 - [ ] Reconstruir/reiniciar backend para aplicar V30 y validar una solicitud autenticada con documentos autorizados, citas y prompt de reparación.
 - [ ] Revisar controles de datos/retención de OpenAI para los documentos que se envían como contexto.
-## Estado de las peticiones 11–13 del contexto maestro (23/11/2026)
+## Estado de las peticiones 11-13 del contexto maestro (23/11/2026)
 
-El plan vigente es el de **14 peticiones** en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; las listas antiguas de 15 peticiones en este archivo son históricas y no cambian esa numeración.
+El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md`; las listas antiguas de 15 son historicas.
 
-- [x] **Petición 11 — historial y comparación:** compara dos análisis completados del mismo repositorio, muestra altas, retiros, cambios de versión y diferencias OSV con trazabilidad por paquete y sugerencias basadas en avisos OSV. La comparación se calcula al solicitarla y no altera snapshots.
-- [~] **Petición 12 — reportes (primera entrega):** filtros de repositorio/ecosistema/severidad, vista ejecutiva o técnica, vista previa y exportación CSV/JSON/impresión a PDF desde datos autorizados. El reporte se genera en el navegador y se limita a 5.000 paquetes. Quedan pendientes destinatarios, artefactos persistidos, SBOM/SPDX y programación/envío.
-- [ ] **Petición 13 — impacto y validación:** aún no se ejecuta código del repositorio ni pruebas en sandbox. Requiere definir y verificar aislamiento desechable antes de habilitar simulación o propuesta de PR; no se presenta como implementada.
+- [x] Peticion 11: comparacion de snapshots completados del mismo repositorio, cambios de paquetes/versiones y diferencias OSV con evidencia.
+- [~] Peticion 12: filtros, vista ejecutiva/tecnica, vista previa y exportacion CSV/JSON/impresion PDF hasta 5.000 paquetes. Pendientes destinatarios, artefactos persistidos, SBOM/SPDX y programacion/envio.
+- [ ] Peticion 13: sandbox desechable para impacto y pruebas, con aprobacion humana; no habilitar ejecucion del repositorio antes de verificarlo.

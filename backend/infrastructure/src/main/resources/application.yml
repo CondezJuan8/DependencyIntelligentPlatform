@@ -40,9 +40,9 @@ management:
       show-details: never
 springdoc:
   api-docs:
-    enabled: false
+    enabled: ${SPRINGDOC_ENABLED:false}
   swagger-ui:
-    enabled: false
+    enabled: ${SPRINGDOC_ENABLED:false}
 server:
   tomcat:
     max-part-count: 100001

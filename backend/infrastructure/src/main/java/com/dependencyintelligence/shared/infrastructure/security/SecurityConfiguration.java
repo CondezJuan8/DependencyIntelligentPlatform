@@ -61,6 +61,7 @@ public class SecurityConfiguration {
                 .successHandler(handlers).failureHandler(handlers))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/csrf", "/api/auth/providers", "/api/auth/oauth2/callback/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/providers/*/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/register-invited", "/api/auth/login", "/api/auth/password-reset/request",
