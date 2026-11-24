@@ -5,13 +5,17 @@ import java.io.InputStream;
 import java.util.UUID;
 
 public interface RepositoryCodeArchive {
-    Snapshot open(UUID organizationId, UUID repositoryId);
+    Snapshot open(UUID organizationId, UUID repositoryId, UUID scanId);
 
     interface Snapshot extends AutoCloseable {
         InputStream content();
         String provider();
         String sha256();
         String commitSha();
+        String expectedSha256();
+        String expectedCommitSha();
+        boolean available();
+        String unavailableReason();
         @Override void close() throws IOException;
     }
 }

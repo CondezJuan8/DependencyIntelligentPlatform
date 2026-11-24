@@ -13,5 +13,11 @@ public interface GitHubAppGateway {
     List<InstallationInfo> installationsForConnection();
     List<Candidate> repositories(long installationId);
     String downloadArchive(long installationId, String repositoryExternalId, String fullName, Path target);
+    default String downloadArchive(long installationId, String repositoryExternalId, String fullName,
+            String requiredCommitSha, Path target) {
+        if (requiredCommitSha != null && !requiredCommitSha.isBlank())
+            throw new UnsupportedOperationException("La pasarela no admite descargar un commit exacto.");
+        return downloadArchive(installationId, repositoryExternalId, fullName, target);
+    }
     record InstallationInfo(long id, String accountLogin, String accountType) { }
 }

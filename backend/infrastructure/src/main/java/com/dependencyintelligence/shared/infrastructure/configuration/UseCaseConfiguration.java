@@ -13,6 +13,7 @@ import com.dependencyintelligence.repository.application.port.in.ListLocalReposi
 import com.dependencyintelligence.repository.application.port.in.DeleteRepository;
 import com.dependencyintelligence.repository.application.port.in.FindRepositoryVulnerabilityEvidence;
 import com.dependencyintelligence.repository.application.port.out.RepositoryCodeArchive;
+import com.dependencyintelligence.repository.application.port.out.VulnerableScanComponentReader;
 import com.dependencyintelligence.repository.application.port.out.RepositoryStore;
 import com.dependencyintelligence.repository.application.port.out.LocalRepositorySourceStore;
 import com.dependencyintelligence.repository.application.usecase.FindRepositoryUseCase;
@@ -99,8 +100,9 @@ public class UseCaseConfiguration {
         return (organizationId, repositoryId) -> transactions.execute(organizationId, () -> { useCase.execute(organizationId, repositoryId); return null; });
     }
 
-    @Bean FindRepositoryVulnerabilityEvidence findRepositoryVulnerabilityEvidence(RepositoryCodeArchive archives) {
-        return new FindRepositoryVulnerabilityEvidenceUseCase(archives);
+    @Bean FindRepositoryVulnerabilityEvidence findRepositoryVulnerabilityEvidence(RepositoryCodeArchive archives,
+            VulnerableScanComponentReader components) {
+        return new FindRepositoryVulnerabilityEvidenceUseCase(archives, components);
     }
 
     @Bean RequestScan requestScan(RepositoryStore repositories, ScanStore scans,

@@ -51,6 +51,23 @@ class RepositorySourceServiceTest {
         assertFalse(Files.exists(temporary));
     }
 
+    @Test void githubSnapshotCanBeRequestedAtTheScanCommitInsteadOfCurrentHead() throws Exception {
+        var gateway = mock(GitHubAppGateway.class);
+        String expectedCommit = "c".repeat(40);
+        when(gateway.downloadArchive(eq(77L), eq("90210"), eq("CondezJuan8/demo"), eq(expectedCommit), any(Path.class)))
+            .thenAnswer(invocation -> { writeZip(invocation.getArgument(4)); return expectedCommit; });
+        var sources = new RepositorySourceService(mock(JdbcTemplate.class), mock(TenantTransactions.class), gateway, root.toString());
+        var location = new RepositorySourceService.SourceLocation("github", "90210", "CondezJuan8/demo", null, null, 77L);
+        Path temporary;
+        try (var snapshot = sources.prepare(location, expectedCommit)) {
+            temporary = snapshot.archive();
+            assertEquals(expectedCommit, snapshot.commitSha());
+            assertTrue(Files.exists(temporary));
+        }
+        assertFalse(Files.exists(temporary));
+        verify(gateway, never()).downloadArchive(eq(77L), eq("90210"), eq("CondezJuan8/demo"), any(Path.class));
+    }
+
     private static void writeZip(Path target) throws Exception {
         try (var output = new ZipOutputStream(Files.newOutputStream(target))) {
             output.putNextEntry(new ZipEntry("pom.xml")); output.write("<project/>".getBytes()); output.closeEntry();

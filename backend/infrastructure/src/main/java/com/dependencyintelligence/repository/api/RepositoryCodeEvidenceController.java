@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis")
@@ -22,8 +23,9 @@ public final class RepositoryCodeEvidenceController {
 
     @GetMapping("/{advisoryId}/code-evidence")
     public RepositoryCodeEvidence find(@PathVariable UUID organizationId, @PathVariable UUID repositoryId,
-            @PathVariable String advisoryId, Principal principal) {
+            @PathVariable String advisoryId, @RequestParam UUID scanId, @RequestParam UUID scanComponentId,
+            Principal principal) {
         authorization.execute(principal, organizationId, repositoryId, "repository.read", () -> true);
-        return evidence.execute(organizationId, repositoryId, advisoryId);
+        return evidence.execute(organizationId, repositoryId, scanId, scanComponentId, advisoryId);
     }
 }

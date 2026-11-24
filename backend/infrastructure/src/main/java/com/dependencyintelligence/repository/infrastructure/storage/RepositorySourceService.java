@@ -45,6 +45,10 @@ public final class RepositorySourceService {
     }
 
     public SourceSnapshot prepare(SourceLocation location) {
+        return prepare(location, null);
+    }
+
+    public SourceSnapshot prepare(SourceLocation location, String requiredCommitSha) {
         try {
             if ("local".equals(location.provider())) {
                 if (location.storageKey() == null || !location.storageKey().matches("[0-9a-f-]{36}/[0-9a-f-]{36}\\.zip"))
@@ -53,13 +57,17 @@ public final class RepositorySourceService {
                 if (!archive.startsWith(root) || !Files.isRegularFile(archive) || Files.isSymbolicLink(archive)
                     || !isZip(archive) || !sha256(archive).equals(location.sha256()))
                     throw new IllegalStateException("La fuente local no supera la comprobación de integridad.");
+                if (requiredCommitSha != null && !requiredCommitSha.isBlank())
+                    throw new IllegalStateException("La fuente local no tiene un commit Git verificable.");
                 return new SourceSnapshot(archive, "local", location.sha256(), null, false);
             }
             if (!"github".equals(location.provider()) || location.installationId() == null)
                 throw new IllegalStateException("La instalación de GitHub ya no está conectada.");
             Path archive = Files.createTempFile("di-github-source-", ".zip");
             try {
-                String commit = github.downloadArchive(location.installationId(), location.externalId(), location.fullName(), archive);
+                String commit = requiredCommitSha == null || requiredCommitSha.isBlank()
+                    ? github.downloadArchive(location.installationId(), location.externalId(), location.fullName(), archive)
+                    : github.downloadArchive(location.installationId(), location.externalId(), location.fullName(), requiredCommitSha, archive);
                 if (Files.size(archive) < 4 || Files.size(archive) > MAX_GITHUB_ZIP_BYTES || !isZip(archive))
                     throw new IllegalStateException("El ZIP de GitHub no cumple el límite de tamaño.");
                 return new SourceSnapshot(archive, "github", sha256(archive), commit, true);

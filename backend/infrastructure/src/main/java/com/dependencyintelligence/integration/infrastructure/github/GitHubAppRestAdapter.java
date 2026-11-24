@@ -155,6 +155,11 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
     }
 
     @Override public String downloadArchive(long installationId, String repositoryExternalId, String fullName, Path target) {
+        return downloadArchive(installationId, repositoryExternalId, fullName, null, target);
+    }
+
+    @Override public String downloadArchive(long installationId, String repositoryExternalId, String fullName,
+            String requiredCommitSha, Path target) {
         if (fullName == null || !fullName.matches("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+") ||
             repositories(installationId).stream().noneMatch(repository -> repository.externalId().equals(repositoryExternalId)
                 && repository.fullName().equals(fullName)))
@@ -162,11 +167,14 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
         String token = installationToken(installationId);
         String base = properties.apiBaseUrl().replaceAll("/+$", "") + "/repos/" + fullName;
         try {
-            var commits = http.send(apiRequest(URI.create(base + "/commits?per_page=1"), token), HttpResponse.BodyHandlers.ofString());
-            if (commits.statusCode() != 200) throw upstreamFailure(null);
-            var commitList = json.readTree(commits.body());
-            if (!commitList.isArray() || commitList.isEmpty()) throw upstreamFailure(null);
-            String sha = commitList.get(0).path("sha").asText();
+            String sha = requiredCommitSha;
+            if (sha == null || sha.isBlank()) {
+                var commits = http.send(apiRequest(URI.create(base + "/commits?per_page=1"), token), HttpResponse.BodyHandlers.ofString());
+                if (commits.statusCode() != 200) throw upstreamFailure(null);
+                var commitList = json.readTree(commits.body());
+                if (!commitList.isArray() || commitList.isEmpty()) throw upstreamFailure(null);
+                sha = commitList.get(0).path("sha").asText();
+            }
             if (!sha.matches("[a-fA-F0-9]{40}")) throw upstreamFailure(null);
             URI archiveUrl = URI.create(base + "/zipball/" + sha);
             var response = http.send(apiRequest(archiveUrl, token), HttpResponse.BodyHandlers.ofInputStream());
