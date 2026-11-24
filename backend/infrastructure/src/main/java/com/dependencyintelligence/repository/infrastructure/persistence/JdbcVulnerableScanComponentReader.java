@@ -38,7 +38,7 @@ public final class JdbcVulnerableScanComponentReader implements VulnerableScanCo
                 order by evidence.checked_at desc, evidence.id desc limit 1
             ) assessment on true
             where s.organization_id=? and s.repository_id=? and s.id=? and sc.id=?
-              and s.status='COMPLETED' and s.source_sha256 is not null
+              and s.status='COMPLETED'
             limit 1
             """, (row, index) -> new VulnerableScanComponent(row.getObject(1, UUID.class),
                 row.getObject(2, UUID.class), row.getString(3), row.getString(4),
