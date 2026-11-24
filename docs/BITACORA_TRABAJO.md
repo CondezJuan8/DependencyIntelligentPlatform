@@ -13,6 +13,21 @@
 **Decisiones recibidas para Análisis.** Manual, sin calendario; solo registries oficiales npm/Maven para una consulta upstream futura, con límites conservadores; estados por etapas reales, sin porcentajes. La política consultada para trabajos programados no aplica mientras no haya calendario.
 
 **Siguiente paso.** Implementar el trabajo durable manual de Análisis sobre las tablas existentes, con estado consultable y las etapas que realmente registre el backend.
+
+## Bloque 89 — análisis manual durable (24/11/2026)
+
+**Petición.** Continuar la corrección del prompt maestro en Análisis, con decisiones vigentes: ejecución manual, sin calendario; consulta upstream npm/Maven oficiales queda separada y sin activar; estados por etapas reales, sin porcentajes.
+
+**Cambios.** Se añadió V31: índice único de jobs activos SCAN por repositorio, unicidad de scan por job/scanner y función `SECURITY DEFINER` para reclamar con `SKIP LOCKED`, reponer leases expirados a 30 minutos y respetar `max_attempts`. Nuevos puertos/casos de uso guardan, consultan y cancelan el job. `POST /dependency-analysis` y los POST históricos Maven/npm devuelven `202 Accepted` con ID; hay GET por ID/activo y DELETE. Las claves de idempotencia se delimitan por repositorio. El worker fija proveedor/hash/commit al primer intento, registra etapas confirmadas, conserva resultados previos y no duplica scans exitosos al reintentar. Inventario y Análisis consultan, reanudan y cancelan trabajos; resultados se recuperan por scan ID exacto. La cancelación se comprueba entre etapas; la herramienta que ya está ejecutándose puede terminar su etapa actual.
+
+**Herramientas y tecnologías.** PowerShell, `rg`, `apply_patch`, Java 21/Maven, Docker Compose y PostgreSQL/Testcontainers. Se ajustó el soporte del IT para usar la imagen local PostgreSQL 17.7 con pgvector, alineada a las migraciones de runtime. No se añadieron dependencias.
+
+**Verificación.** `docker compose build backend`: correcto, Domain 5/5, Application 34/34, Infrastructure 38/38 (77 en total). `docker compose build frontend`: correcto, con avisos de presupuesto Angular existentes. IT focal `DatabaseIT` en PostgreSQL Testcontainers desechable: 6/6, Flyway hasta V31, validación JPA y actualización desde V1. El IT detectó el orden inválido de `FOR UPDATE SKIP LOCKED`, que se corrigió antes de repetirlo. Las primeras ejecuciones no válidas no alteraron servicios; el testcontainer se eliminó al terminar. La instancia PostgreSQL/Compose real no se conectó ni se reinició. No se probó una sesión autenticada con scanner real.
+
+**Límites y siguiente paso.** Falta el recorrido manual autenticado con un repositorio accesible, incluido cancelado durante cdxgen y recuperación tras reinicio. La consulta de versiones upstream sigue sin implementarse, de acuerdo con la decisión de no calendarizar. Vulnerabilidades no se modificó. No se ejecutó `dependency_preview`.
+
+**Commits.** Implementación y pruebas: `2518528` (`🔄 feat: procesa análisis manual con trabajos durables`). Contexto y pendientes: `604c3d4` (`🧭 docs: actualiza alcance de análisis durable`). Esta bitácora entra en un commit separado; no se hizo push.
+
 ## Bloque 75 — Petición 10: primera fase del asistente RAG (23/11/2026)
 
 **Petición.** Empezar la petición 10 del contexto maestro: pgvector, embeddings Ollama, RAG con fuentes, orquestador y chat Gemini, sin adivinar los modelos o la dimensión.
