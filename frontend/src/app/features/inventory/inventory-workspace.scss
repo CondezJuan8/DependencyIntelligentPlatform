@@ -10,6 +10,12 @@
 .eyebrow { margin: 0 0 6px; color: var(--di-accent-text); font-size: 12px; font-weight: 750; letter-spacing: .09em; }
 .page-heading h1 { margin: 0; font-size: clamp(25px, 3.3vw, 34px); letter-spacing: -.035em; line-height: 1.18; }
 .page-heading p, .catalog-heading p { margin: 8px 0 0; color: var(--di-text-secondary); font-size: 14px; line-height: 1.55; }
+.inventory-guide { margin: 0 0 16px; padding: 15px 18px; border: 1px solid var(--di-border); border-radius: 13px; background: var(--di-surface-muted, var(--di-surface)); }
+.inventory-guide > strong { font-size: 13px; }
+.inventory-guide ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 11px 0 0; padding: 0; list-style: none; }
+.inventory-guide li { display: grid; align-content: start; gap: 4px; }
+.inventory-guide li b { color: var(--di-primary); font-size: 12px; }
+.inventory-guide li span { color: var(--di-text-secondary); font-size: 12px; line-height: 1.5; }
 
 .control-panel, .scanner-status, .catalog, .empty-state {
   border: 1px solid var(--di-border);
@@ -152,3 +158,4 @@ select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-v
 .inventory-modes button[aria-pressed='true'] { border-color: var(--di-link); background: var(--di-info-background); color: var(--di-info-text); }
 .inventory-modes button:focus-visible { outline: 2px solid var(--di-link); outline-offset: 2px; }
 .repository-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding: 1rem; border-top: 1px solid var(--di-border); color: var(--di-text-secondary); }
+@media (max-width: 600px) { .inventory-guide ol { grid-template-columns: 1fr; gap: 10px; } }

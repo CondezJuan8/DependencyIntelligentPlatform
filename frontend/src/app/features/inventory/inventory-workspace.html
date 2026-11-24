@@ -7,6 +7,15 @@
     </div>
   </header>
 
+  <section class="inventory-guide" [attr.aria-label]="'Cómo interpretar el inventario' | t">
+    <strong>{{ 'Cómo encontrar y entender un hallazgo' | t }}</strong>
+    <ol>
+      <li><b>Scanner</b><span>{{ 'Identifica qué paquete y versión están en cada repositorio.' | t }}</span></li>
+      <li><b>OSV</b><span>{{ 'Busca avisos conocidos para esa versión exacta. «Sin avisos» solo significa que OSV no encontró uno.' | t }}</span></li>
+      <li><b>{{ 'Exposición en código' | t }}</b><span>{{ 'Abre un aviso para ver el archivo y la evidencia del mismo análisis. Si falta el snapshot o no hay una regla validada, el resultado será inconcluso; no significa que el paquete no se use.' | t }}</span></li>
+    </ol>
+  </section>
+
   @if (error() && (mode() === 'repository' || repositories().length === 0)) {
     <p class="notice error" role="alert">{{ error() }}</p>
   }

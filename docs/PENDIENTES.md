@@ -284,3 +284,10 @@ El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAES
 - [ ] Ampliar reglas validadas para símbolos/APIs de avisos Java y npm; hoy solo hay dos reglas Jackson y la detección de imports npm no demuestra uso de función vulnerable.
 - [ ] Explorar análisis de flujo entre archivos en un sandbox separado; no atribuir alcanzabilidad/explotabilidad sin evidencia validada.
 - [ ] Recorrido visual autenticado con un aviso real. La base Compose contiene análisis y evaluaciones OSV; falta completar el clic autenticado desde Inventario con la sesión del usuario.
+
+### Exposicion de vulnerabilidades y claridad de Inventario/Analisis
+
+- [x] Los scans sin SHA permiten validar el vinculo OSV exacto; al faltar snapshot, el resultado es inconcluso y explica la causa en lugar de lanzar «aviso no pertenece».
+- [x] Las pantallas explican el recorrido Scanner -> OSV -> evidencia del codigo y el alcance de «sin avisos» e «inconcluso».
+- [ ] Confirmar el recorrido visual autenticado y revisar si persiste otra causa de excepcion en el entorno del usuario.
+- [x] Se reconstruyeron backend/frontend en Compose; se mantuvieron base, scanner, Mailpit y Ollama sin reinicio. localhost:8089 y sus chunks nuevos responden 200.

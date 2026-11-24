@@ -5,6 +5,15 @@
     <button class="secondary" type="button" (click)="refresh()" [disabled]="!selected() || loadingHistory() || running()">{{ 'Actualizar historial' | t }}</button>
   </header>
 
+  <section class="analysis-route" [attr.aria-label]="'Flujo para encontrar vulnerabilidades' | t">
+    <strong>{{ 'Para encontrar vulnerabilidades' | t }}</strong>
+    <ol>
+      <li><b>{{ '1. Analiza' | t }}</b><span>{{ 'El Scanner detecta paquetes y versiones del repositorio.' | t }}</span></li>
+      <li><b>{{ '2. Espera OSV' | t }}</b><span>{{ 'OSV comprueba esas versiones frente a avisos públicos.' | t }}</span></li>
+      <li><b>{{ '3. Revisa' | t }}</b><span>{{ 'Abre el inventario y filtra por «Con avisos OSV» para ver cada hallazgo y su evidencia.' | t }}</span></li>
+    </ol>
+  </section>
+
   @if (loading()) { <p class="feedback" role="status">{{ 'Cargando tus repositorios…' | t }}</p> }
   @else if (!repositories().length) {
     <section class="empty"><h2>{{ 'Aún no tienes repositorios disponibles' | t }}</h2><p>{{ 'Conecta GitHub o importa una carpeta desde Mis repositorios para iniciar un análisis.' | t }}</p></section>
