@@ -1,3 +1,6 @@
+### Estado vigente — OpenAI y harness de solo lectura (23/11/2026)
+
+OpenAI reemplaza a Gemini para generación; Ollama conserva embeddings y pgvector la recuperación. El adaptador de OpenAI usa salida estructurada y no ofrece herramientas para cambiar repositorios. Solo devuelve diagnóstico y un prompt de reparación para revisión humana. La clave `OPENAI_API_KEY` está vacía en `.env` local; configura tu propia clave allí, nunca en el chat. Los siguientes registros de Gemini son históricos y quedaron sustituidos por el bloque 79. Ver [controles OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).
 ## Estado runtime de la petición 10 (24/11/2026)
 
 - [x] Imagen y contenedor Ollama `0.40.17` corriendo en Compose, aislados y sin puerto publicado; modelo guardado en `ollama_data`.
@@ -244,3 +247,11 @@ La pantalla ahora comprueba si la cuenta puede administrar GitHub en la organiza
 El tablero de vulnerabilidades y las explicaciones de advisories ya están implementados en frontend. Build y despliegue de `localhost:8089` se verificarán en este bloque; la revisión visual conjunta con repositorios reales todavía está pendiente.
 
 Estado final del bloque 43: frontend compilado, desplegado y disponible en `http://localhost:8089`; portada y bundle HTTP 200. La revisión visual con datos reales queda para el usuario.
+## IA documental: migración a OpenAI
+
+- [x] Reemplazar Gemini por adaptador OpenAI Responses API; conservar Ollama y pgvector.
+- [x] Limitar el harness MVP a diagnóstico y prompt revisable, sin herramientas ni mutaciones del repositorio.
+- [x] Añadir salida estructurada, validación de citas contra evidencia, autorización previa y UI de copiar propuesta.
+- [ ] El usuario configura `OPENAI_API_KEY` en `.env` local; no compartirla por chat.
+- [ ] Reconstruir/reiniciar backend para aplicar V30 y validar una solicitud autenticada con documentos autorizados, citas y prompt de reparación.
+- [ ] Revisar controles de datos/retención de OpenAI para los documentos que se envían como contexto.

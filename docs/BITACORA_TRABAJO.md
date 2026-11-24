@@ -1459,3 +1459,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** Compose reporta modelo configurado; `/v1beta/models/{model}:generateContent` devolvió HTTP 200 y un candidato con `gemini-3.5-flash-lite`. Backend/health sigue UP. No se cargaron documentos ni se probó recuperación/citas autenticadas; ese recorrido queda opcional hasta que el usuario quiera importar documentos.
 
 **Siguiente.** El usuario puede abrir `http://localhost:8089/?view=assistant`. Si desea verificar citas, puede importar un documento autorizado y revisar la respuesta y sus fuentes.
+
+## Bloque 79 — Harness OWASP de solo lectura y proveedor OpenAI (23/11/2026)
+
+**Petición.** Reemplazar Gemini por OpenAI y diseñar el harness para reducir riesgo de corrupción del código o vulnerabilidades, siguiendo OWASP. La idea acordada para MVP es analizar y proponer un prompt que una persona revise; no tocar repositorios.
+
+**Cambios.** Se eliminó el adaptador de generación Gemini y se agregó OpenAI Responses API con `OPENAI_API_KEY` server-side y modelo configurable (`gpt-6.2-sol` por defecto). Ollama y pgvector siguen siendo embeddings/recuperación. El modelo recibe pregunta y hasta seis fragmentos ya autorizados como datos estructurados; no se declaran tools/functions. Structured Outputs requiere diagnóstico y prompt de reparación; el servidor valida campos, límites y referencias de cita frente a los fragmentos. La API devuelve el prompt por separado y la pantalla permite revisarlo/copiarlo; no hay acción de aplicar/ejecutar. Se añadió V30 para registrar el proveedor OpenAI; el `.env` local ignorado quitó variables Gemini y tiene `OPENAI_API_KEY` vacío para que el usuario la configure. Ver [ASISTENTE_IA_SEGURIDAD_OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).
+
+**Herramientas/tecnologías.** OpenAI Responses API, Structured Outputs, Spring `RestClient`, Jackson, Angular, Flyway, OWASP LLM Prompt Injection Prevention y RAG Security. No se agregó SDK/dependencia de aplicación.
+
+**Verificación.** `docker compose build --build-arg OPERATOR_TOOL_IMAGE=true backend` terminó `BUILD SUCCESS` con `-DskipTests`; Angular producción compiló correctamente (persisten avisos previos de presupuesto del bundle/SCSS). `docker compose config --quiet` y `git diff --check` pasaron. Compose recreó backend/frontend; Flyway validó 30 migraciones y aplicó V30. `/health` HTTP 200 y la ruta web se sirve en `localhost:8089`. No se ejecutaron pruebas. La generación real no puede probarse hasta configurar la clave y no se hizo recorrido RAG autenticado porque esta instancia no tiene documentos/cuentas configurados.
+
+**Siguiente.** Configurar `OPENAI_API_KEY` solo en `.env`, reconstruir backend/frontend para aplicar V30 y probar el recorrido autenticado con evidencia autorizada. Revisar la política de datos/retención de OpenAI para documentos transmitidos al proveedor.

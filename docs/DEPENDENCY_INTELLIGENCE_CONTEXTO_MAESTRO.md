@@ -1,3 +1,6 @@
+### Estado vigente — OpenAI y harness de solo lectura (23/11/2026)
+
+OpenAI reemplaza a Gemini para generación; Ollama conserva embeddings y pgvector la recuperación. El adaptador de OpenAI usa salida estructurada y no ofrece herramientas para cambiar repositorios. Solo devuelve diagnóstico y un prompt de reparación para revisión humana. La clave `OPENAI_API_KEY` está vacía en `.env` local; configura tu propia clave allí, nunca en el chat. Los siguientes registros de Gemini son históricos y quedaron sustituidos por el bloque 79. Ver [controles OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).
 ### Bloque 78 — activación de Gemini en runtime (23/11/2026)
 
 El usuario configuró `GEMINI_API_KEY` en `.env` local. `gemini-3.8-flash` respondió 503 temporal por alta demanda; al comprobar `gemini-3.5-flash-lite`, la API aceptó la credencial/modelo y `generateContent` devolvió HTTP 200 con candidato ante una solicitud mínima sin documentos. Backend reiniciado con el modelo operativo. La carga de documentos es opcional: sin evidencia autorizada el asistente debe abstenerse; la prueba de citas/RAG con documentos importados se hará cuando el usuario quiera proporcionarlos. Ver [bitácora](BITACORA_TRABAJO.md) y [pendientes](PENDIENTES.md).
@@ -172,7 +175,7 @@ La matriz actual y sus límites están comprobados/documentados. Se confirma el 
 
 **Criterio de producto listo:** recorridos de extremo a extremo con repositorios y datos reales; autorización efectiva por organización/equipo/repositorio; resultados con procedencia y límites explícitos; fallos recuperables que no borren inventario válido; despliegue reproducible; y respaldo/restauración y aceptación de cada módulo. “Pantalla visible” no significa capacidad terminada.
 
-**Límites confirmados:** Gemini será el LLM de la plataforma; Ollama generará embeddings. Codex no se integra al producto sin petición explícita. Las notificaciones comienzan dentro de la aplicación; el correo de notificaciones se deja para después. Modelo, versión, dimensión de embedding y cuotas se decidirán con evidencia al diseñar la fase de IA.
+**Límites confirmados:** OpenAI será el LLM de la plataforma; Ollama generará embeddings. Codex no se integra al producto sin petición explícita. Las notificaciones comienzan dentro de la aplicación; el correo de notificaciones se deja para después. Modelo, versión, dimensión de embedding y cuotas se decidirán con evidencia al diseñar la fase de IA.
 
 #### Plan de cierre del contexto maestro — 14 peticiones funcionales
 
@@ -187,7 +190,7 @@ Estas peticiones sirven para concretar alcance, decisiones y criterios de acepta
 7. **Pantalla Vulnerabilidades:** agrupación, severidad, filtros, priorización, estados de revisión, versiones corregidas y referencias. **Implementada en el bloque 71; requiere validación visual con hallazgos reales del usuario.**
 8. **Pantalla Análisis:** inicio y seguimiento, commit, progreso, estados, errores, reintentos e historial de ejecuciones.
 9. **Centro de documentación:** tipos de archivo, carga, extracción, asociación a repositorios/componentes, versiones, permisos, retención y eliminación.
-10. **Arquitectura de IA documental, explícita:** Ollama y selección verificable de modelo/dimensión para embeddings; pgvector, migración, esquema, índices y aislamiento por organización; recuperación (incluida búsqueda híbrida si se decide); RAG con fragmentos y citas; orquestador; chat asistente con Gemini; permisos en recuperación, respuesta sin evidencia, fallos y evaluación de calidad. No activar pgvector en el núcleo antes de decidir e implementar esta fase documental.
+10. **Arquitectura de IA documental, explícita:** Ollama y selección verificable de modelo/dimensión para embeddings; pgvector, migración, esquema, índices y aislamiento por organización; recuperación (incluida búsqueda híbrida si se decide); RAG con fragmentos y citas; orquestador; chat asistente con OpenAI; permisos en recuperación, respuesta sin evidencia, fallos y evaluación de calidad. No activar pgvector en el núcleo antes de decidir e implementar esta fase documental.
 11. **Historial, comparación y recomendaciones:** snapshots por commit, cambios de paquetes/versiones y recomendación sustentada en fuentes.
 12. **Reportes:** destinatarios, informes técnicos/ejecutivos, filtros, vista previa, formatos exportables y programación.
 13. **Impacto y validación de cambios:** ADD/UPDATE/REMOVE/REPLACE, escenarios, pruebas aisladas, evidencia, estados de confianza y propuesta de PR con aprobación humana.
@@ -360,7 +363,7 @@ Estado a partir del repositorio, no del número de tablas o carpetas. Una funci�
 | Recomendaciones — RF-060–065 | Pendiente | Versiones candidatas/corregidas, cambios documentados, riesgos, evidencia y pruebas sugeridas | OSV, releases/documentos, comparación |
 | Alertas — RF-066–070 | Pendiente | Eventos, deduplicación, suscripción, estado y entrega in-app; correo después | Jobs, hallazgos/cambios |
 | SBOM/artefactos — RF-071–074 | Solo hash/procedencia; original no retenido | Conservar/consultar/exportar SBOM y comparar snapshots; formatos y trazabilidad | Almacenamiento privado, permisos |
-| Documentos/IA — RF-075–080 | Pendiente | Originales privados, versiones, asociaciones, extracción/OCR, búsqueda híbrida, Ollama, Gemini y respuestas citadas con permisos | Jobs, almacenamiento, modelos/configuración, pgvector aislado |
+| Documentos/IA — RF-075–080 | Pendiente | Originales privados, versiones, asociaciones, extracción/OCR, búsqueda híbrida, Ollama, OpenAI y respuestas citadas con permisos | Jobs, almacenamiento, modelos/configuración, pgvector aislado |
 | Reportes — RF-086–090 | Pendiente | Informes técnicos/ejecutivos, PDF/CSV/JSON/SBOM, artefactos trazables y programación posterior | Inventario, hallazgos, permisos, jobs |
 | Auditoría y requisitos no funcionales | Health, FK/RLS/roles SQL, append-only, evento al crear organización, CSRF, hash de contraseña y límite local de intentos | Ampliar auditoría a casos de uso, logs/métricas, límites coordinados, retención, backup/restauración y servidor | Transversal a cada fase |
 | Interfaz — pantallas del apartado 6 | Bloque 13: acceso/registro, navegación lateral/topbar, dashboard con organizaciones reales/estados vacíos y organización con pestañas/tabla/filtros/diálogos | Aceptación visual en escritorio/móvil, correcciones del usuario y pantallas con datos de los módulos aún pendientes | Contratos y funciones por módulo |
@@ -1703,3 +1706,6 @@ Se implementaron preferencias compartidas de tema e idioma por organizacion medi
 ## Diagnostico GitHub - bloque 28 (18 de noviembre de 2026)
 
 El flujo real todavia requiere configurar la GitHub App del propietario. Las variables `GITHUB_APP_*` faltan en el `.env` local. La UI ahora informa configuracion incompleta frente a permisos insuficientes por organizacion y solo habilita instalacion si ambas condiciones estan listas. Prueba real aun pendiente; callbacks de esta instancia usan localhost:8089. Detalle: [GITHUB_REPOSITORIOS](GITHUB_REPOSITORIOS.md).
+### Estado actual — IA documental con OpenAI y harness de solo lectura (23/11/2026)
+
+OpenAI reemplaza a Gemini para generación; Ollama sigue haciendo embeddings. El asistente usa la Responses API, devuelve diagnóstico y prompt de reparación estructurado y no dispone de herramientas para leer/escribir repositorios directamente ni ejecutar acciones. Backend valida acceso a documentos, salida y etiquetas de citas; la interfaz requiere revisión humana y solo copia el prompt. La clave `OPENAI_API_KEY` está en `.env` local y vacía, pendiente de configuración por el usuario; por ello falta validar generación real y el recorrido con documentos. Detalle y límites: [ASISTENTE_IA_SEGURIDAD_OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).

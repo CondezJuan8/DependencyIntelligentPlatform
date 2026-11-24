@@ -3,9 +3,9 @@ import { finalize } from 'rxjs';
 import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
 import { PreferencesService } from '../../core/preferences.service';
 
-interface Answer { conversationId: string; messageId: string; answer: string; citations: Citation[]; status: string; model: string | null; }
+interface Answer { conversationId: string; messageId: string; answer: string; proposedRepairPrompt: string | null; citations: Citation[]; status: string; model: string | null; }
 interface Citation { documentId: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
-interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; }
+interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; proposedRepairPrompt?: string | null; }
 
 @Component({ selector: 'app-assistant-workspace', templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
 export class AssistantWorkspace {
@@ -49,9 +49,13 @@ export class AssistantWorkspace {
           const answer = result.status === 'NO_EVIDENCE' && this.preferences.language() === 'en'
             ? 'I could not find authorized document evidence to answer this question. Link relevant documentation or ask a more specific question.'
             : result.answer;
-          this.turns.update(turns => [...turns, { role: 'ASSISTANT', content: answer, citations: result.citations }]);
+          this.turns.update(turns => [...turns, { role: 'ASSISTANT', content: answer, citations: result.citations, proposedRepairPrompt: result.proposedRepairPrompt }]);
         },
         error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.error.set(accessError(error)); },
       });
+  }
+  copyRepairPrompt(prompt: string): void {
+    navigator.clipboard.writeText(prompt).then(() => this.notice.set(this.preferences.language() === 'en' ? 'Repair prompt copied.' : 'Prompt de reparación copiado.'))
+      .catch(() => this.error.set(this.preferences.language() === 'en' ? 'Clipboard access is unavailable in this browser.' : 'El navegador no permitió copiar al portapapeles.'));
   }
 }

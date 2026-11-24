@@ -25,6 +25,11 @@
         <article class="turn" [class.user-turn]="turn.role === 'USER'" [class.assistant-turn]="turn.role === 'ASSISTANT'">
           <strong>{{ turn.role === 'USER' ? preferences.text('Tú') : preferences.text('Asistente') }}</strong>
           <p>{{ turn.content }}</p>
+          @if (turn.proposedRepairPrompt) { <section class="repair-prompt" [attr.aria-label]="preferences.text('Prompt de reparación propuesto')">
+            <div><h3>{{ preferences.text('Prompt de reparación propuesto') }}</h3><span>{{ preferences.text('Revísalo antes de usarlo. El asistente no modifica archivos ni ejecuta cambios.') }}</span></div>
+            <pre>{{ turn.proposedRepairPrompt }}</pre>
+            <button type="button" class="secondary" (click)="copyRepairPrompt(turn.proposedRepairPrompt!)">{{ preferences.text('Copiar prompt') }}</button>
+          </section> }
           @if (turn.citations?.length) { <ol class="citations" [attr.aria-label]="preferences.text('Fuentes consultadas')">
             @for (citation of turn.citations; track citation.chunkId; let index = $index) {
               <li><strong>[{{ index + 1 }}] {{ citation.documentName }}</strong><span>{{ citation.filename }}@if(citation.page){ · {{ preferences.text('página') }} {{ citation.page }} }@if(citation.section){ · {{ citation.section }} }</span><blockquote>{{ citation.excerpt }}</blockquote></li>

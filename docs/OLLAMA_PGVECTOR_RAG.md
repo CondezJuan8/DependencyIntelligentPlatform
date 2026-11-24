@@ -1,3 +1,6 @@
+### Estado vigente — OpenAI y harness de solo lectura (23/11/2026)
+
+OpenAI reemplaza a Gemini para generación; Ollama conserva embeddings y pgvector la recuperación. El adaptador de OpenAI usa salida estructurada y no ofrece herramientas para cambiar repositorios. Solo devuelve diagnóstico y un prompt de reparación para revisión humana. La clave `OPENAI_API_KEY` está vacía en `.env` local; configura tu propia clave allí, nunca en el chat. Los siguientes registros de Gemini son históricos y quedaron sustituidos por el bloque 79. Ver [controles OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).
 # Ollama, embeddings y pgvector en Dependency Intelligence
 
 Estado operativo local: 23 de noviembre de 2026.
@@ -102,3 +105,6 @@ Compose aplicó V29 sobre la base PostgreSQL existente sin borrar sus datos. La 
 - [Modelo embeddinggemma-2 y API `/api/embed`](https://ollama.com/library/embeddinggemma-2)
 - [pgvector: almacenamiento, distancias cosine e índices](https://github.com/pgvector/pgvector)
 - [Gemini `generateContent`](https://ai.google.dev/api/generate-content)
+# Estado vigente del proveedor de generación
+
+La generación Gemini documentada en los bloques históricos fue sustituida por OpenAI Responses API. Consultar [ASISTENTE_IA_SEGURIDAD_OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md) para configuración, controles y límites vigentes. Ollama continúa siendo el proveedor de embeddings y pgvector el almacenamiento vectorial.
