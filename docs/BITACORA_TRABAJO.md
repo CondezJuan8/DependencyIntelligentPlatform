@@ -1,3 +1,15 @@
+## Bloque 98 — ventana de carga desde Inventario (24/11/2026)
+
+**Petición.** Aclarar que la ventana fantasma y su icono deben aparecer al analizar un repositorio desde Inventario, y permanecer hasta completar los resultados y su evaluación OSV.
+
+**Cambios.** Inventario ahora muestra un overlay con rueda animada, repositorio activo, mensajes claros y lista de etapas: leer la fuente, identificar dependencias Maven, identificar dependencias npm, reunir los resultados y comprobar avisos OSV. Las etapas Maven/npm/fuente reflejan los estados que comunica el worker; los resultados y OSV conservan el overlay durante sus solicitudes reales. El fondo queda inerte y el foco atrapado en la ventana; el usuario puede cancelar el análisis mientras el worker sigue activo. Se respeta `prefers-reduced-motion`.
+
+**Herramientas/tecnologías.** Angular, Angular CDK A11y, signals, RxJS, plantilla HTML y SCSS. No se añadieron dependencias ni se cambió backend.
+
+**Verificación.** `performCompilation` Angular sin emisión: 0 diagnósticos, incluidas las plantillas. No se ejecutaron pruebas ni build de producción. Sass no pudo cargarse desde el entorno NodeRepl para compilar el SCSS; no se hizo revisión visual ni se reinició la instancia.
+
+**Siguiente paso.** Verificar visualmente desde Inventario con un análisis que use Maven/npm y devuelva dependencias evaluables por OSV.
+
 ## Bloque 97 — ventana de progreso del análisis (24/11/2026)
 
 **Petición.** Mostrar una ventana de carga al iniciar un análisis, con rueda personalizada y mensajes claros que expliquen qué tarea está realizando el sistema.

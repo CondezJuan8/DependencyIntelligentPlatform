@@ -6,6 +6,7 @@ Se trabaja con el prompt recibido en conversación; el usuario indicó ignorar e
 - [ ] Exposición de código: enlazar declaraciones npm transitivas con `package-lock.json`, localizar referencias a paquetes en fuentes y conservar como inconclusa cualquier relación OSV→API sin regla validada. Falta reproducir con el snapshot real del usuario.
 - [x] Comparar snapshots: nombres editables asociados a cada ejecución del repositorio y numeración cronológica (`#1`, `#2`...) en historial, selectores y resumen de comparación. Persiste en base de datos; falta aplicar migración V33 al entorno para habilitarlo allí.
 - [x] Análisis: ventana de carga con rueda personalizada, mensajes por etapas confirmadas (fuente, Maven, npm, resultados y OSV), cancelación y movimiento reducido; compilación Angular 0 diagnósticos. Pendiente revisión visual con análisis real en la instancia.
+- [x] Inventario: misma ventana de carga al analizar repositorio, con progreso por lectura, detección de dependencias Maven/npm, resultados y evaluación OSV; fondo inerte, foco atrapado y cancelación. Angular compila con 0 diagnósticos; revisión visual pendiente.
 - [ ] Procedencia de Inventario/Comparar: repositorio visible, revisión/fecha e IDs cortos; explicar SHA-256 como huella del código analizado y ofrecer su valor completo para comparación.
 - [ ] Explicar cobertura parcial, puntuación/severidad y límites sin afirmar cobertura que el scanner no demuestra.
 - [ ] Ampliar Documentación a fuentes oficiales y foros de lenguajes/dependencias con origen verificable y privacidad clara.

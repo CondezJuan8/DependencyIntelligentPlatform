@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { A11yModule } from '@angular/cdk/a11y';
 import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 import { catchError, finalize, forkJoin, map, of, Subscription } from 'rxjs';
 import { AnalysisJobService, AnalysisJobStatus, type AnalysisResult } from '../../core/analysis-job.service';
@@ -105,7 +106,7 @@ interface RepositoryCodeEvidence {
 
 @Component({
   selector: 'app-inventory-workspace',
-  imports: [DatePipe, TranslatePipe, InventorySpaceCatalog],
+  imports: [A11yModule, DatePipe, TranslatePipe, InventorySpaceCatalog],
   templateUrl: './inventory-workspace.html',
   styleUrls: ['./inventory-workspace.scss', './inventory-catalog.scss', './inventory-advisories.scss'],
 })
@@ -156,6 +157,8 @@ export class InventoryWorkspace implements OnInit {
   readonly loading = signal(true);
   readonly loadingScans = signal(false);
   readonly busy = signal(false);
+  readonly loadingAnalysisResults = signal(false);
+  readonly checkingAnalysisOsv = signal(false);
   readonly analysisJob = signal<AnalysisJobStatus | null>(null);
   readonly error = signal('');
   readonly notice = signal('');
@@ -317,6 +320,8 @@ export class InventoryWorkspace implements OnInit {
     this.jobSubscription = undefined;
     this.analysisJob.set(null);
     this.busy.set(false);
+    this.loadingAnalysisResults.set(false);
+    this.checkingAnalysisOsv.set(false);
     const requestSequence = ++this.scanLoadSequence;
     this.repository.set(repository);
     this.occurrences.set([]);
@@ -397,6 +402,8 @@ export class InventoryWorkspace implements OnInit {
     const repository = this.repository();
     if (!repository || this.busy() || this.loadingScans() || this.assessingVulnerabilities()) return;
     this.busy.set(true);
+    this.loadingAnalysisResults.set(false);
+    this.checkingAnalysisOsv.set(false);
     this.packagePage.set(0);
     this.error.set('');
     this.notice.set('');
@@ -423,8 +430,46 @@ export class InventoryWorkspace implements OnInit {
     });
   }
 
-  stageLabel(stage: string): string {
-    return ({ SOURCE_PREPARED: 'Fuente preparada', MAVEN_FINISHED: 'Maven terminado', NPM_FINISHED: 'npm terminado' })[stage] ?? stage;
+  analysisOverlay(): boolean { return this.busy() || this.loadingAnalysisResults() || this.checkingAnalysisOsv(); }
+
+  analysisLoadingHeadline(): string {
+    if (this.checkingAnalysisOsv()) return 'Estamos comprobando las versiones con avisos OSV';
+    if (this.loadingAnalysisResults()) return 'Estamos reuniendo los resultados del análisis';
+    const job = this.analysisJob();
+    if (!job || job.status === 'PENDING' || job.status === 'RETRYING') return 'Estamos preparando el análisis';
+    const stages = new Set(job.completedStages);
+    if (!stages.has('SOURCE_PREPARED')) return 'Estamos leyendo la fuente del repositorio';
+    if (!stages.has('MAVEN_FINISHED')) return 'Estamos identificando paquetes y versiones de Maven';
+    if (!stages.has('NPM_FINISHED')) return 'Estamos identificando paquetes y versiones de npm';
+    return 'Estamos reuniendo los resultados del análisis';
+  }
+
+  analysisLoadingExplanation(): string {
+    if (this.checkingAnalysisOsv()) return 'El scanner terminó. Estamos consultando OSV para comprobar avisos conocidos para las versiones detectadas.';
+    if (this.loadingAnalysisResults()) return 'Estamos organizando los resultados de Maven y npm para actualizar el inventario de este repositorio.';
+    const job = this.analysisJob();
+    if (!job || job.status === 'PENDING' || job.status === 'RETRYING') return 'Tu solicitud está en cola. En cuanto el worker la tome, comenzará a leer la fuente autorizada.';
+    const stages = new Set(job.completedStages);
+    if (!stages.has('SOURCE_PREPARED')) return 'Estamos preparando la fuente del repositorio para revisar sus archivos de dependencias.';
+    if (!stages.has('MAVEN_FINISHED')) return 'Estamos revisando los manifiestos Maven para reconocer los paquetes y versiones declarados.';
+    if (!stages.has('NPM_FINISHED')) return 'Estamos revisando los archivos npm para reconocer los paquetes y versiones declarados.';
+    return 'Los scanners terminaron. Estamos reuniendo los resultados antes de mostrártelos.';
+  }
+
+  analysisLoadingSteps(): { title: string; detail: string; state: 'completed' | 'active' | 'waiting' }[] {
+    const job = this.analysisJob();
+    const stages = new Set(job?.completedStages ?? []);
+    const live = !!job && ['RUNNING', 'PENDING', 'RETRYING'].includes(job.status);
+    const sourceDone = stages.has('SOURCE_PREPARED'), mavenDone = stages.has('MAVEN_FINISHED'), npmDone = stages.has('NPM_FINISHED');
+    const item = (title: string, detail: string, complete: boolean, active: boolean) => ({
+      title, detail, state: complete ? 'completed' as const : active ? 'active' as const : 'waiting' as const,
+    });
+    return [
+      item('Leer la fuente del repositorio', 'Preparar los archivos autorizados para analizarlos.', sourceDone, live && job?.status === 'RUNNING' && !sourceDone),
+      item('Identificar dependencias Maven', 'Reconocer paquetes y versiones de los manifiestos Java.', mavenDone, live && sourceDone && !mavenDone),
+      item('Identificar dependencias npm', 'Reconocer paquetes y versiones de los archivos JavaScript.', npmDone, live && mavenDone && !npmDone),
+      item('Comprobar avisos conocidos', 'Consultar OSV para las versiones detectadas.', false, this.checkingAnalysisOsv()),
+    ];
   }
 
   private resumeActiveAnalysis(repository: Repository): void {
@@ -455,9 +500,10 @@ export class InventoryWorkspace implements OnInit {
   }
 
   private finishAnalysisJob(repository: Repository, job: AnalysisJobStatus, previous: Map<Ecosystem, Scan | null>): void {
+    this.loadingAnalysisResults.set(true);
     this.analysisJobs.results(repository, job).subscribe({
       next: response => {
-        if (this.repository()?.id !== repository.id) return;
+        if (this.repository()?.id !== repository.id) { this.loadingAnalysisResults.set(false); return; }
         const results = response.map((result): ScanResult => {
           const ecosystem = result.ecosystem as Ecosystem;
           if (result.status === 'FAILED') return { ecosystem, scan: previous.get(ecosystem) ?? null,
@@ -476,9 +522,10 @@ export class InventoryWorkspace implements OnInit {
         else this.notice.set('El análisis terminó sin encontrar manifiestos compatibles.');
         const newScans = response.filter(result => result.status === 'COMPLETED')
           .flatMap(result => result.scan?.dependencies.length ? [result.scan.scanId] : []);
-        if (newScans.length) this.assessVulnerabilities(repository, newScans);
+        if (newScans.length) this.assessVulnerabilities(repository, newScans, true);
+        this.loadingAnalysisResults.set(false);
       },
-      error: failure => this.error.set(accessError(failure)),
+      error: failure => { this.loadingAnalysisResults.set(false); this.error.set(accessError(failure)); },
     });
   }
 
@@ -572,12 +619,18 @@ export class InventoryWorkspace implements OnInit {
       });
   }
 
-  private assessVulnerabilities(repository: Repository, scanIds: string[]): void {
+  private assessVulnerabilities(repository: Repository, scanIds: string[], fromAnalysis = false): void {
     const requestSequence = this.scanLoadSequence;
     const requested = new Set(scanIds);
+    if (fromAnalysis) this.checkingAnalysisOsv.set(true);
     this.assessingVulnerabilities.set(true);
     this.api.post<InventoryAssessment>(this.vulnerabilityEndpoint(repository), { scanIds }).pipe(
-      finalize(() => { if (requestSequence === this.scanLoadSequence) this.assessingVulnerabilities.set(false); }),
+      finalize(() => {
+        if (requestSequence === this.scanLoadSequence) {
+          this.assessingVulnerabilities.set(false);
+          if (fromAnalysis) this.checkingAnalysisOsv.set(false);
+        }
+      }),
     ).subscribe({
       next: (assessment) => {
         if (requestSequence !== this.scanLoadSequence) return;
