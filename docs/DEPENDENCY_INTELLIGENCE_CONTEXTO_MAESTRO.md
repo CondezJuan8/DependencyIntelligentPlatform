@@ -14,6 +14,12 @@ Inventario y Análisis reanudan el job activo tras recargar, consultan sin porce
 
 **Commits.** Código y pruebas: `🔄 feat: procesa análisis manual con trabajos durables`. Documentación/bitácora: `📝 docs: registra el análisis manual asíncrono`. No se hizo push.
 
+### Bloque 90 — cierre de análisis e inventario (24/11/2026)
+
+V32 ya está aplicada en Compose. Se corrigió el permiso SQL mínimo del worker, el guardado de `commitSha=null` al fijar el snapshot y el vínculo de un commit remoto antes de insertar un scan terminal, para respetar la inmutabilidad de procedencia. Se reforzaron las pruebas HTTP de acceso y el recorrido de una carpeta local con `pom.xml` y `package-lock.json`: importación, autorización OWNER, alta/consulta/cancelación de job, ejecución del worker y lectura de dependencias en ambos inventarios. Las suites PostgreSQL ahora usan una base aislada por clase; `mvn verify -Pdatabase-it` pasó con 61 pruebas de integración y 77 unitarias/arquitectura. El backend de Compose se reconstruyó; `/health`, la portada y `/api/auth/csrf` respondieron 200; Flyway quedó en V32 y los seis servicios siguen activos.
+
+Para una clonación nueva, seguir el bootstrap inicial de [ACCESO_LOCAL.md](ACCESO_LOCAL.md): el administrador de plataforma crea una organización; el rol OWNER pertenece a esa organización y no se infiere de `accountType`. Una cuenta del registro normal requiere aprobación. Análisis sigue manual y requiere `scan.create` dentro de la organización/repositorio activos. No se programan actualizaciones upstream ni se amplían permisos globales.
+
 ### Bloque 84 — asistente global y avisos derivados de OSV (24/11/2026)
 
 El acceso al asistente ahora está en el encabezado global y abre el mismo panel fijo movible izquierda/derecha desde cualquier pantalla; se retiró la tarjeta duplicada del Dashboard. En el cuadro de pregunta, Enter envía y Shift+Enter conserva el salto de línea.

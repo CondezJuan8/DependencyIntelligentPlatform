@@ -11,9 +11,20 @@ cp -n .env.example .env
 docker compose up --build -d
 ```
 
+En PowerShell, crea `.env` sin reemplazar uno existente con `if (-not (Test-Path .env)) { Copy-Item .env.example .env }` y luego ejecuta `docker compose up --build -d`.
+
 El archivo `.env` no se versiona; `cp -n` conserva una configuración local existente. Configurar `POSTGRES_PASSWORD` y `POSTGRES_APP_PASSWORD` distintas; esta última es obligatoria para el login runtime limitado. Para volúmenes existentes seguir el [aprovisionamiento y actualización](docs/database/README.md#arranque-y-actualización) antes de iniciar el backend.
 
 Abrir http://localhost:8088 y comprobar http://localhost:8088/health. Para cambiar el puerto, editar `WEB_PORT` en `.env`.
+
+En una base vacía, crea el primer administrador antes de registrar usuarios. El operador es interactivo, solo corre cuando se invoca y rechaza una base que ya contiene datos:
+
+```bash
+docker compose --profile bootstrap build platform-admin-bootstrap
+docker compose --profile bootstrap run --rm -it platform-admin-bootstrap
+```
+
+Después inicia sesión con esa cuenta, crea una organización y entra en **Mis repositorios** para importar una carpeta local o conectar GitHub. Selecciona **Analizar** manualmente; el trabajo queda consultable y, al terminar, sus snapshots aparecen en **Inventario**. Las cuentas OWNER de plataforma no reciben acceso automático a otras organizaciones: para analizar se necesita membresía activa en la organización seleccionada y permiso `scan.create`. Las cuentas del registro normal esperan aprobación de un administrador de plataforma.
 
 ```bash
 docker compose logs -f
@@ -41,7 +52,7 @@ Objetivo vigente: producto completo listo para usar por fases, primero local y d
 
 El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Referencias de datos: [nueva especificación](docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable/pendientes](docs/database/implementation-report.md).
 
-Incluye PostgreSQL/Flyway hasta V27 con 126 tablas, 90 con RLS forzado y 224 FK. Acceso local, verificación/recuperación de correo y organizaciones disponibles en Angular y API. Contratos y verificación en [ACCESO_LOCAL](docs/ACCESO_LOCAL.md). Diccionario y siete diagramas en [database](docs/database/README.md).
+Incluye PostgreSQL/Flyway hasta V32, permisos por organización/equipo/repositorio y análisis manual durable. Análisis e Inventario trabajan con snapshots Maven/npm; la cola registra el estado y las etapas confirmadas y no inventa porcentajes. Acceso local, verificación/recuperación de correo y organizaciones están disponibles en Angular y API. El bootstrap, las reglas de admisión y el alcance de OWNER están descritos en [ACCESO_LOCAL](docs/ACCESO_LOCAL.md). Diccionario y diagramas en [database](docs/database/README.md).
 
 El backend normaliza paquetes, versiones y apariciones de análisis tenant-scoped. El scanner procesa Maven y npm con cdxgen; el inventario consulta resultados OSV por versión exacta. Consulta el contexto maestro para el alcance y estado de las pantallas.
 
@@ -64,6 +75,6 @@ curl --fail http://localhost:8088/health
 
 El build del backend ejecuta `mvn verify`; el frontend usa `npm ci` y build de producción. Para ejecutar las pruebas backend por separado con Java 21 y Maven: `cd backend && mvn verify`.
 
-Para incluir las pruebas de PostgreSQL real: `mvn verify -Pdatabase-it` desde `backend/`. Requiere Docker para Testcontainers o una base desechable configurada mediante `TEST_DATABASE_URL`, `TEST_DATABASE_USER` y `TEST_DATABASE_PASSWORD`. El artefacto ejecutable se genera en `backend/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`.
+Para incluir las pruebas de PostgreSQL real: `mvn verify -Pdatabase-it` desde `backend/`. Testcontainers crea una base aislada por suite en PostgreSQL desechable. Si defines `TEST_DATABASE_URL`, `TEST_DATABASE_USER` y `TEST_DATABASE_PASSWORD`, el usuario necesita `CREATEDB`; las bases temporales se eliminan al cerrar Maven. Usa únicamente un servidor de pruebas desechable. El artefacto ejecutable se genera en `backend/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`.
 
 Versiones compatibles contrastadas en [Spring Boot](https://docs.spring.io/spring-boot/3.5/system-requirements.html), [springdoc](https://springdoc.org/) y [Angular](https://angular.dev/reference/versions). Versiones transitivas frontend fijadas en `package-lock.json`; backend gestionado por el BOM de Spring Boot.

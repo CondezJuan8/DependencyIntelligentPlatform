@@ -63,7 +63,7 @@ Todas las rutas llevan prefijo `/api/organizations/{organizationId}`, requieren 
 | --- | --- |
 | `GET /access` | Membresía propia, miembros, equipos/asociaciones, repositorios habilitados, catálogo y últimas 100 invitaciones; sin tokens |
 | `POST /invitations` | `{email, role, teamId, repositoryId}` → 201, resumen; SMTP. Para administración de un solo repositorio, invitar como MEMBER y después conceder `repository.manage` a su equipo/repositorio. |
-| `POST /invitations/{invitationId}/revoke` | `{}` → 204, revoca si sigue pendiente |
+| `POST /invitations/{invitationId}/revoke` | `{}` → 204, cualquier OWNER activo puede revocarla mientras siga pendiente |
 | `POST /invitations/{invitationId}/accept` | `{token}` → 204, membresía con rol y consumo atómicos |
 | `POST /members/{membershipId}` | `{role, status}` → 204; status ACTIVE/SUSPENDED/LEFT |
 | `POST /teams` | `{name}` → 201, `{id}` |

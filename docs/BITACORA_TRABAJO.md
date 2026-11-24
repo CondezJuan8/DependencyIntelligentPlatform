@@ -1,3 +1,19 @@
+## Bloque 90 — cerrar Análisis e Inventario para clonación local (24/11/2026)
+
+**Petición.** Dejar Análisis e Inventario funcionales para una instalación clonada, corregir el bloqueo reportado sin abrir permisos globales y registrar commits coherentes.
+
+**Causas encontradas.** V32 arregla los privilegios que necesitaba el `SECURITY DEFINER` del worker sobre las tablas de cola. El adapter de jobs fallaba al fijar un snapshot cuando `commitSha` era `null`, porque PostgreSQL no podía inferir el tipo del parámetro. En scans remotos, el adapter insertaba el scan como terminal y después cambiaba `repository_commit_id`, operación que el trigger de procedencia inmutable rechaza. Varias pruebas suponían acceso a organizaciones antes de aprobar la cuenta o mezclaban datos de varias clases de integración.
+
+**Cambios.** El SQL de fijación del snapshot ahora tipa `commitSha` como `text`. `JdbcMavenAnalysisAdapter` inserta el commit remoto y su FK al scan desde el primer `INSERT`, tanto para `COMPLETED` como para `FAILED`. El soporte Testcontainers crea una base limpia por clase y limita Hikari a tres conexiones; el usuario opcional `TEST_DATABASE_USER` requiere `CREATEDB` y las bases temporales se eliminan al cerrar Maven. Las pruebas de HTTP se alinearon con admisión pendiente, verifican importación/análisis/inventario local de Maven/npm y commits remotos históricos. Se actualizaron README, acceso local, arquitectura de backend, pendientes y contexto maestro. No se agregó dependencia ni migración nueva; se conserva V32 y RLS.
+
+**Herramientas/tecnologías.** PowerShell, `rg`, `apply_patch`, Java 21, Maven 3.9.11, JUnit/Testcontainers, PostgreSQL 17.7 + pgvector, Docker Compose y Git existente. No se agregó dependencia de producto.
+
+**Verificación.** `mvn verify -Pdatabase-it` terminó `BUILD SUCCESS`: Domain 5/5, Application 34/34, Infrastructure unitarias 38/38 y 61/61 pruebas de integración PostgreSQL; incluye el worker, importación local, autorización y consultas de inventario. El build Docker de backend también pasó 77 pruebas unitarias/arquitectura. Se reconstruyó solo `backend` con `docker compose up -d --build --no-deps backend`. En `localhost:8089`, `/`, `/health` y `/api/auth/csrf` respondieron 200; la base confirma Flyway V32 y backend, frontend, database, cdxgen-scanner, Mailpit y Ollama siguen activos. El reinicio invalida las sesiones en memoria.
+
+**Límites.** El test HTTP OWNER confirma que `scan.create` puede encolar y terminar un análisis; no se usaron credenciales del usuario ni se amplió su autorización. La petición exacta que mostró el 403 no se reprodujo desde una sesión de navegador, por lo que no se afirma que su causa individual esté identificada. Tras el reinicio, la persona debe volver a iniciar sesión. Cancelación durante cdxgen y recuperación tras reinicio siguen pendientes; no hay calendario upstream.
+
+**Commits.** `3523a27` 🛠️ correcciones del análisis; `9aad251` 🧪 pruebas de integración; el commit de documentación se crea después de esta bitácora. No se incluye el prompt maestro sin seguimiento del usuario ni se hace push.
+
 ## Bloque 88 — inicio del prompt maestro: transparencia del CSV de reportes (24/11/2026)
 
 **Petición.** Empezar el trabajo definido en `PROMPT_MAESTRO_CORRECCION_REPOSITORIO.md`, mantener intacto Vulnerabilidades y recordar commits coherentes.

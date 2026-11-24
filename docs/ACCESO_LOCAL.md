@@ -1,16 +1,18 @@
 # Acceso local y autorización
 
-Actualizado el 15 de noviembre de 2026. El bloque 06 entrega registro, login, logout, restauración de sesión, creación de organización con propietario y consulta de organizaciones propias. El bloque 07 añade verificación y recuperación mediante enlaces SMTP. Procedimiento en [VERIFICACION_Y_RECUPERACION](VERIFICACION_Y_RECUPERACION.md).
+Actualizado el 24 de noviembre de 2026. El acceso incluye registro, login, logout, recuperación de sesión y aprobación de cuentas. El primer administrador local se crea con el operador seguro descrito abajo; el registro web normal no concede administración y queda pendiente de aprobación de plataforma.
 
 ## Recorrido de usuario
 
-1. Configurar `.env` con las credenciales de base indicadas en el README. Para un volumen anterior, ejecutar el aprovisionamiento del login runtime antes del backend.
-2. Arrancar con `docker compose up --build -d` y abrir `http://localhost:8088`.
-3. Crear cuenta con nombre, correo y contraseña de entre 15 y 128 caracteres. La aplicación inicia sesión y muestra las organizaciones de la cuenta.
-4. Crear una organización. La misma transacción crea organización, membresía OWNER, asignación del rol y evento de auditoría. El identificador/slug se genera en el servidor.
-5. Cerrar sesión y volver a entrar. Recargar la página recupera la sesión mientras siga vigente. Los errores de conexión incluyen reintento.
+1. Configurar `.env` siguiendo el README, con contraseñas distintas para PostgreSQL y el login de la aplicación. Para un volumen anterior, ejecutar el aprovisionamiento del login runtime antes del backend.
+2. Arrancar con `docker compose up --build -d`. En una base nueva y vacía, ejecutar el [bootstrap del primer administrador](#bootstrap-local-del-primer-administrador) antes del registro normal.
+3. Iniciar sesión con el primer administrador y crear una organización. La transacción crea la membresía OWNER de esa organización. Ese rol no se propaga a otras organizaciones.
+4. En **Mis repositorios**, importar una carpeta local o conectar GitHub. Para una carpeta local, el propietario/administrador de esa organización la sube al almacenamiento privado.
+5. En **Análisis** o **Inventario**, elegir el repositorio y pulsar **Analizar**. El backend devuelve `202 Accepted`; la UI consulta el job y sus etapas confirmadas. El snapshot Maven/npm queda disponible en Inventario al completarse.
+6. El registro web normal crea cuentas con admisión pendiente. Un administrador de plataforma debe aprobarlas. Luego un propietario/administrador de organización asigna membresía/equipo/permisos. `scan.create` se decide en la organización y repositorio seleccionados, no por el tipo de cuenta global.
+7. Cerrar sesión y volver a entrar. La sesión se recupera mientras siga vigente; el reinicio del backend invalida las sesiones en memoria.
 
-Para desarrollo sin Docker, iniciar el JAR con las dos credenciales de base separadas según `database/README.md`. Desde `frontend/`, `npm ci` y `npm start` sirven Angular con proxy `/api` hacia `127.0.0.1:8080`. Node y versiones de herramientas se describen en el stack. El build de producción y las pruebas nativas pasaron en este bloque. El arranque mediante imágenes Compose queda por verificar.
+Para desarrollo sin Docker, iniciar el JAR con las dos credenciales de base separadas según `database/README.md`. Desde `frontend/`, `npm ci` y `npm start` sirven Angular con proxy `/api` hacia `127.0.0.1:8080`. Node y versiones de herramientas se describen en el stack. El build de producción y el arranque Compose se verificaron; el recorrido manual local Maven/npm y la lectura en Inventario pasan con PostgreSQL.
 
 ## Contratos HTTP
 
@@ -47,7 +49,7 @@ El límite de intentos se mantiene por proceso con mapa acotado a 4.096 direccio
 
 ## Autorización y RLS
 
-Cada operación de repositorio verifica cuenta activa, organización activa, membresía activa y permiso del rol. OWNER/ADMIN tienen alcance sobre los repositorios de su organización. MEMBER/VIEWER necesitan además el mismo permiso asignado a un equipo al que pertenecen para el repositorio solicitado. Un permiso de equipo se intersecta con los permisos del rol. Por ejemplo, VIEWER conserva el límite que impide solicitar scans aunque un equipo tenga `scan.create`.
+Cada operación de repositorio verifica cuenta activa y aprobada, organización activa, membresía activa y permiso del rol. OWNER/ADMIN tienen alcance sobre los repositorios de esa organización. MEMBER/VIEWER necesitan además el mismo permiso asignado a un equipo al que pertenecen para el repositorio solicitado. Un permiso de equipo se intersecta con los permisos del rol. Por ejemplo, VIEWER conserva el límite que impide solicitar scans aunque un equipo tenga `scan.create`. `accountType=OWNER` describe el tipo de cuenta y no sustituye una membresía OWNER en la organización activa.
 
 La comprobación y el caso de uso comparten transacción tenant. La revocación se consulta en cada petición. V12 permite descubrir las propias organizaciones activas mediante `app.user_id` local a una transacción de consulta sin organización seleccionada. El contexto se obtiene de la sesión autenticada. Las políticas existentes siguen gobernando operaciones tenant. RLS se basa en contextos fijados por el backend autorizado.
 
@@ -55,7 +57,7 @@ La comprobación y el caso de uso comparten transacción tenant. La revocación 
 
 Pruebas focalizadas de HTTP/CSRF/sesión/autorización con PostgreSQL nativo 18.6 y login runtime real, actualización desde V1, RLS y límites de capas. Build Angular de producción correcto. Health de la API respondió UP, frontend HTTP 200 y cabecera real de cookie comprobada con HttpOnly/SameSite=Lax. La revisión visual en navegador quedó pendiente por indisponibilidad del host de browser y timeout de autorización al acceder a Chrome.
 
-Verificación y recuperación se entregaron en el bloque 07. La cuenta expone emailVerified y la versión de credenciales revoca sesiones tras recuperar contraseña. El bloque 09 incorpora Google/GitHub y vínculo explícito, probados con proveedor HTTP local; requieren configurar clientes reales antes de habilitar botones. [Activación y contratos](IDENTIDAD_GOOGLE_GITHUB.md). El bloque 11 añade [invitaciones y gestión HTTP/UI de membresías/equipos/permisos](INVITACIONES_EQUIPOS_PERMISOS.md), con asignaciones y revocaciones verificadas mediante API y correo SMTP real en Mailpit. Continúan UI de repositorios/scans, sesiones persistentes y entrega durable para servidor. La revisión visual conjunta sigue pendiente; elegir el siguiente bloque con el usuario según PENDIENTES.
+Verificación y recuperación se entregaron en el bloque 07. La cuenta expone emailVerified y la versión de credenciales revoca sesiones tras recuperar contraseña. El bloque 09 incorpora Google/GitHub y vínculo explícito, probados con proveedor HTTP local; requieren configurar clientes reales antes de habilitar botones. [Activación y contratos](IDENTIDAD_GOOGLE_GITHUB.md). El bloque 11 añade [invitaciones y gestión HTTP/UI de membresías/equipos/permisos](INVITACIONES_EQUIPOS_PERMISOS.md), con asignaciones y revocaciones verificadas mediante API y correo SMTP real en Mailpit. Las pantallas de repositorios, Análisis e Inventario y la cola manual durable están entregadas; la sesión sigue en memoria y se pierde al reiniciar el backend. La petición exacta del 403 reportado no se reprodujo desde una sesión autenticada del navegador y no se otorgó permiso global. La revisión visual conjunta sigue pendiente; el resto está en PENDIENTES.
 
 ## Bootstrap local del primer administrador
 
@@ -64,10 +66,10 @@ Antes de registrar cualquier cuenta, crea la primera cuenta de plataforma en la 
 En PowerShell, desde la carpeta del proyecto:
 
 ```powershell
-docker compose build platform-admin-bootstrap
-docker compose run --rm -it platform-admin-bootstrap
+docker compose --profile bootstrap build platform-admin-bootstrap
+docker compose --profile bootstrap run --rm -it platform-admin-bootstrap
 ```
 
-El primer comando solo compila la imagen del operador y no vuelve a ejecutar la suite completa; las pruebas focalizadas ya se ejecutaron durante el bloque. El servicio solicita escribir `CREAR ADMIN`, nombre, correo, contrasena inicial de 15 a 128 caracteres y su confirmacion. La contrasena se captura sin eco y no se pone en `.env`, argumentos del comando, documentos ni Git. El usuario creado queda OWNER, activo, aprobado y con correo verificado; se guarda con el hash PBKDF2 vigente, se agrega a `platform_administrators` y se registra auditoria. Al terminar, el proceso se cierra. Luego inicia sesion en `http://localhost:8089`, crea la organizacion y conecta la GitHub App desde Mis repositorios.
+El servicio solicita escribir `CREAR ADMIN`, nombre, correo, contrasena inicial de 15 a 128 caracteres y su confirmacion. La contrasena se captura sin eco y no se pone en `.env`, argumentos del comando, documentos ni Git. El usuario creado queda OWNER de cuenta, activo, aprobado y con correo verificado; se guarda con el hash PBKDF2 vigente, se agrega a `platform_administrators` y se registra auditoria. Al terminar, el proceso se cierra. Luego inicia sesion en `http://localhost:8088` (o el `WEB_PORT` configurado), crea la organizacion y conecta GitHub o importa una carpeta desde Mis repositorios.
 
 Este comando esta previsto para la primera instalacion local. Ejecutalo antes de abrir el registro o exponer el sistema a otras personas. No uses un registro publico para intentar obtener permisos de administrador: el registro normal nunca puede asignar ese rol.

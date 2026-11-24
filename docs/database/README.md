@@ -50,7 +50,7 @@ Desde `backend/`, JDK 21 y Maven:
 mvn verify -Pdatabase-it
 ```
 
-Usa PostgreSQL 17.7 de Testcontainers con Docker. Alternativa: `TEST_DATABASE_URL`, `TEST_DATABASE_USER`, `TEST_DATABASE_PASSWORD` apuntando exclusivamente a una base desechable; los fixtures crean esquemas y roles. Para cambios solo de restricciones seleccionar clases/métodos afectados con `-Dit.test=...`. Resultados realmente obtenidos: [informe](implementation-report.md).
+Usa PostgreSQL 17.7 de Testcontainers con Docker y crea una base aislada por clase de integración. Alternativa: `TEST_DATABASE_URL`, `TEST_DATABASE_USER`, `TEST_DATABASE_PASSWORD` apuntando exclusivamente a un servidor de pruebas desechable; el usuario requiere `CREATEDB` y las bases temporales se eliminan al cerrar Maven. Los fixtures también provisionan roles de prueba. Para cambios puntuales seleccionar clases/métodos con `-Dit.test=...`. Resultados: [informe](implementation-report.md).
 
 ## Diagramas y regeneración
 
