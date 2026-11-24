@@ -1516,3 +1516,16 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Herramientas y verificacion.** Angular/TypeScript, Sass, CDK A11y, Docker Compose. Build de produccion del frontend correcto; persisten avisos de presupuesto Angular ya existentes y otros estilos largos. Frontend Compose actualizado sin reiniciar backend/base. Se verifico HTTP 200 en la pantalla del Dashboard. No se hizo recorrido visual autenticado en el navegador ni se envio una pregunta al LLM.
 
 **Siguiente paso.** Abrir Dashboard en escritorio y celular, probar abrir/cerrar, traslado de lado, teclado y envio con documentacion autorizada.
+## Bloque 84 — asistente y notificaciones en el encabezado (24/11/2026)
+
+**Petición.** Mover el botón del asistente al encabezado global, activar notificaciones útiles según los repositorios y permitir enviar una pregunta con Enter.
+
+**Cambios.** El asistente se aloja ahora en `ApplicationShell` y abre desde el encabezado en todas las pantallas. Se mantiene el panel fijo, su posición recordada y los botones para cambiarlo de lado; la tarjeta del Dashboard fue retirada para evitar duplicidad. Enter envía la pregunta y Shift+Enter inserta un salto de línea. El timbre obtiene repositorios accesibles desde `/api/account/workspace` y consulta su evaluación OSV guardada: muestra avisos que afectan versiones instaladas, registros OSV modificados durante los últimos siete días y versiones con evaluación pendiente/antigua. Cada aviso enlaza a Vulnerabilidades o Inventario. Un fallo parcial se identifica y no genera un mensaje engañoso de «sin avisos».
+
+**Herramientas/tecnologías.** Angular 22, TypeScript, RxJS, CDK A11y, Sass y Docker Compose. No se añadieron paquetes, endpoints backend ni migraciones.
+
+**Verificación.** `docker compose build frontend` terminó correctamente. Persisten los avisos Angular de presupuesto de bundle/SCSS ya existentes. `ng.cmd build` directo no pudo ejecutarse porque Node no está en el PATH local; el build se validó dentro de Docker. No se pudo confirmar la respuesta autenticada ni el diseño visual con datos reales: la base de Compose sigue vacía y pendiente de bootstrap. No se reiniciaron backend, base de datos, Mailpit ni la instancia nativa.
+
+**Límites.** El timbre deriva avisos actuales de snapshots OSV, no mantiene estado leído ni envía avisos en segundo plano. No compara por ahora cada dependencia con la última versión publicada de npm/Maven ni rastrea cambios arbitrarios en webs de documentación oficial; detecta cambios `modifiedAt` en registros OSV que ya están guardados.
+
+**Siguiente paso.** Abrir la plataforma autenticada con repositorios cargados y revisar que las alertas enlacen a la pantalla y filtro correctos. Si se requiere, añadir luego un job seguro de comparación de releases y persistencia de lectura.

@@ -1,3 +1,13 @@
+### Bloque 84 — asistente global y avisos derivados de OSV (24/11/2026)
+
+El acceso al asistente ahora está en el encabezado global y abre el mismo panel fijo movible izquierda/derecha desde cualquier pantalla; se retiró la tarjeta duplicada del Dashboard. En el cuadro de pregunta, Enter envía y Shift+Enter conserva el salto de línea.
+
+El timbre consulta repositorios accesibles y sus evaluaciones OSV guardadas. Presenta versiones con avisos, registros OSV modificados durante los últimos siete días y evaluaciones pendientes/desactualizadas, con enlaces a Vulnerabilidades o Inventario. Errores parciales de repositorio no se presentan como «sin avisos»; se informa que la consulta quedó incompleta.
+
+**Límite:** este panel resume evidencia que ya existe en los snapshots OSV; no persiste lecturas/vistos ni vigila periódicamente npm/Maven para comparar todas las dependencias con su versión más reciente. Los documentos oficiales que puede detectar son registros OSV modificados y guardados, no cambios arbitrarios en sitios externos. La prueba autenticada requiere una cuenta y repositorios, que aún no existen en la base Compose vacía.
+
+**Verificación:** build Angular de producción con Docker completado; sin dependencias ni migraciones nuevas. El build mantiene avisos de presupuestos Angular/SCSS ya existentes. Ver [bitácora, bloque 84](BITACORA_TRABAJO.md).
+
 ### Estado vigente — OpenAI y harness de solo lectura (23/11/2026)
 
 OpenAI reemplaza a Gemini para generación; Ollama conserva embeddings y pgvector la recuperación. El adaptador de OpenAI usa salida estructurada y no ofrece herramientas para cambiar repositorios. Solo devuelve diagnóstico y un prompt de reparación para revisión humana. La clave `OPENAI_API_KEY` está vacía en `.env` local; configura tu propia clave allí, nunca en el chat. Los siguientes registros de Gemini son históricos y quedaron sustituidos por el bloque 79. Ver [controles OWASP](ASISTENTE_IA_SEGURIDAD_OWASP.md).

@@ -32,20 +32,31 @@
     }
   </div>
   <div class="topbar-end"><app-preference-controls/>
+    <button class="assistant-header-button" type="button" (click)="openAssistant.emit()" [attr.aria-label]="'Abrir asistente' | t" [attr.title]="'Abrir asistente' | t">
+      <app-di-icon name="analysis" /><span>{{ 'Asistente' | t }}</span>
+    </button>
     <div class="popover-anchor">
       <button
         class="icon-button"
-        (click)="notices.set(!notices()); profile.set(false)"
-        aria-label="Información de notificaciones"
+        (click)="toggleNotifications()"
+        [attr.aria-label]="'Notificaciones' | t"
         [attr.aria-expanded]="notices()"
       >
-        <app-di-icon name="bell" />
+        <app-di-icon name="bell" />@if(notificationItems().length){<span class="notice-count">{{notificationItems().length>99?'99+':notificationItems().length}}</span>}
       </button>
       @if (notices()) {
-        <div class="popover">
-          <strong>Notificaciones</strong>
-          <p>Las notificaciones dentro de la aplicación estarán disponibles en una próxima fase.</p>
-          <button (click)="notices.set(false)">Entendido</button>
+        <div class="popover notifications-popover" role="region" [attr.aria-label]="'Notificaciones' | t">
+          <div class="notification-heading"><strong>{{ 'Notificaciones' | t }}</strong><button type="button" (click)="loadNotifications()" [disabled]="notificationsLoading()">{{'Actualizar'|t}}</button></div>
+          @if(notificationsLoading()){<p role="status">{{'Revisando los repositorios accesibles…'|t}}</p>}
+          @if(notificationsError()){<p role="alert">{{notificationsError()}}</p>}
+          @for(alert of notificationItems();track $index){
+            <button class="notification-item" type="button" (click)="go(alert.href)">
+              <span class="notification-dot" [class.critical]="alert.severity==='CRITICAL'||alert.severity==='HIGH'"></span>
+              <span><strong>{{alert.title|t}}</strong><small>{{alert.repository}} · {{alert.summary}}</small></span>
+              <app-di-icon name="arrow" />
+            </button>
+          } @empty { @if(!notificationsLoading()&&!notificationsError()){<p>{{ (notificationsPartial() ? 'No se pudieron revisar todos los repositorios. Actualiza para intentarlo otra vez.' : 'No hay avisos pendientes en los repositorios que puedes consultar.') | t }}</p>} }
+          <small>{{'El panel muestra hallazgos y actualizaciones recientes de OSV; todavía no compara releases de npm o Maven.'|t}}</small>
         </div>
       }
     </div>
