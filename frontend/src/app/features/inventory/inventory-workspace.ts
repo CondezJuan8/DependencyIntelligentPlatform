@@ -546,6 +546,16 @@ export class InventoryWorkspace implements OnInit {
     return `${assessment.scanId}:${assessment.scanComponentId}:${advisoryId.toUpperCase()}`;
   }
 
+  shortId(value: string): string { return value.length > 8 ? value.slice(0, 8) : value; }
+
+  hasCodeMatches(evidence: RepositoryCodeEvidence): boolean {
+    return evidence.matches.some(match => match.evidenceType !== 'MANIFEST_DECLARATION');
+  }
+
+  hasManifestMatch(evidence: RepositoryCodeEvidence): boolean {
+    return evidence.matches.some(match => match.evidenceType === 'MANIFEST_DECLARATION');
+  }
+
   loadCodeEvidence(advisoryId: string, assessment: VersionAssessment): void {
     const repository = this.repository();
     const id = this.codeEvidenceKey(advisoryId, assessment);
