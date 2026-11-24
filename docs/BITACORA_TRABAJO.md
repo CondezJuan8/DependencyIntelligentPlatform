@@ -1413,3 +1413,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** `npm run build` y el build de Docker frontend finalizaron correctamente. Maven `-DskipTests package` compiló Domain, Application e Infrastructure; las pruebas se omitieron. Flyway aplicó V27 y V28 en Compose. Health devolvió `UP`; la ruta de pantalla respondió HTTP 200. El catálogo PostgreSQL V28 se exportó y regeneró: 127 tablas, 91 FORCE RLS y 226 FK; validación estructural confirmó 7 diagramas, IDs/bindings únicos y cobertura de todas las FK. Quedan advertencias de presupuesto Angular (bundle inicial 570,11 KB vs 500 KB y SCSS nuevo 7,20 KB vs 4 KB). No se verificaron hallazgos reales ni el flujo autenticado de guardar el estado.
 
 **Siguiente.** Revisar visualmente `http://localhost:8089/?view=vulnerabilities` y validar guardar estados con los permisos/avisos reales de Dinamita. Continúan después Análisis, Documentación y Reportes.
+
+## Reversión de la alternativa Compose para Ollama (23/11/2026)
+
+**Petición.** Retirar la alternativa que ejecutaba Ollama en Compose y explicar paso a paso cómo solicitar y configurar el acceso de red requerido.
+
+**Cambios.** Se revirtieron los commits `40dd50b` y `fd899c9` mediante los commits `b77cba3` y `077a2b1`. El `.env` local ignorado vuelve a usar `http://host.docker.internal:11434`; se conservaron el modelo Ollama nativo y sus datos. No se tocaron volúmenes ni datos de la plataforma. No había contenedor Ollama creado ni imagen etiquetada disponible; no se hizo limpieza global de Docker.
+
+**Herramientas utilizadas.** Git, PowerShell, Docker CLI y Docker Compose. No se añadieron dependencias.
+
+**Verificación.** `git status` limpio tras los reverts; `docker ps -a` confirmó que no quedó contenedor Ollama. `docker image ls ollama/ollama` no mostró imagen etiquetada. La descarga iniciada fue interrumpida antes de tener una imagen utilizable.
+
+**Pendiente.** El equipo administra el Firewall mediante directivas de grupo (`LocalFirewallRules` no admite reglas locales). El área de TI debe permitir TCP 11434 desde la red Docker privada y luego Ollama debe escuchar en una interfaz accesible desde Docker. Hasta entonces, no se confirma conectividad entre el backend y el servicio nativo.
