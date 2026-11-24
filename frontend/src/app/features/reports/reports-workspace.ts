@@ -118,7 +118,23 @@ export class ReportsWorkspace implements OnInit {
   private csv(payload: Record<string, unknown>): string {
     const rows = payload['packages'] as PackageSummary[];
     const quote = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+    const totals = payload['totals'] as { packages: number; versions: number };
+    const partial = payload['partial'] === true;
     return '\uFEFF' + [
+      ['Report metadata'],
+      ['Title', payload['title']],
+      ['Generated at', payload['generatedAt']],
+      ['Organization', payload['organization']],
+      ['Repository', payload['repository']],
+      ['Source', payload['source']],
+      ['Ecosystem filter', payload['ecosystemFilter']],
+      ['Severity filter', payload['severityFilter']],
+      ['Matching packages', totals.packages],
+      ['Included package rows', rows.length],
+      ['Matching versions', totals.versions],
+      ['Data status', partial ? 'PARTIAL' : 'COMPLETE'],
+      ['Coverage note', payload['coverageNote'] ?? 'All matching packages are included.'],
+      [],
       ['Ecosystem','Namespace','Package','Versions','Occurrences','Versions with advisories','Highest severity','Pending assessment'],
       ...rows.map(row => [row.key.ecosystem,row.key.namespace,row.key.name,row.versions,row.occurrences,row.withAdvisories,row.severity,row.pending]),
     ].map(row => row.map(quote).join(',')).join('\r\n');
