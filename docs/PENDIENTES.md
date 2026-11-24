@@ -5,7 +5,8 @@
 - [x] Migración V29 agrega pgvector, dimensión flexible y RLS en la tabla vectorial; Compose construye pgvector 0.8.7 sobre la misma base postgres:17.7-alpine.
 - [x] API y pantalla de asistente, aislamiento por organización/repositorio, `assistant.query` + `document.read`, citas, abstención sin evidencia y error explícito de proveedor no disponible.
 - [x] Instalar Ollama 0.40.17, descargar `embeddinggemma-2:latest` y comprobar `/api/tags` y `/api/embed`: digest `f4981a15b99858ad1f2e0729416e526be7b4f428291b40082b9e4f7b27b5f62f`, vector de 768 dimensiones con valores finitos. Nombre/digest guardados en `.env` local, ignorado por Git.
-- [ ] Permitir acceso del backend Docker a Ollama con una regla entrante limitada al puerto 11434 y a `172.18.0.0/16`. El perfil de firewall administrado rechazó crearla con el acceso actual; Ollama sigue escuchando solo en `127.0.0.1` para no exponer la API.
+- [x] Preparar Ollama dentro de Compose en la red `assistant_internal` (sin puertos publicados), compartir el caché local de modelo como solo lectura y apuntar el backend a `http://ollama:11434`; no requiere regla de firewall ni cambiar el bind nativo.
+- [ ] Docker Desktop no estaba ejecutándose al preparar esta alternativa. Iniciar el servicio Ollama de Compose y comprobar que ve el modelo; si falla el montaje del caché Windows, descargar el modelo en el volumen del contenedor. Después recrear solo backend y verificar `/api/tags` y `/api/embed` desde Compose.
 - [ ] Configurar modelo y clave Gemini sin guardar secretos en Git.
 - [ ] Aplicar V29 en Compose y validar RLS/runtime grants. Se construyó la imagen con pgvector, pero no se aplicó la migración ni se recreó PostgreSQL.
 - [ ] Ejecutar regresiones focalizadas: permisos tenant/repositorio, dimensión incorrecta, persistencia/citas, abstención y fallos Ollama/Gemini. La compilación Java/Angular pasó; aún no se escribieron ni ejecutaron pruebas nuevas.
