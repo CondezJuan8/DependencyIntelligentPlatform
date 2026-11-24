@@ -23,6 +23,14 @@ El inventario consulta OSV para las versiones exactas del último análisis comp
 
 Cada aviso presenta el identificador, resumen disponible, severidad disponible, vector CVSS y enlaces de fuente. Se guarda el JSON fuente para mantener evidencia verificable; el hash SHA-256 está basado en el JSON canónico de avisos recibidos. Los códigos de error son internos y no sustituyen el estado visible.
 
+## Revisión de exposición en código
+
+Desde el aviso del Inventario se puede pedir una revisión estática del mismo componente y análisis. El endpoint `GET /api/organizations/{organizationId}/repositories/{repositoryId}/vulnerability-analysis/{advisoryId}/code-evidence` requiere `scanId` y `scanComponentId`; consulta el resultado OSV guardado para esa relación antes de abrir archivos. No inicia otro scan ni otra consulta OSV.
+
+La revisión comprueba que el ZIP disponible tenga exactamente el `source_sha256` del scan y, si proviene de GitHub, descarga el commit almacenado en ese scan. Los uploads locales solo se revisan si su ZIP retenido conserva el mismo hash. Un cambio de fuente produce `INCONCLUSIVE` y no se examina el código actual. El proceso solo lee un ZIP con límites; no ejecuta scripts/build/tests y no escribe al repositorio, crea ramas o PR.
+
+`VERSION_AFFECTED` es evidencia OSV, no evidencia de uso del código. `USAGE_DETECTED` y `REACHABLE` requieren reglas estáticas conocidas; la segunda se limita a un parámetro HTTP pasado directamente en el mismo método a `ObjectMapper.readValue(..., Path.class)` para un aviso Jackson específico. `NO_PATH_FOUND` solo aplica a una regla conocida tras lectura completa y no demuestra ausencia de vulnerabilidad. Si no hay regla aplicable, el resultado es `INCONCLUSIVE`. La implementación actual cubre dos avisos `jackson-databind`; para npm puede mostrar importaciones, pero no afirma alcanzabilidad de una función vulnerable sin regla OSV→API. El alcance y pruebas están registrados en el [contexto maestro](DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md) y la [bitácora](BITACORA_TRABAJO.md).
+
 ## Persistencia y límites
 
 

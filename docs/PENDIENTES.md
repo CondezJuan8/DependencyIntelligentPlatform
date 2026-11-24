@@ -274,3 +274,13 @@ El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAES
 - [x] Peticion 11: comparacion de snapshots completados del mismo repositorio, cambios de paquetes/versiones y diferencias OSV con evidencia.
 - [~] Peticion 12: filtros, vista ejecutiva/tecnica, vista previa y exportacion CSV/JSON/impresion PDF hasta 5.000 paquetes. Pendientes destinatarios, artefactos persistidos, SBOM/SPDX y programacion/envio.
 - [ ] Peticion 13: sandbox desechable para impacto y pruebas, con aprobacion humana; no habilitar ejecucion del repositorio antes de verificarlo.
+
+### Revisión de exposición de avisos OSV en el código (24/11/2026)
+
+- [x] API y pantalla exigen el aviso del componente del mismo `scanId` y `scanComponentId`.
+- [x] Snapshot GitHub fijado al commit del análisis; snapshot local rechazado si cambió su SHA-256.
+- [x] Estados explícitos y salida de solo lectura; ninguna modificación de repositorio, rama o pull request.
+- [x] Límites de ZIP, expansión, entradas, archivo y duración documentados en el contexto maestro.
+- [ ] Ampliar reglas validadas para símbolos/APIs de avisos Java y npm; hoy solo hay dos reglas Jackson y la detección de imports npm no demuestra uso de función vulnerable.
+- [ ] Explorar análisis de flujo entre archivos en un sandbox separado; no atribuir alcanzabilidad/explotabilidad sin evidencia validada.
+- [ ] Recorrido visual autenticado con un scan y un aviso reales. Compose está documentado sin cuentas; el build comprueba la pantalla, pero falta validar datos reales en UI.

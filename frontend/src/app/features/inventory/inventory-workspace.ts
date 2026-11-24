@@ -90,6 +90,7 @@ interface Advisory {
 }
 interface VersionAssessment {
   scanId: string;
+  scanComponentId: string;
   packageVersion: { ecosystem: string; namespace: string | null; name: string; version: string };
   status: AssessmentStatus; lastSuccessfulStatus: AssessmentStatus | null; checkedAt: string | null;
   lastSuccessfulAt: string | null; sourceModifiedAt: string | null; failureCode: string | null; advisories: Advisory[];
@@ -99,8 +100,13 @@ interface InventoryAssessment {
   unavailableVersions: number; staleVersions: number; assessments: VersionAssessment[];
 }
 interface RepositoryCodeEvidence {
-  advisoryId: string; status: 'POTENTIAL_MATCHES'|'NO_MATCH'|'LIMIT_REACHED'; sourceProvider: string; sourceSha256: string;
-  sourceCommit: string|null; scannedFiles: number; matches: {filePath:string;lineNumber:number;excerpt:string;reason:string}[];
+  scanId: string; scanComponentId: string; advisoryId: string;
+  status: 'VERSION_AFFECTED'|'USAGE_DETECTED'|'REACHABLE'|'NO_PATH_FOUND'|'INCONCLUSIVE';
+  states: string[]; versionAffected: boolean; osvStatus: string; sourceProvider: string;
+  expectedSourceSha256: string; sourceSha256: string|null; sourceCommit: string|null;
+  ecosystem: string; namespace: string|null; packageName: string; packageVersion: string;
+  manifestPath: string|null; explanation: string; analysisComplete: boolean;
+  matches: {filePath:string;lineNumber:number;endLine:number|null;symbol:string;evidenceType:string;excerpt:string;reason:string}[];
 }
 
 @Component({
@@ -482,13 +488,19 @@ export class InventoryWorkspace implements OnInit {
     return fixesForPackage(advisory.affectedJson, group.ecosystem, name);
   }
 
-  loadCodeEvidence(advisoryId: string): void {
+  codeEvidenceKey(advisoryId: string, assessment: VersionAssessment): string {
+    return `${assessment.scanId}:${assessment.scanComponentId}:${advisoryId.toUpperCase()}`;
+  }
+
+  loadCodeEvidence(advisoryId: string, assessment: VersionAssessment): void {
     const repository = this.repository();
-    const id = advisoryId.toUpperCase();
+    const id = this.codeEvidenceKey(advisoryId, assessment);
     if (!repository || this.codeEvidence()[id] || this.codeEvidenceLoading().has(id)) return;
     this.codeEvidenceLoading.update(current => new Set(current).add(id));
     this.codeEvidenceErrors.update(current => { const next={...current};delete next[id];return next; });
-    this.api.get<RepositoryCodeEvidence>(`/api/organizations/${repository.organizationId}/repositories/${repository.id}/vulnerability-analysis/${id}/code-evidence`)
+    const advisory = advisoryId.toUpperCase();
+    const params = new URLSearchParams({ scanId: assessment.scanId, scanComponentId: assessment.scanComponentId });
+    this.api.get<RepositoryCodeEvidence>(`/api/organizations/${repository.organizationId}/repositories/${repository.id}/vulnerability-analysis/${advisory}/code-evidence?${params}`)
       .pipe(finalize(()=>this.codeEvidenceLoading.update(current=>{const next=new Set(current);next.delete(id);return next;})))
       .subscribe({
         next: result => this.codeEvidence.update(current=>({...current,[id]:result})),
