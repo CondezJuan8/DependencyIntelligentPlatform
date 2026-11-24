@@ -132,7 +132,7 @@ public final class JdbcAnalysisJobAdapter implements AnalysisJobStore {
             String sha256, String commitSha) {
         return tenants.execute(organizationId, () -> jdbc.update("""
             update background_jobs set payload = payload || jsonb_build_object(
-                'sourceProvider', ?, 'sourceSha256', ?, 'commitSha', ?)
+                'sourceProvider', ?, 'sourceSha256', ?, 'commitSha', ?::text)
              where organization_id=? and id=? and job_type='SCAN' and status='RUNNING' and locked_by=?
                and (payload->>'sourceSha256' is null or
                     (payload->>'sourceProvider'=? and payload->>'sourceSha256'=? and

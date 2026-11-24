@@ -42,6 +42,7 @@ public final class ManageInvitationsUseCase implements ManageInvitations {
         if (role != OrganizationRole.MEMBER && role != OrganizationRole.VIEWER) throw new IllegalArgumentException("Las invitaciones solo admiten miembros o lectores");
         store.target(org,team,repository);
         String email = new EmailAddress(address).value();
+        if (store.activeMember(org, email)) throw new AccessConflictException("Esta cuenta ya es miembro activo de la organización.");
         String token = tokens.generate();
         var invitation = store.create(org, email, tokens.fingerprint(token), actor.membershipId(), role, clock.instant(), clock.instant().plus(lifetime),team,repository);
         delivery.send(email, access.lockOrganization(org), org, invitation.id(), token);
@@ -51,7 +52,7 @@ public final class ManageInvitationsUseCase implements ManageInvitations {
     @Override public void revoke(UUID user, UUID org, UUID id) {
         var actor = manager(access, org, user);
         var invitation = store.find(org, id);
-        if (!actor.owner() || !actor.membershipId().equals(invitation.inviterMembershipId())) throw new PermissionDeniedException();
+        if (!actor.owner()) throw new PermissionDeniedException();
         store.revoke(org, id);
         access.audit(org, user, "invitation.revoke", "invitation", id);
     }

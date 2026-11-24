@@ -46,26 +46,22 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
             UUID repositoryId, String provider, String sourceSha256, String commitSha, Instant analyzedAt,
             ManifestAnalysis analysis) {
         return tenants.execute(organizationId, () -> {
+            UUID repositoryCommitId = "local".equals(provider) ? null
+                : repositoryCommitId(organizationId, repositoryId, commitSha);
             int inserted = jdbc.update("""
-                insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
+                insert into scans(id,organization_id,repository_id,repository_commit_id,git_reference,status,requested_at,started_at,finished_at,
                   origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,
                   coverage_status,coverage_message,background_job_id)
-                values(?,?,?,?, 'COMPLETED',?,?,?, ?,?,?,'MANUAL',?,?,?,?,?,?) on conflict do nothing
-                """, scanId, organizationId, repositoryId, commitSha, Timestamp.from(analyzedAt), Timestamp.from(analyzedAt),
-                Timestamp.from(analyzedAt), "local".equals(provider) ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN", scannerName,
+                values(?,?,?,?,?, 'COMPLETED',?,?,?, ?,?,?,'MANUAL',?,?,?,?,?,?) on conflict do nothing
+                """, scanId, organizationId, repositoryId, repositoryCommitId, commitSha,
+                Timestamp.from(analyzedAt), Timestamp.from(analyzedAt), Timestamp.from(analyzedAt),
+                "local".equals(provider) ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN", scannerName,
                 scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, analysis.manifestCount(), analysis.unresolvedCount(),
                 analysis.coverageStatus(), analysis.coverageMessage(), jobId);
             if (inserted == 0) {
                 if (jobId != null) return readInventoryForJob(jobId, scannerName, organizationId, repositoryId).orElseThrow();
                 throw new IllegalStateException("No se pudo guardar el resultado del análisis.");
             }
-            if (commitSha != null) {
-                jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
-                    organizationId, repositoryId, commitSha);
-                jdbc.update("update scans set repository_commit_id=(select id from repository_commits where organization_id=? and repository_id=? and commit_sha=?) where organization_id=? and id=?",
-                    organizationId, repositoryId, commitSha, organizationId, scanId);
-            }
-
             for (ManifestDependency dependency : analysis.dependencies()) {
                 PackageCoordinates coordinates = dependency.coordinates();
                 UUID ecosystemId = jdbc.queryForObject("select id from package_ecosystems where code=?", UUID.class, coordinates.ecosystem());
@@ -115,23 +111,26 @@ public final class JdbcMavenAnalysisAdapter implements MavenAnalysisStore {
         tenants.execute(organizationId, () -> {
             UUID scanId = UUID.randomUUID();
             boolean local = "local".equals(provider);
+            UUID repositoryCommitId = local ? null : repositoryCommitId(organizationId, repositoryId, commitSha);
             String safeReason = reason == null || reason.isBlank() ? "El análisis falló sin detalle adicional." : reason;
             jdbc.update("""
-                insert into scans(id,organization_id,repository_id,git_reference,status,requested_at,started_at,finished_at,
+                insert into scans(id,organization_id,repository_id,repository_commit_id,git_reference,status,requested_at,started_at,finished_at,
                   failure_reason,origin,scanner_name,scanner_version,trigger_type,source_sha256,manifest_count,unresolved_count,
                   coverage_status,coverage_message,background_job_id)
-                values(?,?,?,?, 'FAILED',?,?,?, ?,?, ?,?,'MANUAL',?,0,0,'PARTIAL',?,?) on conflict do nothing
-                """, scanId, organizationId, repositoryId, local ? null : commitSha, Timestamp.from(failedAt),
+                values(?,?,?,?,?, 'FAILED',?,?,?, ?,?, ?,?,'MANUAL',?,0,0,'PARTIAL',?,?) on conflict do nothing
+                """, scanId, organizationId, repositoryId, repositoryCommitId, local ? null : commitSha, Timestamp.from(failedAt),
                  Timestamp.from(failedAt), Timestamp.from(failedAt), safeReason, local ? "LOCAL_UPLOAD_SCAN" : "REPOSITORY_SCAN",
                  scannerName, scannerName.startsWith("cdxgen-") ? "13.8.0" : "1", sourceSha256, safeReason, jobId);
-            if (commitSha != null && !local) {
-                jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
-                    organizationId, repositoryId, commitSha);
-                jdbc.update("update scans set repository_commit_id=(select id from repository_commits where organization_id=? and repository_id=? and commit_sha=?) where organization_id=? and id=?",
-                    organizationId, repositoryId, commitSha, organizationId, scanId);
-            }
             return null;
         });
+    }
+
+    private UUID repositoryCommitId(UUID organizationId, UUID repositoryId, String commitSha) {
+        if (commitSha == null) return null;
+        jdbc.update("insert into repository_commits(organization_id,repository_id,commit_sha) values(?,?,?) on conflict do nothing",
+            organizationId, repositoryId, commitSha);
+        return jdbc.queryForObject("select id from repository_commits where organization_id=? and repository_id=? and commit_sha=?",
+            UUID.class, organizationId, repositoryId, commitSha);
     }
 
     @Override public Optional<MavenInventory> findForJob(UUID jobId, String scannerName, UUID organizationId,
