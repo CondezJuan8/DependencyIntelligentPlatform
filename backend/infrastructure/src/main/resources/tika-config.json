@@ -1,0 +1,13 @@
+{
+  "engines": {
+    "tesseract": {
+      "tesseract-ocr-parser": {
+        "language": "eng+spa",
+        "timeoutMillis": 15000
+      }
+    }
+  },
+  "text-recognizers": [
+    { "engine": "tesseract" }
+  ]
+}

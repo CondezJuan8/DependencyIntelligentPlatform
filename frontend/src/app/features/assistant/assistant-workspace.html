@@ -1,6 +1,6 @@
 <section class="assistant-page" [class.compact]="compact">
   <header class="page-heading">
-    <div><p class="eyebrow">{{ preferences.text('DOCUMENTACIÓN CON EVIDENCIA') }}</p><h1>{{ preferences.text('Asistente de documentación') }}</h1>
+    <div><p class="eyebrow">{{ preferences.text('DOCUMENTACIÓN CON EVIDENCIA') }}</p><h1>Nexo</h1>
       <p>{{ preferences.text('Pregunta sobre documentos de tus repositorios y revisa las fuentes de cada respuesta.') }}</p></div>
     <label class="organization-picker">{{ preferences.text('Espacio') }}
       <select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending()">
@@ -10,8 +10,8 @@
   </header>
 
   <section class="assistant-card" aria-labelledby="assistant-title">
-    <div class="section-heading"><div><h2 id="assistant-title">{{ preferences.text('Asistente del espacio') }}</h2>
-      <p>{{ preferences.text('Solo consulta documentos asociados a repositorios que puedes ver. Las respuestas incluyen citas.') }}</p></div>
+    <div class="section-heading"><div><h2 id="assistant-title">Nexo</h2>
+      <p>{{ preferences.text('Solo consulta documentos asociados a repositorios que puedes ver. Las respuestas incluyen citas.') }}</p><small class="indexing-hint">{{ preferences.text('Tras subir un documento, pulsa Preparar documentos para búsqueda. Nexo indexa el texto extraído y OCR por lotes; revisa el aviso si algún documento falla o quedan fragmentos.') }}</small></div>
       <button type="button" class="secondary" [disabled]="indexing() || !organizationId()" (click)="indexDocuments()">
         {{ indexing() ? preferences.text('Preparando documentos…') : preferences.text('Preparar documentos para búsqueda') }}
       </button>

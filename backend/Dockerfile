@@ -11,6 +11,9 @@ ARG OPERATOR_TOOL_IMAGE=false
 RUN if [ "$OPERATOR_TOOL_IMAGE" = "true" ]; then mvn -B -ntp -DskipTests package; else mvn -B -ntp verify; fi
 
 FROM eclipse-temurin:21-jre-jammy
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-spa \
+    && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system app && useradd --system --gid app app
 RUN mkdir -p /var/lib/dependency-intelligence/repositories /var/lib/dependency-intelligence/documents && chown -R app:app /var/lib/dependency-intelligence
 WORKDIR /app

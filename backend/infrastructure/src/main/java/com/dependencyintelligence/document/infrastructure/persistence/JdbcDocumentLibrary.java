@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
@@ -22,6 +23,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.pdf.PDFParserConfig;
+import org.apache.tika.parser.pages.TextPolicy;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.pipes.fork.PipesForkParser;
@@ -38,6 +40,7 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
     private final JdbcTemplate jdbc;
     private final TenantTransactions tenants;
     private final Path root;
+    private final Path tikaConfig;
     private final PipesForkParser tika;
 
     public JdbcDocumentLibrary(JdbcTemplate jdbc, TenantTransactions tenants,
@@ -45,15 +48,35 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
         this.jdbc = jdbc;
         this.tenants = tenants;
         this.root = Path.of(root).toAbsolutePath().normalize();
+        Path configPath = null;
         try {
-            this.tika = new PipesForkParser(new PipesForkParserConfig().setNumClients(1)
+            configPath = copyTikaConfig();
+            this.tikaConfig = configPath;
+            this.tika = new PipesForkParser(new PipesForkParserConfig().setUserConfigPath(tikaConfig).setNumClients(1)
                 .setTimeoutLimits(new TimeoutLimits(45_000, 30_000)).addJvmArg("-Xmx256m"));
+            this.tika.start();
         } catch (Exception configurationFailure) {
+            if (configurationFailure instanceof InterruptedException) Thread.currentThread().interrupt();
+            if (configPath != null) try { Files.deleteIfExists(configPath); } catch (IOException cleanup) { configurationFailure.addSuppressed(cleanup); }
             throw new IllegalStateException("No se pudo preparar el extractor documental aislado.", configurationFailure);
         }
     }
 
-    @PreDestroy public void closeParser() throws IOException { tika.close(); }
+    @PreDestroy public void closeParser() throws IOException {
+        try { tika.close(); } finally { Files.deleteIfExists(tikaConfig); }
+    }
+
+    private static Path copyTikaConfig() throws IOException {
+        Path config = Files.createTempFile("dependency-intelligence-tika-", ".json");
+        try (var input = JdbcDocumentLibrary.class.getResourceAsStream("/tika-config.json")) {
+            if (input == null) throw new IOException("Falta la configuración OCR de Apache Tika.");
+            Files.copy(input, config, StandardCopyOption.REPLACE_EXISTING);
+            return config;
+        } catch (IOException failure) {
+            Files.deleteIfExists(config);
+            throw failure;
+        }
+    }
 
     @Override public List<Summary> list(UUID organizationId, List<UUID> visibleRepositoryIds) {
         return tenants.execute(organizationId, () -> {
@@ -232,7 +255,14 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
         try (TikaInputStream stream = TikaInputStream.get(content)) {
             var metadata = new Metadata(); metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, safeFilename(filename));
             var context = new ParseContext();
-            if (type == DocumentType.PDF) { var pdf = new PDFParserConfig(); pdf.setMaxPages(500); pdf.setMaxMainMemoryBytes(64L * 1024 * 1024); context.set(PDFParserConfig.class, pdf); }
+            if (type == DocumentType.PDF) {
+                var pdf = new PDFParserConfig();
+                pdf.setMaxPages(500);
+                pdf.setMaxMainMemoryBytes(64L * 1024 * 1024);
+                pdf.pages().setText(TextPolicy.AUTO);
+                pdf.pages().ocr().setMaxPages(50);
+                context.set(PDFParserConfig.class, pdf);
+            }
             PipesForkResult result = tika.parse(stream, metadata, context);
             if (!result.isSuccess() || result.getMetadataList().isEmpty()) return new Extraction("", "application/octet-stream", "No se pudo extraer el texto dentro del tiempo y memoria permitidos.");
             Metadata parsedMetadata = result.getMetadataList().getFirst();

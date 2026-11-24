@@ -33,9 +33,25 @@ export class AssistantWorkspace {
   indexDocuments(): void {
     const org = this.organizationId(); if (!org || this.indexing()) return;
     this.indexing.set(true); this.error.set(''); this.notice.set('');
-    this.api.post<{ indexed: number; failed: number; morePending: boolean }>(`/api/organizations/${org}/assistant/index`, {}).pipe(finalize(() => this.indexing.set(false))).subscribe({
-      next: result => { const more = result.morePending; const message = this.preferences.language() === 'en' ? 'Prepared ' + result.indexed + ' passages; ' + result.failed + ' failed.' + (more ? ' More remain; run this action again to continue.' : '') : 'Se prepararon ' + result.indexed + ' fragmentos; ' + result.failed + ' con error.' + (more ? ' Quedan más; ejecuta esta acción otra vez para continuar.' : ''); this.notice.set(message); },
-      error: error => this.error.set(accessError(error)),
+    this.indexPendingBatch(org, 0, 0, 0);
+  }
+  private indexPendingBatch(org: string, indexed: number, failed: number, batches: number): void {
+    this.api.post<{ indexed: number; failed: number; morePending: boolean }>(`/api/organizations/${org}/assistant/index`, {}).subscribe({
+      next: result => {
+        const totalIndexed = indexed + result.indexed, totalFailed = failed + result.failed, totalBatches = batches + 1;
+        const english = this.preferences.language() === 'en';
+        if (result.morePending && result.indexed > 0 && totalBatches < 100) {
+          this.notice.set(english ? `Preparing passages: ${totalIndexed} ready, ${totalFailed} failed.` : `Preparando fragmentos: ${totalIndexed} listos, ${totalFailed} con error.`);
+          this.indexPendingBatch(org, totalIndexed, totalFailed, totalBatches);
+          return;
+        }
+        this.indexing.set(false);
+        const stopped = result.morePending;
+        this.notice.set(english
+          ? `Prepared ${totalIndexed} passages; ${totalFailed} failed.${stopped ? (totalFailed ? ' Some remain after failures; check extraction/provider availability and retry.' : ' The per-run limit was reached; select this action again to continue.') : ''}`
+          : `Se prepararon ${totalIndexed} fragmentos; ${totalFailed} con error.${stopped ? (totalFailed ? ' Quedan fragmentos tras errores; revisa la extracción o el proveedor y vuelve a intentarlo.' : ' Se alcanzó el límite por ejecución; pulsa de nuevo para continuar.') : ''}`);
+      },
+      error: error => { this.indexing.set(false); this.error.set(accessError(error)); },
     });
   }
   ask(event: Event): void {

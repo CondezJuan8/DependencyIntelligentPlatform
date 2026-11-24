@@ -15,7 +15,7 @@
         <label class="wide"><span>{{ 'Descripción (opcional)' | t }}</span><textarea rows="2" maxlength="2000" [value]="description()" (input)="description.set($any($event.target).value)"></textarea></label>
         <fieldset class="wide repo-options"><legend>{{ 'Asociar a repositorios' | t }}</legend>@if (visibleRepositories().length) { <div class="repo-list">@for (repo of visibleRepositories(); track repo.id) { <label class="check"><input type="checkbox" [checked]="selectedRepositories().has(repo.id)" (change)="toggleRepository(repo.id, $any($event.target).checked)" /><span>{{ repo.fullName }}</span><small>{{ repo.source }}</small></label> }</div> } @else { <p>{{ 'No hay repositorios disponibles en esta organización. Puedes guardar documentos sin asociarlos.' | t }}</p> }</fieldset>
       </div>
-      <div class="upload-actions"><p>{{ 'Admitidos: PDF, DOCX, Markdown, TXT, OpenAPI, ADR y CHANGELOG. Los PDF escaneados requieren OCR, que todavía no está activado.' | t }}</p><button type="button" class="primary" (click)="upload()" [disabled]="pending() || !file() || !organizationId()">{{ pending() ? ('Subiendo…' | t) : ('Guardar documento' | t) }}</button></div>
+      <div class="upload-actions"><p>{{ 'Admitidos: PDF, DOCX, Markdown, TXT, OpenAPI, ADR y CHANGELOG. Los PDF escaneados usan OCR en inglés y español hasta 50 páginas; se extrae texto normal hasta 500 páginas.' | t }}</p><button type="button" class="primary" (click)="upload()" [disabled]="pending() || !file() || !organizationId()">{{ pending() ? ('Subiendo…' | t) : ('Guardar documento' | t) }}</button></div>
     </section>
   }
 
