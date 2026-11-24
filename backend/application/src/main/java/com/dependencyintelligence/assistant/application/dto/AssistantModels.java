@@ -15,11 +15,11 @@ public final class AssistantModels {
     }
     public record Citation(UUID documentId, UUID chunkId, String documentName, String filename,
             Integer page, String section, String excerpt) { }
-    public record Answer(UUID conversationId, UUID messageId, String answer, List<Citation> citations,
-            String status, String model) {
+    public record Answer(UUID conversationId, UUID messageId, String answer, String proposedRepairPrompt,
+            List<Citation> citations, String status, String model) {
         public Answer { citations = List.copyOf(citations); }
     }
     public record Evidence(UUID chunkId, UUID documentId, String documentName, String filename,
             Integer page, String section, String content, double score) { }
-    public record Generated(String text, String model) { }
+    public record Generated(String text, String proposedRepairPrompt, String model) { }
 }

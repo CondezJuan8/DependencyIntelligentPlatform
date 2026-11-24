@@ -28,21 +28,23 @@ public final class AskAssistantUseCase implements AskAssistant {
         conversations.saveMessage(request.organizationId(), conversation, userOrdinal, "USER", request.question(), null);
         if (request.repositoryIds().isEmpty()) {
             UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", NO_EVIDENCE, null);
-            return new Answer(conversation, message, NO_EVIDENCE, List.of(), "NO_EVIDENCE", null);
+            return new Answer(conversation, message, NO_EVIDENCE, null, List.of(), "NO_EVIDENCE", null);
         }
         Embedding embedding = embeddings.embed(request.question());
         List<Evidence> evidence = search.search(request.organizationId(), request.repositoryIds(), embedding.model(), embedding.revision(), embedding.values(), 6);
         if (evidence.isEmpty()) {
             UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", NO_EVIDENCE, null);
-            return new Answer(conversation, message, NO_EVIDENCE, List.of(), "NO_EVIDENCE", null);
+            return new Answer(conversation, message, NO_EVIDENCE, null, List.of(), "NO_EVIDENCE", null);
         }
         Generated generated = generation.answer(request.question(), evidence);
-        if (generated.text() == null || generated.text().isBlank()) throw new IllegalStateException("Gemini no devolvió una respuesta utilizable.");
-        UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", generated.text(), generated.model());
+        if (generated.text() == null || generated.text().isBlank() || generated.proposedRepairPrompt() == null || generated.proposedRepairPrompt().isBlank())
+            throw new IllegalStateException("OpenAI devolvió una respuesta incompleta.");
+        String persistedAnswer = generated.text() + "\n\nPrompt de reparación propuesto (requiere revisión humana):\n" + generated.proposedRepairPrompt();
+        UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", persistedAnswer, generated.model());
         conversations.saveEvidence(request.organizationId(), message, evidence);
         List<Citation> citations = evidence.stream().map(item -> new Citation(item.documentId(), item.chunkId(), item.documentName(),
             item.filename(), item.page(), item.section(), excerpt(item.content()))).toList();
-        return new Answer(conversation, message, generated.text(), citations, "ANSWERED", generated.model());
+        return new Answer(conversation, message, generated.text(), generated.proposedRepairPrompt(), citations, "ANSWERED", generated.model());
     }
 
     private static String title(String question) { return question.length() <= 100 ? question : question.substring(0, 97) + "…"; }

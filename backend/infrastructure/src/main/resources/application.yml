@@ -67,10 +67,10 @@ app:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       embedding-model: ${OLLAMA_EMBEDDING_MODEL:}
       embedding-revision: ${OLLAMA_EMBEDDING_REVISION:}
-    gemini:
-      base-url: ${GEMINI_API_BASE_URL:https://generativelanguage.googleapis.com}
-      api-key: ${GEMINI_API_KEY:}
-      model: ${GEMINI_MODEL:}
+    openai:
+      base-url: ${OPENAI_API_BASE_URL:https://api.openai.com}
+      api-key: ${OPENAI_API_KEY:}
+      model: ${OPENAI_MODEL:gpt-6.2-sol}
   vulnerability:
     osv:
       base-url: ${OSV_API_BASE_URL:https://api.osv.dev}
