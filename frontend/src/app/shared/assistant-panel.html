@@ -1,0 +1,13 @@
+@if (opened()) {
+  <button class="assistant-backdrop" type="button" [attr.aria-label]="preferences.text('Cerrar asistente')" (click)="close()"></button>
+  <aside id="assistant-panel" class="assistant-drawer" [class.left]="side()==='left'" [class.right]="side()==='right'" role="dialog" aria-modal="true" aria-labelledby="assistant-drawer-title" (keydown.escape)="close()" [cdkTrapFocus]="true" [cdkTrapFocusAutoCapture]="true">
+    <header class="assistant-drawer-header">
+      <div class="assistant-drawer-title"><span class="assistant-drawer-icon"><app-di-icon name="analysis" /></span><div><h2 id="assistant-drawer-title">{{preferences.text('Asistente del espacio')}}</h2><p>{{preferences.text('Documentación autorizada, con citas')}}</p></div></div>
+      <div class="assistant-drawer-actions">
+        <button class="assistant-icon-button" type="button" [attr.aria-label]="preferences.text(side()==='right'?'Mover panel a la izquierda':'Mover panel a la derecha')" [attr.title]="preferences.text(side()==='right'?'Mover panel a la izquierda':'Mover panel a la derecha')" (click)="moveToOtherSide()"><app-di-icon name="arrow" [class.points-left]="side()==='right'" /></button>
+        <button class="assistant-icon-button" type="button" [attr.aria-label]="preferences.text('Cerrar asistente')" [attr.title]="preferences.text('Cerrar asistente')" (click)="close()"><app-di-icon name="close" /></button>
+      </div>
+    </header>
+    <div class="assistant-drawer-body"><app-assistant-workspace [compact]="true" /></div>
+  </aside>
+}

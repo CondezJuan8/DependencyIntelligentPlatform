@@ -14,6 +14,7 @@
       [menuOpen]="sidebar()"
       (navigate)="go($event)"
       (toggleMenu)="sidebar.set(!sidebar())"
+      (openAssistant)="assistantOpen.set(true)"
     />
     <main id="workspace-main" tabindex="-1" (keydown.escape)="sidebar.set(false)">
       @defer (on immediate) {
@@ -81,3 +82,4 @@
     </main>
   </div>
 </div>
+<app-assistant-panel [opened]="assistantOpen()" (closed)="closeAssistant()" />

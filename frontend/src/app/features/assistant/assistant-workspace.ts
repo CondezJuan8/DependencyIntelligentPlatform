@@ -55,6 +55,10 @@ export class AssistantWorkspace {
         error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.error.set(accessError(error)); },
       });
   }
+  questionKeydown(event: KeyboardEvent):void {
+    if(event.key!=='Enter'||event.shiftKey||event.isComposing)return;
+    this.ask(event);
+  }
   copyRepairPrompt(prompt: string): void {
     navigator.clipboard.writeText(prompt).then(() => this.notice.set(this.preferences.language() === 'en' ? 'Repair prompt copied.' : 'Prompt de reparación copiado.'))
       .catch(() => this.error.set(this.preferences.language() === 'en' ? 'Clipboard access is unavailable in this browser.' : 'El navegador no permitió copiar al portapapeles.'));

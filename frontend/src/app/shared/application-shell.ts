@@ -20,10 +20,11 @@ import { WorkspaceTopbar } from './workspace-topbar';
 import { WorkspaceSettingsService } from '../core/workspace-settings.service';
 import { DocumentCenter } from '../features/documents/document-center';
 import { AssistantWorkspace } from '../features/assistant/assistant-workspace';
+import { AssistantPanel } from './assistant-panel';
 import { ReportsWorkspace } from '../features/reports/reports-workspace';
 @Component({
   selector: 'app-application-shell',
-  imports: [PlatformAdministration,RepositoryWorkspace,InventoryWorkspace,VulnerabilitiesWorkspace,AnalysisWorkspace,AccountSettings,DocumentCenter,AssistantWorkspace,ReportsWorkspace,
+  imports: [PlatformAdministration,RepositoryWorkspace,InventoryWorkspace,VulnerabilitiesWorkspace,AnalysisWorkspace,AccountSettings,DocumentCenter,AssistantWorkspace,AssistantPanel,ReportsWorkspace,
     WorkspaceSidebar,
     WorkspaceTopbar,
     MatButtonModule,
@@ -41,6 +42,7 @@ export class ApplicationShell {
   readonly api = inject(SessionApiService);
   readonly page = signal<Page>(initialPage(window.location.search,this.api.account()));
   readonly sidebar = signal(false);
+  readonly assistantOpen = signal(false);
   constructor() {
     const workspaceSettings = inject(WorkspaceSettingsService);
     effect(() => {
@@ -87,4 +89,5 @@ if(!availableNavigation(this.api.account()).some(item=>item.id===page))page=init
     url.searchParams.set('repositoryId', repositoryId);
     window.history.replaceState(null, '', url.pathname + url.search);
   }
+  closeAssistant():void { this.assistantOpen.set(false); }
 }

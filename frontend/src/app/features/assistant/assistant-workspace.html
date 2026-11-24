@@ -41,7 +41,8 @@
     </div>
     <form class="composer" (submit)="ask($event)">
       <label for="assistant-question">{{ preferences.text('Tu pregunta') }}</label>
-      <textarea id="assistant-question" rows="3" maxlength="4000" [value]="question()" (input)="question.set($any($event.target).value)" [placeholder]="preferences.text('Escribe una pregunta sobre la documentación del espacio…')" [disabled]="pending() || !organizationId()"></textarea>
+      <textarea id="assistant-question" rows="3" maxlength="4000" [value]="question()" (input)="question.set($any($event.target).value)" (keydown)="questionKeydown($event)" [placeholder]="preferences.text('Escribe una pregunta sobre la documentación del espacio…')" [disabled]="pending() || !organizationId()"></textarea>
+      <small class="keyboard-hint">{{preferences.text('Enter para enviar · Shift+Enter para una nueva línea')}}</small>
       <div class="composer-actions"><span>{{ question().length }}/4000</span><button type="submit" [disabled]="pending() || !question().trim() || !organizationId()">{{ pending() ? preferences.text('Consultando…') : preferences.text('Preguntar') }}</button></div>
     </form>
   </section>
