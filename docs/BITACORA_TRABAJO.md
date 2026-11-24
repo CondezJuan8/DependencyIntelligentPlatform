@@ -1448,3 +1448,14 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** Compose válido; Ollama saludable; `/api/tags` coincide con el digest fijado; `/api/embed` desde backend devolvió HTTP 200 y 768 números finitos; extensión `vector` y RLS forzado verificados; permisos de tabla runtime confirmados; `/actuator/health` UP; `/?view=assistant` HTTP 200. El primer `mvn verify` se interrumpió durante Infrastructure luego de 5 pruebas Domain y 26 Application correctas; la imagen final se empaquetó con `-DskipTests`. Gemini y un recorrido RAG autenticado con documentos no se validaron: la clave falta y la biblioteca está vacía.
 
 **Siguiente.** Configurar `GEMINI_API_KEY` solo en `.env`, reiniciar backend, añadir documentos autorizados de prueba y validar citas, permisos y abstención. No compartir la clave por chat.
+## Bloque 78 — Gemini configurado y generación comprobada (23/11/2026)
+
+**Petición.** El usuario informó que agregó la clave Gemini y aclaró que cargar documentos es opcional.
+
+**Cambios.** Se recargó el backend con la clave desde `.env` local. El modelo `gemini-3.8-flash` estaba bajo alta demanda (503); se seleccionó `gemini-3.5-flash-lite`, listado en la documentación oficial de Gemini, y se comprobó que `generateContent` responde. Se dejó ese modelo como valor de ejemplo y default local. No se imprimió ni se guardó la clave en Git. La documentación aclara que importar documentos es opcional y que, sin evidencia, el asistente se abstiene.
+
+**Herramientas y tecnologías.** Docker Compose, Spring Boot, REST/curl para prueba mínima con una instrucción sin datos documentales, Google Gemini API, PowerShell y Git. No se añadieron dependencias de aplicación.
+
+**Verificación.** Compose reporta modelo configurado; `/v1beta/models/{model}:generateContent` devolvió HTTP 200 y un candidato con `gemini-3.5-flash-lite`. Backend/health sigue UP. No se cargaron documentos ni se probó recuperación/citas autenticadas; ese recorrido queda opcional hasta que el usuario quiera importar documentos.
+
+**Siguiente.** El usuario puede abrir `http://localhost:8089/?view=assistant`. Si desea verificar citas, puede importar un documento autorizado y revisar la respuesta y sus fuentes.

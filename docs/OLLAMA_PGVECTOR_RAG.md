@@ -1,6 +1,6 @@
 # Ollama, embeddings y pgvector en Dependency Intelligence
 
-Estado operativo local: 24 de noviembre de 2026.
+Estado operativo local: 23 de noviembre de 2026.
 
 ## Qué quedó instalado y comprobado
 
@@ -9,7 +9,7 @@ Estado operativo local: 24 de noviembre de 2026.
 - Una llamada real a `POST /api/embed` generó un vector de **768 valores numéricos finitos**.
 - `.env` local ignorado usa la URL interna `http://ollama:11434`, nombre del modelo y digest verificado. Los datos del volumen no se añadieron al repositorio.
 - Imagen oficial `ollama/ollama:0.40.17` descargada (8.52 GB extraida); contenedor Compose saludable y aislado, sin puerto publicado. El modelo persiste en `ollama_data`.
-- Modelo de generación fijado a `gemini-3.8-flash`; falta `GEMINI_API_KEY`, por lo que todavía no se puede probar la generación Gemini.
+- Modelo `gemini-3.5-flash-lite` activo. La clave `GEMINI_API_KEY` está configurada solo en `.env`; una solicitud mínima de generación desde el backend devolvió HTTP 200 con un candidato.
 
 ## Cómo se conecta cada parte
 
@@ -75,20 +75,18 @@ Por ahora la búsqueda es exacta y no hay un índice ANN como HNSW. Esto evita e
 5. Si hay evidencia, Gemini recibe la pregunta y esos pasajes; el prompt trata su contenido como datos no confiables, pide ignorar instrucciones incrustadas, responder en el idioma de la pregunta y citar afirmaciones como `[1]`.
 6. La respuesta, conversación y relaciones a los fragmentos citados se guardan. La respuesta API devuelve los extractos y metadatos para que la interfaz muestre sus fuentes.
 
-El backend ya accede a Ollama. Desde su contenedor, `/api/tags` coincidió con el digest configurado y `/api/embed` devolvió HTTP 200 con un vector de 768 dimensiones y valores finitos. La generación final con Gemini no está probada: falta la clave. La base no contiene documentos todavía, así que no se ha validado una respuesta RAG con citas sobre archivos reales.
+Desde el backend, `/api/tags` coincidió con el digest configurado y `/api/embed` devolvió HTTP 200 con un vector de 768 dimensiones y valores finitos. Gemini `gemini-3.5-flash-lite` devolvió HTTP 200 y un candidato ante una solicitud mínima sin datos documentales. La biblioteca puede permanecer vacía: el asistente no requiere que cada usuario cargue documentos; sin evidencia autorizada, se abstiene. La prueba de recuperación y citas con documentos propios queda a decisión del usuario.
 
 ## PostgreSQL y Docker
 
 Compose aplicó V29 sobre la base PostgreSQL existente sin borrar sus datos. La extensión `vector` está en versión 0.8.7; `document_chunk_vectors` tiene RLS habilitado y forzado, y el usuario runtime posee permisos. Se creó un respaldo pre-migración en `%TEMP%\dependency-intelligence-pre-v29.dump` (3.302.164 bytes). `/health` respondió `UP`.
 
-## Qué falta para completar la petición 10
+## Estado de uso de la petición 10
 
-1. Obtener una API key de Gemini AI Studio y guardarla solo en `.env` (`GEMINI_API_KEY`). El modelo `gemini-3.8-flash` ya está configurado.
-2. Cargar documentos de prueba autorizados, indexarlos y validar una respuesta RAG con citas, permisos y abstención.
-3. Completar las regresiones focalizadas de RLS, dimensiones, persistencia/citas y fallos de proveedores. El build de este bloque omitió la suite larga; no se añadieron pruebas.
-4. La vista del asistente está disponible en `http://localhost:8089/?view=assistant`; requiere sesión autenticada y documentos accesibles para producir respuestas con evidencia.
-
-Ollama y pgvector ya funcionan en Compose; no se necesita Firewall de Windows. En otro equipo, `ollama_data` mantiene el modelo después de la primera descarga.
+- Ollama, embeddings y pgvector están activos en Compose. La pantalla está disponible en `http://localhost:8089/?view=assistant`.
+- La clave Gemini es local y la generación básica ya respondió HTTP 200 con el modelo `gemini-3.5-flash-lite`. No se incluye ni se imprime el secreto.
+- Importar documentos es opcional. El asistente puede abrirse sin documentos; si no hay evidencia autorizada, se abstiene. Para probar recuperación y citas, la persona puede importar documentos que tenga permiso de consultar.
+- Se mantienen pendientes la validación visual/autenticada con una cuenta de usuario y las regresiones focalizadas de citas/RLS en documentos reales; no se inventaron resultados de esa revisión.
 ## Archivos principales
 
 - Application: `backend/application/src/main/java/com/dependencyintelligence/assistant/`
