@@ -85,12 +85,6 @@
 
   app-inventory-workspace {
     .inventory-page { max-width: none; }
-    .inventory-guide { display:block; margin:0; padding:10px 14px; border:1px solid var(--di-border); border-radius:var(--di-radius-panel); background:var(--di-surface-muted); color:var(--di-text-secondary); font-size:12px; line-height:1.5; }
-    .inventory-guide > strong { display:inline; margin-right:8px; color:var(--di-text); font-size:12px; line-height:inherit; }
-    .inventory-guide ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
-    .inventory-guide li { display:grid; align-content:start; gap:4px; min-width:0; padding:0; border:0; }
-    .inventory-guide li b { font-size:11px; letter-spacing:.035em; text-transform:uppercase; color:var(--di-accent-text); }
-    .inventory-guide li span { color:var(--di-text-secondary); font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
     .inventory-modes { display:inline-flex; gap:0; margin:4px 0 15px; border-bottom:1px solid var(--di-border); }
     .inventory-modes button { min-height:39px; padding:0 13px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:var(--di-text-secondary); font-size:12px; }
     .inventory-modes button[aria-pressed='true'] { border-bottom-color:var(--di-accent); color:var(--di-text); }
@@ -181,7 +175,6 @@
   #workspace-main app-repository-workspace .local-upload { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-repository-workspace .local-upload > * { grid-column:1; }
   #workspace-main app-repository-workspace .local-upload .folder-picker { grid-row:auto; justify-self:start; }
-  #workspace-main app-inventory-workspace .inventory-guide { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-vulnerabilities-workspace .filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
   #workspace-main app-document-center .document-card { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-document-center .document-card .actions { justify-content:flex-start; }
@@ -204,8 +197,6 @@
   #workspace-main app-analysis-workspace .compare-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
   #workspace-main app-analysis-workspace .compare-summary article:nth-child(2) { border-right:0; }
   #workspace-main app-analysis-workspace .compare-summary article:nth-child(n+3) { border-top:1px solid var(--di-border); }
-  #workspace-main app-inventory-workspace .inventory-guide { grid-template-columns:minmax(0,1fr); gap:8px; }
-  #workspace-main app-inventory-workspace .inventory-guide ol { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
   #workspace-main app-inventory-workspace .control-panel { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-inventory-workspace .scan-control { align-items:stretch; flex-direction:column; }
   #workspace-main app-inventory-workspace .summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -283,10 +274,6 @@
 
 #workspace-main app-inventory-workspace {
   .inventory-page { display: grid; gap: 18px; }
-  .inventory-guide { border-radius: var(--di-radius-panel); }
-  .inventory-guide ol { gap: 0; }
-  .inventory-guide li { padding: 0; border: 0; }
-  .inventory-guide li b { font-size: 11px; letter-spacing: .055em; text-transform: uppercase; }
   .control-panel { border-radius: var(--di-radius-panel); }
   .scanner-status { border-radius: var(--di-radius-panel); background: var(--di-surface-muted); }
   .catalog { border-top: 0; }
@@ -433,9 +420,6 @@
   #workspace-main app-repository-workspace > .local-upload,
   #workspace-main app-repository-workspace > .repo-section { grid-column: 1; }
   #workspace-main app-repository-workspace > .existing-installation { margin-top: 12px; }
-  #workspace-main app-inventory-workspace .inventory-guide ol { grid-template-columns:minmax(0,1fr); gap:8px; }
-  #workspace-main app-inventory-workspace .inventory-guide li { padding-top:8px; border-top:1px solid var(--di-border); }
-  #workspace-main app-inventory-workspace .inventory-guide li:first-child { padding-top:0; border-top:0; }
   #workspace-main app-reports-workspace .report-controls { grid-template-columns: minmax(0, 1fr); }
   #workspace-main app-platform-administration .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #workspace-main app-platform-administration .metrics article:nth-child(2) { border-right: 0; }

@@ -30,8 +30,6 @@
     </div>
   </header>
 
-  <p class="inventory-guide"><strong>{{ 'Cómo leer los hallazgos' | t }}</strong> <span>Scanner identifica paquetes y versiones; OSV busca avisos para esas versiones; al abrir un aviso puedes revisar la evidencia del código. Una evaluación inconclusa no confirma ausencia de uso.</span></p>
-
   @if (error() && (mode() === 'repository' || repositories().length === 0)) {
     <p class="notice error" role="alert">{{ error() }}</p>
   }
