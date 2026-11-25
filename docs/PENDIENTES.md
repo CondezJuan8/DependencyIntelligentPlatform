@@ -1,11 +1,10 @@
-## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
+## Estado visual vigente — Spectrum Ledger (25/11/2026)
 
-- [x] Ajuste acotado pedido por el usuario: bordes de superficie más legibles y menor saturación en acentos/riesgos, aplicado solo a tokens de tema y al SVG de acceso. Ver [bitácora, bloque 106](BITACORA_TRABAJO.md).
-- [x] Dirección propia Observatorio de Evidencias: tema oscuro predeterminado, tinta azul, papel mineral y acentos ámbar; navegación agrupada por tarea; dashboard reestructurado como registro de riesgo y espacio de trabajo asimétrico; identidad de acceso SVG original. Revisar [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 105](BITACORA_TRABAJO.md).
-- [x] Composición por flujo en Repositorios, Documentación, Reportes, Nexo, Análisis, Inventario, Vulnerabilidades y Administración; funcionalidad y datos existentes preservados. Ver [sistema visual](../DESIGN.md) y [bitácora, bloque 107](BITACORA_TRABAJO.md).
-- [x] Build Docker del frontend y actualización exclusiva del servicio frontend en Compose `localhost:8089`; aplicación responde HTTP 200. Capturas Impeccable en 1440×900, 1024×768, 768×1024, 390×844 y 375×812 revisadas; el acceso carga, mientras las vistas autenticadas no se pueden abrir con la base vacía.
-- [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas e interacciones con datos reales. Requiere el bootstrap seguro y datos autorizados; CUA y Playwright no estuvieron disponibles. La captura de acceso sí se revisó en cinco tamaños. Ver [auditoría frontend](AUDITORIA_FRONTEND_2026-11-25.md).
-- [ ] Reducir avisos del presupuesto Angular; el build del bloque 108 reportó bundle inicial de 646.59 KB frente al límite de 500 KB y varias hojas Sass sobre 4 KB.
+- [x] Rediseño integral del sistema compartido: superficies de grafito/níveas, índigo para acciones, cian para señales de estado, shell renovado, acceso y dashboard jerarquizados. Se mantienen rutas, permisos, contratos, acciones y estados reales. Ver [`DESIGN.md`](../DESIGN.md), [`PRODUCT.md`](../PRODUCT.md) y [bitácora, bloque 109](BITACORA_TRABAJO.md).
+- [x] Build Docker del frontend correcto. Capturas Impeccable de acceso oscuro revisadas en 1440×900, 1024×768, 390×844 y 375×812; sin desbordamiento visible. El build dejó bundle inicial de 647.64 KB/500 KB y avisos Sass existentes.
+- [ ] Revisar visualmente el tema claro y cada módulo autenticado con datos reales. El pipe de automatización de navegador no estuvo disponible y la base Compose sigue sin cuentas, organizaciones ni repositorios. El acceso oscuro sí se revisó en cuatro tamaños.
+- [ ] Validar en el entorno interactivo acordado la navegación autenticada, formularios, filtros, tablas y acciones; el bootstrap seguro del administrador y los datos autorizados todavía son necesarios. No se reinició ni detuvo ninguno de los dos entornos en este bloque.
+- [ ] Reducir avisos de presupuesto Angular (bundle inicial y hojas Sass sobre 4 KB) en un bloque de rendimiento independiente.
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 

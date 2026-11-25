@@ -1,99 +1,72 @@
-# Dependency Intelligence — sistema visual
+# Dependency Intelligence — Spectrum Ledger
 
-## Dirección: Observatorio de Evidencias
+## Identidad
 
-Dependency Intelligence es una mesa de revisión para rastrear una dependencia desde su origen hasta una decisión respaldada. El usuario debe poder responder sin buscar en varias pantallas: qué repositorio y análisis está viendo, qué hallazgo requiere atención, con qué evidencia cuenta y cuál es el siguiente paso disponible.
+Spectrum Ledger presenta el recorrido de evidencia desde el repositorio hasta una decisión revisable. Su gramática combina superficies de grafito, tipografía compacta y registros alineados; un espectro de índigo a cian marca selección, actividad confirmada y conexiones entre etapas. La identidad debe sentirse técnica y precisa sin convertir las pantallas de trabajo en una consola decorativa.
 
-La identidad propia combina un cielo de trabajo azul tinta, papel mineral en el tema claro y marcas de latón para orientar la mirada. La metáfora de observatorio se limita a la ilustración de acceso y a pequeños marcadores de ruta: las vistas operativas siguen siendo precisas, legibles y basadas en datos reales. La forma distintiva del producto aparece en la composición editorial del dashboard, la navegación por tareas y los registros de evidencia. Las referencias Berry, Angular Dashboards y Corona se usaron para estudiar patrones de navegación, jerarquía y densidad; no se reutilizó su código, composición literal ni identidad.
+Las referencias del brief se usaron como inspiración para contraste, densidad y acentos locales. No se copiaron layouts, marcas ni componentes. La navegación y cada módulo conservan el flujo real del producto.
 
-El tema oscuro es predeterminado. Se conservan los modos claro y sistema. El diseño sirve por igual a ingeniería y seguridad; las prioridades se expresan en la evidencia y el lenguaje, no en interfaces separadas por rol.
+## Color y temas
 
-## Identidad y color
+Los tokens viven en `frontend/src/theme/_tokens.scss` y `frontend/src/theme/_appearance.scss`. El modo oscuro es inicial; el selector existente conserva preferencia del usuario, de la organización y del sistema.
 
-Los tokens viven en `frontend/src/theme/_tokens.scss` y `frontend/src/theme/_appearance.scss`. Los componentes deben consumirlos en lugar de fijar colores de marca localmente.
-
-| Función | Claro | Oscuro | Uso |
+| Rol | Claro | Oscuro | Uso |
 | --- | --- | --- | --- |
-| Tinta / navegación | `#182333` | `#101722` | Sidebar, marca y superficies de contexto |
-| Fondo de trabajo | `#F0EFE8` | `#111923` | Lienzo principal |
-| Superficie | `#F9F8F2` | `#192431` | Formularios, paneles y áreas de trabajo |
-| Superficie elevada | `#FFFDF7` | `#303D4C` | Menús, popovers y diálogos |
-| Texto principal | `#1D2732` | `#F1EFE8` | Títulos, tablas y contenido |
-| Texto secundario | `#435263` | `#CED5D9` | Contexto, instrucciones y metadatos |
-| Borde de superficie | `#849198` | `#6E8092` | División clara entre áreas de trabajo |
-| Borde de control | `#74808A` | `#81909D` | Campos y controles interactivos |
-| Acción / anotación | `#B78E57` | `#D8B681` | Acción primaria, selección y atención |
-| Éxito | `#4C765E` | `#94B39F` | Estado confirmado |
-| Advertencia | `#98734B` | `#D6BC8B` | Precaución |
-| Riesgo alto | `#A66F5A` | `#D49A83` | Atención alta |
-| Crítico | `#A85E61` | `#D48A86` | Atención crítica |
+| Lienzo | `#F4F5F8` | `#0C1018` | Área general de trabajo |
+| Superficie | `#FFFFFF` | `#131925` | Contenido, tablas y formularios |
+| Superficie elevada | `#FFFFFF` | `#252F40` | Popovers, diálogos y acciones flotantes |
+| Navegación | `#10131B` | `#0A0D13` | Sidebar y marca |
+| Texto | `#171C29` | `#F1F3F8` | Contenido principal |
+| Acción | `#5148E5` | `#AAA4FF` | Acción primaria y selección |
+| Señal | `#087F99` | `#48C8DC` | Actividad confirmada, Nexo y procedencia |
+| Éxito | `#13835B` | `#5ED5A1` | Estado correcto; siempre acompañado de etiqueta |
+| Precaución | `#A96712` | `#F1BB68` | Cobertura parcial o estado por revisar |
+| Riesgo alto | `#CF573C` | `#FF9A77` | Hallazgo de riesgo alto |
+| Riesgo crítico | `#C52F50` | `#FF6D88` | Hallazgo crítico |
 
-Los colores semánticos siempre van acompañados por etiqueta o explicación. No usar el acento como decoración ni como única señal de prioridad. Revisar contraste de texto, borde y estados en ambos temas con WCAG 2.2 AA.
+El degradado índigo–azul–cian se reserva a marcas estrechas de navegación y al gráfico de acceso. No se usa en texto ni como fondo general. Las categorías semánticas llevan también nombre o explicación; OSV y el scanner siguen siendo fuentes distintas.
 
-## Tipografía y ritmo
+## Tipografía y forma
 
-Usar IBM Plex Sans, servida desde los archivos locales incluidos. No descargar fuentes. Títulos sobrios, cifras alineadas con numerales tabulares y texto de código en una pila monoespaciada del sistema.
+IBM Plex Sans local es la familia de interfaz. Cifras usan numerales tabulares; código y versiones usan la pila monoespaciada del sistema. Los títulos pesan más por escala y composición que por efectos.
 
-| Nivel | Tamaño / peso |
-| --- | --- |
-| Título de página | 26–32 px / 600 |
-| Título de sección | 18–21 px / 600 |
-| Título de panel o fila | 15–17 px / 500–600 |
-| Texto y control | 14–16 px / 400–600 |
-| Tabla, etiqueta y metadato | 12–14 px / 400–500 |
+- Ritmo de 4 px, con gutters de 24–32 px en escritorio y 16 px en móvil.
+- Controles: 4 px de radio; superficies: casi rectas; diálogo: hasta 8 px.
+- Sombras solo en menús y capas que se separan del contenido.
+- Iconos: set SVG local `DiIcon`, siempre acompañados de texto salvo que tengan nombre accesible.
 
-Ritmo base de 4 px: `4, 8, 12, 16, 20, 24, 32, 40`. Usar gutters de 24–32 px en escritorio y 16 px en móvil. Los controles son compactos pero táctiles; paneles casi cuadrados evitan la apariencia de kit de tarjetas. Radio de 4 px en controles, 3 px en superficies operativas y hasta 8 px en diálogos. Reservar sombras para elementos flotantes que deban separarse del flujo.
+## Composición y navegación
 
-## Navegación y arquitectura de información
+El shell organiza los destinos por intención y conserva sidebar estable, contexto de ruta y acciones globales en la barra superior. En móvil, la navegación pasa a drawer. La opción actual permanece identificable y los módulos no implementados siguen marcados **En preparación**.
 
-Mantener destinos y visibilidad por permisos existentes. Organizar el sidebar por intención: **Espacio** (dashboard y repositorios), **Analizar** (análisis e inventario), **Revisar** (vulnerabilidades y reportes), **Conocimiento** (documentos y asistente), y **Equipo y cuenta** (organización y preferencias). Mantener Nexo, notificaciones, idioma/tema y cuenta en la barra superior global.
+Las pantallas usan la estructura propia del trabajo:
 
-La ubicación actual debe ser visible en la navegación y el encabezado. Los enlaces de salto son anclas a secciones que existen, con nombre claro, foco de teclado y destino resaltado. Las vistas largas ordenan el contenido así: alcance y tarea, acción principal, cobertura/estado, filtros, resultados y procedencia. Priorizar relaciones y siguientes pasos antes de detalles técnicos secundarios.
+- **Dashboard:** señales OSV guardadas, repositorios y registro de análisis, sin métricas ficticias.
+- **Repositorios:** ingreso de GitHub/local y registro de fuentes accesibles.
+- **Análisis:** inicio manual, estados reales e historial trazable.
+- **Inventario:** catálogo, filtros y procedencia por snapshot.
+- **Vulnerabilidades:** aviso OSV, paquete afectado y evidencia relacionada.
+- **Documentación:** carga, biblioteca, búsqueda y asociación a fuentes autorizadas.
+- **Nexo:** conversación, citas y evidencia recuperada.
+- **Reportes:** alcance, vista previa y exportación.
+- **Equipo y administración:** roles, membresías y permisos por repositorio.
 
-## Patrones reutilizables
-
-- **Shell:** sidebar estable en escritorio, barra global compacta y una región de contenido. En móvil, el sidebar se convierte en drawer con scrim, botón de cierre y foco accesible.
-- **Encabezado de vista:** título en escala de producto, contexto breve si ayuda, y acción principal visible sin competir con el título.
-- **Dashboard:** mesa de trabajo asimétrica que antepone el registro OSV real y los próximos hallazgos priorizados; métricas solo cuando proceden del backend. Las listas enlazan directamente con su revisión.
-- **Registros y tablas:** encabezados explícitos, datos relacionados juntos, columnas numéricas alineadas y rutas/identificadores que se parten. El desplazamiento horizontal, si es necesario, queda dentro del contenedor de tabla.
-- **Filtros:** etiquetas persistentes, valor seleccionado visible y forma clara de limpiar. El resultado vacío diferencia falta de datos de cero coincidencias.
-- **Estados:** carga, error, reintento, vacío, parcial y éxito tienen mensaje y acción pertinente. Nunca presentar resultado faltante o incompleto como seguro.
-- **Superficies:** una superficie por área de trabajo. Evitar tarjetas anidadas, paneles duplicados y bordes alrededor de cada fila cuando el espacio y alineación bastan.
-- **Iconografía:** usar el set SVG local `DiIcon`, con trazo consistente. Acompañar iconos de navegación con texto; los botones solo con icono necesitan nombre accesible. No introducir emojis ni dependencias externas de iconos.
-- **Diálogos:** reservar para decisiones enfocadas; preservar la gestión existente de foco, Escape, cancelación y estados de envío.
-
-Las ilustraciones del acceso son SVG originales y decorativas, no representan métricas ni repositorios. No llenar espacios con datos inventados. Los módulos todavía no implementados deben seguir marcados como **En preparación**.
+Las superficies agrupan un área de trabajo completa; evitar paneles anidados y controles visuales sin acción. Tablas y listas mantienen el orden de lectura en móvil, con desplazamiento contenido solo cuando la estructura realmente lo necesita.
 
 ## Interacción y movimiento
 
-Todo control mantiene estados de reposo, hover, foco visible, pulsado, deshabilitado y cargando. Las transiciones de color y posición duran 160–240 ms. Usar aparición corta y escalonada en los elementos prioritarios del primer plano; no animar cada tarjeta o fila repetidamente. La ilustración de acceso puede tener movimiento sutil. El movimiento comunica entrada, selección o progreso real, nunca sustituye etiquetas ni muestra porcentajes ficticios.
+Transiciones de color y posición duran 160–240 ms. La entrada principal del acceso y el énfasis breve del dashboard son momentos puntuales. Las filas no se animan repetidamente. El cian pulsante y el espectro en movimiento quedan reservados a operaciones que el producto marque activas; no se inventa progreso.
 
-Respetar `prefers-reduced-motion` con duración mínima o cero y conservar visible el estado final. No añadir destellos, RGB, parallax ni movimiento continuo a las superficies de trabajo.
+Todo estado conserva su representación final si `prefers-reduced-motion` está activo. Foco de teclado visible, estados de hover/pulsado/deshabilitado y confirmación legible son parte del sistema.
 
-## Diseño adaptable y accesibilidad
+## Accesibilidad y adaptación
 
-Diseñar y revisar a 375, 390, 768, 1024 y 1440 px. Reorganizar en lugar de reducir proporcionalmente; ocultar la ilustración de acceso cuando compita con el formulario. No permitir scroll horizontal del documento. Asegurar controles de al menos 44 × 44 px cuando su disposición lo permita, zoom, foco de 2–3 px, navegación por teclado, landmarks semánticos, labels persistentes y estado/error anunciados. No depender de color, hover o animación para explicar un resultado. Preservar pegado y autocompletado en acceso.
+Revisar 375, 390, 768, 1024 y 1440 px. Reorganizar antes de reducir; no permitir overflow horizontal del documento. Mantener controles táctiles de 44 px cuando sea posible, labels persistentes, landmarks semánticos, mensajes de error/estado anunciados, zoom, pegado y autocompletado en acceso. El contraste de texto debe cumplir WCAG 2.2 AA en los dos temas.
 
 ## Restricciones de producto
 
-Mantener Angular standalone, Angular Material, CDK, RxJS, Signals y Sass. Reutilizar las integraciones existentes y respetar navegación, permisos, datos y acciones ya conectados. No cambiar API, autenticación, autorización, backend, base de datos o framework por razones visuales. No añadir dependencias sin necesidad demostrada. No inventar métricas ni sustituir respuestas reales por mocks.
+No cambiar Angular standalone, Material, CDK, TypeScript, RxJS o Sass por razones visuales. No tocar API, autenticación, permisos, backend o datos. No inventar hallazgos, porcentajes, tendencias ni conexiones. Mantener las acciones existentes y validar por separado las rutas autenticadas cuando haya datos autorizados.
 
 ## Validación
 
-Compilar frontend, revisar capturas en todos los breakpoints, probar tema claro/oscuro, foco, reduced motion y estados disponibles. Revisar las interacciones con datos reales antes de declarar validados filtros, tablas, gráficas o conexiones de módulos autenticados. La base Compose de esta revisión no tiene cuentas, organizaciones ni repositorios; por ello, la inspección visual autenticada continúa pendiente del bootstrap seguro y datos autorizados. El build correcto por sí solo no cierra la revisión visual.
-
-## Composición por flujo
-
-La identidad compartida mantiene tipografía, controles, bordes y navegación; la estructura de cada espacio sigue el trabajo que resuelve:
-
-- **Dashboard:** mesa asimétrica de señales OSV, repositorios y ejecuciones reales.
-- **Repositorios:** conexión e importación como flujo de entrada; instalaciones y registro de fuentes como lista de trabajo.
-- **Análisis:** secuencia de proceso, selector y acción de ejecución; comparación e historial como registro cronológico.
-- **Inventario:** catálogo denso con filtros y procedencia por aparición; estado de scanner y cobertura al cambiar a un repositorio.
-- **Vulnerabilidades:** lista de casos agrupados por aviso, expansión para evidencia y seguimiento por paquete.
-- **Documentación:** captura de archivos en un carril estrecho junto a la biblioteca y búsqueda; una columna cuando el viewport no admite ambos.
-- **Reportes:** filtros y tipo en una barra de alcance junto a la vista previa exportable.
-- **Nexo:** transcripción y citas con el compositor separado; en pantallas estrechas se apilan para conservar lectura.
-- **Organización y administración:** controles de acceso en tablas y registros con filtros, roles, estados y acciones cercanos.
-
-No duplicar estas composiciones mecánicamente en futuras pantallas. Mantener estados, acciones y relaciones de datos en su módulo; en responsive, reorganizar los mismos elementos sin ocultar funcionalidades.
+El build del frontend valida compilación, no recorridos autenticados. La base local Compose está vacía; la inspección visual de filtros, tablas e interacciones con datos reales sigue dependiendo del bootstrap seguro y de registros autorizados. No declarar validado lo que no se pudo abrir en contexto autenticado.
