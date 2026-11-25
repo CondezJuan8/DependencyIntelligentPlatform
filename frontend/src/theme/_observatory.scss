@@ -85,12 +85,13 @@
 
   app-inventory-workspace {
     .inventory-page { max-width: none; }
-    .inventory-guide { display:grid; grid-template-columns:170px minmax(0,1fr); gap:16px; padding:14px 16px; border:1px solid var(--di-border); border-radius:var(--di-radius-panel); background:var(--di-surface-muted); }
-    .inventory-guide > strong { color:var(--di-text); font-size:12px; }
-    .inventory-guide ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; margin:0; padding:0; list-style:none; }
-    .inventory-guide li { display:grid; gap:4px; }
-    .inventory-guide li b { font-size:11px; color:var(--di-accent-text); }
-    .inventory-guide li span { color:var(--di-text-secondary); font-size:11px; line-height:1.45; }
+    .inventory-guide { display:grid; grid-template-columns:minmax(170px,.72fr) minmax(0,2.28fr); align-items:stretch; gap:20px; padding:18px 20px; border:1px solid var(--di-border); border-radius:var(--di-radius-panel); background:var(--di-surface-muted); }
+    .inventory-guide > strong { align-self:start; max-width:18ch; color:var(--di-text); font-size:14px; line-height:1.45; }
+    .inventory-guide ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; margin:0; padding:0; list-style:none; }
+    .inventory-guide li { display:grid; align-content:start; gap:7px; min-width:0; padding:3px 16px; border-left:1px solid var(--di-border); }
+    .inventory-guide li:first-child { padding-left:0; border-left:0; }
+    .inventory-guide li b { font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--di-accent-text); }
+    .inventory-guide li span { color:var(--di-text-secondary); font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
     .inventory-modes { display:inline-flex; gap:0; margin:4px 0 15px; border-bottom:1px solid var(--di-border); }
     .inventory-modes button { min-height:39px; padding:0 13px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:var(--di-text-secondary); font-size:12px; }
     .inventory-modes button[aria-pressed='true'] { border-bottom-color:var(--di-accent); color:var(--di-text); }
