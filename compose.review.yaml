@@ -1,0 +1,9 @@
+# Publica el frontend elegido y Mailpit solo para revisar flujos en localhost.
+services:
+  mailpit:
+    ports:
+      - "127.0.0.1:8126:8025"
+      - "127.0.0.1:1126:1025"
+  frontend:
+    ports:
+      - "127.0.0.1:8189:80"
