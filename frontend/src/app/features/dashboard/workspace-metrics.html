@@ -1,8 +1,0 @@
-<div class="metrics" aria-label="Resumen del espacio de trabajo">
-  @if (!member()) {
-    <article><strong>{{ loading() ? '…' : failed() ? '—' : count() }}</strong><span>Organizaciones</span><small>Espacios disponibles</small></article>
-  }
-  <article><strong>{{ loading() ? '…' : failed() ? '—' : repositories() }}</strong><span>{{ member() ? 'Repositorios asignados' : 'Repositorios' }}</span><small>Con acceso para esta cuenta</small></article>
-  <article><strong>{{ loading() ? '…' : dependencies() === null ? '—' : dependencies() }}</strong><span>Versiones identificadas</span><small>{{ loading() ? 'Consultando snapshots' : dependencies() === null ? 'Aún no hay análisis' : 'En los últimos análisis' }}</small></article>
-  <article><strong>{{ loading() ? '…' : failed() ? '—' : analyzedRepositories() }}</strong><span>Repositorios analizados</span><small>{{ loading() ? 'Consultando snapshots' : 'Con un análisis guardado' }}</small></article>
-</div>

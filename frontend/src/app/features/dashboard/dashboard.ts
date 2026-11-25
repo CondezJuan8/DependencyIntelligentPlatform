@@ -5,8 +5,6 @@ import { Organization, SessionApiService, accessError } from '../../core/session
 import { forkJoin, from, of, toArray } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { DiIcon } from '../../shared/di-icon';
-import { TranslatePipe } from '../../core/translate.pipe';
-import { WorkspaceMetrics } from './workspace-metrics';
 interface DashboardRepository {id:string;organizationId:string;organizationName:string;fullName:string;defaultBranch:string;source:string;}
 interface DashboardAnalysis {scanId:string;source:string;sourceSha256:string;commitSha:string|null;analyzedAt:string;manifestCount:number;unresolvedCount:number;coverageStatus:'COMPLETE'|'PARTIAL';dependencies:{coordinates:{ecosystem:string;namespace:string|null;name:string;version:string}}[];}
 interface RecentAnalysis extends DashboardAnalysis {repositoryId:string;repositoryName:string;organizationName:string;ecosystem:'MAVEN'|'NPM';}
@@ -18,9 +16,9 @@ type RiskCategory = 'critical'|'high'|'warning'|'clear';
 interface DashboardFinding {repositoryId:string;repositoryName:string;ecosystem:string;packageName:string;version:string;advisory:DashboardAdvisory;category:RiskCategory;}
 @Component({
   selector: 'app-dashboard',
-  imports: [MatButtonModule, DiIcon, WorkspaceMetrics, DatePipe, TranslatePipe],
+  imports: [MatButtonModule, DiIcon, DatePipe],
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.scss', './dashboard-security.scss'],
+  styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   readonly api = inject(SessionApiService);

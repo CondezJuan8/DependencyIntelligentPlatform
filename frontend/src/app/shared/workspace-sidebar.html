@@ -1,8 +1,7 @@
 <aside class="sidebar" [class.open]="opened()" [attr.aria-label]="'Navegación principal' | t">
   <button class="brand" (click)="go('dashboard')">
-    <img src="/brand-mark.svg" alt="" width="33" height="37" /><span
-      >Dependency<br />Intelligence</span
-    >
+    <img src="/brand-mark.svg" alt="" width="33" height="37" />
+    <span>Dependency Intelligence</span>
   </button>
   <nav>
     @for (group of navigationGroups; track group.label) {
@@ -25,4 +24,5 @@
       </section>
     }
   </nav>
+  <div class="sidebar-foot"><strong>Alcance aplicado</strong>Los permisos se respetan por organización y repositorio.</div>
 </aside>

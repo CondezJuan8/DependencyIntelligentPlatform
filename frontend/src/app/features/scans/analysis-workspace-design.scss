@@ -1,0 +1,36 @@
+/* Analysis is a run-and-record workflow, so the controls and history read as one log. */
+.analysis-heading{padding-bottom:18px;border-bottom:1px solid var(--di-border)}
+.analysis-heading h1{font-size:clamp(29px,3vw,40px);line-height:1.04}
+.primary,.secondary,.retry,.compare-controls select,.scan-label-editor input,.compare-name-editor input{border-radius:2px}
+.primary{background:var(--di-primary);color:var(--di-on-primary)}
+.launch-card{grid-template-columns:minmax(180px,1fr) minmax(200px,1.5fr) auto;gap:12px 20px;margin-top:16px;padding:17px 0;border:0;border-block:1px solid var(--di-border);border-radius:0;background:transparent;box-shadow:none}
+.launch-card>label{grid-column:1;margin:0}
+.launch-card select{border-radius:2px}
+.launch-copy{grid-column:2;grid-row:1 / span 2}
+.launch-card>.primary{grid-column:3;grid-row:1 / span 2;min-width:150px}
+.result-card,.history-section{margin-top:30px;padding-top:19px;border-top:1px solid var(--di-border)}
+.ecosystems{gap:0;margin-top:12px;border-top:1px solid var(--di-border)}
+.ecosystems article{grid-template-columns:minmax(100px,.5fr) 1fr;align-items:baseline;gap:7px 14px;padding:12px 0;border:0;border-bottom:1px solid var(--di-border);border-radius:0;background:transparent}
+.ecosystem{grid-row:1 / span 2}
+.history-list{gap:0;border-top:1px solid var(--di-border)}
+.history-card,.empty{padding:15px 0;border:0;border-bottom:1px solid var(--di-border);border-radius:0;background:transparent}
+.failed-card{border-left:0}
+.history-top h3{font-size:13px}
+.history-top p{font-size:10px;line-height:1.5}
+.status{padding:2px 6px;border:1px solid var(--di-success);border-radius:2px;background:transparent;font-size:10px}
+.status.failed{border-color:var(--di-critical);background:transparent}
+.status.partial{border-color:var(--di-warning);background:transparent}
+.history-card dl{gap:10px 16px;padding-top:10px}
+.history-card dt{font-size:10px}
+.history-card dd{font-size:11px}
+.scan-label-editor,.compare-name-editor{padding:10px 0;border:0;border-top:1px solid var(--di-border);border-radius:0;background:transparent}
+.compare-section{margin-top:24px;padding:18px 0;border:0;border-top:1px solid var(--di-border);border-radius:0;background:transparent}
+.compare-summary{gap:0;border-block:1px solid var(--di-border)}
+.compare-summary article{padding:10px 14px;border:0;border-left:1px solid var(--di-border-soft);border-radius:0;background:transparent}
+.compare-summary article:first-child{padding-left:0;border-left:0}
+.compare-summary strong{font-size:20px}
+.compare-table-wrap{border-radius:2px}
+.recommendations article{padding:10px 0;border:0;border-bottom:1px solid var(--di-border);border-radius:0;background:transparent}
+.compare-context{padding:10px 0;border:0;border-block:1px solid var(--di-border);border-radius:0;background:transparent}
+.analysis-loading-window{border-radius:3px}
+@media(max-width:650px){.launch-card{grid-template-columns:1fr;padding:14px 0}.launch-card>label,.launch-copy,.launch-card>.primary{grid-column:1;grid-row:auto}.launch-card>label{margin-bottom:-4px}.launch-copy{padding:3px 0}.launch-card>.primary{width:100%}.ecosystems article{grid-template-columns:1fr}.ecosystem{grid-row:auto}.compare-section{padding:14px 0}.compare-summary article{padding:9px 7px}.compare-summary article:first-child{padding-left:0}}

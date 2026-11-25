@@ -1,10 +1,10 @@
-<div class="dashboard-workbench">
-  <header class="page-heading dashboard-heading">
-    <div>
-      <h1>Estado del espacio</h1>
-      <p>Hola, {{ firstName }}. Aquí puedes ver qué repositorios y avisos requieren atención.</p>
+<div class="evidence-desk">
+  <header class="desk-heading">
+    <div class="desk-title">
+      <h1>Centro de revisión</h1>
+      <p>{{ firstName ? 'Hola, ' + firstName + '. ' : '' }}Evidencia guardada para los repositorios a los que tienes acceso.</p>
     </div>
-    <div class="heading-actions">
+    <div class="desk-actions">
       <button mat-stroked-button (click)="load()" [disabled]="loading()" [attr.aria-busy]="loading()">
         <app-di-icon name="analysis" />{{ loading() ? 'Actualizando…' : 'Actualizar' }}
       </button>
@@ -14,157 +14,146 @@
     </div>
   </header>
 
-  <nav class="page-jump dashboard-jump" [attr.aria-label]="'Secciones del resumen' | t">
-    <a href="#dashboard-security">{{ 'Avisos y cobertura' | t }}</a>
-    <a href="#dashboard-repositories">{{ 'Repositorios' | t }}</a>
-    <a href="#dashboard-analyses">{{ 'Análisis recientes' | t }}</a>
-    @if (!isMember()) { <a href="#dashboard-organization">{{ 'Organización' | t }}</a> }
-  </nav>
-
   @if (error()) {
-    <p class="error dashboard-error" role="alert">{{ error() }} <button mat-button (click)="load()">Reintentar</button></p>
+    <p class="error desk-error" role="alert">{{ error() }} <button mat-button (click)="load()">Reintentar</button></p>
   }
 
-  <app-workspace-metrics
-    [count]="organizations().length"
-    [repositories]="repositories().length"
-    [dependencies]="dependencyCount"
-    [analyzedRepositories]="analyzedRepositoryCount"
-    [member]="isMember()"
-    [loading]="loading()"
-    [failed]="!!error()"
-  />
+  <section class="workspace-register" aria-label="Alcance del espacio" aria-live="polite">
+    @if (!isMember()) {
+      <div class="register-value"><strong>{{ loadingOrganizations() ? '—' : organizations().length }}</strong><span>organizaciones</span></div>
+    }
+    <div class="register-value"><strong>{{ loading() ? '—' : repositories().length }}</strong><span>repositorios accesibles</span></div>
+    <div class="register-value"><strong>{{ loading() ? '—' : analyzedRepositoryCount }}</strong><span>con análisis guardado</span></div>
+    <div class="register-value"><strong>{{ loading() || dependencyCount === null ? '—' : dependencyCount }}</strong><span>versiones observadas</span></div>
+    <span class="register-context">Alcance según tus permisos</span>
+  </section>
 
-  <div class="dashboard-prime">
-    <section id="dashboard-security" class="security-reading" aria-labelledby="security-heading" aria-live="polite">
-      <header class="work-section-heading">
+  <div class="desk-section-label"><span>Revisión</span><span class="section-rule"></span><a href="#dashboard-analyses">Ver historial <app-di-icon name="arrow" /></a></div>
+
+  <div class="review-layout">
+    <section id="dashboard-security" class="review-queue" aria-labelledby="review-heading" aria-live="polite">
+      <header class="section-heading">
         <div>
-          <h2 id="security-heading">Señales de seguridad</h2>
-          <p>Versiones únicas de tus repositorios, según la última consulta guardada de OSV.</p>
+          <h2 id="review-heading">Avisos y cobertura</h2>
+          <p>Versiones únicas y última evaluación OSV guardada por repositorio.</p>
         </div>
-        <span class="reading-total">{{ findings.length }} <span>{{ 'avisos' | t }}</span></span>
+        <strong class="queue-total">{{ findings.length }} <span>{{ findings.length === 1 ? 'aviso' : 'avisos' }}</span></strong>
       </header>
 
-      <div class="risk-register" aria-label="Versiones por estado de evaluación">
-        <div class="risk-lane critical"><span class="risk-key"><i aria-hidden="true"></i>Críticas</span><strong>{{ riskCounts.critical }}</strong></div>
-        <div class="risk-lane high"><span class="risk-key"><i aria-hidden="true"></i>Altas</span><strong>{{ riskCounts.high }}</strong></div>
-        <div class="risk-lane review"><span class="risk-key"><i aria-hidden="true"></i>Otros avisos</span><strong>{{ riskCounts.warning }}</strong></div>
-        <div class="risk-lane clear"><span class="risk-key"><i aria-hidden="true"></i>Sin avisos conocidos</span><strong>{{ riskCounts.clear }}</strong></div>
+      <div class="coverage-line" aria-label="Versiones por estado de evaluación">
+        <span><i class="critical-dot" aria-hidden="true"></i><strong>{{ riskCounts.critical }}</strong> críticas</span>
+        <span><i class="high-dot" aria-hidden="true"></i><strong>{{ riskCounts.high }}</strong> altas</span>
+        <span><i class="warning-dot" aria-hidden="true"></i><strong>{{ riskCounts.warning }}</strong> otros avisos</span>
+        <span><i class="clear-dot" aria-hidden="true"></i><strong>{{ riskCounts.clear }}</strong> sin avisos conocidos</span>
       </div>
-      <p class="risk-register-note">“Otros avisos” puede incluir severidad media, baja o no publicada. Un resultado sin avisos solo cuenta cuando OSV respondió correctamente.</p>
+      <p class="coverage-note">“Sin avisos conocidos” solo incluye evaluaciones OSV completadas; otros estados permanecen pendientes.</p>
 
       @if (pendingAssessmentCount > 0) {
-        <p class="assessment-pending" role="status">{{ pendingAssessmentCount }} versiones aún necesitan una consulta o revisión; no se cuentan como seguras.</p>
+        <p class="coverage-alert" role="status">{{ pendingAssessmentCount }} versiones necesitan una consulta o revisión; no se cuentan como seguras.</p>
       }
       @if (unavailableVulnerabilityRepositories() > 0) {
-        <p class="assessment-pending" role="status">No se pudo consultar OSV en {{ unavailableVulnerabilityRepositories() }} repositorios. Actualiza para volver a intentarlo.</p>
+        <p class="coverage-alert" role="status">No se pudo consultar OSV en {{ unavailableVulnerabilityRepositories() }} repositorios. Actualiza para volver a intentarlo.</p>
       }
 
-      <div class="finding-list" aria-label="Avisos prioritarios">
-        @for (finding of findings.slice(0, 6); track finding.repositoryName + finding.packageName + finding.version + finding.advisory.id) {
-          <article class="finding-row" [class]="'finding-row ' + finding.category">
-            <span class="finding-marker" aria-hidden="true"></span>
-            <div class="finding-copy">
-              <div class="finding-meta">
-                <span class="finding-category">{{ finding.category === 'critical' ? 'Crítica' : finding.category === 'high' ? 'Alta' : 'Otro aviso' }}</span>
-                <span>{{ finding.repositoryName }}</span><span>{{ finding.ecosystem }}</span>
+      @if (findings.length) {
+        <div class="evidence-table" role="list" aria-label="Avisos prioritarios">
+          @for (finding of findings.slice(0, 6); track finding.repositoryName + finding.packageName + finding.version + finding.advisory.id) {
+            <article class="evidence-row" role="listitem" [class]="'evidence-row ' + finding.category">
+              <span class="severity-label">{{ finding.category === 'critical' ? 'Crítica' : finding.category === 'high' ? 'Alta' : 'Revisar' }}</span>
+              <div class="evidence-subject">
+                <h3>{{ finding.packageName }} <code>{{ finding.version }}</code></h3>
+                <p>{{ finding.advisory.summary || 'Aviso publicado por OSV' }}</p>
               </div>
-              <h3>{{ finding.packageName }} <code>{{ finding.version }}</code></h3>
-              <p>{{ finding.advisory.summary || 'Aviso publicado por OSV' }}</p>
-              <div class="finding-actions">
-                <a [href]="finding.advisory.url" target="_blank" rel="noopener noreferrer">{{ finding.advisory.id }} · {{ 'Abrir fuente OSV' | t }}<span class="visually-hidden"> (abre en una pestaña nueva)</span></a>
-                <button class="text-button" (click)="openInventory.emit(finding.repositoryId)">{{ 'Revisar inventario' | t }} <app-di-icon name="arrow" /></button>
+              <div class="evidence-origin"><strong>{{ finding.repositoryName }}</strong><span>{{ finding.ecosystem }}</span></div>
+              <div class="evidence-actions">
+                <a [href]="finding.advisory.url" target="_blank" rel="noopener noreferrer">{{ finding.advisory.id }}<span class="visually-hidden"> (abre en una pestaña nueva)</span></a>
+                <button type="button" (click)="openInventory.emit(finding.repositoryId)" [attr.aria-label]="'Revisar inventario de ' + finding.packageName">Abrir inventario <app-di-icon name="arrow" /></button>
               </div>
-            </div>
-          </article>
-        } @empty {
-          @if (!loading() && hasAssessedVersions) {
-            <div class="security-empty"><h3>OSV no reporta avisos conocidos</h3><p>Esto no garantiza que una versión esté libre de vulnerabilidades. El resultado corresponde a las versiones y consultas completadas.</p></div>
-          } @else if (!loading() && analyses().length) {
-            <div class="security-empty"><h3>Falta una respuesta de OSV</h3><p>Hay análisis guardados, pero todavía no existe una evaluación consultable.</p></div>
-          } @else if (!loading()) {
-            <div class="security-empty"><h3>Aún no hay análisis de dependencias</h3><p>Abre un repositorio y ejecuta un análisis para empezar a revisar sus versiones.</p></div>
-          } @else {
-            <p class="loading-state" role="status">Reuniendo avisos guardados…</p>
+            </article>
           }
-        }
-      </div>
+        </div>
+      } @else if (!loading() && hasAssessedVersions) {
+        <div class="queue-empty">
+          <div class="empty-mark" aria-hidden="true">✓</div>
+          <div><h3>OSV no reporta avisos conocidos</h3><p>El resultado corresponde a las versiones y consultas completadas; no garantiza que una versión esté libre de vulnerabilidades.</p></div>
+        </div>
+      } @else if (!loading() && analyses().length) {
+        <div class="queue-empty"><div class="empty-mark pending-mark" aria-hidden="true">…</div><div><h3>Hay snapshots sin evaluación OSV disponible</h3><p>Consulta Vulnerabilidades para revisar el estado de cada evaluación.</p></div></div>
+      } @else if (!loading()) {
+        <div class="queue-empty first-run">
+          <div class="empty-mark" aria-hidden="true"><app-di-icon name="box" /></div>
+          <div>
+            <h3>Aún no hay evidencia para revisar</h3>
+            <p>Conecta una fuente autorizada y ejecuta un análisis manual. El inventario y los avisos aparecerán aquí con su cobertura.</p>
+            @if (!isMember()) { <button mat-flat-button (click)="connectRepository.emit()">Conectar o importar repositorio <app-di-icon name="arrow" /></button> }
+            @else { <p class="member-guidance">Pide a la persona propietaria que te asigne un repositorio para comenzar.</p> }
+          </div>
+        </div>
+      } @else {
+        <p class="loading-state" role="status">Reuniendo evaluaciones guardadas…</p>
+      }
     </section>
 
-    <section id="dashboard-repositories" class="repository-index" aria-labelledby="repositories-heading">
-      <header class="work-section-heading">
-        <div><h2 id="repositories-heading">Repositorios</h2><p>Abre uno para revisar inventario, historial y procedencia.</p></div>
-        <span class="reading-total">{{ repositories().length }}</span>
+    <aside id="dashboard-repositories" class="source-register" aria-labelledby="sources-heading">
+      <header class="section-heading">
+        <div><h2 id="sources-heading">Fuentes accesibles</h2><p>Abre una para consultar inventario y procedencia.</p></div>
+        <span class="section-count">{{ repositories().length }}</span>
       </header>
-      <div class="repository-list">
+      <div class="source-list">
         @for (repository of repositories(); track repository.id) {
-          <button class="repository-entry" (click)="openInventory.emit(repository.id)" [attr.aria-label]="'Abrir inventario de ' + repository.fullName">
-            <span class="repository-source" [class.local]="repository.source === 'local'">{{ repository.source === 'local' ? 'LOC' : 'GH' }}</span>
-            <span class="repository-name">{{ repository.fullName }}<small>{{ repository.organizationName }} · {{ repository.source === 'local' ? 'Carpeta local' : 'GitHub' }}</small></span>
+          <button class="source-row" (click)="openInventory.emit(repository.id)" [attr.aria-label]="'Abrir inventario de ' + repository.fullName">
+            <span class="source-type" [class.local]="repository.source === 'local'">{{ repository.source === 'local' ? 'LOC' : 'GH' }}</span>
+            <span class="source-copy"><strong>{{ repository.fullName }}</strong><small>{{ repository.organizationName }} · {{ repository.source === 'local' ? 'Carpeta local' : 'GitHub' }}</small></span>
             <app-di-icon name="arrow" />
           </button>
         } @empty {
-          @if (loading()) {
-            <p class="loading-state" role="status">Cargando repositorios…</p>
-          } @else if (!error()) {
-            <div class="repository-empty">
-              <app-di-icon name="box" />
-              <h3>{{ isMember() ? 'No tienes repositorios asignados' : 'Conecta tu primer repositorio' }}</h3>
-              <p>{{ isMember() ? 'Pide a la persona propietaria que te habilite un repositorio.' : 'Conecta GitHub o importa una carpeta para iniciar el análisis de dependencias.' }}</p>
-              @if (!isMember()) { <button mat-stroked-button (click)="connectRepository.emit()">Conectar o importar</button> }
+          @if (loading()) { <p class="loading-state" role="status">Cargando fuentes…</p> }
+          @else if (!error()) {
+            <div class="source-empty">
+              <h3>{{ isMember() ? 'No tienes fuentes asignadas' : 'Conecta la primera fuente' }}</h3>
+              <p>{{ isMember() ? 'La persona propietaria de tu organización puede concederte acceso por repositorio.' : 'GitHub y las carpetas locales disponibles aparecen aquí.' }}</p>
+              @if (!isMember()) { <button type="button" class="inline-action" (click)="connectRepository.emit()">Registrar repositorio <app-di-icon name="arrow" /></button> }
             </div>
           }
         }
       </div>
-    </section>
+    </aside>
   </div>
 
-  <section id="dashboard-analyses" class="analysis-ledger" aria-labelledby="recent-analyses-heading">
-    <header class="work-section-heading">
-      <div><h2 id="recent-analyses-heading">Análisis recientes</h2><p>Último snapshot guardado por repositorio y ecosistema.</p></div>
-      <div class="analysis-counts">
-        <span><strong>{{ completeAnalysisCount }}</strong> completos</span>
-        <span><strong>{{ partialAnalysisCount }}</strong> parciales</span>
-      </div>
+  <section id="dashboard-analyses" class="analysis-log" aria-labelledby="analysis-log-heading">
+    <header class="section-heading log-heading">
+      <div><h2 id="analysis-log-heading">Registro de análisis</h2><p>Snapshots más recientes por repositorio y ecosistema.</p></div>
+      <div class="log-status"><span><strong>{{ completeAnalysisCount }}</strong> completos</span><span><strong>{{ partialAnalysisCount }}</strong> parciales</span></div>
     </header>
-    <div class="analysis-ledger-list">
+    <div class="log-list">
       @for (analysis of analyses().slice(0, 6); track analysis.scanId) {
-        <button class="analysis-ledger-row" (click)="openInventory.emit(analysis.repositoryId)">
-          <span class="analysis-ecosystem" [class.maven]="analysis.ecosystem === 'MAVEN'">{{ analysis.ecosystem === 'MAVEN' ? 'MAVEN' : 'NPM' }}</span>
-          <span class="analysis-repository">{{ analysis.repositoryName }}<small>{{ analysis.organizationName }}</small></span>
-          <span class="analysis-state" [class.partial]="analysis.coverageStatus === 'PARTIAL'">{{ analysis.coverageStatus === 'PARTIAL' ? 'Cobertura parcial' : 'Cobertura completa' }}</span>
-          <span class="analysis-detail">{{ analysisVersionCount(analysis) }} versiones · {{ analysis.unresolvedCount }} sin resolver</span>
+        <button class="log-row" (click)="openInventory.emit(analysis.repositoryId)">
+          <span class="log-ecosystem" [class.maven]="analysis.ecosystem === 'MAVEN'">{{ analysis.ecosystem === 'MAVEN' ? 'Maven' : 'npm' }}</span>
+          <span class="log-repository"><strong>{{ analysis.repositoryName }}</strong><small>{{ analysis.organizationName }}</small></span>
+          <span class="log-coverage" [class.partial]="analysis.coverageStatus === 'PARTIAL'">{{ analysis.coverageStatus === 'PARTIAL' ? 'Cobertura parcial' : 'Cobertura completa' }}</span>
+          <span class="log-detail">{{ analysisVersionCount(analysis) }} versiones · {{ analysis.unresolvedCount }} sin resolver</span>
           <time [attr.datetime]="analysis.analyzedAt">{{ analysis.analyzedAt | date:'short' }}</time>
           <app-di-icon name="arrow" />
         </button>
       } @empty {
-        @if (!loading()) {
-          <div class="ledger-empty"><h3>Todavía no hay snapshots</h3><p>Inicia un análisis desde Inventario cuando tengas un repositorio conectado.</p>
-            @if (repositories().length) { <button mat-stroked-button (click)="openInventory.emit(repositories()[0].id)">Abrir Inventario</button> }
-          </div>
-        } @else { <p class="loading-state" role="status">Cargando snapshots…</p> }
+        @if (loading()) { <p class="loading-state" role="status">Cargando snapshots…</p> }
+        @else { <p class="log-empty">El historial se completa al ejecutar un análisis desde un repositorio.</p> }
       }
     </div>
   </section>
 
   @if (!isMember()) {
-    <div id="dashboard-organization" class="organization-register">
-      <section aria-labelledby="organizations-heading">
-        <header class="work-section-heading"><div><h2 id="organizations-heading">Tus organizaciones</h2><p>Espacios disponibles para esta cuenta.</p></div><button class="text-button" (click)="manage.emit()">Administrar <app-di-icon name="arrow" /></button></header>
+    <section id="dashboard-organization" class="organization-register" aria-labelledby="organizations-heading">
+      <header class="section-heading"><div><h2 id="organizations-heading">Organizaciones</h2><p>Espacios disponibles para esta cuenta.</p></div><button class="inline-action" (click)="manage.emit()">Administrar <app-di-icon name="arrow" /></button></header>
+      <div class="organization-list">
         @for (organization of organizations().slice(0, 3); track organization.id) {
-          <button class="organization-entry" (click)="manage.emit()"><span>{{ organization.name.slice(0, 2).toUpperCase() }}</span><strong>{{ organization.name }}</strong><small>Miembros y equipos</small><app-di-icon name="arrow" /></button>
+          <button class="organization-row" (click)="manage.emit()"><span class="organization-mark">{{ organization.name.slice(0, 2).toUpperCase() }}</span><strong>{{ organization.name }}</strong><small>Miembros y equipos</small><app-di-icon name="arrow" /></button>
         } @empty {
           @if (loadingOrganizations()) { <p class="loading-state" role="status">Cargando organizaciones…</p> }
-          @else if (organizationsUnavailable()) { <p class="notice error" role="alert">No pudimos cargar las organizaciones. <button mat-button (click)="load()">Reintentar</button></p> }
-          @else { <p class="organization-empty">Crea un espacio para trabajar con tu equipo.</p> }
+          @else if (organizationsUnavailable()) { <p class="error" role="alert">No pudimos cargar las organizaciones. <button mat-button (click)="load()">Reintentar</button></p> }
+          @else { <p class="log-empty">Crea una organización para compartir fuentes y permisos con tu equipo.</p> }
         }
-      </section>
-      <section class="setup-route" aria-labelledby="setup-heading">
-        <h2 id="setup-heading">Para empezar</h2>
-        <p>Conecta fuentes y define quién puede revisar cada repositorio.</p>
-        <button class="setup-route-link" (click)="connectRepository.emit()"><span>Repositorio</span><app-di-icon name="arrow" /></button>
-        <button class="setup-route-link" (click)="manage.emit()"><span>Personas y permisos</span><app-di-icon name="arrow" /></button>
-      </section>
-    </div>
+      </div>
+    </section>
   }
 </div>

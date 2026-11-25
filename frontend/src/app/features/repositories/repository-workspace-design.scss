@@ -1,0 +1,31 @@
+/* Source registry: acquisition steps and authorized records share one reading column. */
+.page-heading{padding-bottom:20px;border-bottom:1px solid var(--di-border)}
+.page-heading h1{font-size:clamp(29px,3vw,40px);line-height:1.04}
+select,.existing-installation-controls input{border-radius:2px}
+.connection-card,.repo-section,.empty{margin:0;padding:20px 0;border:0;border-bottom:1px solid var(--di-border);border-radius:0;background:transparent;box-shadow:none}
+.connection-card{border-top:1px solid var(--di-border)}
+.connection-copy{align-items:flex-start}
+.connection-copy h2,.section-heading h2,.repo-section>h2{font-size:16px;letter-spacing:-.015em}
+.connection-copy p,.section-heading p{font-size:12px}
+.github-mark{width:34px;height:34px;border:1px solid var(--di-border);border-radius:2px;background:transparent;color:var(--di-text);font-size:11px}
+.primary,.secondary-action,.danger-action{border-radius:2px}
+.repo-icon{width:29px;height:29px;border:1px solid var(--di-border);border-radius:2px;background:transparent}
+.repo-row{padding:12px 2px}
+.repo-row h3{font-size:13px}
+.repo-row p{font-size:11px}
+.badge{padding:3px 6px;border:1px solid var(--di-border);border-radius:2px;background:transparent;font-size:10px}
+.selection-bar{bottom:8px;padding:10px 13px;border:1px solid var(--di-border);border-radius:2px;background:var(--di-sidebar-background);color:#f1f3f8;box-shadow:0 8px 24px #10182726}
+.notice{border-radius:2px;font-size:12px}
+.empty{justify-items:start;text-align:left;padding:20px 0}
+.empty h2,.empty h3{margin:5px 0 0}
+.empty p,.empty-line{max-width:64ch;font-size:12px}
+.local-upload{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(230px,.9fr);align-items:start;gap:10px 28px}
+.local-upload>div:first-child{grid-column:1}
+.local-upload .folder-picker,.local-upload input[type=file],.local-upload .file-selection,.local-upload>.primary,.local-upload progress{grid-column:2}
+.local-upload .folder-picker{margin-top:0}
+.local-upload input[type=file]{margin-top:0}
+.local-repository-list{grid-column:1/-1}
+.existing-installation-controls{grid-template-columns:minmax(0,1fr) minmax(180px,1.3fr) auto;align-items:end;max-width:760px}
+.existing-installation-controls label{grid-column:1/-1}
+.repo-actions a{font-size:11px}
+@media(max-width:700px){.local-upload{grid-template-columns:1fr}.local-upload>div:first-child,.local-upload .folder-picker,.local-upload input[type=file],.local-upload .file-selection,.local-upload>.primary,.local-upload progress,.local-repository-list{grid-column:1}.existing-installation-controls{grid-template-columns:1fr}.existing-installation-controls label{grid-column:auto}.connection-card{align-items:flex-start}}

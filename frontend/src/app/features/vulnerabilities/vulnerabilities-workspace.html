@@ -15,11 +15,11 @@
     <a href="#vulnerability-results">{{ 'Revisar resultados' | t }}</a>
   </nav>
 
-  <div class="risk-summary" aria-label="{{ 'Resumen de severidad' | t }}">
-    <article class="risk-card critical"><span>{{ 'Críticas' | t }}</span><strong>{{ severityCounts().CRITICAL }}</strong><small>{{ 'Avisos que requieren atención prioritaria' | t }}</small></article>
-    <article class="risk-card high"><span>{{ 'Altas' | t }}</span><strong>{{ severityCounts().HIGH }}</strong><small>{{ 'Revisa impacto y planifica una corrección' | t }}</small></article>
-    <article class="risk-card warning"><span>{{ 'Medias, bajas o sin puntuación' | t }}</span><strong>{{ severityCounts().WARNING }}</strong><small>{{ 'La fuente no publica una severidad mayor' | t }}</small></article>
-    <article class="risk-card total"><span>{{ 'Paquetes afectados' | t }}</span><strong>{{ packageCount() }}</strong><small>{{ 'Versiones únicas en repositorios' | t }}</small></article>
+  <div class="risk-summary" role="group" aria-label="{{ 'Resumen de severidad' | t }}">
+    <div class="risk-stat critical"><span>{{ 'Críticas' | t }}</span><strong>{{ severityCounts().CRITICAL }}</strong></div>
+    <div class="risk-stat high"><span>{{ 'Altas' | t }}</span><strong>{{ severityCounts().HIGH }}</strong></div>
+    <div class="risk-stat warning"><span>{{ 'Medias, bajas o sin puntuación' | t }}</span><strong>{{ severityCounts().WARNING }}</strong></div>
+    <div class="risk-stat total"><span>{{ 'Paquetes afectados' | t }}</span><strong>{{ packageCount() }}</strong></div>
   </div>
 
   <section id="vulnerability-filters" class="filters" aria-label="{{ 'Filtros de vulnerabilidades' | t }}">

@@ -29,7 +29,7 @@ interface LoadingStep { title: string; detail: string; state: LoadingStepState; 
   selector: 'app-analysis-workspace',
   imports: [DatePipe, TranslatePipe, DiIcon],
   templateUrl: './analysis-workspace.html',
-  styleUrl: './analysis-workspace.scss',
+  styleUrls: ['./analysis-workspace.scss', './analysis-workspace-design.scss'],
 })
 export class AnalysisWorkspace implements OnInit {
   private readonly api = inject(SessionApiService);

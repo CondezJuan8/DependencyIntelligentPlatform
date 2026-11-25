@@ -1,8 +1,8 @@
-.catalog { overflow: hidden; }
-.catalog-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 19px 18px; }
+.catalog { overflow: hidden; border: 0; border-top: 1px solid var(--di-border); border-radius: 0; background: transparent; }
+.catalog-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 17px 0; }
 .catalog-heading p { max-width: 720px; font-size: 13px; }
-.result-count { flex: none; padding: 6px 10px; border-radius: 999px; background: var(--di-info-background); color: var(--di-info-text); font-size: 12px; font-weight: 700; }
-.filters { display: grid; gap: 11px; padding: 15px 18px; border-top: 1px solid var(--di-border); border-bottom: 1px solid var(--di-border); background: var(--di-surface-muted); }
+.result-count { flex: none; padding: 4px 8px; border: 1px solid var(--di-border); border-radius: 2px; background: transparent; color: var(--di-info-text); font-size: 11px; font-weight: 650; }
+.filters { display: grid; gap: 11px; padding: 14px 0; border-block: 1px solid var(--di-border); background: transparent; }
 .filter input, .filter select { min-height: 42px; background: var(--di-surface); font-size: 13px; }
 .package-list { display: grid; }
 .package-card { border-bottom: 1px solid var(--di-border); }
@@ -10,21 +10,21 @@
 .package-card summary { display: grid; grid-template-columns: 36px minmax(0, 1fr) 18px; align-items: center; gap: 11px; min-height: 76px; padding: 13px 16px; list-style: none; cursor: pointer; }
 .package-card summary::-webkit-details-marker { display: none; }
 .package-card summary:hover { background: var(--di-surface-muted); }
-.package-symbol { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--di-info-background); color: var(--di-info-text); font-size: 15px; font-weight: 800; }
-.package-symbol.npm { background: var(--di-warning-background); color: var(--di-warning-text); }
+.package-symbol { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--di-border); border-radius: 2px; background: transparent; color: var(--di-info-text); font-size: 12px; font-weight: 700; }
+.package-symbol.npm { border-color: var(--di-warning); background: transparent; color: var(--di-warning-text); }
 .package-identity { display: grid; min-width: 0; gap: 4px; }
 .package-identity strong { overflow: hidden; color: var(--di-text); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .package-identity small { color: var(--di-text-subtle); font-size: 12px; }
 .package-metrics { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--di-text-secondary); font-size: 12px; }
 .chevron { grid-column: 3; grid-row: 1 / span 2; color: var(--di-text-subtle); transition: transform .15s ease; }
 .package-card[open] .chevron { transform: rotate(180deg); }
-.version-list { display: grid; gap: 10px; padding: 0 12px 14px; }
-.version-card { overflow: hidden; border: 1px solid var(--di-border); border-radius: 11px; background: var(--di-background); }
-.version-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 13px; border-bottom: 1px solid var(--di-border); background: var(--di-surface); }
+.version-list { display: grid; gap: 0; padding: 0 14px 10px 47px; }
+.version-card { overflow: hidden; border: 0; border-top: 1px solid var(--di-border); border-radius: 0; background: transparent; }
+.version-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--di-border-soft); background: transparent; }
 .version-heading h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 13px; }
 code { overflow-wrap: anywhere; color: var(--di-text); font: 600 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .kind-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.tag, .occurrence-type { padding: 4px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.tag, .occurrence-type { padding: 3px 6px; border-radius: 2px; font-size: 10px; font-weight: 600; white-space: nowrap; }
 .tag.direct, .occurrence-type.direct-type { background: var(--di-success-background); color: var(--di-success-text); }
 .tag.transitive, .occurrence-type { background: var(--di-surface-muted); color: var(--di-text-secondary); }
 .tag.unknown, .occurrence-type.unknown-type { background: var(--di-info-background); color: var(--di-info-text); }

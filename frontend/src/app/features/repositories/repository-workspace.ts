@@ -14,7 +14,7 @@ interface GitHubSetupStatus { configured: boolean; canManage: boolean; detail: s
 interface LocalRepository { id: string; name: string; fileCount: number; sizeBytes: number; uploadedAt: string; }
 interface LocalFolderImportResult { id: string; name: string; fileCount: number; sizeBytes: number; }
 @Component({
-  selector: 'app-repository-workspace', imports: [DiIcon, TranslatePipe], templateUrl: './repository-workspace.html', styleUrl: './repository-workspace.scss',
+  selector: 'app-repository-workspace', imports: [DiIcon, TranslatePipe], templateUrl: './repository-workspace.html', styleUrls: ['./repository-workspace.scss', './repository-workspace-design.scss'],
 })
 export class RepositoryWorkspace implements OnInit {
   readonly api = inject(SessionApiService);
