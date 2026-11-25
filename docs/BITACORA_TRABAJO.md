@@ -1,3 +1,17 @@
+## Bloque 110 — Evidence Desk, rediseño estructural (25/11/2026)
+
+**Petición.** El usuario pidió rehacer el frontend para que se perciba como un producto diseñado por un equipo senior, no como el mismo layout con otra paleta. Autorizó libertad estética y pidió preguntas solo si hicieran falta.
+
+**Decisión de diseño.** Se contrastaron tres rutas: mesa de evidencia (procedencia y revisión), observatorio de riesgo (descartado porque sugería vigilancia/tendencias no disponibles) y consola de ingeniería (descartada por repetir la plantilla de dashboard). `DESIGN.md` registra la dirección elegida y el alcance honesto.
+
+**Cambios.** El acceso integra el formulario en la página y explica fuente → snapshot → OSV, con reflujo móvil sin vacío ni marca duplicada. El Dashboard ahora prioriza avisos, cobertura, fuentes accesibles e historial como registros; retira el componente de tarjetas métricas. El shell reorganiza navegación por tarea y cabecera global. Repositorios se presenta como adquisición y registro de fuentes; Análisis como ejecución e historial. Inventario sustituye la cuadrícula de métricas y paneles de versiones anidados por un registro; Vulnerabilidades sustituye tarjetas de severidad y hallazgos anidados por cifras alineadas y una lista de revisión. Se preservaron API, datos, permisos, handlers, login, filtros, estados, evaluación OSV y revisión humana. No se añadieron dependencias.
+
+**Herramientas/tecnologías.** Skills de diseño aplicadas: Impeccable, frontend-design, arrange, hierarchy y UI/UX Pro Max; Angular, TypeScript, Sass, Docker Compose y capturas Impeccable. Se exploraron composición, jerarquía, densidad y adaptación; no se usaron mocks.
+
+**Verificación.** `docker compose build frontend` terminó con código 0. Se corrigió un error de presupuesto de compilación separando el ajuste visual de Análisis en su propia hoja Sass. El bundle inicial queda en 648.91 KB/500 KB; siguen avisos de presupuesto por varias hojas Sass. En `localhost:8089`, aplicación y `/api/auth/csrf` respondieron HTTP 200. Se actualizaron los archivos estáticos del contenedor activo sin reiniciar ni detener servicios. Capturas oscuras de acceso revisadas en 1440×900, 1024×768, 768×1024, 390×844 y 375×812; detector Impeccable devolvió `[]`. No hay base autorizada con cuentas, organizaciones o repositorios, así que no fue posible inspeccionar visualmente las rutas autenticadas ni el tema claro. No se ejecutó una suite de tests.
+
+**Siguiente paso.** Cuando el bootstrap administrativo seguro y los datos autorizados estén listos, recorrer las rutas autenticadas en oscuro y claro y corregir hallazgos; ver [`PENDIENTES.md`](PENDIENTES.md). No iniciar otro bloque automáticamente.
+
 ## Bloque 108 — criterio visual y auditoría de flujos (25/11/2026)
 
 **Petición.** El usuario reafirmó que no quiere una interfaz genérica, sobrecargada o cosmética, y autorizó replantear vistas si su estructura limita la comprensión. Se conservaron las composiciones específicas por tarea ya definidas en el bloque 107.

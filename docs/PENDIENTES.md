@@ -1,10 +1,10 @@
-## Estado visual vigente — Spectrum Ledger (25/11/2026)
+## Estado visual vigente — Evidence Desk (25/11/2026)
 
-- [x] Rediseño integral del sistema compartido: superficies de grafito/níveas, índigo para acciones, cian para señales de estado, shell renovado, acceso y dashboard jerarquizados. Se mantienen rutas, permisos, contratos, acciones y estados reales. Ver [`DESIGN.md`](../DESIGN.md), [`PRODUCT.md`](../PRODUCT.md) y [bitácora, bloque 109](BITACORA_TRABAJO.md).
-- [x] Build Docker del frontend correcto. Capturas Impeccable de acceso oscuro revisadas en 1440×900, 1024×768, 390×844 y 375×812; sin desbordamiento visible. El build dejó bundle inicial de 647.64 KB/500 KB y avisos Sass existentes.
-- [ ] Revisar visualmente el tema claro y cada módulo autenticado con datos reales. El pipe de automatización de navegador no estuvo disponible y la base Compose sigue sin cuentas, organizaciones ni repositorios. El acceso oscuro sí se revisó en cuatro tamaños.
-- [ ] Validar en el entorno interactivo acordado la navegación autenticada, formularios, filtros, tablas y acciones; el bootstrap seguro del administrador y los datos autorizados todavía son necesarios. No se reinició ni detuvo ninguno de los dos entornos en este bloque.
-- [ ] Reducir avisos de presupuesto Angular (bundle inicial y hojas Sass sobre 4 KB) en un bloque de rendimiento independiente.
+- [x] Se reemplazó la composición de acceso y Dashboard, se reorganizaron el índice lateral y la cabecera global y se replantearon la lista de fuentes, la ejecución/historial de Análisis, y los resúmenes y registros de Inventario y Vulnerabilidades. Se conservan formularios, acciones, datos reales, rutas y permisos. La dirección y sus límites están en [`DESIGN.md`](../DESIGN.md).
+- [x] `docker compose build frontend` compiló Angular. Capturas Impeccable del acceso oscuro revisadas en 1440×900, 1024×768, 390×844 y 375×812; se corrigieron el espacio vacío y la marca duplicada en móvil. En `localhost:8089`, la aplicación y `/api/auth/csrf` respondieron HTTP 200. Se actualizó el contenido estático del contenedor sin detener servicios.
+- [ ] Revisar visualmente el tema claro y las rutas autenticadas con datos autorizados. La base Compose está vacía y requiere completar el bootstrap seguro del administrador; no se usaron mocks.
+- [ ] Recorrer Inventario, Vulnerabilidades, Repositorios, Análisis, Documentación, Nexo, Reportes y administración con una sesión real. La inspección del acceso no sustituye esa revisión.
+- [ ] Reducir presupuesto Angular: build inicial 648.91 KB frente a 500 KB; varias hojas Sass superan 4 KB.
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 
