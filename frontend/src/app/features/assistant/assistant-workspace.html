@@ -19,7 +19,7 @@
     @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
     <div class="conversation" aria-live="polite" aria-relevant="additions text">
-      @if (!turns().length) { <div class="empty"><span aria-hidden="true">✦</span><h3>{{ preferences.text('Empieza con una pregunta concreta') }}</h3>
+      @if (!turns().length) { <div class="empty"><app-di-icon name="document" /><h3>{{ preferences.text('Empieza con una pregunta concreta') }}</h3>
         <p>{{ preferences.text('Por ejemplo: ¿qué decisiones de arquitectura documentamos para este repositorio?') }}</p></div> }
       @for (turn of turns(); track $index) {
         <article class="turn" [class.user-turn]="turn.role === 'USER'" [class.assistant-turn]="turn.role === 'ASSISTANT'">

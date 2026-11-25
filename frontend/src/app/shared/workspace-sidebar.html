@@ -5,18 +5,24 @@
     >
   </button>
   <nav>
-    @for (item of navigation; track item.id) {
-      <button
-        (click)="go(item.id)"
-        [class.active]="page() === item.id"
-        [attr.aria-current]="page() === item.id ? 'page' : null"
-        [attr.title]="item.label | t"
-      >
-        <app-di-icon [name]="item.icon" /><span>{{ item.label | t }}</span>
-        @if (!item.ready) {
-          <i aria-hidden="true"></i><span class="sr-only">{{ 'En preparación' | t }}</span>
+    @for (group of navigationGroups; track group.label) {
+      <section class="nav-group" [attr.aria-label]="group.label | t">
+        <h2>{{ group.label | t }}</h2>
+        @for (item of group.items; track item.id) {
+          <button
+            type="button"
+            (click)="go(item.id)"
+            [class.active]="page() === item.id"
+            [attr.aria-current]="page() === item.id ? 'page' : null"
+            [attr.title]="item.label | t"
+          >
+            <app-di-icon [name]="item.icon" /><span>{{ item.label | t }}</span>
+            @if (!item.ready) {
+              <i aria-hidden="true"></i><span class="sr-only">{{ 'En preparación' | t }}</span>
+            }
+          </button>
         }
-      </button>
+      </section>
     }
   </nav>
 </aside>

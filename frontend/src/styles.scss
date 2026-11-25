@@ -4,7 +4,7 @@
 @use './theme/appearance';
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
   @include tokens.properties();
   @include mat.theme(
     (
@@ -41,6 +41,8 @@ html {
 body {
   margin: 0;
   font-family: var(--di-font-family);
+  font-size: 14px;
+  line-height: 1.5;
   background: var(--di-background);
   color: var(--di-text);
 }
@@ -52,6 +54,33 @@ a {
 
 a:hover {
   color: var(--di-primary-hover);
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--di-accent);
+  outline-offset: 2px;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
 }
 
 *,
@@ -71,18 +100,56 @@ button:disabled {
   cursor: not-allowed;
 }
 ::selection {
-  background: #bfdbfe;
-  color: var(--di-navy);
+  background: var(--di-primary);
+  color: #fff;
 }
 .skip-link {
   position: fixed;
   z-index: 100;
   left: 16px;
   top: -80px;
-  background: white;
+  background: var(--di-surface-raised);
   padding: 12px 18px;
-  border-radius: 8px;
+  border-radius: var(--di-radius-control);
   color: var(--di-primary);
+}
+
+#workspace-main {
+  scroll-margin-top: 72px;
+}
+
+#workspace-main > * {
+  min-width: 0;
+}
+
+#workspace-main .eyebrow {
+  color: var(--di-text-subtle);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+#workspace-main :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  min-height: 42px;
+  border-color: var(--di-control-border);
+  border-radius: var(--di-radius-control);
+  background-color: var(--di-surface);
+  color: var(--di-text);
+}
+
+#workspace-main :is(table th, table td) {
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+#workspace-main table th {
+  color: var(--di-text-secondary);
+  font-weight: 600;
+}
+
+#workspace-main :is(code, pre) {
+  overflow-wrap: anywhere;
 }
 .skip-link:focus {
   top: 12px;

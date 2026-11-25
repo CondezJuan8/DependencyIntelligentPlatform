@@ -5,7 +5,7 @@ export type Theme = 'light'|'dark'|'system';
 @Injectable({providedIn:'root'})
 export class PreferencesService {
   private readonly personalLanguage=signal<Language>('es');
-  private readonly personalTheme=signal<Theme>('system');
+  private readonly personalTheme=signal<Theme>('dark');
   private readonly organizationLanguage=signal<Language|null>(null);
   private readonly organizationTheme=signal<Theme|null>(null);
   private readonly headerLanguageOverride=signal<Language|null>(null);

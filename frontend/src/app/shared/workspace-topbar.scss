@@ -5,7 +5,7 @@
   z-index: 12;
 }
 .topbar {
-  height: 70px;
+  min-height: 64px;
   background: var(--di-surface);
   border-bottom: 1px solid var(--di-border);
   padding: 0 32px;
@@ -23,9 +23,10 @@
   gap: 10px;
   background: var(--di-surface-muted);
   border: 1px solid var(--di-border);
-  border-radius: 6px;
-  padding: 9px 12px;
-  width: 300px;
+  border-radius: 5px;
+  padding: 8px 12px;
+  width: min(320px, 32vw);
+  min-height: 40px;
   color: var(--di-text-subtle);
 }
 .search-box app-di-icon {
@@ -37,7 +38,7 @@
   outline: 0;
   background: none;
   width: 100%;
-  font-size: 11px;
+  font-size: 14px;
   color: var(--di-text);
 }
 .search-box:focus-within {
@@ -48,9 +49,9 @@
   display: flex;
   align-items: center;
   margin-left: auto;
-  gap: 23px;
+  gap: 12px;
 }
-.assistant-header-button { display:inline-flex; min-height:38px; align-items:center; gap:8px; padding:0 12px; border:1px solid var(--di-border); border-radius:8px; background:var(--di-info-background); color:var(--di-primary); font:inherit; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.assistant-header-button { display:inline-flex; min-height:40px; align-items:center; gap:8px; padding:0 12px; border:1px solid var(--di-border); border-radius:5px; background:var(--di-info-background); color:var(--di-link); font:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
 .assistant-header-button app-di-icon { width:17px;height:17px; }
 .assistant-header-button:hover { border-color:var(--di-primary); }
 .assistant-header-button:focus-visible { outline:3px solid var(--di-accent);outline-offset:2px; }
@@ -59,8 +60,8 @@
   place-items: center;
   background: none;
   border: 0;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   color: var(--di-text);
   border-radius: 7px;
   cursor: pointer;
@@ -76,7 +77,9 @@
   border: 0;
   cursor: pointer;
   color: var(--di-slate);
-  font-size: 11px;
+  min-height:40px;
+  padding:0 4px;
+  font-size: 13px;
   font-weight: 600;
 }
 .profile-button > app-di-icon {
@@ -87,11 +90,11 @@
   width: 31px;
   height: 31px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--di-primary), #1d4ed8);
+  background: var(--di-primary);
   color: white;
   display: inline-grid;
   place-items: center;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
 }
 .profile-name {
@@ -112,28 +115,28 @@
   width: 280px;
   background: var(--di-surface);
   border: 1px solid var(--di-border);
-  border-radius: 9px;
+  border-radius: 6px;
   box-shadow: 0 10px 35px #1018271a;
   padding: 17px;
   z-index: 15;
-  font-size: 12px;
+  font-size: 13px;
 }
 .popover p {
   color: var(--di-text-subtle);
   line-height: 1.7;
 }
-.notice-count { position:absolute; top:-3px; right:-3px; min-width:17px; height:17px; padding:0 4px; display:grid; place-items:center; border-radius:99px; background:var(--di-critical); color:white; font-size:9px; font-weight:800; }
+.notice-count { position:absolute; top:-3px; right:-3px; min-width:20px; height:20px; padding:0 4px; display:grid; place-items:center; border-radius:99px; background:var(--di-critical); color:white; font-size:12px; font-weight:800; }
 .notifications-popover { width:min(410px,calc(100vw - 24px)); max-height:min(70vh,600px); overflow:auto; }
 .notification-heading { display:flex; align-items:center;justify-content:space-between; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--di-border); }
 .notification-heading button { width:auto; color:var(--di-link);font-weight:700; }
 .notification-item { display:grid!important;grid-template-columns:9px minmax(0,1fr) 14px!important;align-items:start!important;gap:10px!important;padding:11px 2px!important;border-bottom:1px solid var(--di-border)!important; }
 .notification-item > span:nth-child(2) { display:grid;gap:4px;min-width:0; }
 .notification-item strong { font-size:12px; }
-.notification-item small { color:var(--di-text-secondary);font-size:11px;line-height:1.45;overflow-wrap:anywhere; }
+.notification-item small { color:var(--di-text-secondary);font-size:12px;line-height:1.45;overflow-wrap:anywhere; }
 .notification-item app-di-icon { width:14px;height:14px;color:var(--di-link); }
 .notification-dot { width:8px;height:8px;margin-top:4px;border-radius:50%;background:var(--di-warning); }
 .notification-dot.critical { background:var(--di-critical); }
-.notifications-popover > small { margin:10px 0 0;padding:10px 0 0;border:0;font-size:10px;line-height:1.4; }
+.notifications-popover > small { margin:10px 0 0;padding:10px 0 0;border:0;font-size:12px;line-height:1.4; }
 .popover button,
 .search-results button {
   display: flex;
@@ -163,7 +166,7 @@
   width: 330px;
 }
 .search-results small {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--di-text-subtle);
   margin-left: auto;
 }
@@ -179,7 +182,7 @@
     padding-right: 23px;
   }
   .search-box {
-    width: 250px;
+    width: min(280px, 28vw);
   }
   .profile-name {
     max-width: 95px;
@@ -191,11 +194,13 @@
   }
   .topbar {
     padding: 0 16px;
-    height: 62px;
+    min-height: 60px;
+    height: auto;
+    padding-block: 8px;
     gap: 10px;
   }
   .search-box {
-    width: 230px;
+    width: min(230px, 28vw);
   }
   .topbar-end {
     gap: 7px;
@@ -218,9 +223,9 @@
     padding: 0;
   }
   .topbar-end .icon-button {
-    width: 30px;
+    width: 40px;
   }
-  .assistant-header-button { width:34px;min-height:34px;justify-content:center;padding:0; }
+  .assistant-header-button { width:40px;min-height:40px;justify-content:center;padding:0; }
   .assistant-header-button span { display:none; }
   .popover {
     position: fixed;
@@ -236,5 +241,5 @@
   .search-box { padding: 8px; }
   .search-box input { min-width: 0; }
   .topbar-end .popover-anchor { display: block; }
-  .assistant-header-button { width:30px;min-height:30px; }
+  .assistant-header-button { width:36px;min-height:36px; }
 }

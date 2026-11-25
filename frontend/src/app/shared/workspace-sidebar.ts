@@ -15,6 +15,22 @@ export class WorkspaceSidebar {
   readonly navigate = output<Page>();
   private readonly api=inject(SessionApiService);
 get navigation(){return availableNavigation(this.api.account());}
+  get navigationGroups() {
+    const available = this.navigation;
+    const groups: { label: string; ids: Page[] }[] = [
+      { label: 'Espacio', ids: ['dashboard'] },
+      { label: 'Dependencias', ids: ['repositories', 'analysis', 'inventory', 'vulnerabilities'] },
+      { label: 'Conocimiento', ids: ['documentation', 'assistant', 'reports'] },
+      { label: 'Administración', ids: ['organization', 'administration', 'settings'] },
+    ];
+    return groups.flatMap(group => {
+      const items = group.ids.flatMap(id => {
+        const item = available.find(candidate => candidate.id === id);
+        return item ? [item] : [];
+      });
+      return items.length ? [{ label: group.label, items }] : [];
+    });
+  }
   go(page: Page): void {
     this.navigate.emit(page);
   }

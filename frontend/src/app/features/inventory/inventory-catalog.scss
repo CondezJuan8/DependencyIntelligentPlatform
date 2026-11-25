@@ -14,8 +14,8 @@
 .package-symbol.npm { background: var(--di-warning-background); color: var(--di-warning-text); }
 .package-identity { display: grid; min-width: 0; gap: 4px; }
 .package-identity strong { overflow: hidden; color: var(--di-text); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-.package-identity small { color: var(--di-text-subtle); font-size: 11px; }
-.package-metrics { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--di-text-secondary); font-size: 11px; }
+.package-identity small { color: var(--di-text-subtle); font-size: 12px; }
+.package-metrics { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--di-text-secondary); font-size: 12px; }
 .chevron { grid-column: 3; grid-row: 1 / span 2; color: var(--di-text-subtle); transition: transform .15s ease; }
 .package-card[open] .chevron { transform: rotate(180deg); }
 .version-list { display: grid; gap: 10px; padding: 0 12px 14px; }
@@ -24,7 +24,7 @@
 .version-heading h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 13px; }
 code { overflow-wrap: anywhere; color: var(--di-text); font: 600 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .kind-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.tag, .occurrence-type { padding: 4px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.tag, .occurrence-type { padding: 4px 7px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .tag.direct, .occurrence-type.direct-type { background: var(--di-success-background); color: var(--di-success-text); }
 .tag.transitive, .occurrence-type { background: var(--di-surface-muted); color: var(--di-text-secondary); }
 .tag.unknown, .occurrence-type.unknown-type { background: var(--di-info-background); color: var(--di-info-text); }
@@ -33,7 +33,7 @@ code { overflow-wrap: anywhere; color: var(--di-text); font: 600 12px/1.5 ui-mon
 .occurrence-list li:last-child { border-bottom: 0; }
 .occurrence-type { grid-column: 1; }
 .occurrence-detail { display: grid; gap: 3px; min-width: 0; font-size: 12px; }
-.occurrence-detail strong { color: var(--di-text-subtle); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.occurrence-detail strong { color: var(--di-text-subtle); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
 .occurrence-detail time { color: var(--di-text-secondary); }
 .provenance { grid-column: 1 / -1; min-width: 0; margin-top: 2px; border-top: 1px dashed var(--di-border); padding-top: 8px; }
 .provenance summary { display: block; width: 100%; max-width: 100%; padding: 8px 0; color: var(--di-link); font-size: 14px; font-weight: 700; line-height: 1.5; cursor: pointer; }

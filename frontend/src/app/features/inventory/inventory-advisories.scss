@@ -15,7 +15,7 @@
 .advisory-card-content { min-width: 0; padding: 14px; }
 .advisory-list a { color: var(--di-link); font-weight: 700; overflow-wrap: anywhere; }
 .advisory-list p { margin: 6px 0; color: var(--di-text); font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
-.advisory-list .severity { margin-left: 8px; padding: 2px 7px; border-radius: 999px; color: white; font-size: 10px; font-weight: 750; }
+.advisory-list .severity { margin-left: 8px; padding: 2px 7px; border-radius: 999px; color: white; font-size: 12px; font-weight: 750; }
 .advisory-list .severity-critical, .advisory-list .severity-high { background: var(--di-critical); }
 .advisory-list .severity-medium { background: var(--di-warning); color: #101827; }
 .advisory-list .severity-low { background: var(--di-success); }

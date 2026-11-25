@@ -2,12 +2,13 @@ import { Component, inject, Input, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
 import { PreferencesService } from '../../core/preferences.service';
+import { DiIcon } from '../../shared/di-icon';
 
 interface Answer { conversationId: string; messageId: string; answer: string; proposedRepairPrompt: string | null; citations: Citation[]; status: string; model: string | null; }
 interface Citation { documentId: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
 interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; proposedRepairPrompt?: string | null; }
 
-@Component({ selector: 'app-assistant-workspace', templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
+@Component({ selector: 'app-assistant-workspace', imports: [DiIcon], templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
 export class AssistantWorkspace {
   @Input() compact = false;
   private readonly api = inject(SessionApiService);

@@ -32,7 +32,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .document-list { display: grid; gap: 10px; }
 .document-card { padding: 16px; border: 1px solid var(--di-border); border-radius: 12px; }
 .document-main { display: flex; align-items: flex-start; gap: 13px; }.document-main h3 { margin: 0; font-size: 16px; overflow-wrap: anywhere; }.document-main p { margin: 5px 0 10px; color: var(--di-text-secondary); font-size: 13px; line-height: 1.45; }
-.file-type { flex: 0 0 auto; min-width: 54px; padding: 7px; border-radius: 8px; background: var(--di-info-background); color: var(--di-info-text); text-align: center; font-size: 11px; font-weight: 750; }
+.file-type { flex: 0 0 auto; min-width: 54px; padding: 7px; border-radius: 8px; background: var(--di-info-background); color: var(--di-info-text); text-align: center; font-size: 12px; font-weight: 750; }
 .metadata { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--di-text-subtle); font-size: 12px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }.file-button { position: relative; overflow: hidden; }.file-button input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
 .versions { display: grid; gap: 8px; margin: 14px 0 0; padding: 12px 12px 12px 32px; border-radius: 8px; background: var(--di-background); }.versions li { display: flex; justify-content: space-between; gap: 12px; color: var(--di-text-secondary); font-size: 13px; }

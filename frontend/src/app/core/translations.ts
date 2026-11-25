@@ -26,6 +26,8 @@ export const english: Record<string, string> = {
   'Asistente de documentación': 'Documentation assistant',
   'Pregunta sobre documentos de tus repositorios y revisa las fuentes de cada respuesta.': 'Ask about repository documents and review the sources behind each answer.',
   'Espacio': 'Workspace',
+  'Conocimiento': 'Knowledge',
+  'Administración': 'Administration',
   'Asistente del espacio': 'Workspace assistant',
   'Solo consulta documentos asociados a repositorios que puedes ver. Las respuestas incluyen citas.': 'It only reads documents linked to repositories you can access. Answers include citations.',
   'Preparando documentos…': 'Preparing documents…',
