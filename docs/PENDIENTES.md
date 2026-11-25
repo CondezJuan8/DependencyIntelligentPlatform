@@ -1,5 +1,6 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Ajuste acotado pedido por el usuario: bordes de superficie más legibles y menor saturación en acentos/riesgos, aplicado solo a tokens de tema y al SVG de acceso. Ver [bitácora, bloque 106](BITACORA_TRABAJO.md).
 - [x] Dirección propia Observatorio de Evidencias: tema oscuro predeterminado, tinta azul, papel mineral y acentos ámbar; navegación agrupada por tarea; dashboard reestructurado como registro de riesgo y espacio de trabajo asimétrico; identidad de acceso SVG original. Revisar [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 105](BITACORA_TRABAJO.md).
 - [x] El usuario proporcionó Berry, Angular Dashboards y Corona como referencias. Se revisaron sin ejecutar los zips ni copiar su código o recursos. No se agregaron dependencias ni se modificaron backend, base de datos, API, autenticación o autorización.
 - [x] Build Docker de frontend y actualización exclusiva del servicio frontend en Compose `localhost:8089`; aplicación y recursos principales responden HTTP 200. Capturas Impeccable revisadas en 1440×900, 1024×768, 768×1024, 390×844 y 375×812.

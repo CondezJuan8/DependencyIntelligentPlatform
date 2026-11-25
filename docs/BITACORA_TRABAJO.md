@@ -1,3 +1,15 @@
+## Bloque 106 — ajuste de bordes y saturación (25/11/2026)
+
+**Petición.** Refinar únicamente la presencia de bordes y la saturación del tema, usando Impeccable, sin cambiar los demás aspectos de la interfaz.
+
+**Cambios.** Se reforzaron los tokens de borde de superficie en ambos temas y se redujo la saturación de acentos ámbar y tonos semánticos (éxito, advertencia y riesgo). La ilustración SVG de acceso usa el mismo ámbar atenuado. Se actualizaron las muestras correspondientes en `DESIGN.md`. No se modificaron composición, contenido, navegación, interacciones ni funcionalidades.
+
+**Herramientas/tecnologías.** Skill Impeccable, Angular/Sass, tokens existentes, SVG y Docker Compose. Sin dependencias nuevas y sin cambios de backend.
+
+**Verificación.** Build Docker de frontend correcto; Angular mantiene avisos existentes de presupuesto (631.14 KB/500 KB y hojas Sass). Se actualizó únicamente el servicio frontend de Compose y `localhost:8089` respondió HTTP 200. Capturas Impeccable en 1440×900 y 390×844 inspeccionadas; el borde de superficie se distingue mejor en móvil y escritorio. El contraste del borde principal es 3.04:1 en superficie clara y 3.17:1 en superficie oscura atenuada. `impeccable detect --json --changed` devolvió `[]`; no se ejecutaron suites de pruebas.
+
+**Siguiente paso.** Recoger la impresión del usuario sobre este ajuste acotado; no ampliar el rediseño sin petición.
+
 ## Bloque 105 — Observatorio de Evidencias, rediseño integral (25/11/2026)
 
 **Petición.** El usuario pidió ir más allá del parecido con la plantilla Berry y entregó Berry, Angular Dashboards y Corona como referencias. Autorizó libertad creativa y pidió una interfaz original, fácil de entender y animada, con las funcionalidades y el backend intactos.
