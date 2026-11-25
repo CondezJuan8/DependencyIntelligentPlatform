@@ -24,7 +24,18 @@ select,.existing-installation-controls input{border-radius:2px}
 .local-upload .folder-picker,.local-upload input[type=file],.local-upload .file-selection,.local-upload>.primary,.local-upload progress{grid-column:2}
 .local-upload .folder-picker{margin-top:0}
 .local-upload input[type=file]{margin-top:0}
+.local-upload input[type=file]{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.local-upload .folder-picker{display:inline-flex;align-items:center;justify-content:center;width:fit-content;min-height:44px;padding:9px 15px;border:1px solid var(--di-control-border);border-radius:var(--di-radius-control);background:var(--di-surface-muted);color:var(--di-text);cursor:pointer}
+.local-upload .folder-picker:hover{border-color:var(--di-primary);color:var(--di-primary)}
+.local-upload .folder-picker:has(+ input:focus-visible){outline:2px solid var(--di-primary);outline-offset:3px}
+.local-upload .folder-picker:has(+ input:disabled){opacity:.55;cursor:wait}
+.local-upload .file-selection{overflow-wrap:anywhere}
 .local-repository-list{grid-column:1/-1}
+.local-repository-list{margin-top:12px;padding-top:20px}
+.local-repository-list .repo-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;align-items:center}
+.local-repository-list .repo-actions{gap:8px}
+.local-repository-list .danger-action{min-height:36px;border-color:var(--di-border);background:transparent}
+@media(max-width:900px){.local-repository-list .repo-row{grid-template-columns:minmax(0,1fr)}.local-repository-list .repo-actions{justify-content:flex-start}}
 .existing-installation-controls{grid-template-columns:minmax(0,1fr) minmax(180px,1.3fr) auto;align-items:end;max-width:760px}
 .existing-installation-controls label{grid-column:1/-1}
 .repo-actions a{font-size:11px}

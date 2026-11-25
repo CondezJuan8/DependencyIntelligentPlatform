@@ -34,9 +34,10 @@
     .existing-installation-controls { grid-column: 2; grid-row: 1 / span 4; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 8px; }
     .existing-installation-controls label { grid-column: 1 / -1; }
     .local-upload { display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.8fr); align-items: start; gap: 12px 22px; }
-    .local-upload > div:first-child, .local-upload .local-repository-list { grid-column: 1 / -1; }
+    .local-upload > div:first-child { grid-column: 1; }
+    .local-upload .local-repository-list { grid-column: 1 / -1; }
     .local-upload > input[type='file'] { align-self: center; }
-    .local-upload .folder-picker { align-self: end; }
+    .local-upload .folder-picker { grid-row: 1; align-self: center; justify-self: end; }
     .local-upload > .file-selection, .local-upload > button, .local-upload > progress { grid-column: 1 / -1; }
     .local-repository-list { border-top: 1px solid var(--di-border); padding-top: 12px; }
     .repo-section { margin-block: 17px; padding: 17px 19px; }
@@ -179,6 +180,7 @@
   #workspace-main app-repository-workspace .connection-copy { grid-column:1 / -1; }
   #workspace-main app-repository-workspace .local-upload { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-repository-workspace .local-upload > * { grid-column:1; }
+  #workspace-main app-repository-workspace .local-upload .folder-picker { grid-row:auto; justify-self:start; }
   #workspace-main app-inventory-workspace .inventory-guide { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-vulnerabilities-workspace .filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
   #workspace-main app-document-center .document-card { grid-template-columns:minmax(0,1fr); }
@@ -254,14 +256,10 @@
   > .selection-bar,
   > p[role] { grid-column: 1 / -1; }
 
-  > .connection-card { grid-column: 1; align-self: start; align-content: start; }
-  > .existing-installation { grid-column: 2; grid-row: span 2; align-self: start; margin-block: 0 17px; }
-  .existing-installation { grid-template-columns: minmax(0, 1fr); }
-  .existing-installation-controls { grid-column: 1; grid-row: auto; grid-template-columns: minmax(0, 1fr); }
-  .existing-installation-controls label { grid-column: 1; }
+  > .connection-card { grid-column: 1 / -1; align-self: start; align-content: start; }
+  > .existing-installation { grid-column: 1 / -1; align-self: start; }
   > .local-upload { grid-column: 1 / -1; }
   > .repo-section:not(.existing-installation) { grid-column: 1 / -1; }
-  &:has(> .existing-installation) > .local-upload { grid-column: 1; margin-top: 16px; }
 
   .connection-card,
   .repo-section { border-radius: var(--di-radius-panel); }
@@ -437,8 +435,7 @@
   #workspace-main app-repository-workspace > .existing-installation,
   #workspace-main app-repository-workspace > .local-upload,
   #workspace-main app-repository-workspace > .repo-section { grid-column: 1; }
-  #workspace-main app-repository-workspace > .existing-installation { grid-row: auto; margin-top: 12px; }
-  #workspace-main app-repository-workspace:has(> .existing-installation) > .local-upload { margin-top: 0; }
+  #workspace-main app-repository-workspace > .existing-installation { margin-top: 12px; }
   #workspace-main app-inventory-workspace .inventory-guide li { padding: 9px 0 0; border-left: 0; border-top: 1px solid var(--di-border); }
   #workspace-main app-inventory-workspace .inventory-guide li:first-child { padding-top: 0; border-top: 0; }
   #workspace-main app-reports-workspace .report-controls { grid-template-columns: minmax(0, 1fr); }

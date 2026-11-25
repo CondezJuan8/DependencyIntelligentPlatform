@@ -65,7 +65,7 @@
       @if (localRepositories().length) {
         <div class="local-repository-list"><h3>{{ 'Carpetas importadas' | t }}</h3>
           @for (localRepository of localRepositories(); track localRepository.id) {
-            <article class="repo-row"><div><h3>{{ localRepository.name }}</h3><p>{{ localRepository.fileCount }} {{ 'archivos' | t }} · {{ formatSize(localRepository.sizeBytes) }} · {{ 'Almacenamiento privado' | t }}</p></div><div class="repo-actions"><span class="badge">{{ 'Local' | t }}</span><a [href]="'/api/organizations/' + organizationId() + '/repositories/' + localRepository.id + '/source'">{{ 'Descargar fuente' | t }}</a>@if(githubStatus()?.canManage){<button class="danger-action" type="button" [disabled]="pending()" (click)="deleteRepository(localRepository.id,'local',localRepository.name)">{{ 'Eliminar repositorio' | t }}</button>}</div></article>
+            <article class="repo-row"><div><h3>{{ localRepository.name }}</h3><p>{{ localRepository.fileCount }} {{ 'archivos' | t }} · {{ formatSize(localRepository.sizeBytes) }} · {{ 'Almacenamiento privado' | t }}</p></div><div class="repo-actions"><a [href]="'/api/organizations/' + organizationId() + '/repositories/' + localRepository.id + '/source'">{{ 'Descargar fuente' | t }}</a>@if(githubStatus()?.canManage){<button class="danger-action" type="button" [disabled]="pending()" (click)="deleteRepository(localRepository.id,'local',localRepository.name)">{{ 'Eliminar repositorio' | t }}</button>}</div></article>
           }
         </div>
       }
