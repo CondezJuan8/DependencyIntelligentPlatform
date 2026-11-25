@@ -313,3 +313,7 @@ El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAES
 - [x] Las pantallas explican el recorrido Scanner -> OSV -> evidencia del codigo y el alcance de «sin avisos» e «inconcluso».
 - [ ] Confirmar el recorrido visual autenticado y revisar si persiste otra causa de excepcion en el entorno del usuario.
 - [x] Se reconstruyeron backend/frontend en Compose; se mantuvieron base, scanner, Mailpit y Ollama sin reinicio. localhost:8089 y sus chunks nuevos responden 200.
+
+## Estado del frontend rediseñado — bloque 102 (24/11/2026)
+
+La propuesta visual quedó aplicada y documentada en [DESIGN.md](../DESIGN.md), con oscuro como tema inicial y audiencia de ingeniería y seguridad por igual. TypeScript (51 archivos), compilador Angular con templates y Sass (27 hojas) pasaron sin diagnósticos. El build de Compose pasó, y el frontend se actualizó en `localhost:8089`; HTTP 200 y capturas Impeccable de 1440×900 y 390×844 confirmaron el acceso nuevo. Queda pendiente la revisión autenticada: la base sigue vacía y falta el bootstrap seguro del administrador. No se usaron mocks ni se alteraron backend, datos o contratos; ver [bitácora, bloque 102](BITACORA_TRABAJO.md).
