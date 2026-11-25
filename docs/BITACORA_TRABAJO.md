@@ -1,3 +1,15 @@
+## Bloque 112 — Cambio de vista y verificación de admisión (25/11/2026)
+
+**Petición.** El usuario eligió el frontend de revisión en 8189, pidió retirar el 8089 y su Mailpit y conservar el backend anterior; pidió comprobar el flujo de admisión.
+
+**Cambios.** Se detuvieron y eliminaron los contenedores de frontend/Mailpit del Compose anterior y su imagen frontend. El backend y la base de datos anteriores siguen activos. El Compose base deja frontend/Mailpit bajo perfil `review`; `compose.review.yaml` publica el frontend en 8189 y Mailpit en 8126/1126. El código `frontend/` se conserva porque es la fuente compartida por la vista elegida.
+
+**Herramientas.** Docker Compose, curl, Playwright/Edge y Mailpit aislado. No se agregaron dependencias del producto ni migraciones.
+
+**Verificación.** `compose config` confirma los puertos 8189, 8126 y 1126. HTTP 8189 y Mailpit 8126 responden 200; 8089 y Mailpit 8026 ya no escuchan. El backend anterior sigue en ejecución. En 8189, una cuenta temporal `example.test` completó registro, envío manual del enlace desde el panel de estado, verificación en Mailpit, aprobación desde Administración e inicio de sesión; todo correcto a 390 px. El alta requiere pulsar ?Enviar enlace de verificación? en su panel.
+
+**Siguiente paso.** Continuar la revisión en [localhost:8189](http://localhost:8189). La solicitud personal, si existe, requiere que el usuario abra su enlace y que un administrador de la misma instancia la apruebe.
+
 ## Bloque 111 — Paquete visual Observatorio de Evidencias (25/11/2026)
 
 **Petición.** Aplicar las instrucciones de «PLANTILLA PAQUETE VISUAL» y ejecutar cinco skills. Se usaron el PDF de 28 páginas, la galería HTML navegable y las 27 referencias visuales. Las cifras y las identidades de la galería se trataron como ejemplos de composición.

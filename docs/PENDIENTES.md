@@ -2,11 +2,11 @@
 
 - [x] Integrar los cinco bloques de la guía «PORFAVOR» en Angular. La paleta, el alcance de las vistas y las variantes están en [DESIGN.md](../DESIGN.md).
 - [x] Recorrer las 11 vistas internas en escritorio (1440 px) y móvil (390 px) con autenticación real en Compose aislado. Probar el foco de búsqueda, menú y detalle de inventario, además de temas claro y oscuro.
-- [x] Verificar registro, admisión pendiente/rechazada, motivo y auditoría, invitación por SMTP, verificación de correo y aprobación de acceso para un lector.
+- [x] Verificar registro, solicitud explícita del enlace desde el panel, verificación, aprobación administrativa e inicio de sesión; también rechazo/auditoría e invitaciones en Mailpit.
 - [x] Probar carpeta local, ejecución npm, estado Maven sin manifiesto, comparación de snapshots, inventario, reportes y biblioteca en el entorno aislado.
 - [ ] Verificar Google/GitHub OAuth y el consentimiento de GitHub App con credenciales autorizadas para esta revisión. En el entorno aislado se verificó la interfaz con proveedores desactivados.
 - [ ] Validar Nexo con un proveedor configurado, recuperación de un documento preparado y apertura de su cita desde la respuesta. Se comprobó el rechazo de un repositorio ajeno y el estado sin evidencia.
-- [ ] Revisar el diseño en las instancias de uso habitual al actualizar frontend y backend juntos. La versión del paquete se probó en `localhost:8189` con un volumen independiente.
+- [ ] Continuar la revisi?n visual y funcional en `localhost:8189`. El frontend y Mailpit del Compose antiguo ya no se ejecutan; `compose.review.yaml` publica 8189 y 8126. Se conserva el backend y la base de datos anteriores.
 - [ ] Reducir los avisos de presupuesto de Angular (objetivo de bundle inicial: 500 KB y de hojas Sass: 4 KB).
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
@@ -230,7 +230,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
-- [ ] Revisar el rediseño del bloque 13 y la interfaz de repositorios en localhost:8088: login/registro, dashboard, navegación móvil, tablas y organización. La revisión automática de frontend no sustituye la aceptación del usuario.
+- [ ] Continuar la revisi?n visual y funcional en `localhost:8189`. El frontend y Mailpit del Compose antiguo ya no se ejecutan; `compose.review.yaml` publica 8189 y 8126. Se conserva el backend y la base de datos anteriores.
 - [x] **GitHub App real en escritorio local:** OAuth/PKCE completado en `localhost:8089`, instalación de `CondezJuan8` activa en Dinamita, dos repositorios importados y descarga ZIP confirmada por el usuario. Queda pendiente revisión en móvil/otro dispositivo y automatizar sincronización ante cambios de selección en GitHub.
 - [x] **Arranque Compose y migraciones:** Flyway valida V1-V24; V24 aplicada. 128 tablas, 91 FORCE RLS, 227 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
