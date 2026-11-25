@@ -65,15 +65,6 @@
     </div>
     <app-inventory-space-catalog [hidden]="mode() !== 'catalog'" [repositories]="repositories()" (openRepository)="openRepositoryLocation($event)" />
     @if (mode() === 'repository') {
-    <nav class="page-jump" [attr.aria-label]="'Secciones del inventario' | t">
-      <span class="page-jump-label">{{ 'Ir a' | t }}</span>
-      <a href="#inventory-controls">{{ 'Seleccionar repositorio' | t }}</a>
-      @if (scanResults().length) { <a href="#inventory-analysis-status">{{ 'Estado del análisis' | t }}</a> }
-      @if (occurrences().length) {
-        <a href="#inventory-osv">{{ 'Evaluación OSV' | t }}</a>
-        <a href="#dependency-catalog">{{ 'Catálogo de dependencias' | t }}</a>
-      }
-    </nav>
     <section id="inventory-controls" class="control-panel" [attr.aria-label]="'Controles del inventario' | t">
       <div class="repository-control">
         <label for="inventory-repository">Repositorio</label>

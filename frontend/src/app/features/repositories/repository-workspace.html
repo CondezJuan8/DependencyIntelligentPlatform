@@ -10,16 +10,6 @@
   }
 </div>
 
-@if (isOwner && organizations().length > 0) {
-  <nav class="page-jump" [attr.aria-label]="'Secciones de repositorios' | t">
-    <span class="page-jump-label">{{ 'Agregar o revisar' | t }}</span>
-    <a href="#github-integration">{{ 'Conectar GitHub' | t }}</a>
-    <a href="#local-project-import">{{ 'Importar carpeta' | t }}</a>
-    @if (installations().length > 0) { <a href="#github-installations">{{ 'Instalaciones conectadas' | t }}</a> }
-    @if (visibleRepositories().length > 0) { <a href="#workspace-repositories">{{ 'Repositorios del espacio' | t }}</a> }
-  </nav>
-}
-
 @if (error()) { <p class="notice error" role="alert">{{ error() | t }}</p> }
 @if (message()) { <p class="notice success" role="status">{{ message() | t }}</p> }
 @if (githubStatus(); as status) {

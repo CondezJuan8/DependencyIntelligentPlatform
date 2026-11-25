@@ -2,15 +2,6 @@
   <header class="reports-heading"><div><span class="eyebrow">{{ 'Supervisión / Informes' | t }}</span><h1 id="reports-title">{{ 'Reportes' | t }}</h1>
     <p>{{ 'Previsualiza riesgos y dependencias del inventario autorizado. La exportación no envía información por correo.' | t }}</p></div></header>
 
-  @if (repositories().length) {
-    <nav class="page-jump" [attr.aria-label]="'Pasos del reporte' | t">
-      <span class="page-jump-label">{{ 'Ir a' | t }}</span>
-      <a href="#report-scope">{{ 'Definir alcance' | t }}</a>
-      <a href="#report-type">{{ 'Elegir tipo' | t }}</a>
-      <a href="#report-preview">{{ 'Revisar y exportar' | t }}</a>
-    </nav>
-  }
-
   @if (loading() && !repositories().length) { <p class="feedback" role="status">{{ 'Cargando tus repositorios…' | t }}</p> }
   @else if (!repositories().length) { <section class="empty"><h2>{{ 'No hay repositorios disponibles' | t }}</h2><p>{{ 'Conecta o importa un repositorio y genera un análisis antes de crear un reporte.' | t }}</p></section> }
   @else {

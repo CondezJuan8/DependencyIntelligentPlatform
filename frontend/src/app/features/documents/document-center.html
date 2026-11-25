@@ -3,11 +3,6 @@
     <div><span class="eyebrow">{{ 'Evidencia / Biblioteca' | t }}</span><h1 id="documents-title">{{ 'Documentación' | t }}</h1><p>{{ 'Guarda y encuentra documentación técnica asociada a tus repositorios.' | t }}</p></div>
     <label class="organization-picker"><span>{{ 'Organización' | t }}</span><select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending()"><option value="" disabled>{{ 'Selecciona una organización' | t }}</option>@for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }</select></label>
   </header>
-  <nav class="page-jump" [attr.aria-label]="'Secciones de documentación' | t">
-    <span class="page-jump-label">{{ 'Ir a' | t }}</span>
-    @if (canManage()) { <a href="#document-upload">{{ 'Agregar documentación' | t }}</a> }
-    <a href="#document-library">{{ 'Biblioteca del espacio' | t }}</a>
-  </nav>
   @if (error()) { <p class="feedback error" role="alert">{{ error() | t }}</p> }
   @if (notice()) { <p class="feedback success" role="status">{{ notice() | t }}</p> }
 

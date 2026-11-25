@@ -153,47 +153,6 @@ button:disabled {
   background-color: var(--di-surface);
 }
 
-#workspace-main .page-jump {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  margin: 0 0 20px;
-  padding: 0 0 14px;
-  border-bottom: 1px solid var(--di-border);
-}
-
-#workspace-main .page-jump-label {
-  margin: 0 6px 0 0;
-  color: var(--di-text-subtle);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-#workspace-main .page-jump a {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: var(--di-radius-control);
-  color: var(--di-link);
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color var(--di-duration-fast), border-color var(--di-duration-fast);
-}
-
-#workspace-main .page-jump a:hover {
-  border-color: var(--di-border);
-  background: var(--di-surface-muted);
-}
-
-#workspace-main .page-jump a:focus-visible {
-  outline: 2px solid var(--di-accent);
-  outline-offset: 2px;
-}
-
 #workspace-main :target {
   scroll-margin-block-start: 88px;
   outline: 2px solid var(--di-accent);
@@ -447,25 +406,6 @@ button:focus-visible {
 #workspace-main :where(.status, .status-pill, .risk, .risk-category, .di-tag, .badge) {
   border-radius: 2px;
   font-variant-numeric: tabular-nums;
-}
-
-#workspace-main :where(.page-jump) {
-  gap: 5px;
-  border-bottom-color: var(--di-border);
-}
-
-#workspace-main .page-jump a {
-  min-height: 37px;
-  padding-inline: 9px;
-  border-radius: 2px;
-  color: var(--di-text-secondary);
-  font-size: 11px;
-}
-
-#workspace-main .page-jump a:hover {
-  border-color: transparent;
-  background: var(--di-surface-muted);
-  color: var(--di-link);
 }
 
 #workspace-main :where(.repo-row, .document-card, .history-card, .finding-row, .advisory-card, .organization-row) {

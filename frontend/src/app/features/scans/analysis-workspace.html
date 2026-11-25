@@ -35,17 +35,6 @@
     </ol>
   </section>
 
-  @if (repositories().length) {
-    <nav class="page-jump" [attr.aria-label]="'Secciones del análisis' | t">
-      <span class="page-jump-label">{{ 'En esta pantalla' | t }}</span>
-      <a href="#analysis-launch">{{ 'Iniciar análisis' | t }}</a>
-      @if (selected()) {
-        <a href="#compare-snapshots">{{ 'Comparar snapshots' | t }}</a>
-        <a href="#analysis-history">{{ 'Historial reciente' | t }}</a>
-      }
-    </nav>
-  }
-
   @if (loading()) { <p class="feedback" role="status">{{ 'Cargando tus repositorios…' | t }}</p> }
   @else if (!repositories().length) {
     <section class="empty"><h2>{{ 'Aún no tienes repositorios disponibles' | t }}</h2><p>{{ 'Conecta GitHub o importa una carpeta desde Mis repositorios para iniciar un análisis.' | t }}</p></section>

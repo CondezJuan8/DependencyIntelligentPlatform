@@ -248,7 +248,6 @@
   gap: 0 24px;
 
   > .page-heading,
-  > .page-jump,
   > .notice,
   > .empty,
   > .installation-list,
@@ -321,7 +320,6 @@
     gap: 0 28px;
   }
   .documents-page > .page-heading,
-  .documents-page > .page-jump,
   .documents-page > .feedback,
   .documents-page > .scope-note { grid-column: 1 / -1; }
   .documents-page > .upload-panel { grid-column: 1; align-self: start; }
@@ -346,7 +344,6 @@
     gap: 0 28px;
   }
   .reports-heading,
-  .reports-page > .page-jump,
   .reports-page > .empty,
   .reports-page > .feedback { grid-column: 1 / -1; }
   .report-controls { grid-column: 1; grid-template-columns: minmax(0, 1fr); align-content: start; padding: 0 18px 17px 0; border: 0; border-bottom: 1px solid var(--di-border); border-radius: 0; background: transparent; }

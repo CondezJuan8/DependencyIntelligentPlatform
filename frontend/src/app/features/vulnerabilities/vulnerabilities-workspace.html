@@ -10,12 +10,6 @@
     </button>
   </header>
 
-  <nav class="page-jump" [attr.aria-label]="'Secciones de vulnerabilidades' | t">
-    <span class="page-jump-label">{{ 'Ir a' | t }}</span>
-    <a href="#vulnerability-filters">{{ 'Filtrar avisos' | t }}</a>
-    <a href="#vulnerability-results">{{ 'Revisar resultados' | t }}</a>
-  </nav>
-
   <div class="risk-summary" role="group" aria-label="{{ 'Resumen de severidad' | t }}">
     <div class="risk-stat critical"><span>{{ 'Críticas' | t }}</span><strong>{{ severityCounts().CRITICAL }}</strong></div>
     <div class="risk-stat high"><span>{{ 'Altas' | t }}</span><strong>{{ severityCounts().HIGH }}</strong></div>
