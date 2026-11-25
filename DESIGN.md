@@ -20,12 +20,13 @@ Los tokens viven en `frontend/src/theme/_tokens.scss` y `frontend/src/theme/_app
 | Superficie elevada | `#FFFDF7` | `#303D4C` | Menús, popovers y diálogos |
 | Texto principal | `#1D2732` | `#F1EFE8` | Títulos, tablas y contenido |
 | Texto secundario | `#435263` | `#CED5D9` | Contexto, instrucciones y metadatos |
-| Borde de control | `#74808A` | `#81909D` | Límites legibles de controles |
-| Acción / anotación | `#8A511E` | `#F0B45F` | Acción primaria, selección y atención |
-| Éxito | `#337756` | `#7CC69D` | Estado confirmado |
-| Advertencia | `#A66A22` | `#EFBD6B` | Precaución |
-| Riesgo alto | `#AD593C` | `#E99271` | Atención alta |
-| Crítico | `#B44749` | `#ED7773` | Atención crítica |
+| Borde de superficie | `#849198` | `#6E8092` | División clara entre áreas de trabajo |
+| Borde de control | `#74808A` | `#81909D` | Campos y controles interactivos |
+| Acción / anotación | `#B78E57` | `#D8B681` | Acción primaria, selección y atención |
+| Éxito | `#4C765E` | `#94B39F` | Estado confirmado |
+| Advertencia | `#98734B` | `#D6BC8B` | Precaución |
+| Riesgo alto | `#A66F5A` | `#D49A83` | Atención alta |
+| Crítico | `#A85E61` | `#D48A86` | Atención crítica |
 
 Los colores semánticos siempre van acompañados por etiqueta o explicación. No usar el acento como decoración ni como única señal de prioridad. Revisar contraste de texto, borde y estados en ambos temas con WCAG 2.2 AA.
 

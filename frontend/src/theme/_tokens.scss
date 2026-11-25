@@ -1,15 +1,15 @@
 // Evidence Observatory: tinta de observatorio, papel de carta y marcas de riesgo.
 @mixin properties() {
   --di-navy: #182333;
-  --di-primary: #8a511e;
-  --di-primary-hover: #704117;
+  --di-primary: #865c36;
+  --di-primary-hover: #71502f;
   --di-on-primary: #fffaf1;
   --di-on-secondary: #182333;
   --di-on-accent: #2b2114;
   --di-on-critical: #fffaf5;
-  --di-link-hover: #673c1d;
-  --di-accent: #c48c37;
-  --di-accent-text: #79521c;
+  --di-link-hover: #675339;
+  --di-accent: #b78e57;
+  --di-accent-text: #735a36;
   --di-slate: #283545;
   --di-background: #f0efe8;
   --di-white: #fffdf7;
@@ -19,32 +19,32 @@
   --di-text-subtle: #5c6977;
   --di-text-secondary: #435263;
   --di-surface-muted: #e8e8e1;
-  --di-border-soft: #c9cfce;
-  --di-border: #d4d8d5;
+  --di-border-soft: #c0c9cb;
+  --di-border: #849198;
   --di-control-border: #74808a;
   --di-on-surface: #1d2732;
   --di-surface-raised: #fffdf7;
-  --di-surface-border: #d4d8d5;
+  --di-surface-border: #849198;
   --di-illustration-line: #9ca8b1;
-  --di-illustration-node: #f0b45f;
-  --di-illustration-node-border: #87531f;
+  --di-illustration-node: #d2b47f;
+  --di-illustration-node-border: #786044;
 
   --di-sidebar-background: #182333;
   --di-sidebar-active: #303f52;
-  --di-link: #754316;
-  --di-info-background: #e0e7e8;
-  --di-info-text: #304e5a;
+  --di-link: #725638;
+  --di-info-background: #e4e9e7;
+  --di-info-text: #485d62;
 
-  --di-success: #337756;
-  --di-success-text: #28583f;
-  --di-success-background: #e3eee6;
-  --di-warning: #a66a22;
-  --di-warning-text: #704714;
-  --di-warning-background: #f2e9d6;
-  --di-high-risk: #ad593c;
-  --di-high-risk-text: #7e3e2c;
-  --di-high-risk-background: #f2e3dd;
-  --di-critical: #b44749;
-  --di-critical-text: #803336;
-  --di-critical-background: #f4e2df;
+  --di-success: #4c765e;
+  --di-success-text: #3f624c;
+  --di-success-background: #e7ede7;
+  --di-warning: #98734b;
+  --di-warning-text: #785d3f;
+  --di-warning-background: #eee9dd;
+  --di-high-risk: #a66f5a;
+  --di-high-risk-text: #815848;
+  --di-high-risk-background: #eee5e0;
+  --di-critical: #a85e61;
+  --di-critical-text: #7c4548;
+  --di-critical-background: #f0e5e3;
 }
