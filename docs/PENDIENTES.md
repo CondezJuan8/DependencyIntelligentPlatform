@@ -1,5 +1,8 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Limpiar todos los análisis de la instancia activa de 8189 con copia de seguridad previa: 91 scans y sus dependencias; 12 repositorios conservados. Backend migrado a V33.
+- [x] Mostrar los análisis nuevos con el formato `01-NOMBREREPOSITORIO-FUENTE-fecha y hora`, numerado por repositorio y sin `#undefined`.
+- [ ] Validar el primer análisis nuevo y su nombre en la sesión autenticada; verificar comparación e inventario tras generar snapshots nuevos.
 - [x] Permitir descartar avisos del panel de notificaciones con papelera individual o «Borrar todo», guardado por cuenta en este navegador. Los avisos se derivan de OSV; la fuente no se borra. Pendiente revisión visual autenticada del ajuste compacto.
 - [ ] Si se requiere sincronía entre dispositivos, persistir el descarte de avisos por usuario en backend y comprobarlo con cuentas reales.
 - [x] Retirar las barras de atajos internos `page-jump` de seis ventanas; se conservaron acciones reales y navegación principal. Frontend 8189 actualizado; falta revisión visual autenticada.

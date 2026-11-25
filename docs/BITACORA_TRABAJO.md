@@ -1,3 +1,17 @@
+## Bloque 119 — Reinicio de análisis y nombres canónicos (25/11/2026)
+
+**Petición.** El usuario pidió eliminar todos los análisis existentes, afectados por etiquetas `#undefined`, y nombrar los siguientes con `01-NOMBREREPOSITORIO-FUENTE-fecha y hora`.
+
+**Diagnóstico.** El frontend esperaba `sequenceNumber`, disponible en el backend actual, pero la instancia activa seguía en V32 y respondía sin ese campo. Antes de la limpieza había 89 scans completos; se completaron dos más durante la preparación. Las tablas dependientes incluyen componentes y evaluaciones OSV. No había comparaciones, informes ligados a scans, notificaciones persistidas ni solicitudes de borrado referidas a scans.
+
+**Cambios.** Se creó una copia completa `pg_dump` en `.tools/tmp/analysis-reset-2026-11-25.dump` (6.501.874 bytes), ignorada por Git, y se comprobó con `pg_restore -l`. Una transacción con bloqueo y condiciones de seguridad eliminó 91 scans, 11.803 componentes, 13.782 evaluaciones y 22 trabajos SCAN con sus intentos/eventos. Se conservaron los 12 repositorios y las cuentas. El frontend ahora muestra número de dos dígitos, nombre del repositorio, fuente LOCAL/GITHUB/SBOM y fecha/hora local en historial y comparación; se retiraron los campos de nombre libre para mantener el formato. Se reconstruyó el backend vigente y se aplicó V33, que entrega la secuencia real por repositorio. No se añadieron dependencias ni migraciones nuevas al código.
+
+**Herramientas y tecnologías.** PostgreSQL, `pg_dump`, `pg_restore`, SQL transaccional, Flyway, Maven, Angular, TypeScript, Docker Compose y PowerShell.
+
+**Verificación.** Docker build del backend completó `mvn verify`; build del frontend pasó con avisos de presupuesto previos. Tras el despliegue, Flyway registra V33, `scans=0`, `scan_components=0`, `scan_vulnerability_assessments=0`, trabajos SCAN `=0` y repositorios `=12`; `/health` y el frontend en 8189 responden HTTP 200. No se ejecutó un nuevo análisis real ni se inspeccionó su etiqueta con una sesión de navegador autenticada.
+
+**Siguiente paso.** Iniciar un análisis nuevo en 8189 y comprobar que aparece como `01-<repositorio>-<fuente>-<fecha hora>`; revisar después comparación e inventario con los nuevos snapshots.
+
 ## Bloque 118 — Acciones compactas en notificaciones (25/11/2026)
 
 **Petición.** El usuario mostró que «Actualizar» y «Descartar todas» se apilaban, y que el texto «Descartar» ocupaba demasiado ancho en cada aviso. Solicitó papelera individual, mejores espacios y una acción para borrar todo.
