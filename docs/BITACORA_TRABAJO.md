@@ -1,3 +1,13 @@
+## Bloque 100 — activar el overlay de Inventario en Compose (24/11/2026)
+
+**Petición.** El usuario reportó que no veía la ventana emergente de carga en Inventario.
+
+**Causa y cambios.** El contenedor activo servía una imagen frontend estática anterior al commit 21292d9. Se reconstruyó la imagen `dependency-intelligence-frontend` y se recreó solo el servicio Compose `frontend`; no se reiniciaron backend, base de datos ni otros servicios.
+
+**Verificación.** `docker compose build frontend` completó y generó la imagen. `docker compose up -d --no-deps frontend` inició el contenedor actualizado. `http://127.0.0.1:8089/` respondió HTTP 200 y se confirmó que el artefacto servido contiene `inventory-analysis-window` y los mensajes de etapas. El build conserva avisos de presupuesto Angular: bundle inicial 594.39/500 KB y `inventory-workspace.scss` 13.84/4 KB. El puente de Computer Use falló dos veces con `failed to connect native pipe`, por lo que no se pudo observar/clicar la pantalla real.
+
+**Siguiente paso.** Recargar `http://localhost:8089`, entrar en Inventario y pulsar **Analizar repositorio**; sigue pendiente la confirmación visual con un análisis real.
+
 ## Bloque 99 — renombrar snapshots desde el comparador (24/11/2026)
 
 **Petición.** El usuario pidió poder dar nombres legibles a los commits/IDs y aclaró que la acción debe estar disponible desde Comparar snapshots.
