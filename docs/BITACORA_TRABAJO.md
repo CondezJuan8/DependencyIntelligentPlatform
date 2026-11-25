@@ -1918,3 +1918,14 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** `docker compose build frontend` pasó. Bundle inicial: 647.64 KB frente al presupuesto de 500 KB; continúan avisos de presupuesto de Sass, incluidos los preexistentes. Impeccable capturó 1440×900, 1024×768, 390×844 y 375×812; se inspeccionó el tema oscuro y el acceso sin scroll horizontal visible. `impeccable detect --json --changed` devolvió `[]`. No hay scripts configurados de test/lint en `frontend/package.json`; no se ejecutaron. La base está vacía y no se pudo revisar visualmente el tema claro ni las rutas autenticadas. Se construyó una imagen y se usó un contenedor temporal para capturas; se dejó aparte el contenedor frontend activo de Compose, el entorno nativo de 8088 y el resto de los servicios.
 
 **Siguiente paso.** Validar tema claro y recorridos autenticados con datos autorizados cuando el bootstrap seguro esté listo. La lista actualizada está en [PENDIENTES.md](PENDIENTES.md); no se inicia otro bloque automáticamente.
+## Bloque 114 — Composición de conexión GitHub (25/11/2026)
+
+**Petición.** El usuario mostró en `localhost:8189/?view=repositories` un espacio vacío grande dentro de «Conecta tu cuenta de GitHub».
+
+**Diagnóstico y cambios.** La cuadrícula del área de repositorios imponía `min-height: 100%` a la tarjeta izquierda mientras el formulario de instalación de la derecha era mucho más alto. Se retiró esa altura forzada y se colocó «Importar carpeta local» debajo de la conexión en la columna izquierda cuando aparece el formulario de instalación. En móvil se conserva el orden de lectura existente. Los bindings, permisos y flujos GitHub/local no cambiaron. Se registró el contexto visual existente en `.better-web-ui.md` para las skills de diseño; no se modificó la paleta ni se añadieron dependencias.
+
+**Herramientas y tecnologías.** Skills `arrange`, `frontend-design` y `setup`; Sass, Angular, Docker Compose y PowerShell. Ninguna dependencia nueva del producto.
+
+**Verificación.** El build Docker de `frontend` pasó; bundle inicial 647,42 KB frente al presupuesto de 500 KB y avisos Sass preexistentes. Se recreó únicamente el contenedor frontend de revisión; `http://localhost:8189/?view=repositories` respondió HTTP 200 con `styles-VBTXPSI3.css`. El backend anterior seguía activo. CUA no pudo conectar con el puente nativo del navegador, por lo que no se afirma inspección visual de la sesión autenticada ni resolución del aviso de permisos mostrado en la captura.
+
+**Siguiente paso.** El usuario puede recargar 8189 y comprobar la composición con su sesión. Para diagnosticar el aviso de permisos hace falta el método y URL de la petición 403 en Red/Network o acceso a la sesión del navegador; no se cambian roles sin esa evidencia.

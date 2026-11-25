@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Compactar la conexión GitHub en repositorios: la tarjeta ya no se estira con el formulario vecino y la importación local ocupa el espacio debajo en escritorio. Frontend 8189 recompilado; queda la revisión visual autenticada por el usuario.
+- [ ] Identificar la petición API que muestra «Tu cuenta no tiene permiso para esta acción» en Dinamita. El estado GitHub permite mostrar el formulario, pero la captura no contiene método ni URL de la respuesta fallida; revisar Red/Network con la sesión autenticada antes de cambiar permisos.
 - [x] Integrar los cinco bloques de la guía «PORFAVOR» en Angular. La paleta, el alcance de las vistas y las variantes están en [DESIGN.md](../DESIGN.md).
 - [x] Recorrer las 11 vistas internas en escritorio (1440 px) y móvil (390 px) con autenticación real en Compose aislado. Probar el foco de búsqueda, menú y detalle de inventario, además de temas claro y oscuro.
 - [x] Verificar registro, solicitud explícita del enlace desde el panel, verificación, aprobación administrativa e inicio de sesión; también rechazo/auditoría e invitaciones en Mailpit.
