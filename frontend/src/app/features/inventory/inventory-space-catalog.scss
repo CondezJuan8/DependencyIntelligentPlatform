@@ -31,13 +31,14 @@ button:disabled { cursor: default; opacity: .55; }
 .risk[data-severity='CRITICAL'] { color: var(--di-critical-text); background: var(--di-critical-background); }
 .risk[data-severity='HIGH'] { color: var(--di-high-risk-text); background: var(--di-high-risk-background); }
 .risk[data-severity='MEDIUM'] { color: var(--di-warning-text); background: var(--di-warning-background); }
-.occurrence-overlay { position: fixed; inset: 0; z-index: 120; display: flex; justify-content: flex-end; }
+.occurrence-overlay { position: fixed; inset: 62px 0 0; z-index: 120; display: flex; justify-content: flex-end; }
 .occurrence-scrim { position: absolute; inset: 0; border: 0; border-radius: 0; cursor: default; }
 .occurrence-scrim, .occurrence-scrim:hover:not(:disabled) { background: #0e152099; }
-.occurrences { position: relative; display: grid; align-content: start; gap: 1rem; width: min(560px, 100vw); min-width: 0; max-height: 100dvh; overflow: auto; overscroll-behavior: contain; padding: 24px; border-inline-start: 1px solid var(--di-border); background: var(--di-surface); box-shadow: -16px 0 40px #07101d33; }
+.occurrences { position: relative; display: grid; align-content: start; gap: 1rem; width: min(560px, 100vw); min-width: 0; max-height: 100%; overflow: auto; overscroll-behavior: contain; padding: 24px; border-inline-start: 1px solid var(--di-border); background: var(--di-surface); box-shadow: -16px 0 40px #07101d33; }
 .occurrence-heading { position: sticky; top: 0; z-index: 1; display: flex; align-items: start; justify-content: space-between; gap: 16px; padding: 0 0 16px; border-bottom: 1px solid var(--di-border); background: var(--di-surface); }
 .occurrence-heading span { color: var(--di-text-secondary); font-size: 12px; }
 .occurrence-heading h3 { margin: 3px 0 0; overflow-wrap: anywhere; }
+.occurrence-heading button { flex: none; border-color: var(--di-control-border); }
 .occurrence { display: grid; gap: 12px; min-width: 0; padding: 16px; border: 1px solid var(--di-border); border-radius: 8px; background: var(--di-surface-muted); }
 .occurrence-primary { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; min-width: 0; }
 .occurrence-primary strong { overflow-wrap: anywhere; }
@@ -61,4 +62,7 @@ button:disabled { cursor: default; opacity: .55; }
 }
 @media (max-width: 600px) {
   .occurrences { padding: 18px; }
+}
+@media (max-width: 979px) {
+  .occurrence-overlay { top: 58px; }
 }
