@@ -31,7 +31,13 @@ button:disabled { cursor: default; opacity: .55; }
 .risk[data-severity='CRITICAL'] { color: var(--di-critical-text); background: var(--di-critical-background); }
 .risk[data-severity='HIGH'] { color: var(--di-high-risk-text); background: var(--di-high-risk-background); }
 .risk[data-severity='MEDIUM'] { color: var(--di-warning-text); background: var(--di-warning-background); }
-.occurrences { display: grid; gap: .65rem; padding: 1rem; background: var(--di-surface-muted); }
+.occurrence-overlay { position: fixed; inset: 0; z-index: 40; display: flex; justify-content: flex-end; }
+.occurrence-scrim { position: absolute; inset: 0; border: 0; border-radius: 0; cursor: default; }
+.occurrence-scrim, .occurrence-scrim:hover:not(:disabled) { background: #0e152099; }
+.occurrences { position: relative; display: grid; align-content: start; gap: .65rem; width: min(520px, 100vw); min-width: 0; overflow: auto; padding: clamp(14px, 3vw, 24px); border-inline-start: 1px solid var(--di-border); background: var(--di-surface); }
+.occurrence-heading { display: flex; align-items: start; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--di-border); }
+.occurrence-heading span { color: var(--di-text-secondary); font-size: 12px; }
+.occurrence-heading h3 { margin: 3px 0 0; overflow-wrap: anywhere; }
 .occurrence { display: grid; gap: .5rem; min-width: 0; padding: .8rem; border: 1px solid var(--di-border); border-radius: 8px; background: var(--di-surface); }
 .occurrence code { overflow-wrap: anywhere; }
 .source summary { width: fit-content; padding-block: .35rem; color: var(--di-link); cursor: pointer; }

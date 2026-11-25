@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/organizations/{organizationId}/assistant")
 public final class AssistantController {
-    public record AskRequest(UUID conversationId, String question) { }
+    public record AskRequest(UUID conversationId, String question, UUID repositoryId) { }
     private final AskAssistant assistant;
     private final IndexDocuments indexing;
     private final FindAccountWorkspace workspace;
@@ -33,6 +33,10 @@ public final class AssistantController {
         UUID userId = UUID.fromString(principal.getName());
         access.execute(principal, organizationId, null, "assistant.query", () -> Boolean.TRUE);
         List<UUID> repositories = visibleRepositories(principal, userId, organizationId);
+        if (body.repositoryId() != null) {
+            if (!repositories.contains(body.repositoryId())) throw new PermissionDeniedException();
+            repositories = List.of(body.repositoryId());
+        }
         return assistant.execute(new Ask(organizationId, userId, repositories, body.conversationId(), body.question()));
     }
     @PostMapping("/index")

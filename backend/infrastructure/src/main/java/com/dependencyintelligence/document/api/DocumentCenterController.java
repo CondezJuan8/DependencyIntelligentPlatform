@@ -4,6 +4,7 @@ import com.dependencyintelligence.document.application.dto.DocumentModels.*;
 import com.dependencyintelligence.document.application.dto.DocumentModels;
 import com.dependencyintelligence.document.application.port.in.ManageDocuments;
 import com.dependencyintelligence.identity.application.port.in.FindAccountWorkspace;
+import com.dependencyintelligence.identity.application.exception.PermissionDeniedException;
 import com.dependencyintelligence.identity.infrastructure.security.AuthorizedRepositoryActions;
 import java.security.Principal;
 import java.util.List;
@@ -38,6 +39,19 @@ public final class DocumentCenterController {
         UUID user = UUID.fromString(principal.getName());
         var repositories = visibleRepositories(user, organizationId);
         return access.execute(principal, organizationId, null, "document.read", () -> documents.list(organizationId, repositories));
+    }
+
+    public record Capabilities(boolean canManage) { }
+
+    @GetMapping("/capabilities")
+    public Capabilities capabilities(@PathVariable UUID organizationId, Principal principal) {
+        access.execute(principal, organizationId, null, "document.read", () -> Boolean.TRUE);
+        try {
+            access.execute(principal, organizationId, null, "document.manage", () -> Boolean.TRUE);
+            return new Capabilities(true);
+        } catch (PermissionDeniedException denied) {
+            return new Capabilities(false);
+        }
     }
 
     @GetMapping("/search")

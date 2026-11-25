@@ -9,6 +9,7 @@ COPY application/src application/src
 COPY infrastructure/src infrastructure/src
 ARG OPERATOR_TOOL_IMAGE=false
 RUN if [ "$OPERATOR_TOOL_IMAGE" = "true" ]; then mvn -B -ntp -DskipTests package; else mvn -B -ntp verify; fi
+RUN mkdir /runtime && cd /runtime && jar -xf /workspace/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar
 
 FROM eclipse-temurin:21-jre-jammy
 RUN apt-get update \
@@ -17,7 +18,9 @@ RUN apt-get update \
 RUN groupadd --system app && useradd --system --gid app app
 RUN mkdir -p /var/lib/dependency-intelligence/repositories /var/lib/dependency-intelligence/documents && chown -R app:app /var/lib/dependency-intelligence
 WORKDIR /app
-COPY --from=build /workspace/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar app.jar
+# Tika's worker JVM needs real classpath entries outside the Spring Boot archive.
+COPY --from=build /runtime/BOOT-INF/classes /app/classes
+COPY --from=build /runtime/BOOT-INF/lib /app/lib
 USER app
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-cp", "/app/classes:/app/lib/*", "com.dependencyintelligence.DependencyIntelligenceApplication"]

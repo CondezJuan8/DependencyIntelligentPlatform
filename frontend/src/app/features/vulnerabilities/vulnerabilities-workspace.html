@@ -1,6 +1,7 @@
 <section class="vulnerabilities-page" aria-labelledby="vuln-title">
   <header class="vuln-heading">
     <div>
+      <span class="eyebrow">{{ 'Supervisión / Avisos OSV' | t }}</span>
       <h1 id="vuln-title">{{ 'Vulnerabilidades' | t }}</h1>
       <p class="intro">{{ 'Prioriza los avisos que afectan a tus repositorios y sigue su revisión.' | t }}</p>
     </div>
@@ -50,7 +51,7 @@
           @if (isExpanded(group.id)) {
             <div class="finding-detail" [id]="'finding-' + group.id">
               @if (group.advisory.details) { <section class="advisory-description"><h2>{{ 'Qué publica OSV' | t }}</h2><p>{{ group.advisory.details }}</p></section> }
-              <section><h2>{{ 'Paquetes afectados y seguimiento' | t }}</h2><p class="review-disclaimer">{{ 'El estado lo decide el equipo; marcar resuelto no verifica automáticamente una nueva versión.' | t }}</p>
+              <section><h2>{{ 'Paquetes afectados y seguimiento' | t }}</h2><p class="review-disclaimer">{{ 'Resuelto indica que el equipo cerró el seguimiento. La verificación técnica requiere un análisis posterior.' | t }}</p>
                 <div class="occurrence-list">
                   @for (item of group.occurrences; track item.key) {
                     <article class="occurrence">
@@ -68,7 +69,13 @@
                 @for (reference of group.advisory.references; track reference) { <a [href]="reference" target="_blank" rel="noopener noreferrer">{{ reference }}</a> }
               </div>
               @if (group.advisory.aliases.length) { <p class="aliases">{{ 'Identificadores relacionados:' | t }} {{ group.advisory.aliases.join(', ') }}</p> }
-              @if (group.advisory.publishedAt) { <p class="published">{{ 'Publicado' | t }} {{ group.advisory.publishedAt | date:'mediumDate' }}@if (group.advisory.modifiedAt) { · {{ 'actualizado' | t }} {{ group.advisory.modifiedAt | date:'mediumDate' }} }</p> }
+              @if (group.advisory.publishedAt || group.advisory.modifiedAt) {
+                <p class="published">
+                  @if (group.advisory.publishedAt) { {{ 'Publicado' | t }} <time [attr.datetime]="group.advisory.publishedAt">{{ group.advisory.publishedAt | date:'mediumDate' }}</time> }
+                  @if (group.advisory.publishedAt && group.advisory.modifiedAt) { · }
+                  @if (group.advisory.modifiedAt) { {{ 'Actualizado' | t }} <time [attr.datetime]="group.advisory.modifiedAt">{{ group.advisory.modifiedAt | date:'mediumDate' }}</time> }
+                </p>
+              }
               </section>
             </div>
           }

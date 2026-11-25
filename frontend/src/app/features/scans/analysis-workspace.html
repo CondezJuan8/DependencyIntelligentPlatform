@@ -21,7 +21,7 @@
     </div>
   }
   <header class="analysis-heading">
-    <div><h1 id="analysis-title">{{ 'Ejecuciones de análisis' | t }}</h1>
+    <div><span class="eyebrow">{{ 'Evidencia / Scanner' | t }}</span><h1 id="analysis-title">{{ 'Análisis' | t }}</h1>
       <p>{{ 'Analiza la fuente autorizada del repositorio y consulta qué commit, herramientas y cobertura quedaron registrados.' | t }}</p></div>
     <button class="secondary" type="button" (click)="refresh()" [disabled]="!selected() || loadingHistory() || running()">{{ 'Actualizar historial' | t }}</button>
   </header>

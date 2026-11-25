@@ -42,3 +42,7 @@ blockquote { margin:5px 0 0; padding-left:12px; border-left:3px solid var(--di-a
 .assistant-page.compact .section-heading { align-items:stretch; flex-direction:column; gap:12px; padding-bottom:14px; }
 .assistant-page.compact .conversation { min-height:0; max-height:none; flex:1; }
 @media(max-width:720px) { .page-heading,.section-heading { align-items:stretch; flex-direction:column; } .assistant-card { padding:14px; } .conversation { max-height:55vh; } .turn { max-width:100%; } }
+
+.assistant-scope { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
+.assistant-scope select { max-width: min(220px, 75vw); }
+.read-only { display: inline-block; margin-top: 6px; padding: 3px 8px; border-radius: var(--di-radius-control); background: var(--di-info-background); color: var(--di-info-text); font-size: 11px; font-weight: 700; }

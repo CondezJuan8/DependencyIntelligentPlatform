@@ -22,8 +22,6 @@ import org.apache.tika.config.TimeoutLimits;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.pdf.PDFParserConfig;
-import org.apache.tika.parser.pages.TextPolicy;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.pipes.fork.PipesForkParser;
@@ -254,16 +252,7 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
     private Extraction extract(byte[] content, String filename, DocumentType type) {
         try (TikaInputStream stream = TikaInputStream.get(content)) {
             var metadata = new Metadata(); metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, safeFilename(filename));
-            var context = new ParseContext();
-            if (type == DocumentType.PDF) {
-                var pdf = new PDFParserConfig();
-                pdf.setMaxPages(500);
-                pdf.setMaxMainMemoryBytes(64L * 1024 * 1024);
-                pdf.pages().setText(TextPolicy.AUTO);
-                pdf.pages().ocr().setMaxPages(50);
-                context.set(PDFParserConfig.class, pdf);
-            }
-            PipesForkResult result = tika.parse(stream, metadata, context);
+            PipesForkResult result = tika.parse(stream, metadata, new ParseContext());
             if (!result.isSuccess() || result.getMetadataList().isEmpty()) return new Extraction("", "application/octet-stream", "No se pudo extraer el texto dentro del tiempo y memoria permitidos.");
             Metadata parsedMetadata = result.getMetadataList().getFirst();
             String mime = parsedMetadata.get(HttpHeaders.CONTENT_TYPE);

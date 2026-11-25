@@ -93,7 +93,7 @@ public final class CycloneDxManifestMapper {
             boolean emptyDetectedProject = manifests > 0 && dependencies.isEmpty();
             boolean partial = unresolved > 0 || mavenResolutionIsPartial || missingManifest || emptyDetectedProject;
             String message = emptyDetectedProject && components.isEmpty()
-                ? "Se detectó un manifiesto, pero el SBOM de cdxgen contiene 0 componentes; no se marcará este inventario como completo."
+                ? "Se detectó un manifiesto, pero cdxgen no devolvió componentes. La cobertura del inventario queda parcial."
                 : emptyDetectedProject
                 ? "cdxgen devolvió " + components.size() + " componentes, pero ninguno tuvo coordenadas y versión verificables; no se marcará este inventario como completo."
                 : mavenResolutionIsPartial

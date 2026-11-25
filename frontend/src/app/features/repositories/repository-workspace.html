@@ -1,5 +1,5 @@
 <div class="page-heading">
-  <div><h1>{{ (isOwner ? 'Repositorios de la organización' : 'Mis repositorios') | t }}</h1>
+  <div><span class="eyebrow">{{ 'Evidencia / Fuentes' | t }}</span><h1>{{ 'Mis repositorios' | t }}</h1>
     <p>{{ (isOwner ? 'Conecta GitHub o importa una carpeta de proyecto desde tu equipo.' : 'Repositorios habilitados para tu equipo y tus permisos.') | t }}</p></div>
   @if (isOwner && organizations().length > 0) {
     <label class="organization-picker">Organización del espacio
@@ -25,7 +25,7 @@
 @if (githubStatus(); as status) {
   @if (isOwner && (!status.configured || !status.canManage)) { <p class="notice error" role="status">{{ status.detail }}</p> }
 }
-@if (loading() || statusLoading() || pending()) { <p class="notice" role="status">{{ loading() ? 'Cargando repositorios…' : pending() ? 'Esperando respuesta de GitHub…' : 'Comprobando conexión de GitHub…' }}</p> }
+@if (loading() || statusLoading() || pending()) { <p class="notice" role="status">{{ loading() ? 'Cargando repositorios…' : uploading() ? 'Guardando fuente local…' : pending() ? 'Procesando la operación…' : 'Comprobando conexión de GitHub…' }}</p> }
 
 @if (isOwner) {
   @if (!organizations().length && !loading()) {
@@ -59,7 +59,7 @@
       <input id="local-project-folder" type="file" webkitdirectory directory multiple (change)="selectLocalFolder($event)" [disabled]="pending()" />
       @if (localFiles().length) {
         <p class="file-selection">{{ localName() }} · {{ localFiles().length }} {{ 'archivos' | t }} · {{ selectedFolderSize() }}</p>
-        <button class="primary" type="button" [disabled]="pending() || !localName() || !githubStatus()?.canManage" (click)="uploadLocalFolder()">{{ pending() ? ('Subiendo carpeta' | t) : ('Subir a la organización' | t) }}</button>
+        <button class="primary" type="button" [disabled]="pending() || !localName() || !githubStatus()?.canManage" (click)="uploadLocalFolder()">{{ uploading() ? ('Subiendo carpeta' | t) : ('Subir a la organización' | t) }}</button>
         @if (uploadProgress() !== null) { <progress max="100" [value]="uploadProgress() ?? 0" aria-label="{{ 'Progreso de carga' | t }}"></progress> }
       }
       @if (localRepositories().length) {

@@ -29,6 +29,7 @@ export class RepositoryWorkspace implements OnInit {
   readonly localFiles = signal<File[]>([]);
   readonly localName = signal('');
   readonly existingInstallationId = signal('');
+  readonly uploading = signal(false);
   readonly uploadProgress = signal<number | null>(null);
   readonly selectedIds = signal(new Set<string>());
   readonly loading = signal(false);
@@ -166,9 +167,9 @@ export class RepositoryWorkspace implements OnInit {
       form.append('paths', file.webkitRelativePath);
       form.append('files', file, 'file');
     }
-    this.pending.set(true); this.error.set(''); this.message.set('Subiendo la carpeta al almacenamiento privado…'); this.uploadProgress.set(0);
+    this.pending.set(true); this.uploading.set(true); this.error.set(''); this.message.set('Subiendo la carpeta al almacenamiento privado…'); this.uploadProgress.set(null);
     this.api.upload<LocalFolderImportResult>(`/api/organizations/${organizationId}/repositories/local-folder`, form)
-      .pipe(finalize(() => { this.pending.set(false); this.uploadProgress.set(null); }))
+      .pipe(finalize(() => { this.pending.set(false); this.uploading.set(false); this.uploadProgress.set(null); }))
       .subscribe({
         next: event => {
           if (event.type === HttpEventType.UploadProgress) {

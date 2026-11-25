@@ -1,11 +1,12 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, computed, inject, Input, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Organization, SessionApiService, accessError } from '../../core/session-api.service';
 import { PreferencesService } from '../../core/preferences.service';
 import { DiIcon } from '../../shared/di-icon';
 
 interface Answer { conversationId: string; messageId: string; answer: string; proposedRepairPrompt: string | null; citations: Citation[]; status: string; model: string | null; }
-interface Citation { documentId: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
+interface Repository { id: string; organizationId: string; fullName: string; }
+interface Citation { documentId: string; versionId?: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
 interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; proposedRepairPrompt?: string | null; }
 
 @Component({ selector: 'app-assistant-workspace', imports: [DiIcon], templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
@@ -15,6 +16,9 @@ export class AssistantWorkspace {
   readonly preferences = inject(PreferencesService);
   readonly organizations = signal<Organization[]>([]);
   readonly organizationId = signal('');
+  readonly repositoryId = signal('');
+  private readonly repositories = signal<Repository[]>([]);
+  readonly visibleRepositories = computed(() => this.repositories().filter(repo => repo.organizationId === this.organizationId()));
   readonly question = signal('');
   readonly conversationId = signal<string | null>(null);
   readonly turns = signal<Turn[]>([]);
@@ -28,8 +32,20 @@ export class AssistantWorkspace {
       next: organizations => { this.organizations.set(organizations); this.organizationId.set(organizations[0]?.id ?? ''); },
       error: error => this.error.set(accessError(error)),
     });
+    this.api.get<Repository[]>('/api/account/workspace').subscribe({
+      next: repositories => this.repositories.set(repositories),
+      error: error => this.error.set(accessError(error)),
+    });
   }
-  changeOrganization(event: Event): void { this.organizationId.set((event.target as HTMLSelectElement).value); this.reset(); }
+  changeOrganization(event: Event): void { this.organizationId.set((event.target as HTMLSelectElement).value); this.repositoryId.set(''); this.reset(); }
+  changeRepository(event: Event): void {
+    this.repositoryId.set((event.target as HTMLSelectElement).value);
+    this.reset();
+  }
+  citationLink(citation: Citation): string {
+    const query = new URLSearchParams({ versionId: citation.versionId ?? '' });
+    return `/api/organizations/${this.organizationId()}/documents/${citation.documentId}/download?${query}`;
+  }
   reset(): void { this.conversationId.set(null); this.turns.set([]); this.error.set(''); this.notice.set(''); }
   indexDocuments(): void {
     const org = this.organizationId(); if (!org || this.indexing()) return;
@@ -60,7 +76,7 @@ export class AssistantWorkspace {
     const org = this.organizationId(), question = this.question().trim(); if (!org || !question || this.pending()) return;
     this.turns.update(turns => [...turns, { role: 'USER', content: question }]);
     this.question.set(''); this.pending.set(true); this.error.set(''); this.notice.set('');
-    this.api.post<Answer>(`/api/organizations/${org}/assistant/ask`, { conversationId: this.conversationId(), question })
+    this.api.post<Answer>(`/api/organizations/${org}/assistant/ask`, { conversationId: this.conversationId(), question, repositoryId: this.repositoryId() || null })
       .pipe(finalize(() => this.pending.set(false))).subscribe({
         next: result => {
           this.conversationId.set(result.conversationId);

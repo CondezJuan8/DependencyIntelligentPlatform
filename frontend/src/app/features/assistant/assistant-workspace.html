@@ -1,16 +1,23 @@
 <section class="assistant-page" [class.compact]="compact">
   <header class="page-heading">
-    <div><h1>Nexo</h1>
+    <div><span class="eyebrow">{{ preferences.text('Asistencia documental') }}</span><h1>Nexo</h1>
       <p>{{ preferences.text('Pregunta sobre documentos de tus repositorios y revisa las fuentes de cada respuesta.') }}</p></div>
-    <label class="organization-picker">{{ preferences.text('Espacio') }}
-      <select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending()">
+    <div class="assistant-scope"><label class="organization-picker">{{ preferences.text('Espacio') }}
+      <select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending() || indexing()">
         @for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }
       </select>
     </label>
+      <label class="organization-picker">{{ preferences.text('Repositorio') }}
+        <select [value]="repositoryId()" (change)="changeRepository($event)" [disabled]="pending() || !visibleRepositories().length">
+          <option value="">{{ preferences.text('Repositorios accesibles') }}</option>
+          @for (repository of visibleRepositories(); track repository.id) { <option [value]="repository.id">{{ repository.fullName }}</option> }
+        </select>
+      </label>
+    </div>
   </header>
 
   <section class="assistant-card" aria-labelledby="assistant-title">
-    <div class="section-heading"><div><h2 id="assistant-title">Nexo</h2>
+    <div class="section-heading"><div><h2 id="assistant-title">{{ preferences.text('Conversación') }}</h2><span class="read-only">{{ preferences.text('Solo lectura') }}</span>
       <p>{{ preferences.text('Solo consulta documentos asociados a repositorios que puedes ver. Las respuestas incluyen citas.') }}</p><small class="indexing-hint">{{ preferences.text('Tras subir un documento, pulsa Preparar documentos para búsqueda. Nexo indexa el texto extraído y OCR por lotes; revisa el aviso si algún documento falla o quedan fragmentos.') }}</small></div>
       <button type="button" class="secondary" [disabled]="indexing() || !organizationId()" (click)="indexDocuments()">
         {{ indexing() ? preferences.text('Preparando documentos…') : preferences.text('Preparar documentos para búsqueda') }}
@@ -32,7 +39,9 @@
           </section> }
           @if (turn.citations?.length) { <ol class="citations" [attr.aria-label]="preferences.text('Fuentes consultadas')">
             @for (citation of turn.citations; track citation.chunkId; let index = $index) {
-              <li><strong>[{{ index + 1 }}] {{ citation.documentName }}</strong><span>{{ citation.filename }}@if(citation.page){ · {{ preferences.text('página') }} {{ citation.page }} }@if(citation.section){ · {{ citation.section }} }</span><blockquote>{{ citation.excerpt }}</blockquote></li>
+              <li><strong>[{{ index + 1 }}] {{ citation.documentName }}</strong><span>{{ citation.filename }}@if(citation.page){ · {{ preferences.text('página') }} {{ citation.page }} }@if(citation.section){ · {{ citation.section }} }</span><blockquote>{{ citation.excerpt }}</blockquote>
+              @if (citation.versionId) { <a [href]="citationLink(citation)">{{ preferences.text('Descargar versión citada') }}</a> }
+              </li>
             }
           </ol> }
         </article>

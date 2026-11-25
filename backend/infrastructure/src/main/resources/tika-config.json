@@ -1,4 +1,17 @@
 {
+  "parsers": [
+    { "default-parser": {} },
+    {
+      "pdf-parser": {
+        "maxPages": 500,
+        "maxMainMemoryBytes": 67108864,
+        "pages": {
+          "text": "AUTO",
+          "ocr": { "maxPages": 50 }
+        }
+      }
+    }
+  ],
   "engines": {
     "tesseract": {
       "tesseract-ocr-parser": {

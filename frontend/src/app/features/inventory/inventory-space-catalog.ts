@@ -1,3 +1,4 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -36,7 +37,7 @@ interface OccurrencePage { occurrences: Occurrence[]; totalOccurrences: number; 
 
 @Component({
   selector: 'app-inventory-space-catalog',
-  imports: [DatePipe, TranslatePipe],
+  imports: [A11yModule, DatePipe, TranslatePipe],
   templateUrl: './inventory-space-catalog.html',
   styleUrl: './inventory-space-catalog.scss',
 })
@@ -148,6 +149,8 @@ export class InventorySpaceCatalog implements OnInit {
   }
 
   showRepository(key: PackageKey, occurrence: Occurrence): void {
+    const packageItem = this.expanded();
+    if (packageItem) this.toggle(packageItem);
     this.openRepository.emit({ repositoryId: occurrence.repositoryId, ecosystem: key.ecosystem,
       packageName: this.name(key), version: occurrence.version });
   }

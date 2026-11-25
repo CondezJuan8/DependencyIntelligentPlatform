@@ -88,8 +88,14 @@
                 <span aria-hidden="true">{{ expanded() === item ? '−' : '+' }}</span>
               </button>
               @if (expanded() === item) {
-                <section class="occurrences" [id]="'inventory-occurrences-' + row" [attr.aria-label]="'Dónde aparece' | t">
-                  <h3>{{ 'Dónde aparece' | t }}</h3>
+                <div class="occurrence-overlay" (keydown.escape)="toggle(item)">
+                <button type="button" class="occurrence-scrim" tabindex="-1" (click)="toggle(item)" [attr.aria-label]="'Cerrar detalle de dependencia' | t"></button>
+                <section class="occurrences" role="dialog" aria-modal="true" [cdkTrapFocus]="true" [cdkTrapFocusAutoCapture]="true"
+                  [id]="'inventory-occurrences-' + row" aria-labelledby="inventory-occurrence-title">
+                  <header class="occurrence-heading">
+                    <div><span>{{ 'Dónde aparece' | t }}</span><h3 id="inventory-occurrence-title">{{ name(item.key) }}</h3></div>
+                    <button type="button" cdkFocusInitial (click)="toggle(item)">{{ 'Cerrar' | t }}</button>
+                  </header>
                   @if (detailLoading()) { <p role="status">{{ 'Cargando apariciones…' | t }}</p> }
                   @else if (detailError()) { <p role="alert">{{ detailError() }}</p><button type="button" (click)="showOccurrences(detailPage())">{{ 'Reintentar' | t }}</button> }
                   @else if (detail(); as entries) {
@@ -129,6 +135,7 @@
                     }
                   }
                 </section>
+                </div>
               }
             </li>
           }

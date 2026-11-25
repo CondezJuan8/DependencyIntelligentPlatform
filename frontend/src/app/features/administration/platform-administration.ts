@@ -21,6 +21,18 @@ export class PlatformAdministration implements OnInit{
  load():void{if(this.loading())return;this.loading.set(true);this.error.set('');this.api.get<Overview>('/api/platform/overview').pipe(finalize(()=>this.loading.set(false))).subscribe({next:data=>this.data.set(data),error:error=>this.error.set(accessError(error))});}
  users():User[]{return this.data()?.users.filter(user=>(this.tab()!=='requests'||user.admissionStatus==='PENDING_REVIEW')&&`${user.displayName} ${user.email}`.toLocaleLowerCase().includes(this.query.trim().toLocaleLowerCase()))??[];}
  items():Item[]{const data=this.data();if(!data)return[];const list=this.tab()==='repositories'?data.repositories:this.tab()==='teams'?data.teams:data.organizations;return list.filter(item=>`${item.name} ${item.organizationName}`.toLocaleLowerCase().includes(this.query.trim().toLocaleLowerCase()));}
+ auditEvents(events: Audit[]): Audit[] {
+  return events.filter(event => this.matches(this.label(event.action), this.label(event.resourceType), event.reason, event.actorId, event.resourceId));
+ }
+ memberships(items: Membership[]): Membership[] {
+  return items.filter(item => this.matches(item.email, this.label(item.role), this.label(item.status), item.organizationId));
+ }
+ invitations(items: Invitation[]): Invitation[] {
+  return items.filter(item => this.matches(item.email, item.owner, item.team, item.repository, this.label(item.status)));
+ }
+ private matches(...fields: Array<string | null>): boolean {
+  return fields.join(' ').toLocaleLowerCase().includes(this.query.trim().toLocaleLowerCase());
+ }
  select(resource:Action['resource'],id:string,operation:Action['operation'],label:string):void{this.reason='';this.error.set('');this.action.set({resource,id,operation,label});}
  toggle(item:Item):void{this.select(this.tab()==='repositories'?'REPOSITORY':this.tab()==='teams'?'TEAM':'ORGANIZATION',item.id,item.enabled?'DISABLE':'ENABLE',item.name);}
  confirm():void{const action=this.action();if(!action||this.pending()||this.reason.trim().length<3)return;this.pending.set(true);this.error.set('');this.api.post('/api/platform/actions',{resource:action.resource,id:action.id,operation:action.operation,reason:this.reason}).pipe(finalize(()=>this.pending.set(false))).subscribe({next:()=>{this.action.set(null);this.message.set('Acción administrativa registrada.');this.load();},error:error=>this.error.set(accessError(error))});}

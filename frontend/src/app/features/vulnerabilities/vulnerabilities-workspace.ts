@@ -88,9 +88,10 @@ export class VulnerabilitiesWorkspace implements OnInit {
           for (const { repository, assessment } of results) for (const item of assessment?.assessments ?? []) {
             for (const advisory of item.advisories) {
               const pkg = item.packageVersion;
-              const displayPackage = pkg.ecosystem === 'MAVEN' && pkg.namespace ? `${pkg.namespace}:${pkg.name}` : pkg.namespace ? `${pkg.namespace}/${pkg.name}` : pkg.name;
-              const key = this.identity(repository.id, pkg.ecosystem, pkg.namespace, pkg.name, pkg.version, advisory.id);
-              rows.push({ key, repository, ecosystem: pkg.ecosystem, namespace: pkg.namespace, packageName: pkg.name,
+              const ecosystem = pkg.ecosystem.toUpperCase();
+              const displayPackage = ecosystem === 'MAVEN' && pkg.namespace ? `${pkg.namespace}:${pkg.name}` : pkg.namespace ? `${pkg.namespace}/${pkg.name}` : pkg.name;
+              const key = this.identity(repository.id, ecosystem, pkg.namespace, pkg.name, pkg.version, advisory.id);
+              rows.push({ key, repository, ecosystem, namespace: pkg.namespace, packageName: pkg.name,
                 displayPackage, version: pkg.version, advisory, risk: this.risk(advisory.severity),
                 reviewStatus: reviewsByKey.get(key)?.status ?? 'OPEN' });
             }

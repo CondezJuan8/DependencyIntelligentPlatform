@@ -24,8 +24,7 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
                 select distinct c.id,c.content from document_chunks c
                 join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
                 join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
-                join document_repositories dr on dr.organization_id=d.organization_id and dr.document_id=d.id
-                where c.organization_id=? and v.organization_id=? and d.organization_id=? and dr.organization_id=?
+                                where c.organization_id=? and v.organization_id=? and d.organization_id=? and dr.organization_id=?
                   and not exists (select 1 from document_chunk_embeddings e join embedding_models m on m.id=e.embedding_model_id
                     where e.organization_id=c.organization_id and e.document_chunk_id=c.id and m.provider='ollama' and m.model_name=? and m.revision=?)
                   and dr.repository_id in (
@@ -44,8 +43,7 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
                 select exists(select 1 from document_chunks c
                   join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
                   join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
-                  join document_repositories dr on dr.organization_id=d.organization_id and dr.document_id=d.id
-                  where c.organization_id=? and v.organization_id=? and d.organization_id=? and dr.organization_id=?
+                                    where c.organization_id=? and v.organization_id=? and d.organization_id=? and dr.organization_id=?
                     and not exists(select 1 from document_chunk_embeddings e join embedding_models m on m.id=e.embedding_model_id
                       where e.organization_id=c.organization_id and e.document_chunk_id=c.id and m.provider='ollama' and m.model_name=? and m.revision=?)
                     and dr.repository_id in (
@@ -78,21 +76,26 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
             var args = new ArrayList<Object>(); args.add(vector(vector)); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(organizationId);
             args.add(model); args.add(revision); args.addAll(repositoryIds); args.add(vector(vector)); args.add(limit);
             return jdbc.query("""
-                select c.id,d.id,d.name,v.original_filename,c.page_start,c.section_path,c.content,1-(vc.embedding <=> ?::vector) as score
+                select c.id,d.id,v.id,d.name,v.original_filename,c.page_start,
+                       case when c.page_start is null then coalesce(nullif(c.section_path,''), 'Texto extraído · fragmento ' || c.ordinal)
+                            else c.section_path end,
+                       c.content,1-(vc.embedding <=> ?::vector) as score
                 from document_chunk_vectors vc
                 join document_chunk_embeddings e on e.organization_id=vc.organization_id and e.id=vc.embedding_id and e.embedding_model_id=vc.embedding_model_id and e.status='READY'
                 join embedding_models em on em.id=e.embedding_model_id and em.provider='ollama'
                 join document_chunks c on c.organization_id=e.organization_id and c.id=e.document_chunk_id
                 join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
                 join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
-                join document_repositories dr on dr.organization_id=d.organization_id and dr.document_id=d.id
                 where vc.organization_id=? and e.organization_id=? and c.organization_id=? and d.organization_id=?
-                  and em.model_name=? and em.revision=? and dr.repository_id in (
+                  and em.model_name=? and em.revision=? and exists (
+                    select 1 from document_repositories dr
+                    where dr.organization_id=d.organization_id and dr.document_id=d.id and dr.repository_id in (
                 """ + marks(repositoryIds.size()) + """
-                )
+                    )
+                  )
                 order by vc.embedding <=> ?::vector limit ?
-                """, (row, i) -> new Evidence(row.getObject(1, UUID.class), row.getObject(2, UUID.class), row.getString(3), row.getString(4),
-                    (Integer) row.getObject(5), row.getString(6), row.getString(7), row.getDouble(8)), args.toArray());
+                """, (row, i) -> new Evidence(row.getObject(1, UUID.class), row.getObject(2, UUID.class), row.getObject(3, UUID.class),
+                    row.getString(4), row.getString(5), (Integer) row.getObject(6), row.getString(7), row.getString(8), row.getDouble(9)), args.toArray());
         });
     }
 

@@ -42,7 +42,7 @@ public final class AskAssistantUseCase implements AskAssistant {
         String persistedAnswer = generated.text() + "\n\nPrompt de reparación propuesto (requiere revisión humana):\n" + generated.proposedRepairPrompt();
         UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", persistedAnswer, generated.model());
         conversations.saveEvidence(request.organizationId(), message, evidence);
-        List<Citation> citations = evidence.stream().map(item -> new Citation(item.documentId(), item.chunkId(), item.documentName(),
+        List<Citation> citations = evidence.stream().map(item -> new Citation(item.documentId(), item.versionId(), item.chunkId(), item.documentName(),
             item.filename(), item.page(), item.section(), excerpt(item.content()))).toList();
         return new Answer(conversation, message, generated.text(), generated.proposedRepairPrompt(), citations, "ANSWERED", generated.model());
     }
