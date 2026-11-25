@@ -81,3 +81,19 @@ Mantener Angular standalone, Angular Material, CDK, RxJS, Signals y Sass. Reutil
 ## Validación
 
 Compilar frontend, revisar capturas en todos los breakpoints, probar tema claro/oscuro, foco, reduced motion y estados disponibles. Revisar las interacciones con datos reales antes de declarar validados filtros, tablas, gráficas o conexiones de módulos autenticados. La base Compose de esta revisión no tiene cuentas, organizaciones ni repositorios; por ello, la inspección visual autenticada continúa pendiente del bootstrap seguro y datos autorizados. El build correcto por sí solo no cierra la revisión visual.
+
+## Composición por flujo
+
+La identidad compartida mantiene tipografía, controles, bordes y navegación; la estructura de cada espacio sigue el trabajo que resuelve:
+
+- **Dashboard:** mesa asimétrica de señales OSV, repositorios y ejecuciones reales.
+- **Repositorios:** conexión e importación como flujo de entrada; instalaciones y registro de fuentes como lista de trabajo.
+- **Análisis:** secuencia de proceso, selector y acción de ejecución; comparación e historial como registro cronológico.
+- **Inventario:** catálogo denso con filtros y procedencia por aparición; estado de scanner y cobertura al cambiar a un repositorio.
+- **Vulnerabilidades:** lista de casos agrupados por aviso, expansión para evidencia y seguimiento por paquete.
+- **Documentación:** captura de archivos en un carril estrecho junto a la biblioteca y búsqueda; una columna cuando el viewport no admite ambos.
+- **Reportes:** filtros y tipo en una barra de alcance junto a la vista previa exportable.
+- **Nexo:** transcripción y citas con el compositor separado; en pantallas estrechas se apilan para conservar lectura.
+- **Organización y administración:** controles de acceso en tablas y registros con filtros, roles, estados y acciones cercanos.
+
+No duplicar estas composiciones mecánicamente en futuras pantallas. Mantener estados, acciones y relaciones de datos en su módulo; en responsive, reorganizar los mismos elementos sin ocultar funcionalidades.

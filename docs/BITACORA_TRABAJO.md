@@ -1,3 +1,14 @@
+## Bloque 107 — composición distintiva por flujo (25/11/2026)
+
+**Petición.** El usuario pidió aplicar Better Web UI, Taste Skill, Web Design Guidelines de Vercel y Emil Design Engineering para diferenciar la composición de las pantallas, mantener las funcionalidades y evitar repetir plantillas.
+
+**Cambios.** Se mantuvieron paleta, tipografía, sidebar, navegación y APIs. En Sass se reorganizaron las áreas de Repositorios (entrada y registro), Documentación (ingesta y biblioteca), Reportes (alcance y vista previa), Nexo (conversación y compositor), Administración (registro operativo) y otras vistas con énfasis en catálogo, ejecución o revisión. Los estados de riesgo permanecen etiquetados; se añadieron reflujo responsive y respeto a movimiento reducido. Se documentó la composición por flujo en `DESIGN.md` y se actualizó el resumen de `docs/PENDIENTES.md`. No se cambió HTML funcional, TypeScript, backend, base de datos, contratos, autenticación, autorización ni dependencias.
+
+**Herramientas/tecnologías.** Better Web UI (frontend-design, arrange, hierarchy y audit), Taste `design-taste-frontend`, Vercel `web-design-guidelines`, Emil Design Engineering, Impeccable, UI/UX Pro Max, Angular 22, Sass y tokens existentes. Se instalaron las cuatro colecciones de skills en `%USERPROFILE%/.codex/skills`; no se agregaron dependencias al producto.
+
+**Verificación.** `docker compose build frontend` pasó; persisten avisos de presupuesto Angular: bundle inicial 646.32 KB/500 KB y hojas Sass sobre 4 KB. Se actualizó solo `frontend` con `docker compose up -d --no-deps frontend`; `http://127.0.0.1:8089/` respondió 200. Impeccable generó capturas 1440×900, 1024×768, 768×1024, 390×844 y 375×812; se inspeccionaron las vistas de acceso disponibles. `impeccable detect --json --changed` devolvió `[]`. El puerto 8088 devolvió conexión rechazada durante esta sesión; no se detuvo ni alteró ese entorno. Las rutas internas no pudieron abrirse: la base Compose no tiene cuentas, organizaciones ni repositorios y falta el bootstrap seguro. No se usaron datos ficticios. La verificación visual autenticada e interacciones con datos reales siguen pendientes.
+
+**Siguiente paso.** Completar el bootstrap administrativo seguro; después revisar cada módulo con datos autorizados y validar sus interacciones. No iniciar automáticamente el siguiente bloque.
 ## Bloque 106 — ajuste de bordes y saturación (25/11/2026)
 
 **Petición.** Refinar únicamente la presencia de bordes y la saturación del tema, usando Impeccable, sin cambiar los demás aspectos de la interfaz.

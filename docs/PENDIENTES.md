@@ -2,10 +2,10 @@
 
 - [x] Ajuste acotado pedido por el usuario: bordes de superficie más legibles y menor saturación en acentos/riesgos, aplicado solo a tokens de tema y al SVG de acceso. Ver [bitácora, bloque 106](BITACORA_TRABAJO.md).
 - [x] Dirección propia Observatorio de Evidencias: tema oscuro predeterminado, tinta azul, papel mineral y acentos ámbar; navegación agrupada por tarea; dashboard reestructurado como registro de riesgo y espacio de trabajo asimétrico; identidad de acceso SVG original. Revisar [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 105](BITACORA_TRABAJO.md).
-- [x] El usuario proporcionó Berry, Angular Dashboards y Corona como referencias. Se revisaron sin ejecutar los zips ni copiar su código o recursos. No se agregaron dependencias ni se modificaron backend, base de datos, API, autenticación o autorización.
-- [x] Build Docker de frontend y actualización exclusiva del servicio frontend en Compose `localhost:8089`; aplicación y recursos principales responden HTTP 200. Capturas Impeccable revisadas en 1440×900, 1024×768, 768×1024, 390×844 y 375×812.
+- [x] Composición por flujo en Repositorios, Documentación, Reportes, Nexo, Análisis, Inventario, Vulnerabilidades y Administración; funcionalidad y datos existentes preservados. Ver [sistema visual](../DESIGN.md) y [bitácora, bloque 107](BITACORA_TRABAJO.md).
+- [x] Build Docker del frontend y actualización exclusiva del servicio frontend en Compose `localhost:8089`; aplicación responde HTTP 200. Capturas Impeccable en 1440×900, 1024×768, 768×1024, 390×844 y 375×812 revisadas; el acceso carga, mientras las vistas autenticadas no se pueden abrir con la base vacía.
 - [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas, gráficas e interacción con datos reales. Requiere el bootstrap seguro del administrador y datos autorizados; no usar mocks. La captura del acceso sí se inspeccionó en escritorio y móvil.
-- [ ] Reducir avisos del presupuesto Angular; el build del bloque 105 reportó bundle inicial de 631.14 KB frente al límite de 500 KB y hojas Sass por encima de sus presupuestos. Compila, pero queda trabajo de tamaño.
+- [ ] Reducir avisos del presupuesto Angular; este build reportó bundle inicial de 646.32 KB frente al límite de 500 KB y varias hojas Sass sobre 4 KB. Compila, pero queda trabajo de tamaño.
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 
