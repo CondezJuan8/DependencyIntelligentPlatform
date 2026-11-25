@@ -244,6 +244,7 @@ export const english: Record<string, string> = {
   'Descartar': 'Dismiss',
   'Descartar aviso': 'Dismiss alert',
   'Descartar todas': 'Dismiss all',
+  'Borrar todo': 'Clear all',
   'Nueva organización': 'New organization',
   'Organiza el acceso': 'Organize access',
   'Organizaciones': 'Organizations',
