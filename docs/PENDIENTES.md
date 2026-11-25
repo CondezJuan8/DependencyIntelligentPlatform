@@ -319,3 +319,14 @@ El plan vigente es el de 14 peticiones en `DEPENDENCY_INTELLIGENCE_CONTEXTO_MAES
 ## Estado del frontend rediseñado — bloque 102 (24/11/2026)
 
 La propuesta visual quedó aplicada y documentada en [DESIGN.md](../DESIGN.md), con oscuro como tema inicial y audiencia de ingeniería y seguridad por igual. TypeScript (51 archivos), compilador Angular con templates y Sass (27 hojas) pasaron sin diagnósticos. El build de Compose pasó, y el frontend se actualizó en `localhost:8089`; HTTP 200 y capturas Impeccable de 1440×900 y 390×844 confirmaron el acceso nuevo. Queda pendiente la revisión autenticada: la base sigue vacía y falta el bootstrap seguro del administrador. No se usaron mocks ni se alteraron backend, datos o contratos; ver [bitácora, bloque 102](BITACORA_TRABAJO.md).
+
+### Segunda pasada de claridad UX — bloque 103 (24/11/2026)
+
+- [x] Mantener el sidebar y el diálogo de análisis que el usuario indicó que le gustan.
+- [x] Normalizar gutters duplicados entre el shell y las vistas de repositorios, inventario, asistente, documentos y reportes.
+- [x] Añadir navegación por secciones reales en dashboard, repositorios, análisis, inventario, avisos, documentación y reportes; mostrar guía contextual según la pestaña activa de organización.
+- [x] Hacer los enlaces accesibles por teclado y visibles al navegar, con objetivos táctiles de 44 px; traducir las etiquetas nuevas.
+- [x] Build Docker de frontend correcto y actualizado en `localhost:8089`; HTTP 200. Capturas de Impeccable revisadas a 1440×900 y 390×844.
+- [ ] Recorrer las vistas internas con sesión, organización y repositorios reales después del bootstrap seguro del administrador. No usar mocks ni afirmar validación autenticada antes de ese paso.
+
+Ver [bitácora, bloque 103](BITACORA_TRABAJO.md). La auditoría detectora de Impeccable no reportó hallazgos; el build conserva avisos de presupuesto Angular para el bundle inicial y estilos.

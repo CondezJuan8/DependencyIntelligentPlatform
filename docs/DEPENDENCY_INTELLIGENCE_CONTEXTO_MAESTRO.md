@@ -1785,3 +1785,7 @@ Inventario y Analisis muestran una guia visual corta que relaciona scanner (dete
 ### Bloque 102 — sistema visual y shell frontend (24 de noviembre de 2026)
 
 Se diseñó un espacio oscuro, centrado en evidencia, para equipos de ingeniería y seguridad. La implementación conserva Angular, tokens oficiales, API y control de acceso. Se creó el sistema documentado en `../DESIGN.md`. El build del frontend Compose pasó y el contenedor frontend se actualizó sin reiniciar los demás servicios; `localhost:8089` respondió 200 y se revisó la pantalla de acceso en escritorio y móvil. Las rutas autenticadas requieren el bootstrap seguro pendiente y datos reales para completar su revisión visual. Ver [bitácora](BITACORA_TRABAJO.md), bloque 102.
+
+### Bloque 103 — claridad de navegación entre vistas (24 de noviembre de 2026)
+
+Se normalizaron los gutters de páginas largas y se añadieron enlaces a secciones disponibles en dashboard, repositorios, análisis, inventario, avisos, documentación y reportes. La organización muestra contexto según la pestaña activa. Se conservaron las funcionalidades, el sidebar y el diálogo de análisis. Frontend compilado y desplegado únicamente en Compose `localhost:8089`; detector Impeccable sin hallazgos y capturas de la pantalla pública en 1440×900/390×844 revisadas. La validación autenticada sigue pendiente del bootstrap seguro y datos reales; ver [bitácora](BITACORA_TRABAJO.md), bloque 103, y [pendientes](PENDIENTES.md).

@@ -88,6 +88,8 @@ Design mobile first and verify at 375, 390, 768, 1024, and 1440 px. The navigati
 
 Keep the existing `?view=` destinations and role-based visibility. Group the same destinations by task: workspace overview; repository analysis and evidence; organization and account administration. Keep Nexo, notifications, language/theme, and account actions in the global header. Retain direct links between a repository, its analysis, inventory, vulnerability evidence, and reports.
 
+For long workspaces, provide a compact **On this page** navigation to the major sections that are currently available. It is a set of in-page links, not a completion tracker. Keep the links close to the page introduction, use each destination's name so users know what the action opens, provide at least 44 px touch targets, and make keyboard focus and the selected anchor visible. Do not show links to hidden or unavailable sections.
+
 Within a page, order information as: task and current scope; primary action; current status and coverage; filters; results; provenance and technical detail. Show the facts needed for the next decision without forcing an unnecessary click, while leaving deep scanner or advisory detail expandable. Do not add statistics, charts, demo records, repository names, or security claims without real backend evidence.
 
 ## Quality review
