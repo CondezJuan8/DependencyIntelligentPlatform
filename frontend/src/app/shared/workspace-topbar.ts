@@ -13,7 +13,7 @@ interface AlertRepository { id:string; organizationId:string; organizationName:s
 interface AlertAdvisory { id:string; summary:string|null; severity:string; url:string; modifiedAt:string|null; affectedJson:string; }
 interface AlertAssessment { packageVersion:{ecosystem:string;namespace:string|null;name:string;version:string}; status:string; checkedAt:string|null; advisories:AlertAdvisory[]; }
 interface AlertPayload { assessments:AlertAssessment[]; }
-interface WorkspaceAlert { title:string; summary:string; repository:string; href:'vulnerabilities'|'inventory'; severity:string; }
+interface WorkspaceAlert { key:string; title:string; summary:string; repository:string; href:'vulnerabilities'|'inventory'; severity:string; }
 @Component({
   selector: 'app-workspace-topbar',
   imports: [PreferenceControls,DiIcon,TranslatePipe],
@@ -45,9 +45,12 @@ export class WorkspaceTopbar {
   readonly pending = signal(false);
   readonly error = signal('');
   readonly notificationItems = signal<WorkspaceAlert[]>([]);
+  private readonly loadedNotificationKeys = signal<string[]>([]);
   readonly notificationsLoading = signal(false);
   readonly notificationsError = signal('');
   readonly notificationsPartial = signal(false);
+  private dismissedAlerts = new Set<string>();
+  private dismissedAccountId = '';
   constructor() {
     effect(() => {
       this.page();
@@ -136,8 +139,42 @@ export class WorkspaceTopbar {
     this.notices.set(opening); this.profile.set(false);
     if(opening) this.loadNotifications();
   }
+  private dismissalStorageKey(): string | null {
+    const accountId=this.api.account()?.id;
+    return accountId ? `di.notifications.dismissed.${accountId}` : null;
+  }
+  private restoreDismissedAlerts(): void {
+    const accountId=this.api.account()?.id ?? '';
+    if(accountId===this.dismissedAccountId) return;
+    this.dismissedAccountId=accountId;
+    this.dismissedAlerts=new Set<string>();
+    const storageKey=this.dismissalStorageKey();
+    if(!storageKey) return;
+    try {
+      const stored=JSON.parse(localStorage.getItem(storageKey) ?? '[]');
+      if(Array.isArray(stored)) this.dismissedAlerts=new Set(stored.filter((key):key is string=>typeof key==='string'));
+    } catch { /* Storage may be unavailable; dismissal still works for this session. */ }
+  }
+  private saveDismissedAlerts(): void {
+    const storageKey=this.dismissalStorageKey();
+    if(!storageKey) return;
+    try { localStorage.setItem(storageKey,JSON.stringify([...this.dismissedAlerts])); } catch {}
+  }
+  dismissNotification(key:string): void {
+    this.restoreDismissedAlerts();
+    this.dismissedAlerts.add(key);
+    this.notificationItems.update(items=>items.filter(item=>item.key!==key));
+    this.saveDismissedAlerts();
+  }
+  dismissAllNotifications(): void {
+    this.restoreDismissedAlerts();
+    for(const key of this.loadedNotificationKeys()) this.dismissedAlerts.add(key);
+    this.notificationItems.set([]);
+    this.saveDismissedAlerts();
+  }
   loadNotifications(): void {
     if(this.notificationsLoading()) return;
+    this.restoreDismissedAlerts();
     this.notificationsLoading.set(true); this.notificationsError.set('');
     this.notificationsPartial.set(false);
     this.api.get<AlertRepository[]>('/api/account/workspace').pipe(
@@ -157,16 +194,20 @@ export class WorkspaceTopbar {
           for(const advisory of assessment.advisories??[]){
             const modifiedAt=advisory.modifiedAt?Date.parse(advisory.modifiedAt):Number.NaN;
             const updated=Number.isFinite(modifiedAt)&&modifiedAt>Date.now()-7*24*60*60*1000;
-            const key=`${repository.id}|${packageName}|${version}|${advisory.id}`;
+            const key=`${repository.id}|${packageName}|${version}|${advisory.id}|${advisory.modifiedAt??''}`;
             const packageCoordinate=ecosystem==='MAVEN'&&namespace?`${namespace}:${name}`:name;
             const fixed=fixesForPackage(advisory.affectedJson,ecosystem,packageCoordinate);
             const fixSummary=fixed.length?` · ${this.preferences.text('Versión corregida:')} ${fixed.join(', ')}`:'';
-            alerts.set(key,{title:updated?'Actualización reciente en OSV':'Versión vulnerable',summary:`${packageName}@${version} · ${advisory.id}${advisory.summary?` · ${advisory.summary}`:''}${fixSummary}`,repository:repository.fullName,href:'vulnerabilities',severity:advisory.severity||'UNKNOWN'});
+            alerts.set(key,{key,title:updated?'Actualización reciente en OSV':'Versión vulnerable',summary:`${packageName}@${version} · ${advisory.id}${advisory.summary?` · ${advisory.summary}`:''}${fixSummary}`,repository:repository.fullName,href:'vulnerabilities',severity:advisory.severity||'UNKNOWN'});
           }
-          if(['STALE','INCOMPLETE','UNAVAILABLE','NOT_ASSESSED'].includes(assessment.status)) alerts.set(`${repository.id}|${packageName}|${version}|${assessment.status}`,{title:'Evaluación OSV pendiente',summary:`${packageName}@${version} · ${assessment.status}`,repository:repository.fullName,href:'inventory',severity:'REVIEW'});
+          if(['STALE','INCOMPLETE','UNAVAILABLE','NOT_ASSESSED'].includes(assessment.status)) {
+            const key=`${repository.id}|${packageName}|${version}|${assessment.status}`;
+            alerts.set(key,{key,title:'Evaluación OSV pendiente',summary:`${packageName}@${version} · ${assessment.status}`,repository:repository.fullName,href:'inventory',severity:'REVIEW'});
+          }
         }
       }
-      this.notificationItems.set([...alerts.values()].slice(0,30));
+      this.loadedNotificationKeys.set([...alerts.keys()]);
+      this.notificationItems.set([...alerts.values()].filter(item=>!this.dismissedAlerts.has(item.key)).slice(0,30));
     },error:error=>this.notificationsError.set(accessError(error))});
   }
   logout(): void {

@@ -64,15 +64,18 @@
       </button>
       @if (notices()) {
         <div class="popover notifications-popover" role="region" [attr.aria-label]="'Notificaciones' | t">
-          <div class="notification-heading"><strong>{{ 'Notificaciones' | t }}</strong><button type="button" (click)="loadNotifications()" [disabled]="notificationsLoading()">{{'Actualizar'|t}}</button></div>
+          <div class="notification-heading"><strong>{{ 'Notificaciones' | t }}</strong><div class="notification-heading-actions"><button type="button" (click)="loadNotifications()" [disabled]="notificationsLoading()">{{'Actualizar'|t}}</button><button type="button" (click)="dismissAllNotifications()" [disabled]="notificationsLoading() || !notificationItems().length">{{'Descartar todas'|t}}</button></div></div>
           @if(notificationsLoading()){<p role="status">{{'Revisando los repositorios accesibles…'|t}}</p>}
           @if(notificationsError()){<p role="alert">{{notificationsError()}}</p>}
-          @for(alert of notificationItems();track $index){
-            <button class="notification-item" type="button" (click)="go(alert.href)">
-              <span class="notification-dot" [class.critical]="alert.severity==='CRITICAL'||alert.severity==='HIGH'"></span>
-              <span><strong>{{alert.title|t}}</strong><small>{{alert.repository}} · {{alert.summary}}</small></span>
-              <app-di-icon name="arrow" />
-            </button>
+          @for(alert of notificationItems();track alert.key){
+            <div class="notification-row">
+              <button class="notification-item" type="button" (click)="go(alert.href)">
+                <span class="notification-dot" [class.critical]="alert.severity==='CRITICAL'||alert.severity==='HIGH'"></span>
+                <span><strong>{{alert.title|t}}</strong><small>{{alert.repository}} · {{alert.summary}}</small></span>
+                <app-di-icon name="arrow" />
+              </button>
+              <button class="notification-dismiss" type="button" (click)="dismissNotification(alert.key)" [attr.aria-label]="('Descartar aviso' | t) + ': ' + alert.repository + ' · ' + (alert.title | t)">{{'Descartar'|t}}</button>
+            </div>
           } @empty { @if(!notificationsLoading()&&!notificationsError()){<p>{{ (notificationsPartial() ? 'No se pudieron revisar todos los repositorios. Actualiza para intentarlo otra vez.' : 'No hay avisos pendientes en los repositorios que puedes consultar.') | t }}</p>} }
           <small>{{'El panel muestra hallazgos y actualizaciones recientes de OSV; todavía no compara releases de npm o Maven.'|t}}</small>
         </div>
