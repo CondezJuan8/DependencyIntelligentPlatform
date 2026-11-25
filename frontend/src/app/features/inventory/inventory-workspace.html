@@ -24,7 +24,6 @@
 <section class="inventory-page" aria-labelledby="inventory-title" [attr.inert]="analysisOverlay() ? '' : null">
   <header class="page-heading">
     <div>
-      <p class="eyebrow">INVENTARIO</p>
       <h1 id="inventory-title">Dependencias del proyecto</h1>
       <p>{{ 'Revisa qué usa el proyecto, qué sabemos de sus versiones y qué conviene comprobar después.' | t }}</p>
     </div>
@@ -94,7 +93,7 @@
     @if (scanResults().length > 0) {
       <section id="inventory-analysis-status" class="scanner-status" aria-labelledby="scanner-heading">
         <header class="section-heading">
-          <div><p class="eyebrow">{{ 'RESUMEN' | t }}</p><h2 id="scanner-heading">{{ 'Estado del análisis' | t }}</h2><p>{{ 'Los paquetes identificados están disponibles abajo. Si falta contexto, te explicamos qué se pudo confirmar.' | t }}</p></div>
+          <div><h2 id="scanner-heading">{{ 'Estado del análisis' | t }}</h2><p>{{ 'Los paquetes identificados están disponibles abajo. Si falta contexto, te explicamos qué se pudo confirmar.' | t }}</p></div>
         </header>
         <div class="status-list">
           @for (result of scanResults(); track result.ecosystem) {
@@ -131,7 +130,7 @@
       </section>
 
       <section id="inventory-osv" class="assessment-summary" aria-labelledby="assessment-heading" aria-live="polite">
-        <div><p class="eyebrow">SEGURIDAD · OSV</p><h2 id="assessment-heading">Evaluación de vulnerabilidades</h2>
+        <div><h2 id="assessment-heading">Evaluación de vulnerabilidades</h2>
           <p>Comparamos versiones exactas con avisos publicados en OSV. Un resultado sin avisos conocidos no garantiza que una versión esté libre de vulnerabilidades.</p></div>
         @if (assessingVulnerabilities()) { <span class="assessment-progress" role="status"><span class="button-spinner" aria-hidden="true"></span> Consultando OSV…</span> }
         <button class="secondary assessment-refresh" type="button" [disabled]="assessingVulnerabilities() || busy()" (click)="assessCurrentRepository()">Consultar OSV</button>
@@ -151,7 +150,7 @@
 
       <section id="dependency-catalog" class="catalog" aria-labelledby="catalog-heading">
         <header class="catalog-heading">
-          <div><p class="eyebrow">{{ 'EXPLORAR' | t }}</p><h2 id="catalog-heading">{{ 'Catálogo de dependencias' | t }}</h2><p>{{ 'Busca un paquete y abre su fila para ver versiones, estado OSV y origen en el proyecto.' | t }}</p></div>
+          <div><h2 id="catalog-heading">{{ 'Catálogo de dependencias' | t }}</h2><p>{{ 'Busca un paquete y abre su fila para ver versiones, estado OSV y origen en el proyecto.' | t }}</p></div>
           <div class="catalog-count" aria-live="polite"><strong>{{ groups.length }} {{ 'de' | t }} {{ uniquePackageCount }}</strong><span>{{ 'paquetes visibles' | t }} · {{ visibleVersionCount }} {{ 'versiones' | t }}</span></div>
         </header>
 

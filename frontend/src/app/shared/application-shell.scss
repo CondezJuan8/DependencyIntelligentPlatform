@@ -2,9 +2,10 @@
   display: block;
 }
 .app-layout {
+  position: relative;
   min-height: 100svh;
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 248px minmax(0, 1fr);
   background: var(--di-background);
 }
 .workspace {
@@ -16,17 +17,19 @@ main {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 24px 24px 40px;
+  padding: 30px 30px 48px;
   flex: 1;
   min-width: 0;
 }
 .page-heading h1 {
-  font-size: 29px;
-  letter-spacing: -1px;
-  margin: 0 0 8px;
+  font-size: clamp(27px, 2.2vw, 32px);
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  margin: 0 0 9px;
 }
 .page-heading p {
-  font-size: 13px;
+  max-width: 68ch;
+  font-size: 14px;
   color: var(--di-text-subtle);
   margin: 0 0 25px;
 }
@@ -61,9 +64,9 @@ main {
 .coming-soon {
   text-align: center;
   border: 1px solid var(--di-border);
-  border-radius: 8px;
+  border-radius: var(--di-radius-panel);
   background: var(--di-surface);
-  padding: clamp(32px, 7vh, 64px) 25px;
+  padding: clamp(36px, 7vh, 72px) 28px;
 }
 .coming-icon {
   display: grid;
@@ -72,8 +75,8 @@ main {
   background: var(--di-info-background);
   width: 64px;
   height: 64px;
-  border-radius: 18px;
-  color: var(--di-primary);
+  border-radius: 16px;
+  color: var(--di-accent-text);
 }
 .coming-icon app-di-icon {
   width: 28px;
@@ -123,11 +126,11 @@ main {
 }
 @media (max-width: 1050px) {
   .app-layout {
-    grid-template-columns: 216px minmax(0, 1fr);
+    grid-template-columns: 224px minmax(0, 1fr);
   }
   main {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }
 @media (max-width: 800px) {
@@ -139,15 +142,15 @@ main {
     position: fixed;
     inset: 0;
     border: 0;
-    background: #10182766;
+    background: color-mix(in srgb, var(--di-navy) 76%, transparent);
     z-index: 25;
   }
   main {
-    padding: 20px 20px 32px;
+    padding: 22px 20px 36px;
   }
 }
 @media (max-width: 480px) {
   main {
-    padding: 16px 16px 28px;
+    padding: 18px 16px 32px;
   }
 }

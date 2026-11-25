@@ -1,5 +1,5 @@
 <section class="reports-page" aria-labelledby="reports-title">
-  <header class="reports-heading"><div><p class="eyebrow">{{ 'INFORMES DEL ESPACIO' | t }}</p><h1 id="reports-title">{{ 'Reportes' | t }}</h1>
+  <header class="reports-heading"><div><h1 id="reports-title">{{ 'Reportes' | t }}</h1>
     <p>{{ 'Previsualiza riesgos y dependencias del inventario autorizado. La exportación no envía información por correo.' | t }}</p></div></header>
 
   @if (repositories().length) {
@@ -34,7 +34,7 @@
       @else {
         @if (assessmentPartial()) { <p class="coverage">{{ 'Algunas versiones no tienen una consulta OSV completa o reciente; el informe incluye solo avisos con severidad conocida.' | t }}</p> }
         @if (kind()==='EXECUTIVE') {
-          <section class="executive-summary"><p class="eyebrow">{{ 'EN PALABRAS SENCILLAS' | t }}</p><h3>{{ 'Hay avisos conocidos en versiones que usa este repositorio' | t }}</h3><p>{{ 'Resumen del riesgo' | t }}: {{ issueCount() }} {{ 'registros OSV afectan' | t }} {{ affectedVersions() }} {{ 'versiones de' | t }} {{ packagesWithAdvisories() }} {{ 'paquetes' | t }}. {{ 'Empieza por los avisos críticos y altos; valida la versión corregida publicada antes de planificar la actualización.' | t }}</p></section>
+          <section class="executive-summary"><h3>{{ 'Hay avisos conocidos en versiones que usa este repositorio' | t }}</h3><p>{{ 'Resumen del riesgo' | t }}: {{ issueCount() }} {{ 'registros OSV afectan' | t }} {{ affectedVersions() }} {{ 'versiones de' | t }} {{ packagesWithAdvisories() }} {{ 'paquetes' | t }}. {{ 'Empieza por los avisos críticos y altos; valida la versión corregida publicada antes de planificar la actualización.' | t }}</p></section>
           <div class="report-metrics"><article><strong>{{ severityCount('CRITICAL') }}</strong><span>{{ 'Críticos' | t }}</span></article><article><strong>{{ severityCount('HIGH') }}</strong><span>{{ 'Altos' | t }}</span></article><article><strong>{{ severityCount('MEDIUM') }}</strong><span>{{ 'Medios' | t }}</span></article><article><strong>{{ severityCount('LOW') }}</strong><span>{{ 'Bajos' | t }}</span></article></div>
           @if (executiveIssues().length) { <h3>{{ 'Prioridades para el equipo' | t }}</h3><div class="report-table-wrap"><table><thead><tr><th>{{ 'Prioridad' | t }}</th><th>{{ 'Dependencia afectada' | t }}</th><th>{{ 'Problema reportado' | t }}</th><th>{{ 'Por qué conviene cambiarlo' | t }}</th><th>{{ 'Siguiente paso' | t }}</th></tr></thead><tbody>
             @for (item of executiveIssues(); track item.ecosystem + item.packageName + item.version + item.advisoryId) { <tr><td><span class="risk" [attr.data-severity]="item.severity">{{ item.severity | t }}</span></td><td>{{ item.packageName }} <code>{{ item.version }}</code></td><td>{{ item.summary }} <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.advisoryId }}</a></td><td>{{ item.whyChange | t }}</td><td>{{ item.nextStep | t }} @if (item.fixedVersions.length) { <code>{{ item.fixedVersions.join(', ') }}</code> }</td></tr> }

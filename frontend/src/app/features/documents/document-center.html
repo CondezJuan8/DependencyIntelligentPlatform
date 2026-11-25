@@ -1,6 +1,6 @@
 <section class="documents-page" aria-labelledby="documents-title">
   <header class="page-heading">
-    <div><p class="eyebrow">{{ 'CONOCIMIENTO DEL ESPACIO' | t }}</p><h1 id="documents-title">{{ 'Documentación' | t }}</h1><p>{{ 'Guarda y encuentra documentación técnica asociada a tus repositorios.' | t }}</p></div>
+    <div><h1 id="documents-title">{{ 'Documentación' | t }}</h1><p>{{ 'Guarda y encuentra documentación técnica asociada a tus repositorios.' | t }}</p></div>
     <label class="organization-picker"><span>{{ 'Organización' | t }}</span><select [value]="organizationId()" (change)="changeOrganization($event)"><option value="" disabled>{{ 'Selecciona una organización' | t }}</option>@for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }</select></label>
   </header>
   <nav class="page-jump" [attr.aria-label]="'Secciones de documentación' | t">

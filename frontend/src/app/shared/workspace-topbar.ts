@@ -60,6 +60,9 @@ export class WorkspaceTopbar {
       item.label.toLocaleLowerCase().includes(query),
     );
   }
+  get currentPage() {
+    return navigation.find((item) => item.id === this.page()) ?? navigation[0];
+  }
   search(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);
   }

@@ -7,6 +7,10 @@
   >
     <app-di-icon name="menu" />
   </button>
+  <div class="route-context" aria-live="polite">
+    <span class="route-context-icon"><app-di-icon [name]="currentPage.icon" /></span>
+    <span class="route-context-label">{{ currentPage.label | t }}</span>
+  </div>
   <div class="search-box">
     <app-di-icon name="search" /><input
       type="search"

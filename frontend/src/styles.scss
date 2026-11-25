@@ -12,26 +12,26 @@ html {
         primary: mat.$azure-palette,
       ),
       typography: 'IBM Plex Sans',
-      density: -2,
+      density: -1,
     )
   );
   @include mat.theme-overrides(
     (
       primary: var(--di-primary),
-      on-primary: #ffffff,
+      on-primary: var(--di-on-primary),
       primary-container: var(--di-info-background),
       on-primary-container: var(--di-info-text),
       secondary: var(--di-accent-text),
-      on-secondary: var(--di-white),
+      on-secondary: var(--di-on-secondary),
       tertiary: var(--di-accent),
-      on-tertiary: var(--di-navy),
+      on-tertiary: var(--di-on-accent),
       surface: var(--di-surface),
       on-surface: var(--di-text),
       on-surface-variant: var(--di-text-muted),
       outline: var(--di-control-border),
       outline-variant: var(--di-border),
       error: var(--di-critical),
-      on-error: var(--di-white),
+      on-error: var(--di-on-critical),
       error-container: var(--di-critical-background),
       on-error-container: var(--di-critical-text),
     )
@@ -42,7 +42,7 @@ body {
   margin: 0;
   font-family: var(--di-font-family);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   background: var(--di-background);
   color: var(--di-text);
 }
@@ -53,7 +53,7 @@ a {
 }
 
 a:hover {
-  color: var(--di-primary-hover);
+  color: var(--di-link-hover, var(--di-primary-hover));
 }
 
 button,
@@ -69,6 +69,11 @@ input,
 select,
 textarea {
   touch-action: manipulation;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--di-accent) 18%, transparent);
 }
 
 :focus-visible {
@@ -116,22 +121,38 @@ button:disabled {
 
 #workspace-main {
   scroll-margin-top: 72px;
+  background-image: url('/atlas-contours.svg');
+  background-repeat: no-repeat;
+  background-position: right top 24px;
+  background-size: min(70vw, 880px) auto;
 }
 
 #workspace-main h1 {
-  font-size: clamp(25px, 2vw, 30px);
+  font-size: clamp(27px, 2.2vw, 33px);
   line-height: 1.2;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.04em;
+  font-weight: 600;
 }
+
+#workspace-main h2 { font-size: clamp(17px, 1.5vw, 20px); line-height: 1.3; font-weight: 600; }
+#workspace-main h3 { line-height: 1.35; font-weight: 600; }
 
 #workspace-main :where(.page-heading, .analysis-heading, .vuln-heading, .reports-heading, .heading) {
   margin-bottom: 24px;
   gap: 16px;
 }
 
-#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .risk-card, .document-card, .di-editor-card, .create, .rows article) {
-  border-radius: 8px;
+#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .risk-card, .document-card, .di-editor-card, .create, .rows article, .summary-card, .compare-section, .compare-summary article, .empty, .empty-state) {
+  border-radius: var(--di-radius-panel);
   box-shadow: none;
+}
+
+#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .document-card, .di-editor-card, .create, .rows article, .summary-card, .compare-section, .compare-summary article, .empty, .empty-state) {
+  border-color: var(--di-border);
+}
+
+#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .document-card, .di-editor-card, .create, .rows article, .summary-card, .compare-section, .compare-summary article, .empty, .empty-state) {
+  background-color: var(--di-surface);
 }
 
 #workspace-main .page-jump {
@@ -171,13 +192,13 @@ button:disabled {
 }
 
 #workspace-main .page-jump a:focus-visible {
-  outline: 2px solid var(--di-primary);
+  outline: 2px solid var(--di-accent);
   outline-offset: 2px;
 }
 
 #workspace-main :target {
   scroll-margin-block-start: 88px;
-  outline: 2px solid var(--di-primary);
+  outline: 2px solid var(--di-accent);
   outline-offset: 6px;
 }
 
@@ -190,10 +211,10 @@ button:disabled {
 }
 
 #workspace-main .eyebrow {
-  color: var(--di-text-subtle);
+  color: var(--di-accent-text);
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-weight: 650;
+  letter-spacing: 0.035em;
 }
 
 #workspace-main :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
@@ -218,6 +239,70 @@ button:disabled {
 #workspace-main :is(code, pre) {
   overflow-wrap: anywhere;
 }
+
+#workspace-main .primary,
+#workspace-main button.primary {
+  color: var(--di-on-primary);
+  background-color: var(--di-primary);
+  border-color: var(--di-primary);
+}
+
+#workspace-main .primary:hover:not(:disabled),
+#workspace-main button.primary:hover:not(:disabled) {
+  color: var(--di-on-primary);
+  background-color: var(--di-primary-hover);
+}
+
+#workspace-main :where(.panel-title, .section-heading, .report-card-heading) h2 {
+  letter-spacing: -0.018em;
+}
+
+#workspace-main :where(.status, .status-pill, .risk, .risk-category, .di-tag) {
+  font-variant-numeric: tabular-nums;
+}
+
+#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .risk-card, .document-card, .di-editor-card, .create, .rows article, .summary-card) {
+  transition: border-color var(--di-duration-normal), background-color var(--di-duration-normal), transform var(--di-duration-normal);
+}
+
+#workspace-main :where(a, button:not(:disabled)) {
+  transition: color var(--di-duration-fast), background-color var(--di-duration-fast), border-color var(--di-duration-fast), transform var(--di-duration-fast);
+}
+
+#workspace-main :where(button:not(:disabled), a):active {
+  transform: translateY(1px);
+}
+
+#access-panel h2 { margin:0; font-size:clamp(27px,3vw,32px); line-height:1.12; letter-spacing:-.045em; }
+#access-panel .intro { max-width:42ch; margin:10px 0 23px; font-size:14px; line-height:1.55; }
+#access-panel .auth-tabs { margin-bottom:22px; }
+#access-panel .auth-tabs button { min-height:44px; font-size:13px; }
+#access-panel .auth-tabs button.active { border-bottom-color:var(--di-accent); color:var(--di-link); }
+#access-panel form { gap:13px; }
+#access-panel .submit { min-height:48px; border-radius:8px; font-weight:600; }
+#access-panel .submit:disabled { opacity:1; border:1px solid var(--di-border); background:var(--di-surface-muted); color:var(--di-text-subtle); }
+#access-panel .mat-mdc-input-element { font-size:16px; }
+#access-panel .form-options { margin-bottom:3px; }
+#access-panel .switch { margin-top:20px; }
+
+#workspace-main > :is(app-dashboard, app-repository-workspace, app-inventory-workspace, app-vulnerabilities-workspace, app-analysis-workspace, app-document-center, app-assistant-workspace, app-reports-workspace, app-organization-workspace, app-platform-administration) {
+  animation: atlas-arrive 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes atlas-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+::selection {
+  background: var(--di-accent);
+  color: var(--di-on-accent);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--di-background); }
+::-webkit-scrollbar-thumb { border: 2px solid var(--di-background); border-radius: 10px; background: var(--di-border-soft); }
+::-webkit-scrollbar-thumb:hover { background: var(--di-text-subtle); }
 .skip-link:focus {
   top: 12px;
 }
@@ -229,6 +314,15 @@ button:disabled {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  #workspace-main > :is(app-dashboard, app-repository-workspace, app-inventory-workspace, app-vulnerabilities-workspace, app-analysis-workspace, app-document-center, app-assistant-workspace, app-reports-workspace, app-organization-workspace, app-platform-administration) {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  #workspace-main { background-size: 620px auto; background-position: right -260px top 10px; }
+  #access-panel .intro { margin-bottom:17px; }
+  #access-panel form { gap:10px; }
 }
 
 a:focus-visible,

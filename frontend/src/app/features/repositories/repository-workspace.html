@@ -1,5 +1,5 @@
 <div class="page-heading">
-  <div><p class="eyebrow">{{ 'REPOSITORIOS' | t }}</p><h1>{{ (isOwner ? 'Repositorios de la organización' : 'Mis repositorios') | t }}</h1>
+  <div><h1>{{ (isOwner ? 'Repositorios de la organización' : 'Mis repositorios') | t }}</h1>
     <p>{{ (isOwner ? 'Conecta GitHub o importa una carpeta de proyecto desde tu equipo.' : 'Repositorios habilitados para tu equipo y tus permisos.') | t }}</p></div>
   @if (isOwner && organizations().length > 0) {
     <label class="organization-picker">Organización del espacio
