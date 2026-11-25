@@ -1,10 +1,10 @@
-## Estado visual vigente — Atlas de Evidencias (24/11/2026)
+## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
-- [x] Nueva dirección visual Field Atlas: tema oscuro predeterminado, paleta bosque/lima/menta, marca preservada, rutas cartográficas, estados de foco/movimiento y shell responsive. Se mantiene el selector de tema claro/sistema.
-- [x] Mantener las vistas, bindings y capacidades existentes; no se agregaron dependencias ni se modificaron backend, base de datos, API, autenticación o autorización. Ver [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 104](BITACORA_TRABAJO.md).
-- [x] Build frontend Docker y actualización exclusiva del servicio frontend en Compose `localhost:8089`; recursos públicos y aplicación responden HTTP 200. Capturas Impeccable de acceso revisadas en escritorio y móvil.
-- [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas, gráficas y conexión a datos reales. Requiere bootstrap seguro del administrador y datos autorizados; no usar mocks. La pantalla pública sí se verificó en 1440×900, 1024×768, 768×1024, 390×844 y 375×812.
-- [ ] Cerrar o reducir los avisos de presupuesto de Angular (bundle inicial 605.73 KB/500 KB y hojas SCSS); no impiden el build.
+- [x] Dirección propia Observatorio de Evidencias: tema oscuro predeterminado, tinta azul, papel mineral y acentos ámbar; navegación agrupada por tarea; dashboard reestructurado como registro de riesgo y espacio de trabajo asimétrico; identidad de acceso SVG original. Revisar [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 105](BITACORA_TRABAJO.md).
+- [x] El usuario proporcionó Berry, Angular Dashboards y Corona como referencias. Se revisaron sin ejecutar los zips ni copiar su código o recursos. No se agregaron dependencias ni se modificaron backend, base de datos, API, autenticación o autorización.
+- [x] Build Docker de frontend y actualización exclusiva del servicio frontend en Compose `localhost:8089`; aplicación y recursos principales responden HTTP 200. Capturas Impeccable revisadas en 1440×900, 1024×768, 768×1024, 390×844 y 375×812.
+- [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas, gráficas e interacción con datos reales. Requiere el bootstrap seguro del administrador y datos autorizados; no usar mocks. La captura del acceso sí se inspeccionó en escritorio y móvil.
+- [ ] Reducir avisos del presupuesto Angular; el build del bloque 105 reportó bundle inicial de 631.14 KB frente al límite de 500 KB y hojas Sass por encima de sus presupuestos. Compila, pero queda trabajo de tamaño.
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 

@@ -33,7 +33,7 @@ The product is a responsive web application. Users work across organizations and
 ## Brand Commitments
 
 - Product name: Dependency Intelligence.
-- On 24 November 2026, the user authorized a new visual direction and palette. The Field Atlas system in `DESIGN.md` and `frontend/src/theme/` supersedes the historical palette in `docs/DISENO_FRONTEND.md`.
+- On 25 November 2026, the user asked for a more original, structural redesign after rejecting literal reuse of templates. The Evidence Observatory system in `DESIGN.md` and `frontend/src/theme/` is the current direction; it supersedes the Field Atlas iteration and the historical palette in `docs/DISENO_FRONTEND.md`. The three references informed hierarchy and density only; no template code or dependencies were copied or added.
 - Keep the recognizable geometry of the local product mark and the included IBM Plex Sans assets.
 - The user selected dark mode as the default while retaining the existing theme switch.
 - Linear, Vercel, Snyk, and GitHub Advanced Security are quality references only. Do not reproduce their layouts or brand assets.

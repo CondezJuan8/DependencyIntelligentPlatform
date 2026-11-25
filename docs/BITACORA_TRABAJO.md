@@ -1,3 +1,15 @@
+## Bloque 105 — Observatorio de Evidencias, rediseño integral (25/11/2026)
+
+**Petición.** El usuario pidió ir más allá del parecido con la plantilla Berry y entregó Berry, Angular Dashboards y Corona como referencias. Autorizó libertad creativa y pidió una interfaz original, fácil de entender y animada, con las funcionalidades y el backend intactos.
+
+**Cambios.** Se estableció una dirección propia de Observatorio de Evidencias, con azul tinta, papel mineral y anotaciones ámbar. El dashboard dejó la colección de bloques repetidos y se reorganizó como una mesa asimétrica: señales OSV reales, hallazgos priorizados, repositorios y registro de análisis. La navegación ahora agrupa el espacio por tarea. Se rehacieron composición, jerarquía, superficies y comportamiento responsive del shell, acceso, barra superior y métricas; se ajustaron las vistas existentes con estilos de área de trabajo y transiciones breves. Los indicadores conservan datos reales y acciones existentes; no se inventaron métricas ni se cambiaron rutas, API, autenticación, autorización, backend o base de datos. `DESIGN.md`, `PRODUCT.md` y la documentación del estado visual reflejan la nueva dirección. Se retiró el recurso cartográfico anterior y se conservó el SVG original de acceso actualizado.
+
+**Herramientas/tecnologías.** Skills Impeccable y UI/UX Pro Max; Angular, TypeScript, Sass, SVG local y Docker Compose. Las plantillas proporcionadas se inspeccionaron como referencias visuales; los ZIP no se ejecutaron. No se copió código y no se añadieron dependencias.
+
+**Verificación.** `docker compose build frontend` terminó correctamente y se recreó solo el frontend con `docker compose up -d --no-deps frontend`. La aplicación y el SVG de acceso respondieron HTTP 200 en `localhost:8089`. Impeccable generó capturas en 1440×900, 1024×768, 768×1024, 390×844 y 375×812; se inspeccionaron escritorio y móvil. `impeccable detect --json --changed` devolvió `[]`; `git diff --check` no reportó errores. Build con avisos de presupuesto: bundle inicial 631.14 KB/500 KB y hojas Sass sobre el presupuesto; no son errores de compilación. La base Compose continúa vacía, así que no se afirma revisión autenticada de interacciones, formularios, filtros, tablas, gráficas ni datos. No se ejecutaron suites de pruebas.
+
+**Siguiente paso.** Completar el bootstrap administrativo seguro y revisar cada módulo autenticado con datos autorizados. Reducir el presupuesto de estilos/bundle como trabajo separado. No iniciar automáticamente el siguiente bloque.
+
 ## Bloque 101 — reconciliación de componentes npm de cdxgen (24/11/2026)
 
 **Petición.** El usuario pidió corregir el mensaje de análisis que dice que cdxgen no devolvió componentes y conservar lo ya implementado.

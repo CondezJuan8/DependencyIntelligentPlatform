@@ -1,8 +1,8 @@
 # Paleta y criterios de revisión del frontend
 
-## Decisión visual vigente — 24 de noviembre de 2026
+## Decisión visual vigente — 25 de noviembre de 2026
 
-El usuario autorizó explorar libremente la dirección artística y el color, con la condición de conservar frontend, funciones y backend. La paleta de noviembre 2026 descrita más abajo queda como antecedente histórico; ya no es la paleta activa. La dirección vigente es **Atlas de Evidencias**: verdes de bosque, acentos lima/menta y rutas cartográficas, con oscuro predeterminado y preferencia clara/sistema preservada. Los tokens activos son [`_tokens.scss`](../frontend/src/theme/_tokens.scss) y [`_appearance.scss`](../frontend/src/theme/_appearance.scss); el sistema completo está en [`DESIGN.md`](../DESIGN.md). No se añadieron dependencias.
+El usuario autorizó libertad artística, pidió dejar de reutilizar literalmente las plantillas de referencia y rehacer la experiencia con una identidad propia, conservando funciones y backend. La paleta de noviembre 2026 descrita más abajo y la iteración Field Atlas quedan como antecedentes históricos; ya no son la dirección activa. La dirección vigente es **Observatorio de Evidencias**: tinta azul nocturna, papel mineral, anotaciones ámbar y composición editorial para rastrear hallazgos hasta su evidencia, con oscuro predeterminado y preferencias claro/sistema preservadas. Los tokens activos son [`_tokens.scss`](../frontend/src/theme/_tokens.scss) y [`_appearance.scss`](../frontend/src/theme/_appearance.scss); el sistema completo está en [`DESIGN.md`](../DESIGN.md). Las referencias Berry, Angular Dashboards y Corona orientaron el estudio de jerarquía/densidad; no se copió su código ni se añadieron dependencias.
 
 ### Bloque 66 — catálogo de Inventario
 
