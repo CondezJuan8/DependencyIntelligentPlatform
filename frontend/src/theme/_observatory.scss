@@ -254,13 +254,14 @@
   > .selection-bar,
   > p[role] { grid-column: 1 / -1; }
 
-  > .connection-card { grid-column: 1; min-height: 100%; align-content: start; }
-  > .existing-installation { grid-column: 2; align-self: stretch; margin-block: 0 17px; }
+  > .connection-card { grid-column: 1; align-self: start; align-content: start; }
+  > .existing-installation { grid-column: 2; grid-row: span 2; align-self: start; margin-block: 0 17px; }
   .existing-installation { grid-template-columns: minmax(0, 1fr); }
   .existing-installation-controls { grid-column: 1; grid-row: auto; grid-template-columns: minmax(0, 1fr); }
   .existing-installation-controls label { grid-column: 1; }
   > .local-upload { grid-column: 1 / -1; }
   > .repo-section:not(.existing-installation) { grid-column: 1 / -1; }
+  &:has(> .existing-installation) > .local-upload { grid-column: 1; margin-top: 16px; }
 
   .connection-card,
   .repo-section { border-radius: var(--di-radius-panel); }
@@ -436,7 +437,8 @@
   #workspace-main app-repository-workspace > .existing-installation,
   #workspace-main app-repository-workspace > .local-upload,
   #workspace-main app-repository-workspace > .repo-section { grid-column: 1; }
-  #workspace-main app-repository-workspace > .existing-installation { margin-top: 12px; }
+  #workspace-main app-repository-workspace > .existing-installation { grid-row: auto; margin-top: 12px; }
+  #workspace-main app-repository-workspace:has(> .existing-installation) > .local-upload { margin-top: 0; }
   #workspace-main app-inventory-workspace .inventory-guide li { padding: 9px 0 0; border-left: 0; border-top: 1px solid var(--di-border); }
   #workspace-main app-inventory-workspace .inventory-guide li:first-child { padding-top: 0; border-top: 0; }
   #workspace-main app-reports-workspace .report-controls { grid-template-columns: minmax(0, 1fr); }
