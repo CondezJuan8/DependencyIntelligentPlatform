@@ -214,6 +214,8 @@ services:
   frontend:
     profiles: ["review"]
     build: ./frontend
+    environment:
+      BACKEND_HOST: ${BACKEND_HOST:-backend}
     depends_on:
       - backend
 volumes:

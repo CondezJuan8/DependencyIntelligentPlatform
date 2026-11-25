@@ -4,6 +4,18 @@ services:
     ports:
       - "127.0.0.1:8126:8025"
       - "127.0.0.1:1126:1025"
+    networks:
+      - default
+      - previous_backend
   frontend:
+    environment:
+      BACKEND_HOST: dependency-intelligence-backend-1
     ports:
       - "127.0.0.1:8189:80"
+    networks:
+      - default
+      - previous_backend
+networks:
+  previous_backend:
+    name: dependency-intelligence_default
+    external: true
