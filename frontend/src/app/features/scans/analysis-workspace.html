@@ -76,12 +76,18 @@
         <div class="empty compact"><h3>{{ 'Necesitas dos análisis completados' | t }}</h3><p>{{ 'Ejecuta otro análisis después de cambiar el repositorio o sus dependencias para ver qué cambió.' | t }}</p></div>
       } @else {
         <div class="compare-controls">
-          <label>{{ 'Análisis base' | t }}<select [value]="baseScanId()" (change)="baseScanId.set($any($event.target).value)">
-            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== targetScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
-          </select></label>
-          <label>{{ 'Análisis objetivo' | t }}<select [value]="targetScanId()" (change)="targetScanId.set($any($event.target).value)">
-            @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== baseScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
-          </select></label>
+          <div class="compare-choice">
+            <label>{{ 'Análisis base' | t }}<select [value]="baseScanId()" (change)="baseScanId.set($any($event.target).value)">
+              @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== targetScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
+            </select></label>
+            @if (selectedBaseScan(); as scan) { <div class="compare-name-editor"><label for="base-snapshot-name">{{ 'Nombre para comparar' | t }}</label><input id="base-snapshot-name" maxlength="100" [value]="labelDrafts()[scan.id] ?? ''" (input)="updateLabelDraft(scan.id, $event)" [placeholder]="'Ej.: Antes de actualizar dependencias' | t"><button type="button" class="secondary" (click)="saveScanLabel(scan)" [disabled]="savingLabelId() === scan.id">{{ (savingLabelId() === scan.id ? 'Guardando…' : 'Guardar nombre') | t }}</button><small>{{ 'Se mostrará como' | t }} {{ scanName(scan) }}</small></div> }
+          </div>
+          <div class="compare-choice">
+            <label>{{ 'Análisis objetivo' | t }}<select [value]="targetScanId()" (change)="targetScanId.set($any($event.target).value)">
+              @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== baseScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
+            </select></label>
+            @if (selectedTargetScan(); as scan) { <div class="compare-name-editor"><label for="target-snapshot-name">{{ 'Nombre para comparar' | t }}</label><input id="target-snapshot-name" maxlength="100" [value]="labelDrafts()[scan.id] ?? ''" (input)="updateLabelDraft(scan.id, $event)" [placeholder]="'Ej.: Después de actualizar dependencias' | t"><button type="button" class="secondary" (click)="saveScanLabel(scan)" [disabled]="savingLabelId() === scan.id">{{ (savingLabelId() === scan.id ? 'Guardando…' : 'Guardar nombre') | t }}</button><small>{{ 'Se mostrará como' | t }} {{ scanName(scan) }}</small></div> }
+          </div>
           <button class="primary" type="button" (click)="compareScans()" [disabled]="comparing() || !baseScanId() || !targetScanId()">{{ comparing() ? ('Comparando…' | t) : ('Comparar' | t) }}</button>
         </div>
       }

@@ -267,6 +267,14 @@ export class AnalysisWorkspace implements OnInit {
     return `#${item.sequenceNumber} · ${item.displayName?.trim() || this.revisionLabel(item)}`;
   }
 
+  selectedBaseScan(): ScanHistory | null {
+    return this.history().find(item => item.id === this.baseScanId()) ?? null;
+  }
+
+  selectedTargetScan(): ScanHistory | null {
+    return this.history().find(item => item.id === this.targetScanId()) ?? null;
+  }
+
   comparisonScanName(point: Comparison['base']): string {
     const label = point.displayName?.trim() || (point.commitSha
       ? (point.commitSha.length > 14 ? `${point.commitSha.slice(0, 12)}…` : point.commitSha)

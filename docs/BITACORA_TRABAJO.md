@@ -1,3 +1,15 @@
+## Bloque 99 — renombrar snapshots desde el comparador (24/11/2026)
+
+**Petición.** El usuario pidió poder dar nombres legibles a los commits/IDs y aclaró que la acción debe estar disponible desde Comparar snapshots.
+
+**Cambios.** Cada selector de análisis base y objetivo ahora incluye un campo para editar y guardar el nombre del snapshot seleccionado, más una vista previa de cómo aparecerá en la comparación. Guarda el mismo metadato limitado al snapshot/repositorio que se puede editar en el historial; conserva el commit y UUID originales para trazabilidad. Incluye ejemplos distintos para antes y después de actualizar dependencias.
+
+**Herramientas/tecnologías.** Angular, plantilla/SCSS, API existente de nombres de análisis y diccionario de traducción. No se añadieron dependencias ni cambios de backend/migración.
+
+**Verificación.** Angular `performCompilation` sin emisión: 0 diagnósticos, incluidas las plantillas. No se ejecutaron pruebas ni revisión visual en el navegador. La funcionalidad requiere que el backend y la migración V33 del bloque 96 estén aplicados en el entorno.
+
+**Siguiente paso.** En Comparar snapshots, nombrar dos análisis y verificar que el nuevo texto se conserva en los selectores y el resumen base → objetivo.
+
 ## Bloque 98 — ventana de carga desde Inventario (24/11/2026)
 
 **Petición.** Aclarar que la ventana fantasma y su icono deben aparecer al analizar un repositorio desde Inventario, y permanecer hasta completar los resultados y su evaluación OSV.
