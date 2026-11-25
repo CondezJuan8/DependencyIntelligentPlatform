@@ -1,3 +1,16 @@
+## Bloque 108 — criterio visual y auditoría de flujos (25/11/2026)
+
+**Petición.** El usuario reafirmó que no quiere una interfaz genérica, sobrecargada o cosmética, y autorizó replantear vistas si su estructura limita la comprensión. Se conservaron las composiciones específicas por tarea ya definidas en el bloque 107.
+
+**Auditoría.** Se inventariaron acceso, dashboard, repositorios, análisis, inventario, vulnerabilidades, documentación, Nexo, reportes, organización, administración y preferencias; se inspeccionaron plantillas, estilos, navegación y estados. Se detectaron glifos de texto usados como iconos en Análisis e Inventario y el texto de carga de Documentación en inglés. La auditoría puntuó 13/20; el informe y hallazgos están en [AUDITORIA_FRONTEND_2026-11-25.md](AUDITORIA_FRONTEND_2026-11-25.md).
+
+**Cambios.** Los estados de análisis/inventario y vacíos de inventario usan el set SVG `DiIcon`; se añadieron iconos `alert` y `minus` al set. Documentación muestra carga en español. En móvil, el formulario de acceso queda centrado cuando la altura lo permite; en escritorio la introducción de marca ocupa menos espacio vacío. No se cambió el flujo de autenticación, la lógica de vistas ni las conexiones.
+
+**Herramientas/tecnologías.** Impeccable, UI/UX Pro Max, Better Web UI (frontend-design, arrange, hierarchy, audit), Taste, Vercel Web Design Guidelines, Emil Design Engineering, Angular 22, Sass y Docker Compose. CUA no estuvo disponible y el entorno no ofreció Playwright utilizable; no se instalaron paquetes.
+
+**Verificación.** `docker compose build frontend` pasó; bundle inicial 646.59 KB/500 KB, con avisos de presupuesto Sass. Se actualizó únicamente el servicio frontend. En `localhost:8089`, app y `/api/auth/csrf` respondieron 200. Impeccable capturó el acceso en 1440×900, 1024×768, 768×1024, 390×844 y 375×812; se inspeccionaron las capturas de escritorio y móvil. `detect --json --changed` devolvió `[]`; `git diff --check` pasó. El puerto 8088 rechazó conexión. Compose no tiene cuentas, organizaciones ni repositorios, así que no se pudieron probar rutas autenticadas ni datos reales; no se usaron mocks. Backend, datos, contratos, autenticación y autorización sin cambios.
+
+**Siguiente paso.** Tras el bootstrap administrativo seguro, revisar cada ruta autenticada en navegador con datos autorizados; no cerrar la validación de UX antes de ese recorrido. No iniciar otros bloques automáticamente.
 ## Bloque 107 — composición distintiva por flujo (25/11/2026)
 
 **Petición.** El usuario pidió aplicar Better Web UI, Taste Skill, Web Design Guidelines de Vercel y Emil Design Engineering para diferenciar la composición de las pantallas, mantener las funcionalidades y evitar repetir plantillas.

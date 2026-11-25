@@ -4,12 +4,12 @@
 - [x] Dirección propia Observatorio de Evidencias: tema oscuro predeterminado, tinta azul, papel mineral y acentos ámbar; navegación agrupada por tarea; dashboard reestructurado como registro de riesgo y espacio de trabajo asimétrico; identidad de acceso SVG original. Revisar [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 105](BITACORA_TRABAJO.md).
 - [x] Composición por flujo en Repositorios, Documentación, Reportes, Nexo, Análisis, Inventario, Vulnerabilidades y Administración; funcionalidad y datos existentes preservados. Ver [sistema visual](../DESIGN.md) y [bitácora, bloque 107](BITACORA_TRABAJO.md).
 - [x] Build Docker del frontend y actualización exclusiva del servicio frontend en Compose `localhost:8089`; aplicación responde HTTP 200. Capturas Impeccable en 1440×900, 1024×768, 768×1024, 390×844 y 375×812 revisadas; el acceso carga, mientras las vistas autenticadas no se pueden abrir con la base vacía.
-- [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas, gráficas e interacción con datos reales. Requiere el bootstrap seguro del administrador y datos autorizados; no usar mocks. La captura del acceso sí se inspeccionó en escritorio y móvil.
-- [ ] Reducir avisos del presupuesto Angular; este build reportó bundle inicial de 646.32 KB frente al límite de 500 KB y varias hojas Sass sobre 4 KB. Compila, pero queda trabajo de tamaño.
+- [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas e interacciones con datos reales. Requiere el bootstrap seguro y datos autorizados; CUA y Playwright no estuvieron disponibles. La captura de acceso sí se revisó en cinco tamaños. Ver [auditoría frontend](AUDITORIA_FRONTEND_2026-11-25.md).
+- [ ] Reducir avisos del presupuesto Angular; el build del bloque 108 reportó bundle inicial de 646.59 KB frente al límite de 500 KB y varias hojas Sass sobre 4 KB.
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 
-Se trabaja con el prompt recibido en conversación; el usuario indicó ignorar el documento de corrección. **Vulnerabilidades no se toca.** Este bloque reemplaza el orden histórico de otros pendientes mientras se resuelven sus puntos juntos.
+Este es el bloque histórico del prompt de exposición y análisis. La restricción de no tocar Vulnerabilidades aplicaba a ese alcance funcional; el bloque 107 autorizó cambios visuales allí sin alterar funcionalidades.
 **Decisión vigente:** se descarta la actualización upstream automática cada 12 horas. El análisis sigue iniciándose manualmente; no hay código que sincronice releases/npm/Maven en segundo plano.
 
 - [ ] Exposición de código: enlazar declaraciones npm transitivas con `package-lock.json`, localizar referencias a paquetes en fuentes y conservar como inconclusa cualquier relación OSV→API sin regla validada. Falta reproducir con el snapshot real del usuario.
