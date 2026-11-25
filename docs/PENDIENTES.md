@@ -1,10 +1,13 @@
-## Estado visual vigente — Evidence Desk (25/11/2026)
+## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
-- [x] Se reemplazó la composición de acceso y Dashboard, se reorganizaron el índice lateral y la cabecera global y se replantearon la lista de fuentes, la ejecución/historial de Análisis, y los resúmenes y registros de Inventario y Vulnerabilidades. Se conservan formularios, acciones, datos reales, rutas y permisos. La dirección y sus límites están en [`DESIGN.md`](../DESIGN.md).
-- [x] `docker compose build frontend` compiló Angular. Capturas Impeccable del acceso oscuro revisadas en 1440×900, 1024×768, 390×844 y 375×812; se corrigieron el espacio vacío y la marca duplicada en móvil. En `localhost:8089`, la aplicación y `/api/auth/csrf` respondieron HTTP 200. Se actualizó el contenido estático del contenedor sin detener servicios.
-- [ ] Revisar visualmente el tema claro y las rutas autenticadas con datos autorizados. La base Compose está vacía y requiere completar el bootstrap seguro del administrador; no se usaron mocks.
-- [ ] Recorrer Inventario, Vulnerabilidades, Repositorios, Análisis, Documentación, Nexo, Reportes y administración con una sesión real. La inspección del acceso no sustituye esa revisión.
-- [ ] Reducir presupuesto Angular: build inicial 648.91 KB frente a 500 KB; varias hojas Sass superan 4 KB.
+- [x] Integrar los cinco bloques de la guía «PORFAVOR» en Angular. La paleta, el alcance de las vistas y las variantes están en [DESIGN.md](../DESIGN.md).
+- [x] Recorrer las 11 vistas internas en escritorio (1440 px) y móvil (390 px) con autenticación real en Compose aislado. Probar el foco de búsqueda, menú y detalle de inventario, además de temas claro y oscuro.
+- [x] Verificar registro, admisión pendiente/rechazada, motivo y auditoría, invitación por SMTP, verificación de correo y aprobación de acceso para un lector.
+- [x] Probar carpeta local, ejecución npm, estado Maven sin manifiesto, comparación de snapshots, inventario, reportes y biblioteca en el entorno aislado.
+- [ ] Verificar Google/GitHub OAuth y el consentimiento de GitHub App con credenciales autorizadas para esta revisión. En el entorno aislado se verificó la interfaz con proveedores desactivados.
+- [ ] Validar Nexo con un proveedor configurado, recuperación de un documento preparado y apertura de su cita desde la respuesta. Se comprobó el rechazo de un repositorio ajeno y el estado sin evidencia.
+- [ ] Revisar el diseño en las instancias de uso habitual al actualizar frontend y backend juntos. La versión del paquete se probó en `localhost:8189` con un volumen independiente.
+- [ ] Reducir los avisos de presupuesto de Angular (objetivo de bundle inicial: 500 KB y de hojas Sass: 4 KB).
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 

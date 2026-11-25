@@ -28,19 +28,19 @@ The product is a responsive web application. Users work across organizations and
 - Keep existing Angular 22, Angular Material, CDK, TypeScript, RxJS, and Sass architecture.
 - Preserve API contracts, authentication, authorization, real data, current navigation, and all implemented actions.
 - Do not add background upstream release checks, fake metrics, mock records, or capabilities that are not backed by the current product.
-- The current local Compose database has no accounts, organizations, or repositories. A safe first administrator bootstrap is a separate pending operational step.
+- A new local database uses the opt-in administrator bootstrap. Automated review uses a separate Compose project with its own database and mail service.
 
 ## Brand Commitments
 
 - Product name: Dependency Intelligence.
-- On 25 November 2026, the user authorized a full frontend redesign and supplied a range of dark, light, RGB, and data-visualization references. Spectrum Ledger in `DESIGN.md` and `frontend/src/theme/` is the current direction: graphite surfaces, an indigo-to-cyan signal, and status colors that remain semantic. The references informed hierarchy and density; no template code or dependencies were copied or added.
-- Keep the recognizable geometry of the local product mark and the included IBM Plex Sans assets.
+- The November 25 visual package defines the Evidence Observatory direction in `DESIGN.md`. The interface uses ink surfaces in dark mode, warm surfaces in light mode, and amber for the primary action and attention states.
+- Keep the local Dependency Intelligence mark and use Open Sans for the interface. Versions, hashes and paths use a monospace stack.
 - The user selected dark mode as the default while retaining the existing theme switch.
 - Linear, Vercel, Snyk, and GitHub Advanced Security are quality references only. Do not reproduce their layouts or brand assets.
 
 ## Evidence on Hand
 
-The application contains real API integrations and explicit empty, loading, error, and partial coverage states. The current Compose data store is empty, so no authenticated product records or live security metrics are available for visual review.
+The application contains real API integrations and explicit empty, loading, error, and partial coverage states. Product metrics come from the current authorized repositories and their saved analyses. The visual reference records are illustrative.
 
 ## Product Principles
 
