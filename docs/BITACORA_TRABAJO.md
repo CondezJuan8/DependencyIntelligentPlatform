@@ -1,3 +1,15 @@
+## Bloque 125 — Panel de apariciones del Inventario (25/11/2026)
+
+**Petición.** El usuario mostró que el detalle al pulsar un paquete quedaba parcialmente bajo la barra superior y con los datos desordenados.
+
+**Cambios.** El panel de apariciones se sitúa por encima de la navegación, limita su altura a la ventana y mantiene visible su encabezado durante el desplazamiento. Se separaron repositorio y versión, metadatos, archivo y estado en bloques con espacios consistentes. Se ajustaron ancho, relleno y sombra del panel.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** Build Docker frontend correcto y servicio recreado en 8189; la ruta de Inventario responde HTTP 200. El puente nativo del navegador no estuvo disponible, así que falta comprobar el panel con una sesión autenticada.
+
+**Siguiente paso.** Revisar la ficha abierta en la sesión del usuario y corregir cualquier detalle visual que aparezca.
+
 ## Bloque 124 — Espaciado en Vulnerabilidades (25/11/2026)
 
 **Petición.** El usuario pidió un borde visible para «Actualizar» y corregir espacios pegados en el resumen de severidad y los filtros.
