@@ -11,7 +11,7 @@
         <ol class="loading-steps">
           @for (step of loadingSteps(); track step.title) {
             <li [class.is-complete]="step.state === 'completed'" [class.is-active]="step.state === 'active'">
-              <span class="loading-step-icon" aria-hidden="true">@if (step.state === 'completed') { ✓ } @else if (step.state === 'active') { <span class="mini-wheel"></span> } @else { · }</span>
+              <span class="loading-step-icon" aria-hidden="true">@if (step.state === 'completed') { <app-di-icon name="check" /> } @else if (step.state === 'active') { <span class="mini-wheel"></span> } @else { <span class="waiting-mark"></span> }</span>
               <span><strong>{{ step.title | t }}</strong><small>{{ step.detail | t }}</small></span>
             </li>
           }

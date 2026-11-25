@@ -6,6 +6,7 @@ import { catchError, finalize, forkJoin, map, of, Subscription } from 'rxjs';
 import { AnalysisJobService, AnalysisJobStatus, type AnalysisResult } from '../../core/analysis-job.service';
 import { SessionApiService, accessError } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
+import { DiIcon } from '../../shared/di-icon';
 import { evidenceKey, fixesForPackage } from './inventory-evidence';
 import { InventorySpaceCatalog, type InventoryLocation } from './inventory-space-catalog';
 
@@ -106,7 +107,7 @@ interface RepositoryCodeEvidence {
 
 @Component({
   selector: 'app-inventory-workspace',
-  imports: [A11yModule, DatePipe, TranslatePipe, InventorySpaceCatalog],
+  imports: [A11yModule, DatePipe, TranslatePipe, InventorySpaceCatalog, DiIcon],
   templateUrl: './inventory-workspace.html',
   styleUrls: ['./inventory-workspace.scss', './inventory-catalog.scss', './inventory-advisories.scss'],
 })

@@ -48,7 +48,7 @@ import { PreferenceControls } from '../../shared/preference-controls';
       .brand-panel{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:100svh;overflow:hidden;padding:clamp(30px,4vw,62px);background:var(--di-sidebar-background);color:#f1efe8}
       .brand{display:flex;gap:12px;align-items:center;width:max-content;color:#fffdf7;text-decoration:none;font-size:16px;font-weight:650;line-height:1.1}
       .brand img{flex:none}
-      .brand-copy{position:relative;z-index:2;max-width:430px;margin:auto 0 180px}
+      .brand-copy{position:relative;z-index:2;max-width:430px;margin:auto 0 290px}
       .brand-copy h1{margin:0 0 16px;font-size:clamp(42px,4.4vw,62px);line-height:.98;letter-spacing:-.055em;font-weight:600}
       .brand-copy p{max-width:37ch;margin:0;color:#d1d8dc;font-size:15px;line-height:1.65}
       .brand-art{position:absolute;z-index:1;right:-8%;bottom:-9%;width:min(94%,740px);height:auto;opacity:.9;pointer-events:none}
@@ -65,6 +65,7 @@ import { PreferenceControls } from '../../shared/preference-controls';
     @media(max-height:720px) and (min-width:960px){.brand-copy{margin-bottom:145px}.brand-copy h1{font-size:clamp(38px,3.7vw,50px);margin-bottom:13px}.brand-art{width:min(86%,640px)}.form-panel{padding-block:13px}.form-content{padding:25px}}
     @media(max-height:620px){.form-panel{min-height:100svh;gap:10px}.form-content{padding:17px}}
     @media(max-width:480px){.form-panel{padding-inline:13px}.form-content{padding:18px;border-radius:var(--di-radius-dialog)}}
+    @media(max-width:599px) and (min-height:700px){.form-panel{justify-content:center}}
     @media(prefers-reduced-motion:no-preference){.brand-copy{animation:chart-in 620ms cubic-bezier(.2,.8,.2,1) both}.brand-art{animation:chart-draw 860ms cubic-bezier(.2,.8,.2,1) 90ms both}.form-content{animation:form-arrive 420ms cubic-bezier(.2,.8,.2,1) both}}
     @keyframes chart-in{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     @keyframes chart-draw{from{opacity:0;transform:translate(9px,8px)}to{opacity:.9;transform:translate(0,0)}}

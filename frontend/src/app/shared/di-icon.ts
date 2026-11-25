@@ -25,6 +25,8 @@ const paths: Record<string, string> = {
   person: 'M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2 M8 6a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
   eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
   check: 'm5 12 4 4L19 6',
+  alert: 'M12 3 2.8 20h18.4L12 3Z M12 9v4 M12 16.5h.01',
+  minus: 'M5 12h14',
   edit: 'm15 4 5 5 M4 15 16 3l5 5L9 20H4v-5Z',
   logout: 'M9 4H4v16h5 M9 12h12 m-4-4 4 4-4 4',
 };

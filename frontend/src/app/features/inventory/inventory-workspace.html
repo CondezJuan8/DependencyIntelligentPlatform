@@ -12,7 +12,7 @@
         <ol class="inventory-analysis-steps">
           @for (step of analysisLoadingSteps(); track step.title) {
             <li [class.is-complete]="step.state === 'completed'" [class.is-active]="step.state === 'active'">
-              <span class="inventory-step-icon" aria-hidden="true">@if (step.state === 'completed') { ✓ } @else if (step.state === 'active') { <span class="inventory-mini-wheel"></span> } @else { · }</span>
+              <span class="inventory-step-icon" aria-hidden="true">@if (step.state === 'completed') { <app-di-icon name="check" /> } @else if (step.state === 'active') { <span class="inventory-mini-wheel"></span> } @else { <span class="waiting-mark"></span> }</span>
               <span><strong>{{ step.title | t }}</strong><small>{{ step.detail | t }}</small></span>
             </li>
           }
@@ -53,7 +53,7 @@
     </section>
   } @else if (repositories().length === 0) {
     <section class="empty-state">
-      <span class="empty-icon" aria-hidden="true">↗</span>
+      <span class="empty-icon" aria-hidden="true"><app-di-icon name="box" /></span>
       <h2>Aún no tienes repositorios</h2>
       <p>Conecta GitHub o importa una carpeta local para empezar a generar un inventario.</p>
     </section>
@@ -98,7 +98,7 @@
         <div class="status-list">
           @for (result of scanResults(); track result.ecosystem) {
             <article class="status-item" [class.complete]="result.status === 'complete'" [class.partial]="result.status === 'partial'" [class.failed]="result.status === 'error'">
-              <span class="status-icon" aria-hidden="true">{{ result.status === 'complete' ? '✓' : result.status === 'error' ? '!' : '–' }}</span>
+              <span class="status-icon" aria-hidden="true"><app-di-icon [name]="result.status === 'complete' ? 'check' : result.status === 'error' ? 'alert' : 'minus'" /></span>
               <div class="status-copy">
                 <div class="status-title-row"><h3>{{ result.ecosystem === 'MAVEN' ? 'Java · Maven' : 'JavaScript · npm' }}</h3><span class="status-pill">{{ result.status === 'complete' ? ('Inventario listo' | t) : result.status === 'partial' ? ('Listo con datos por confirmar' | t) : result.status === 'error' ? ('No se pudo completar' | t) : result.status === 'no-manifest' ? ('No se encontró este formato' | t) : ('Aún sin analizar' | t) }}</span></div>
                 @if (result.status === 'error' && result.scan) {
@@ -277,13 +277,13 @@
       </section>
     } @else if (!busy() && hasCompletedScan) {
       <section class="empty-state inventory-empty">
-        <span class="empty-icon" aria-hidden="true">⌕</span>
+        <span class="empty-icon" aria-hidden="true"><app-di-icon name="search" /></span>
         <h2>Aún no hay dependencias en este inventario</h2>
         <p>{{ 'El análisis encontró manifiestos, pero no identificó dependencias con versión exacta. Revisa el estado de cada ecosistema.' | t }}</p>
       </section>
     } @else if (!busy()) {
       <section class="empty-state inventory-empty">
-        <span class="empty-icon" aria-hidden="true">⌕</span>
+        <span class="empty-icon" aria-hidden="true"><app-di-icon name="search" /></span>
         <h2>El inventario todavía no está analizado</h2>
         <p>Analizamos en una sola acción los manifiestos compatibles de Maven y npm. Puedes volver a ejecutar el análisis cuando cambie el repositorio.</p>
         <button class="primary" type="button" [disabled]="busy()" (click)="analyzeRepository()">Analizar repositorio</button>

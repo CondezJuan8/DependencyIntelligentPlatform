@@ -450,3 +450,10 @@
   #workspace-main app-repository-workspace .repo-row,
   #workspace-main app-analysis-workspace .history-card { transition: none; }
 }
+
+#workspace-main .waiting-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}

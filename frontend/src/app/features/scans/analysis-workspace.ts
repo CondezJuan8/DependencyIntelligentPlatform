@@ -4,6 +4,7 @@ import { finalize, Subscription } from 'rxjs';
 import { AnalysisJobService, AnalysisJobStatus, AnalysisResult } from '../../core/analysis-job.service';
 import { accessError, SessionApiService } from '../../core/session-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
+import { DiIcon } from '../../shared/di-icon';
 
 interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; source: string; }
 interface ScanHistory {
@@ -26,7 +27,7 @@ interface LoadingStep { title: string; detail: string; state: LoadingStepState; 
 
 @Component({
   selector: 'app-analysis-workspace',
-  imports: [DatePipe, TranslatePipe],
+  imports: [DatePipe, TranslatePipe, DiIcon],
   templateUrl: './analysis-workspace.html',
   styleUrl: './analysis-workspace.scss',
 })
