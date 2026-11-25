@@ -242,7 +242,7 @@ button:disabled {
 #access-panel .form-options { margin-bottom:3px; }
 #access-panel .switch { margin-top:20px; }
 
-#workspace-main > :is(app-dashboard, app-repository-workspace, app-inventory-workspace, app-vulnerabilities-workspace, app-analysis-workspace, app-document-center, app-assistant-workspace, app-reports-workspace, app-organization-workspace, app-platform-administration) {
+#workspace-main > :is(app-dashboard, app-repository-workspace, app-vulnerabilities-workspace, app-analysis-workspace, app-document-center, app-assistant-workspace, app-reports-workspace, app-organization-workspace, app-platform-administration) {
   animation: observatory-arrive 320ms cubic-bezier(.2,.8,.2,1) both;
 }
 
