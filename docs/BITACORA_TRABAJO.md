@@ -1,3 +1,13 @@
+## Bloque 123 — Retiro de la guía del inventario (25/11/2026)
+
+**Petición.** El usuario pidió eliminar por completo la guía «Cómo leer los hallazgos» de Inventario.
+
+**Cambios.** Se retiró el bloque de la plantilla y todas sus reglas Sass, incluidas las variantes responsive. El inventario y sus acciones permanecen disponibles.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** `rg` no encuentra `inventory-guide` en `frontend/src`; build Docker frontend correcto y servicio 8189 recreado.
+
 ## Bloque 122 — Guía compacta del inventario (25/11/2026)
 
 **Petición.** El usuario rechazó la composición de la guía en columnas y pidió arreglarla.
