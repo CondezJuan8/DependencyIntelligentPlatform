@@ -112,7 +112,7 @@
     .risk-card { min-height:66px; padding:11px 14px; border:0; border-right:1px solid var(--di-border); border-radius:0; background:transparent; }
     .risk-card:last-child { border-right:0; }
     .risk-card strong { font-size:22px; font-variant-numeric:tabular-nums; }
-    .filters { display:grid; grid-template-columns:minmax(220px,1.4fr) repeat(3,minmax(120px,.7fr)) auto; align-items:end; gap:10px; padding:13px 0; border-block:1px solid var(--di-border); background:transparent; }
+    .filters { display:grid; grid-template-columns:minmax(220px,1.4fr) repeat(3,minmax(120px,.7fr)) auto; align-items:end; gap:14px; padding:16px 18px; border:1px solid var(--di-border); background:transparent; }
     .finding-list { display:grid; gap:0; border-top:1px solid var(--di-border); }
     .finding-card { border:0; border-bottom:1px solid var(--di-border); border-radius:0; background:transparent; }
     .finding-summary { min-height:70px; padding:13px 5px; }
