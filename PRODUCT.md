@@ -33,7 +33,8 @@ The product is a responsive web application. Users work across organizations and
 ## Brand Commitments
 
 - Product name: Dependency Intelligence.
-- Use the approved palette and local IBM Plex Sans assets in `docs/DISENO_FRONTEND.md` and `frontend/src/theme/`.
+- On 24 November 2026, the user authorized a new visual direction and palette. The Field Atlas system in `DESIGN.md` and `frontend/src/theme/` supersedes the historical palette in `docs/DISENO_FRONTEND.md`.
+- Keep the recognizable geometry of the local product mark and the included IBM Plex Sans assets.
 - The user selected dark mode as the default while retaining the existing theme switch.
 - Linear, Vercel, Snyk, and GitHub Advanced Security are quality references only. Do not reproduce their layouts or brand assets.
 

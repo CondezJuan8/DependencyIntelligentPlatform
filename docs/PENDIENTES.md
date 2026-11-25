@@ -1,3 +1,11 @@
+## Estado visual vigente — Atlas de Evidencias (24/11/2026)
+
+- [x] Nueva dirección visual Field Atlas: tema oscuro predeterminado, paleta bosque/lima/menta, marca preservada, rutas cartográficas, estados de foco/movimiento y shell responsive. Se mantiene el selector de tema claro/sistema.
+- [x] Mantener las vistas, bindings y capacidades existentes; no se agregaron dependencias ni se modificaron backend, base de datos, API, autenticación o autorización. Ver [`DESIGN.md`](../DESIGN.md) y la [bitácora, bloque 104](BITACORA_TRABAJO.md).
+- [x] Build frontend Docker y actualización exclusiva del servicio frontend en Compose `localhost:8089`; recursos públicos y aplicación responden HTTP 200. Capturas Impeccable de acceso revisadas en escritorio y móvil.
+- [ ] Revisión visual autenticada de cada módulo, navegación, formularios, filtros, tablas, gráficas y conexión a datos reales. Requiere bootstrap seguro del administrador y datos autorizados; no usar mocks. La pantalla pública sí se verificó en 1440×900, 1024×768, 768×1024, 390×844 y 375×812.
+- [ ] Cerrar o reducir los avisos de presupuesto de Angular (bundle inicial 605.73 KB/500 KB y hojas SCSS); no impiden el build.
+
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
 
 Se trabaja con el prompt recibido en conversación; el usuario indicó ignorar el documento de corrección. **Vulnerabilidades no se toca.** Este bloque reemplaza el orden histórico de otros pendientes mientras se resuelven sus puntos juntos.

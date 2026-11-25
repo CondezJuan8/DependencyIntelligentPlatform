@@ -1,5 +1,9 @@
 # Paleta y criterios de revisión del frontend
 
+## Decisión visual vigente — 24 de noviembre de 2026
+
+El usuario autorizó explorar libremente la dirección artística y el color, con la condición de conservar frontend, funciones y backend. La paleta de noviembre 2026 descrita más abajo queda como antecedente histórico; ya no es la paleta activa. La dirección vigente es **Atlas de Evidencias**: verdes de bosque, acentos lima/menta y rutas cartográficas, con oscuro predeterminado y preferencia clara/sistema preservada. Los tokens activos son [`_tokens.scss`](../frontend/src/theme/_tokens.scss) y [`_appearance.scss`](../frontend/src/theme/_appearance.scss); el sistema completo está en [`DESIGN.md`](../DESIGN.md). No se añadieron dependencias.
+
 ### Bloque 66 — catálogo de Inventario
 
 Inventario abre el catálogo del espacio y ofrece la vista por repositorio para iniciar escaneos, repetir OSV o consultar un aviso completo. El catálogo mantiene los filtros al volver de una revisión. La lista se pagina y solo carga apariciones al abrir una fila. Las apariciones muestran repositorio, versión, relación, ruta y procedencia desplegable. Los controles tienen etiquetas, foco visible y estados anunciados. El diseño se adapta a una columna en pantallas reducidas y usa los tokens existentes para ambos temas.

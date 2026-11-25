@@ -1783,6 +1783,18 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 
 **Siguiente paso.** Completar el bootstrap administrativo seguro y la carga autorizada de datos; después recorrer visualmente cada ruta autenticada en el entorno acordado y corregir cualquier diferencia observada. Ver también el estado del frontend en [PENDIENTES.md](PENDIENTES.md).
 
+## Bloque 104 — dirección visual Atlas de Evidencias (24/11/2026)
+
+**Petición.** El usuario autorizó libertad artística para experimentar con el frontend, pidió UI/UX comprensible y atractivo, iconos, fondos y animaciones a criterio, con backend y funcionalidades existentes preservados.
+
+**Cambios.** Se sustituyó la paleta anterior por Field Atlas: superficies de bosque oscuro, acentos lima/menta y fondos claros disponibles, con el modo oscuro predeterminado. Se renovaron los tokens, jerarquía, superficies, bordes, estados, focos, movimiento y responsive del shell; se reforzó la orientación actual en la barra superior y la navegación lateral. La pantalla de acceso recibió una composición adaptable con ilustración de rutas SVG propia. Las vistas existentes conservan sus enlaces, bindings, acciones y datos; el progreso de análisis mantiene etapas reales y movimiento reducido. `DESIGN.md`, `PRODUCT.md` y `docs/DISENO_FRONTEND.md` documentan la nueva dirección. No se agregaron dependencias ni se modificaron servicios backend, base de datos, API, autenticación o autorización.
+
+**Herramientas/tecnologías.** Skills Impeccable y UI/UX Pro Max; Angular, TypeScript, Sass, SVG local y tokens existentes. Docker Compose para compilar y actualizar solo el frontend; capturas Impeccable para revisión responsive. No se instalaron dependencias.
+
+**Verificación.** `docker compose build frontend` pasó. La salida incluye avisos Angular de presupuesto: bundle inicial 605.73 KB/500 KB y hojas Sass sobre el límite; build exitoso. Se recreó únicamente el servicio frontend mediante `docker compose up -d --no-deps frontend`. La portada, los SVG de marca/fondo y los recursos de aplicación responden HTTP 200 en `localhost:8089`. Impeccable generó capturas de acceso en 1440×900, 1024×768, 768×1024, 390×844 y 375×812; se revisaron visualmente escritorio y móvil, sin desbordamiento horizontal en móvil. No hay cuentas, organización ni repositorios en la base Compose, por lo que no se afirma revisión autenticada de módulos, conexiones a datos, formularios o tablas. El puente de automatización nativo del navegador no estuvo disponible. No se usaron datos ficticios ni se ejecutaron pruebas nuevas.
+
+**Siguiente paso.** Tras completar el bootstrap administrativo seguro y cargar datos autorizados, recorrer visualmente cada ruta autenticada y validar interacciones reales. Se mantiene esta revisión como pendiente en [PENDIENTES.md](PENDIENTES.md); no iniciar el siguiente bloque automáticamente.
+
 ## Bloque 103 — orientación y consistencia entre vistas (24/11/2026)
 
 **Petición.** Experimentar con el UI/UX de todas las ventanas para que las personas entiendan dónde están y cómo avanzar, conservar las funcionalidades existentes y mantener el sidebar y el diálogo de análisis que ya gustan.
