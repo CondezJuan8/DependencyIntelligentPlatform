@@ -1,3 +1,15 @@
+## Bloque 117 — Descarte de notificaciones (25/11/2026)
+
+**Petición.** El usuario pidió poder borrar todas las notificaciones o hacerlo una por una desde el panel del encabezado.
+
+**Decisión y cambios.** El panel calcula avisos OSV desde análisis autorizados; descartarlos no elimina la evidencia de seguridad. Se añadieron «Descartar» en cada fila y «Descartar todas» en el encabezado, con nombre accesible y foco visible. Las claves estables se guardan por ID de cuenta en `localStorage`; al actualizar OSV cambia la clave del aviso y puede mostrarse de nuevo. «Todas» abarca todos los avisos cargados, aunque el panel solo presenta los primeros 30. Se tradujeron las nuevas acciones al inglés. No se modificó backend, esquema ni autorización.
+
+**Herramientas y tecnologías.** Angular, TypeScript, Sass, almacenamiento local del navegador, Docker Compose y PowerShell. Sin dependencias nuevas.
+
+**Verificación.** El build Docker del frontend pasó con avisos previos de presupuesto Angular/Sass; se recreó solo el frontend de 8189. La persistencia entre navegadores/dispositivos y la revisión visual autenticada no se han comprobado; el descarte es local a este navegador.
+
+**Siguiente paso.** Recargar 8189 y probar descartar un aviso y todos. Para sincronizar el estado entre dispositivos se necesita persistencia en backend como trabajo posterior.
+
 ## Bloque 116 — Retiro de atajos internos redundantes (25/11/2026)
 
 **Petición.** El usuario indicó que la mayoría de los enlaces de la barra «Agregar o revisar / Conectar GitHub / Importar carpeta» no funcionaban y pidió retirarlos o corregirlos en todas las ventanas.

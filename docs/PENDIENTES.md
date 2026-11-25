@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Permitir descartar avisos del panel de notificaciones de forma individual o en conjunto, guardado por cuenta en este navegador. Los avisos se derivan de OSV; la fuente no se borra.
+- [ ] Si se requiere sincronía entre dispositivos, persistir el descarte de avisos por usuario en backend y comprobarlo con cuentas reales.
 - [x] Retirar las barras de atajos internos `page-jump` de seis ventanas; se conservaron acciones reales y navegación principal. Frontend 8189 actualizado; falta revisión visual autenticada.
 - [x] Compactar la conexión GitHub y dar ancho completo a «Importar carpeta local». El selector de carpeta usa un control visual propio y las carpetas importadas tienen acciones más claras. Frontend 8189 recompilado; queda la revisión visual autenticada por el usuario.
 - [ ] Identificar la petición API que muestra «Tu cuenta no tiene permiso para esta acción» en Dinamita. El estado GitHub permite mostrar el formulario, pero la captura no contiene método ni URL de la respuesta fallida; revisar Red/Network con la sesión autenticada antes de cambiar permisos.
