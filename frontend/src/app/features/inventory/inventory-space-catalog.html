@@ -102,14 +102,16 @@
                     @if (!entries.occurrences.length) { <p>{{ 'No hay coincidencias' | t }}</p> }
                     @for (entry of entries.occurrences; track entry.id) {
                       <article class="occurrence">
-                        <div class="occurrence-main">
+                        <div class="occurrence-primary">
                           <strong>{{ entry.repositoryName }}</strong><code>{{ entry.version }}</code>
+                        </div>
+                        <div class="occurrence-meta">
                           <span>{{ entry.source === 'github' ? 'GitHub' : entry.source === 'local' ? ('Local' | t) : entry.source }}</span>
                           <span>{{ (entry.kind === 'DIRECT' ? 'Directa' : entry.kind === 'TRANSITIVE' ? 'Transitiva' : 'Pendiente de clasificar') | t }}</span>
                           @if (entry.scope) { <span>{{ entry.scope }}</span> }
                         </div>
-                        <code class="path">{{ entry.manifestPath }}</code>
-                        <div class="occurrence-main">
+                        <div class="occurrence-path"><span>{{ 'Archivo' | t }}</span><code class="path">{{ entry.manifestPath }}</code></div>
+                        <div class="occurrence-meta">
                           <span>{{ assessmentLabel(entry.assessment) | t }}</span>
                           @if (entry.severity) { <span class="risk" [attr.data-severity]="entry.severity">{{ severityLabel(entry.severity) | t }}</span> }
                           @if (entry.analyzedAt) { <time [attr.datetime]="entry.analyzedAt">{{ entry.analyzedAt | date:'medium' }}</time> }
