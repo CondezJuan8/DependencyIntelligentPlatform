@@ -1,3 +1,15 @@
+## Bloque 126 — Recorte del panel de Inventario (25/11/2026)
+
+**Petición.** La nueva captura confirmó que el encabezado del panel de apariciones seguía oculto bajo la barra superior; el usuario pidió terminar la corrección.
+
+**Cambios.** Se retiró Inventario de la animación de entrada global que conserva `clip-path` al terminar. Ese recorte creaba un contexto de apilamiento y limitaba el diálogo al área de la vista, anulando su `z-index`. El panel conserva su estructura y aparece sobre la navegación.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** Build Docker frontend correcto, servicio 8189 recreado y ruta de Inventario con HTTP 200. La inspección visual autenticada sigue sin estar disponible por fallo del puente nativo de navegador.
+
+**Siguiente paso.** Comprobar el panel abierto tras recargar 8189 con la sesión del usuario.
+
 ## Bloque 125 — Panel de apariciones del Inventario (25/11/2026)
 
 **Petición.** El usuario mostró que el detalle al pulsar un paquete quedaba parcialmente bajo la barra superior y con los datos desordenados.
