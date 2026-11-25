@@ -236,3 +236,217 @@
   #workspace-main app-organization-workspace,
   #workspace-main app-platform-administration { animation:none; }
 }
+
+// Each workspace gets a composition shaped around its job. Shared controls keep
+// their established behavior and appearance; these rules change only grouping.
+#workspace-main app-repository-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(280px, .88fr);
+  align-items: start;
+  gap: 0 24px;
+
+  > .page-heading,
+  > .page-jump,
+  > .notice,
+  > .empty,
+  > .installation-list,
+  > #workspace-repositories,
+  > .selection-bar,
+  > p[role] { grid-column: 1 / -1; }
+
+  > .connection-card { grid-column: 1; min-height: 100%; align-content: start; }
+  > .existing-installation { grid-column: 2; align-self: stretch; margin-block: 0 17px; }
+  .existing-installation { grid-template-columns: minmax(0, 1fr); }
+  .existing-installation-controls { grid-column: 1; grid-row: auto; grid-template-columns: minmax(0, 1fr); }
+  .existing-installation-controls label { grid-column: 1; }
+  > .local-upload { grid-column: 1 / -1; }
+  > .repo-section:not(.existing-installation) { grid-column: 1 / -1; }
+
+  .connection-card,
+  .repo-section { border-radius: 3px; }
+  .repo-row { transition: background-color 160ms ease; }
+  .repo-row:hover { background: color-mix(in srgb, var(--di-surface-muted) 48%, transparent); }
+}
+
+#workspace-main app-analysis-workspace {
+  .analysis-page { max-width: 1440px; }
+  .analysis-heading { padding-bottom: 18px; border-bottom: 1px solid var(--di-border); }
+  .analysis-route { border-radius: 3px; background: var(--di-surface-muted); color: var(--di-text); }
+  .analysis-route > strong { color: inherit; }
+  .analysis-route li b { color: var(--di-accent); }
+  .analysis-route li span { color: var(--di-text-secondary); }
+  .launch-card { border-radius: 3px; }
+  .compare-section { margin-top: 28px; }
+  .compare-table-wrap { border: 1px solid var(--di-border); }
+  .history-card { transition: background-color 160ms ease; }
+  .history-card:hover { background: color-mix(in srgb, var(--di-surface-muted) 40%, transparent); }
+}
+
+#workspace-main app-inventory-workspace {
+  .inventory-page { display: grid; gap: 18px; }
+  .inventory-guide { border-radius: 3px; }
+  .inventory-guide ol { gap: 0; }
+  .inventory-guide li { padding-inline: 14px; border-left: 1px solid var(--di-border); }
+  .inventory-guide li:first-child { padding-left: 0; border-left: 0; }
+  .inventory-guide li b { font-size: 11px; letter-spacing: .055em; text-transform: uppercase; }
+  .control-panel { border-radius: 3px; }
+  .scanner-status { border-radius: 3px; background: var(--di-surface-muted); }
+  .catalog { border-top: 0; }
+}
+
+#workspace-main app-vulnerabilities-workspace {
+  .vulnerabilities-page { max-width: 1440px; }
+  .risk-summary { margin-top: 18px; background: var(--di-surface); }
+  .risk-card { min-height: 74px; }
+  .risk-card small { max-width: 27ch; }
+  .filters { border-radius: 3px; background: var(--di-surface-muted); }
+  .finding-list { gap: 8px; border-top: 0; }
+  .finding-card,
+  .finding-card.critical,
+  .finding-card.high,
+  .finding-card.warning { border: 1px solid var(--di-border); border-radius: 3px; }
+  .finding-card.critical { background: color-mix(in srgb, var(--di-critical-background) 22%, var(--di-surface)); }
+  .finding-card.high { background: color-mix(in srgb, var(--di-high-risk-background) 20%, var(--di-surface)); }
+  .finding-card.warning { background: var(--di-surface); }
+  .finding-summary { min-height: 76px; }
+  .finding-detail { border-radius: 3px; }
+  .occurrence { border-radius: 3px; }
+  .results-meta { padding-block: 8px; border-bottom: 1px solid var(--di-border); }
+}
+
+#workspace-main app-document-center {
+  .documents-page {
+    display: grid;
+    grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: 0 28px;
+  }
+  .documents-page > .page-heading,
+  .documents-page > .page-jump,
+  .documents-page > .feedback,
+  .documents-page > .scope-note { grid-column: 1 / -1; }
+  .documents-page > .upload-panel { grid-column: 1; align-self: start; }
+  .documents-page > .library { grid-column: 2; min-width: 0; }
+  .documents-page:not(:has(.upload-panel)) > .library { grid-column: 1 / -1; grid-row: auto; }
+  .upload-panel { padding: 15px; border-radius: 3px; background: var(--di-surface-muted); }
+  .upload-panel .section-heading { align-items: start; }
+  .upload-grid { grid-template-columns: minmax(0, 1fr); }
+  .upload-grid .wide { grid-column: 1; }
+  .repo-options .repo-list { grid-template-columns: minmax(0, 1fr); max-height: 260px; overflow: auto; }
+  .upload-actions { align-items: stretch; flex-direction: column; }
+  .library { padding: 0 0 0 20px; border: 0; border-left: 1px solid var(--di-border); border-radius: 0; background: transparent; }
+  .document-card { grid-template-columns: minmax(0, 1fr) auto; gap: 10px 16px; }
+  .document-card h3 { font-size: 15px; }
+}
+
+#workspace-main app-reports-workspace {
+  .reports-page {
+    display: grid;
+    grid-template-columns: minmax(220px, .34fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 0 28px;
+  }
+  .reports-heading,
+  .reports-page > .page-jump,
+  .reports-page > .empty,
+  .reports-page > .feedback { grid-column: 1 / -1; }
+  .report-controls { grid-column: 1; grid-template-columns: minmax(0, 1fr); align-content: start; padding: 0 18px 17px 0; border: 0; border-bottom: 1px solid var(--di-border); border-radius: 0; background: transparent; }
+  .report-tabs { grid-column: 1; display: grid; width: 100%; gap: 0; margin: 16px 0; border: 0; }
+  .report-tabs button { justify-content: start; text-align: left; border: 0; border-left: 2px solid transparent; border-radius: 0; background: transparent; }
+  .report-tabs button.active { border-left-color: var(--di-accent); background: var(--di-surface-muted); color: var(--di-text); }
+  .report-card { grid-column: 2; grid-row: 3 / span 2; min-width: 0; padding: 18px 20px; border: 1px solid var(--di-border); border-radius: 3px; background: var(--di-surface); box-shadow: none; }
+  .report-metrics { background: var(--di-surface-muted); }
+  .report-metrics article { border-radius: 0; }
+  .executive-summary { border-radius: 3px; }
+}
+
+#workspace-main app-assistant-workspace {
+  .assistant-page { max-width: 1440px; }
+  .assistant-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, .35fr); align-items: start; gap: 0 28px; border: 0; border-top: 1px solid var(--di-border); border-radius: 0; background: transparent; padding: 18px 0 0; }
+  .assistant-card > .section-heading { grid-column: 1 / -1; }
+  .assistant-card > .notice,
+  .assistant-card > .error { grid-column: 1 / -1; }
+  .conversation { grid-column: 1; min-height: 420px; max-height: 62vh; padding: 20px 20px 20px 0; border: 0; border-right: 1px solid var(--di-border); background: transparent; }
+  .turn { border-radius: 3px; }
+  .user-turn { border-color: var(--di-border); }
+  .assistant-turn { border: 0; border-bottom: 1px solid var(--di-border); border-radius: 0; background: transparent; padding-inline: 0; }
+  .composer { grid-column: 2; position: sticky; top: 16px; margin: 0; padding: 0; border: 0; }
+  .composer textarea { min-height: 180px; }
+}
+
+#workspace-main app-organization-workspace {
+  .heading { align-items: end; }
+  app-organization-access { display: block; margin-top: 20px; }
+  .create { margin-inline: auto; border-radius: 3px; background: var(--di-surface); }
+}
+
+#workspace-main app-organization-access {
+  .access-nav { align-items: end; border-bottom: 1px solid var(--di-border); }
+  .access-nav .tabs button { min-height: 42px; border-radius: 3px 3px 0 0; }
+  .access-guidance { max-width: 74ch; margin: 14px 0; }
+  .table-wrap { border-radius: 3px; }
+  table { border-collapse: separate; border-spacing: 0; }
+  thead { position: sticky; top: 0; z-index: 1; }
+  th { background: var(--di-surface-muted); }
+}
+
+#workspace-main app-platform-administration {
+  display: block;
+  .heading { padding-bottom: 18px; border-bottom: 1px solid var(--di-border); }
+  .metrics { gap: 0; margin-top: 18px; border-block: 1px solid var(--di-border); }
+  .metrics article { min-height: 76px; padding: 12px 16px; border: 0; border-right: 1px solid var(--di-border); border-radius: 0; background: transparent; }
+  .metrics article:last-child { border-right: 0; }
+  .metrics strong { margin-top: 6px; font-size: 23px; font-variant-numeric: tabular-nums; }
+  .tabs { gap: 0; margin: 18px 0 14px; border-bottom: 1px solid var(--di-border); }
+  .tabs button { min-height: 41px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; }
+  .tabs button.active { border-bottom-color: var(--di-accent); background: transparent; color: var(--di-text); }
+  .filter { align-items: end; }
+  .filter label { min-width: min(100%, 420px); }
+  .rows { gap: 0; border-top: 1px solid var(--di-border); }
+  .rows article { min-width: 0; padding: 15px 8px; border: 0; border-bottom: 1px solid var(--di-border); border-radius: 0; background: transparent; }
+  .rows article:hover { background: color-mix(in srgb, var(--di-surface-muted) 50%, transparent); }
+  .rows h2 { font-size: 14px; }
+  .badges { margin-top: 8px; }
+  .badges span, .badge { border-radius: 2px; }
+}
+
+@media (max-width: 900px) {
+  #workspace-main app-document-center .documents-page { grid-template-columns: minmax(0, 1fr); }
+  #workspace-main app-document-center .documents-page > .upload-panel,
+  #workspace-main app-document-center .documents-page > .library { grid-column: 1; grid-row: auto; }
+  #workspace-main app-document-center .library { padding: 17px 0 0; border: 0; border-top: 1px solid var(--di-border); }
+  #workspace-main app-reports-workspace .reports-page { grid-template-columns: minmax(0, 1fr); }
+  #workspace-main app-reports-workspace .reports-page > .report-controls,
+  #workspace-main app-reports-workspace .reports-page > .report-tabs,
+  #workspace-main app-reports-workspace .reports-page > .report-card { grid-column: 1; grid-row: auto; }
+  #workspace-main app-reports-workspace .report-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 0 15px; }
+  #workspace-main app-reports-workspace .report-tabs { display: flex; width: fit-content; border-bottom: 1px solid var(--di-border); }
+  #workspace-main app-reports-workspace .report-tabs button { border-left: 0; border-bottom: 2px solid transparent; }
+  #workspace-main app-reports-workspace .report-tabs button.active { border-bottom-color: var(--di-accent); }
+  #workspace-main app-assistant-workspace .assistant-card { grid-template-columns: minmax(0, 1fr); }
+  #workspace-main app-assistant-workspace .conversation,
+  #workspace-main app-assistant-workspace .composer { grid-column: 1; }
+  #workspace-main app-assistant-workspace .conversation { border-right: 0; padding-right: 0; }
+  #workspace-main app-assistant-workspace .composer { position: static; padding-top: 15px; border-top: 1px solid var(--di-border); }
+}
+
+@media (max-width: 600px) {
+  #workspace-main app-repository-workspace { grid-template-columns: minmax(0, 1fr); }
+  #workspace-main app-repository-workspace > .connection-card,
+  #workspace-main app-repository-workspace > .existing-installation,
+  #workspace-main app-repository-workspace > .local-upload,
+  #workspace-main app-repository-workspace > .repo-section { grid-column: 1; }
+  #workspace-main app-repository-workspace > .existing-installation { margin-top: 12px; }
+  #workspace-main app-inventory-workspace .inventory-guide li { padding: 9px 0 0; border-left: 0; border-top: 1px solid var(--di-border); }
+  #workspace-main app-inventory-workspace .inventory-guide li:first-child { padding-top: 0; border-top: 0; }
+  #workspace-main app-reports-workspace .report-controls { grid-template-columns: minmax(0, 1fr); }
+  #workspace-main app-platform-administration .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #workspace-main app-platform-administration .metrics article:nth-child(2) { border-right: 0; }
+  #workspace-main app-platform-administration .metrics article:nth-child(n+3) { border-top: 1px solid var(--di-border); }
+  #workspace-main app-platform-administration .filter { align-items: stretch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #workspace-main app-repository-workspace .repo-row,
+  #workspace-main app-analysis-workspace .history-card { transition: none; }
+}
