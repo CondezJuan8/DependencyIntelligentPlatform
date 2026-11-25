@@ -4,8 +4,8 @@
     <button id="register-tab" role="tab" [attr.tabindex]="registering()?0:-1" [attr.aria-selected]="registering()" aria-controls="access-panel" [class.active]="registering()" (click)="changeMode('register')" [disabled]="pending()">Crear cuenta</button>
   </div>
   <div id="access-panel" role="tabpanel" [attr.aria-labelledby]="registering()?'register-tab':'login-tab'">
-    <h2 id="access-title">{{ recovering()?'Recupera tu acceso':registering()?(invitations.invitation()?'Tu cuenta de miembro':'Tu cuenta de responsable'):'Bienvenido de nuevo' }}</h2>
-    <p class="intro">{{ recovering()?'Recibirás un enlace para restablecer tu contraseña.':registering()?(invitations.invitation()?'Tu correo está definido por la invitación.':'Verifica tu correo. El administrador revisará tu solicitud.'):'Continúa donde lo dejaste.' }}</p>
+    <h1 id="access-title">{{ recovering()?'Recuperar contraseña':registering()?(invitations.invitation()?'Crear cuenta de miembro':'Solicitar una cuenta'):'Iniciar sesión' }}</h1>
+    <p class="intro">{{ recovering()?'Recibirás un enlace para restablecer tu contraseña.':registering()?(invitations.invitation()?'Tu correo está definido por la invitación.':'Verifica tu correo. El administrador revisará tu solicitud.'):'Ingresa con el correo asociado a tu cuenta.' }}</p>
     @if(registering()){<p class="step-label">Paso {{registerStep()+1}} de 2</p>}
     <form #form="ngForm" (ngSubmit)="submit(form)" [attr.aria-busy]="pending()">
       @if(registering() && registerStep()===0){
@@ -21,7 +21,7 @@
         <mat-form-field appearance="outline"><mat-label>Confirma tu contraseña</mat-label><app-di-icon matPrefix name="lock"/><input matInput [type]="showPassword()?'text':'password'" name="confirmation" [(ngModel)]="confirmation" required maxlength="128" autocomplete="new-password" [disabled]="pending()"><mat-error>Confirma tu contraseña.</mat-error></mat-form-field>
         <button type="button" class="back-step" (click)="registerStep.set(0)" [disabled]="pending()">Volver a mis datos</button>
       }
-      @if(mode()==='login'){<div class="form-options"><span><app-di-icon name="shield"/>Acceso a tu equipo</span><button type="button" (click)="changeMode('recover')" [disabled]="pending()">¿Olvidaste tu contraseña?</button></div>}
+      @if(mode()==='login'){<div class="form-options"><button type="button" (click)="changeMode('recover')" [disabled]="pending()">¿Olvidaste tu contraseña?</button></div>}
       @if(error()){<p class="feedback error" role="alert">{{error()}}</p>}
       @if(message()){<p class="feedback success" role="status">{{message()}}</p>}
       <button class="submit" mat-flat-button type="submit" [disabled]="pending()||form.invalid">{{pending()?'Un momento…':recovering()?'Enviar enlace de recuperación':registering()?(registerStep()===0?'Continuar':invitations.invitation()?'Crear cuenta de miembro':'Solicitar acceso'):'Iniciar sesión'}}<app-di-icon name="arrow"/></button>

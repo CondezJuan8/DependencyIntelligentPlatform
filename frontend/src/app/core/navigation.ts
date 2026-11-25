@@ -3,7 +3,7 @@ export const navigation = [
 {id:'repositories',label:'Mis repositorios',icon:'box',ready:true,description:'Los repositorios a los que puedes acceder.'},
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'Centro de revisión',
     icon: 'dashboard',
     ready: true,
     description: 'Tu espacio de trabajo y los próximos pasos.',
@@ -42,7 +42,7 @@ export const navigation = [
   },
   {
     id: 'assistant',
-    label: 'Asistente',
+    label: 'Nexo',
     icon: 'analysis',
     ready: true,
     description: 'Respuestas basadas en documentación autorizada, con citas verificables.',

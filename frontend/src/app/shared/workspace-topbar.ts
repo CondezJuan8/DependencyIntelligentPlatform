@@ -1,9 +1,10 @@
 import { PreferenceControls } from './preference-controls';
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, viewChild, ElementRef } from '@angular/core';
 import { finalize, forkJoin, from, of } from 'rxjs';
 import { catchError, map, mergeMap, toArray } from 'rxjs/operators';
 import { navigation, availableNavigation, Page } from '../core/navigation';
 import { SessionApiService, accessError } from '../core/session-api.service';
+import { WorkspaceSettingsService } from '../core/workspace-settings.service';
 import { PreferencesService } from '../core/preferences.service';
 import { TranslatePipe } from '../core/translate.pipe';
 import { DiIcon } from './di-icon';
@@ -17,10 +18,12 @@ interface WorkspaceAlert { title:string; summary:string; repository:string; href
   selector: 'app-workspace-topbar',
   imports: [PreferenceControls,DiIcon,TranslatePipe],
   templateUrl: './workspace-topbar.html',
+  host: { '(document:keydown.control.k)': 'searchShortcut($event)', '(document:keydown.meta.k)': 'searchShortcut($event)' },
   styleUrl: './workspace-topbar.scss',
 })
 export class WorkspaceTopbar {
   readonly api = inject(SessionApiService);
+  readonly workspace = inject(WorkspaceSettingsService);
   private readonly preferences = inject(PreferencesService);
   readonly page = input.required<Page>();
   readonly menuOpen = input(false);
@@ -28,6 +31,15 @@ export class WorkspaceTopbar {
   readonly toggleMenu = output<void>();
   readonly openAssistant = output<void>();
   readonly query = signal('');
+  readonly activeResult = signal(0);
+  private readonly searchDialog = viewChild.required<ElementRef<HTMLDialogElement>>('searchDialog');
+  readonly matches = computed(() => {
+    const query = this.normalize(this.query().trim());
+    return availableNavigation(this.api.account()).filter(item =>
+      this.normalize(this.preferences.text(item.label)).includes(query) ||
+      this.normalize(item.label).includes(query),
+    );
+  });
   readonly profile = signal(false);
   readonly notices = signal(false);
   readonly pending = signal(false);
@@ -53,21 +65,65 @@ export class WorkspaceTopbar {
         .join('') ?? 'DI'
     ).toUpperCase();
   }
-  get matches() {
-    const query = this.query().trim().toLocaleLowerCase();
-    return availableNavigation(this.api.account()).filter((item) =>
-      this.preferences.text(item.label).toLocaleLowerCase().includes(query) ||
-      item.label.toLocaleLowerCase().includes(query),
-    );
+  private normalize(value: string): string {
+    return value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase();
+  }
+  searchShortcut(event: Event): void {
+    if (this.menuOpen() || document.querySelector('[aria-modal="true"]')) return;
+    event.preventDefault();
+    this.openSearch(this.searchDialog().nativeElement);
+  }
+  openSearch(dialog: HTMLDialogElement): void {
+    if (dialog.open) return;
+    this.reset();
+    dialog.showModal();
+  }
+  dismissSearchBackdrop(event: MouseEvent, dialog: HTMLDialogElement): void {
+    if (event.target === dialog) this.closeSearch(dialog);
+  }
+  cancelSearch(event: Event, dialog: HTMLDialogElement): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.closeSearch(dialog);
+  }
+  closeSearch(dialog: HTMLDialogElement): void {
+    dialog.close();
+    document.getElementById('workspace-search-trigger')?.focus();
+  }
+  searchKey(event: KeyboardEvent, dialog: HTMLDialogElement): void {
+    if (event.isComposing) return;
+    const results = this.matches();
+    if (!results.length) return;
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.chooseSection(results[this.activeResult()].id, dialog);
+    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const offset = event.key === 'ArrowDown' ? 1 : -1;
+      const index = (this.activeResult() + offset + results.length) % results.length;
+      this.activeResult.set(index);
+      document.getElementById('workspace-section-' + results[index].id)?.scrollIntoView({ block: 'nearest' });
+    }
+  }
+  chooseSection(page: Page, dialog: HTMLDialogElement): void {
+    dialog.close();
+    this.go(page);
+  }
+  closePopovers(): void {
+    const trigger = this.profile() ? 'workspace-profile-trigger' : this.notices() ? 'workspace-notifications-trigger' : null;
+    if (trigger) document.getElementById(trigger)?.focus();
+    this.reset();
   }
   get currentPage() {
     return navigation.find((item) => item.id === this.page()) ?? navigation[0];
   }
   search(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);
+    this.activeResult.set(0);
   }
   reset(): void {
     this.query.set('');
+    this.activeResult.set(0);
     this.profile.set(false);
     this.notices.set(false);
   }

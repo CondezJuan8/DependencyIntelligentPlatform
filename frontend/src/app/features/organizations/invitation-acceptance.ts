@@ -17,7 +17,7 @@ import { InvitationLinkService } from './invitation-link.service';
           @if (account.emailVerified) {
             <button mat-flat-button (click)="accept()" [disabled]="pending()">Aceptar invitación</button>
           } @else {
-            <p>Solicita el enlace de verificación arriba. Después vuelve a abrir la invitación o actualiza tu cuenta.</p>
+            <p>Confirma tu correo y vuelve a abrir la invitación para continuar.</p>
             <button mat-stroked-button (click)="refresh()" [disabled]="pending()">Actualizar verificación</button>
           }
         } @else {
@@ -29,7 +29,7 @@ import { InvitationLinkService } from './invitation-link.service';
     }
     @if (message()) { <p role="status">{{ message() }}</p> }
   `,
-  styles: `section { margin-top: 24px; padding: 24px; border: 1px solid var(--di-border); border-radius: 14px; background: var(--di-info-background); color: var(--di-text); } p { line-height: 1.5; overflow-wrap: anywhere; } button { margin: 4px; } [role="alert"] { color: var(--di-critical-text); } [role="status"] { color: var(--di-success-text); }`,
+  styles: `section { margin: 0 0 16px; padding: 16px; border: 1px solid var(--di-border); border-radius: var(--di-radius-panel); background: var(--di-info-background); color: var(--di-text); } p { line-height: 1.5; overflow-wrap: anywhere; } button { margin: 4px; } [role="alert"] { color: var(--di-critical-text); } [role="status"] { color: var(--di-success-text); }`,
 })
 export class InvitationAcceptance {
   readonly api = inject(SessionApiService);

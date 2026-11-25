@@ -1,6 +1,9 @@
-<header class="topbar" (keydown.escape)="profile.set(false); notices.set(false); query.set('')">
+<header class="topbar" (keydown.escape)="closePopovers()">
   <button
+    id="workspace-menu-trigger"
     class="icon-button menu-toggle"
+    type="button"
+    aria-controls="workspace-navigation"
     (click)="toggleMenu.emit()"
     [attr.aria-label]="'Abrir navegación' | t"
     [attr.aria-expanded]="menuOpen()"
@@ -8,40 +11,51 @@
     <app-di-icon name="menu" />
   </button>
   <div class="route-context" aria-live="polite">
-    <span class="route-context-icon"><app-di-icon [name]="currentPage.icon" /></span>
+    @if (workspace.settings(); as currentWorkspace) {
+      <span class="route-workspace">{{ currentWorkspace.organizationName }}</span>
+      <span aria-hidden="true">/</span>
+    }
     <span class="route-context-label">{{ currentPage.label | t }}</span>
   </div>
-  <div class="search-box">
-    <app-di-icon name="search" /><input
-      type="search"
-      [placeholder]="'Buscar una sección…' | t"
-      [attr.aria-label]="'Buscar una sección de la plataforma' | t"
-      maxlength="80"
-      [value]="query()"
-      (input)="search($event)"
-    />
-    @if (query().trim()) {
-      <div class="search-results" [attr.aria-label]="'Secciones encontradas' | t">
-        @for (item of matches; track item.id) {
-          <button (click)="go(item.id)">
+  <button id="workspace-search-trigger" class="search-box" type="button" aria-haspopup="dialog"
+    [attr.aria-label]="'Buscar una sección de la plataforma' | t" (click)="openSearch(searchDialog)">
+    <app-di-icon name="search" /><span>{{ 'Buscar una sección…' | t }}</span><kbd aria-hidden="true">Ctrl K</kbd>
+  </button>
+  <dialog #searchDialog class="search-dialog" aria-labelledby="workspace-search-title"
+    (close)="query.set(''); activeResult.set(0)" (cancel)="cancelSearch($event, searchDialog)"
+    (keydown.escape)="cancelSearch($event, searchDialog)" (click)="dismissSearchBackdrop($event, searchDialog)">
+    <div class="search-content">
+      <header>
+        <h2 id="workspace-search-title">{{ 'Buscar secciones' | t }}</h2>
+        <button class="icon-button" type="button" (click)="closeSearch(searchDialog)" [attr.aria-label]="'Cerrar búsqueda' | t">
+          <app-di-icon name="close" />
+        </button>
+      </header>
+      <input id="workspace-search-input" type="search" role="combobox" aria-autocomplete="list"
+        aria-controls="workspace-search-results" aria-expanded="true"
+        [attr.aria-activedescendant]="matches()[activeResult()] ? 'workspace-section-' + matches()[activeResult()].id : null"
+        [placeholder]="'Buscar una sección…' | t" [attr.aria-label]="'Buscar una sección de la plataforma' | t"
+        maxlength="80" [value]="query()" (input)="search($event)" (keydown)="searchKey($event, searchDialog)" autofocus />
+      <ul id="workspace-search-results" class="search-results" role="listbox" [attr.aria-label]="'Secciones encontradas' | t">
+        @for (item of matches(); track item.id; let index = $index) {
+          <li role="option" [id]="'workspace-section-' + item.id" [attr.aria-selected]="activeResult() === index"
+            (click)="chooseSection(item.id, searchDialog)">
             <app-di-icon [name]="item.icon" />{{ item.label | t }}
-            @if (!item.ready) {
-              <small>{{ 'En preparación' | t }}</small>
-            }
-          </button>
-        } @empty {
-          <p>{{ 'No encontramos esa sección.' | t }}</p>
+          </li>
         }
-      </div>
-    }
-  </div>
+      </ul>
+      @if (!matches().length) { <p role="status">{{ 'No encontramos esa sección.' | t }}</p> }
+    </div>
+  </dialog>
   <div class="topbar-end"><app-preference-controls/>
     <button class="assistant-header-button" type="button" (click)="openAssistant.emit()" [attr.aria-label]="'Abrir asistente' | t" [attr.title]="'Abrir asistente' | t">
       <app-di-icon name="analysis" /><span>Nexo</span>
     </button>
     <div class="popover-anchor">
       <button
+        id="workspace-notifications-trigger"
         class="icon-button"
+        type="button"
         (click)="toggleNotifications()"
         [attr.aria-label]="'Notificaciones' | t"
         [attr.aria-expanded]="notices()"
@@ -66,7 +80,9 @@
     </div>
     <div class="profile-anchor">
       <button
+        id="workspace-profile-trigger"
         class="profile-button"
+        type="button"
         (click)="profile.set(!profile()); notices.set(false)"
         [attr.aria-expanded]="profile()"
         aria-label="Abrir opciones de tu cuenta"

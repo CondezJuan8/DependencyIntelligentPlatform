@@ -28,5 +28,5 @@ export class PreferencesService {
   cycleTheme():void{this.setTheme(this.theme()==='system'?'light':this.theme()==='light'?'dark':'system');}
   text(source:unknown):string{if(source==null)return '';const value=String(source);if(this.language()==='es')return value;const trimmed=value.trim();return english[value]??english[trimmed]??english[this.repairUtf8Mojibake(value)]??english[this.repairUtf8Mojibake(trimmed)]??value;}
   private repairUtf8Mojibake(value:string):string{try{const bytes=Uint8Array.from(value,character=>character.charCodeAt(0));return new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{return value;}}
-  private apply():void{document.documentElement.lang=this.language();const theme=this.theme()==='system'?(this.media.matches?'dark':'light'):this.theme();document.documentElement.dataset['theme']=theme;document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content',theme==='dark'?'#0c1018':'#f4f5f8');}
+  private apply():void{document.documentElement.lang=this.language();const theme=this.theme()==='system'?(this.media.matches?'dark':'light'):this.theme();document.documentElement.dataset['theme']=theme;document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content',theme==='dark'?'#101722':'#f2eee6');}
 }

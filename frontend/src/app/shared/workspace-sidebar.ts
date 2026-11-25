@@ -1,19 +1,23 @@
+import { WorkspaceSettingsService } from '../core/workspace-settings.service';
 import { SessionApiService } from '../core/session-api.service';
 import { Component, inject, input, output } from '@angular/core';
-import { navigation, availableNavigation, Page } from '../core/navigation';
+import { availableNavigation, Page } from '../core/navigation';
+import { A11yModule } from '@angular/cdk/a11y';
 import { DiIcon } from './di-icon';
 import { TranslatePipe } from '../core/translate.pipe';
 @Component({
   selector: 'app-workspace-sidebar',
-  imports: [DiIcon, TranslatePipe],
+  imports: [A11yModule, DiIcon, TranslatePipe],
   templateUrl: './workspace-sidebar.html',
   styleUrl: './workspace-sidebar.scss',
 })
 export class WorkspaceSidebar {
   readonly page = input.required<Page>();
   readonly opened = input(false);
+  readonly dismiss = output<void>();
   readonly navigate = output<Page>();
-  private readonly api=inject(SessionApiService);
+  readonly api = inject(SessionApiService);
+  readonly workspace = inject(WorkspaceSettingsService);
 get navigation(){return availableNavigation(this.api.account());}
   get navigationGroups() {
     const available = this.navigation;

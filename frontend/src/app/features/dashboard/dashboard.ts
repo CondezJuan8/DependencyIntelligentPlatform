@@ -25,6 +25,7 @@ export class Dashboard implements OnInit {
   readonly manage = output<void>();
   readonly connectRepository = output<void>();
   readonly openInventory = output<string>();
+  readonly openAnalysis = output<string>();
   readonly organizations = signal<Organization[]>([]);
   readonly repositories = signal<DashboardRepository[]>([]);
   readonly analyses = signal<RecentAnalysis[]>([]);
@@ -68,8 +69,11 @@ export class Dashboard implements OnInit {
       .map(item => JSON.stringify([scan.repositoryId, item.coordinates.ecosystem, item.coordinates.namespace, item.coordinates.name, item.coordinates.version])))).size;
   }
   get analyzedRepositoryCount(): number { return new Set(this.analyses().map(scan => scan.repositoryId)).size; }
-  get completeAnalysisCount(): number { return this.analyses().filter(scan => scan.coverageStatus === 'COMPLETE').length; }
-  get partialAnalysisCount(): number { return this.analyses().filter(scan => scan.coverageStatus === 'PARTIAL').length; }
+  get completeAnalysisCount(): number { return this.analyses().filter(scan => !this.withoutManifest(scan) && scan.coverageStatus === 'COMPLETE').length; }
+  get partialAnalysisCount(): number { return this.analyses().filter(scan => !this.withoutManifest(scan) && scan.coverageStatus === 'PARTIAL').length; }
+  withoutManifest(scan: RecentAnalysis): boolean {
+    return scan.manifestCount === 0 && scan.dependencies.length === 0;
+  }
   analysisVersionCount(analysis: RecentAnalysis): number {
     return new Set(analysis.dependencies.filter(item => !!item.coordinates.version?.trim())
       .map(item => JSON.stringify([item.coordinates.ecosystem,item.coordinates.namespace,item.coordinates.name,item.coordinates.version]))).size;

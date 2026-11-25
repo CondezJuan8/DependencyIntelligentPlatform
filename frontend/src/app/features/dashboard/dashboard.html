@@ -1,6 +1,7 @@
 <div class="evidence-desk">
   <header class="desk-heading">
     <div class="desk-title">
+      <span class="desk-eyebrow">Supervisión / Resumen</span>
       <h1>Centro de revisión</h1>
       <p>{{ firstName ? 'Hola, ' + firstName + '. ' : '' }}Evidencia guardada para los repositorios a los que tienes acceso.</p>
     </div>
@@ -28,25 +29,24 @@
     <span class="register-context">Alcance según tus permisos</span>
   </section>
 
-  <div class="desk-section-label"><span>Revisión</span><span class="section-rule"></span><a href="#dashboard-analyses">Ver historial <app-di-icon name="arrow" /></a></div>
-
-  <div class="review-layout">
-    <section id="dashboard-security" class="review-queue" aria-labelledby="review-heading" aria-live="polite">
-      <header class="section-heading">
-        <div>
-          <h2 id="review-heading">Avisos y cobertura</h2>
-          <p>Versiones únicas y última evaluación OSV guardada por repositorio.</p>
-        </div>
-        <strong class="queue-total">{{ findings.length }} <span>{{ findings.length === 1 ? 'aviso' : 'avisos' }}</span></strong>
-      </header>
-
+  <div class="evidence-overview">
+    <section class="priority-summary" aria-labelledby="priority-heading">
+      <span class="desk-eyebrow">Prioridad de revisión</span>
+      <h2 id="priority-heading">Avisos OSV activos</h2>
+      <p class="priority-total"><strong>{{ loading() || error() || unavailableVulnerabilityRepositories() ? '?' : findings.length }}</strong> registros OSV</p>
+      <p>Hallazgos guardados de los repositorios accesibles.</p>
+      <a href="#dashboard-security">Ver avisos priorizados <app-di-icon name="arrow" /></a>
+    </section>
+    <section class="coverage-summary" aria-labelledby="coverage-heading" aria-live="polite">
+      <h2 id="coverage-heading">Cobertura y consulta OSV</h2>
+      <p>Versiones únicas por estado de la última evaluación guardada.</p>
       <div class="coverage-line" aria-label="Versiones por estado de evaluación">
-        <span><i class="critical-dot" aria-hidden="true"></i><strong>{{ riskCounts.critical }}</strong> críticas</span>
-        <span><i class="high-dot" aria-hidden="true"></i><strong>{{ riskCounts.high }}</strong> altas</span>
-        <span><i class="warning-dot" aria-hidden="true"></i><strong>{{ riskCounts.warning }}</strong> otros avisos</span>
-        <span><i class="clear-dot" aria-hidden="true"></i><strong>{{ riskCounts.clear }}</strong> sin avisos conocidos</span>
+        <span><i class="critical-dot" aria-hidden="true"></i><strong>{{ loading() || error() || unavailableVulnerabilityRepositories() ? '?' : riskCounts.critical }}</strong> críticas</span>
+        <span><i class="high-dot" aria-hidden="true"></i><strong>{{ loading() || error() || unavailableVulnerabilityRepositories() ? '?' : riskCounts.high }}</strong> altas</span>
+        <span><i class="warning-dot" aria-hidden="true"></i><strong>{{ loading() || error() || unavailableVulnerabilityRepositories() ? '?' : riskCounts.warning }}</strong> otros avisos</span>
+        <span><i class="clear-dot" aria-hidden="true"></i><strong>{{ loading() || error() || unavailableVulnerabilityRepositories() ? '?' : riskCounts.clear }}</strong> sin avisos conocidos</span>
       </div>
-      <p class="coverage-note">“Sin avisos conocidos” solo incluye evaluaciones OSV completadas; otros estados permanecen pendientes.</p>
+      <p class="coverage-note">“Sin avisos conocidos” solo incluye evaluaciones OSV completadas. Los demás estados quedan pendientes de revisión.</p>
 
       @if (pendingAssessmentCount > 0) {
         <p class="coverage-alert" role="status">{{ pendingAssessmentCount }} versiones necesitan una consulta o revisión; no se cuentan como seguras.</p>
@@ -54,6 +54,19 @@
       @if (unavailableVulnerabilityRepositories() > 0) {
         <p class="coverage-alert" role="status">No se pudo consultar OSV en {{ unavailableVulnerabilityRepositories() }} repositorios. Actualiza para volver a intentarlo.</p>
       }
+
+    </section>
+  </div>
+
+  <div class="review-layout">
+    <section id="dashboard-security" class="review-queue" aria-labelledby="review-heading" aria-live="polite">
+      <header class="section-heading">
+        <div>
+          <h2 id="review-heading">Avisos priorizados</h2>
+          <p>Versiones únicas y última evaluación OSV guardada por repositorio.</p>
+        </div>
+        <strong class="queue-total">{{ findings.length }} <span>{{ findings.length === 1 ? 'aviso' : 'avisos' }}</span></strong>
+      </header>
 
       @if (findings.length) {
         <div class="evidence-table" role="list" aria-label="Avisos prioritarios">
@@ -127,10 +140,10 @@
     </header>
     <div class="log-list">
       @for (analysis of analyses().slice(0, 6); track analysis.scanId) {
-        <button class="log-row" (click)="openInventory.emit(analysis.repositoryId)">
+        <button class="log-row" (click)="openAnalysis.emit(analysis.repositoryId)" [attr.aria-label]="'Abrir historial de análisis de ' + analysis.repositoryName">
           <span class="log-ecosystem" [class.maven]="analysis.ecosystem === 'MAVEN'">{{ analysis.ecosystem === 'MAVEN' ? 'Maven' : 'npm' }}</span>
           <span class="log-repository"><strong>{{ analysis.repositoryName }}</strong><small>{{ analysis.organizationName }}</small></span>
-          <span class="log-coverage" [class.partial]="analysis.coverageStatus === 'PARTIAL'">{{ analysis.coverageStatus === 'PARTIAL' ? 'Cobertura parcial' : 'Cobertura completa' }}</span>
+          <span class="log-coverage" [class.partial]="analysis.coverageStatus === 'PARTIAL'">{{ withoutManifest(analysis) ? 'Sin manifiesto' : analysis.coverageStatus === 'PARTIAL' ? 'Cobertura parcial' : 'Cobertura completa' }}</span>
           <span class="log-detail">{{ analysisVersionCount(analysis) }} versiones · {{ analysis.unresolvedCount }} sin resolver</span>
           <time [attr.datetime]="analysis.analyzedAt">{{ analysis.analyzedAt | date:'short' }}</time>
           <app-di-icon name="arrow" />

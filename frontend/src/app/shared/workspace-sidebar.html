@@ -1,8 +1,20 @@
-<aside class="sidebar" [class.open]="opened()" [attr.aria-label]="'Navegación principal' | t">
+<div id="workspace-navigation" class="sidebar" [class.open]="opened()"
+  [cdkTrapFocus]="opened()" [attr.role]="opened() ? 'dialog' : 'complementary'" [attr.aria-modal]="opened() ? 'true' : null"
+  [attr.aria-label]="'Navegación principal' | t" (keydown.escape)="dismiss.emit()">
+  @if (opened()) {
+    <button id="workspace-navigation-close" class="close-navigation" type="button"
+      [attr.aria-label]="'Cerrar navegación' | t" (click)="dismiss.emit()"><app-di-icon name="close" /></button>
+  }
   <button class="brand" (click)="go('dashboard')">
     <img src="/brand-mark.svg" alt="" width="33" height="37" />
     <span>Dependency Intelligence</span>
   </button>
+  @if (workspace.settings(); as currentWorkspace) {
+    <div class="sidebar-scope">
+      <app-di-icon name="users" />
+      <div><strong>{{ currentWorkspace.organizationName }}</strong><span>{{ 'Organización activa' | t }}</span></div>
+    </div>
+  }
   <nav>
     @for (group of navigationGroups; track group.label) {
       <section class="nav-group" [attr.aria-label]="group.label | t">
@@ -24,5 +36,10 @@
       </section>
     }
   </nav>
-  <div class="sidebar-foot"><strong>Alcance aplicado</strong>Los permisos se respetan por organización y repositorio.</div>
-</aside>
+  @if (api.account(); as account) {
+    <div class="sidebar-foot">
+      <strong>{{ account.displayName }}</strong>
+      {{ (account.platformAdmin ? 'Administrador de plataforma' : 'Cuenta de trabajo') | t }}
+    </div>
+  }
+</div>

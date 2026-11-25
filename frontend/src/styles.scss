@@ -1,18 +1,18 @@
 @use '@angular/material' as mat;
-@use './theme/tokens';
 @use './theme/workspace';
 @use './theme/appearance';
 @use './theme/observatory';
 
 html {
   color-scheme: dark;
-  @include tokens.properties();
+  --mat-button-outlined-label-text-color: var(--di-accent-text);
+  --mat-button-text-label-text-color: var(--di-accent-text);
   @include mat.theme(
     (
       color: (
         primary: mat.$azure-palette,
       ),
-      typography: 'IBM Plex Sans',
+      typography: 'Open Sans',
       density: -1,
     )
   );
@@ -271,7 +271,7 @@ button:disabled {
   transform: translateY(1px);
 }
 
-#access-panel h2 { margin:0; font-size:clamp(27px,3vw,32px); line-height:1.12; letter-spacing:-.045em; }
+#access-panel h1 { margin:0; font-size:clamp(27px,3vw,32px); line-height:1.12; letter-spacing:-.045em; }
 #access-panel .intro { max-width:42ch; margin:10px 0 23px; font-size:14px; line-height:1.55; }
 #access-panel .auth-tabs { margin-bottom:22px; }
 #access-panel .auth-tabs button { min-height:44px; font-size:13px; }
@@ -279,7 +279,7 @@ button:disabled {
 #access-panel form { gap:13px; }
 #access-panel .submit { min-height:48px; border-radius:8px; font-weight:600; }
 #access-panel .submit:disabled { opacity:1; border:1px solid var(--di-border); background:var(--di-surface-muted); color:var(--di-text-subtle); }
-#access-panel .mat-mdc-input-element { font-size:16px; }
+#access-panel .mat-mdc-input-element { min-height: 44px; font-size: 16px; }
 #access-panel .form-options { margin-bottom:3px; }
 #access-panel .switch { margin-top:20px; }
 
@@ -486,4 +486,11 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   body { transition: none; }
   #workspace-main :where(.primary, button.primary, .submit, .repo-row, .document-card, .history-card, .finding-row, .advisory-card, .organization-row) { transition: none; }
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--di-mono-family);
 }

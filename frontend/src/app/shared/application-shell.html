@@ -1,27 +1,22 @@
-<a class="skip-link" href="#workspace-main">Saltar al contenido</a>
+<a class="skip-link" href="#workspace-main" [attr.inert]="sidebar() ? '' : null">Saltar al contenido</a>
 <div class="app-layout">
   @if (sidebar()) {
     <button
-      class="mobile-scrim"
+      class="mobile-scrim" aria-hidden="true" tabindex="-1"
       aria-label="Cerrar navegación"
-      (click)="sidebar.set(false)"
+      (click)="closeNavigation()"
     ></button>
   }
-  <app-workspace-sidebar [page]="page()" [opened]="sidebar()" (navigate)="go($event)" />
-  <div class="workspace">
+  <app-workspace-sidebar [page]="page()" [opened]="sidebar()" (navigate)="go($event)" (dismiss)="closeNavigation()" />
+  <div class="workspace" [attr.inert]="sidebar() ? '' : null">
     <app-workspace-topbar
       [page]="page()"
       [menuOpen]="sidebar()"
       (navigate)="go($event)"
-      (toggleMenu)="sidebar.set(!sidebar())"
+      (toggleMenu)="toggleNavigation()"
       (openAssistant)="assistantOpen.set(true)"
     />
-    <main id="workspace-main" tabindex="-1" (keydown.escape)="sidebar.set(false)">
-      @defer (on immediate) {
-        <app-email-verification />
-      } @error {
-        <p role="alert">No se pudo cargar el estado de verificación. Recarga la página.</p>
-      }
+    <main id="workspace-main" tabindex="-1">
       @switch (page()) {
 @case ('administration') { @defer(on immediate){<app-platform-administration/>}@loading{<p role="status">Cargando administración…</p>} }
 @case ('repositories') { @defer(on immediate){<app-invitation-acceptance/><app-repository-workspace/>}@loading{<p role="status">Cargando repositorios…</p>} }
@@ -33,7 +28,7 @@
         @case ('reports') { @defer(on immediate){<app-reports-workspace/>}@loading{<p role="status">Cargando reportes…</p>} }
         @case ('dashboard') {
           @defer (on immediate) {
-            <app-dashboard (manage)="go('organization')" (connectRepository)="go('repositories')" (openInventory)="openInventory($event)" />
+            <app-dashboard (openAnalysis)="go('analysis', $event)" (manage)="go('organization')" (connectRepository)="go('repositories')" (openInventory)="openInventory($event)" />
           } @loading {
             <p role="status">Cargando tu dashboard…</p>
           } @error {
@@ -52,11 +47,12 @@
           }
         }
         @case ('settings') {
-@defer(on immediate){<app-account-settings/>}@loading{<p role="status">Cargando preferencias…</p>}
           <div class="page-heading">
+            <span class="eyebrow">Espacio / Preferencias</span>
             <h1>Configuración</h1>
-            <p>Tu perfil y las formas de acceder a tu espacio.</p>
+            <p>Administra tu perfil, la apariencia del espacio y tus métodos de acceso.</p>
           </div>
+          @defer(on immediate){<app-account-settings/>}@loading{<p role="status">Cargando preferencias…</p>}
           @defer (on immediate) {
             <app-connected-identities />
           } @error {
