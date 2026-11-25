@@ -1,3 +1,17 @@
+## Bloque 113 — Conexión del frontend nuevo con GitHub App existente (25/11/2026)
+
+**Petición.** El usuario indicó que su cuenta GitHub estaba vinculada en la interfaz anterior y solicitó ayuda para recuperarla en la elegida.
+
+**Diagnóstico.** 8189 enviaba las API al backend de revisión, con `GITHUB_APP_ENABLED=false` y base aislada. El backend anterior conserva la GitHub App activa y la configuración local apuntaba a 8089, cuya interfaz se retiró.
+
+**Cambios.** Nginx ahora dirige API, callback y salud desde el frontend 8189 a `dependency-intelligence-backend-1`. Frontend y Mailpit de revisión comparten la red local del backend anterior; SMTP de desarrollo conserva el host `mailpit`. Se actualizó `.env` ignorado por Git: `WEB_PORT`, `PUBLIC_BASE_URL` y `GITHUB_APP_CALLBACK_URL` usan 8189. Se conservan la base de datos y el backend anteriores.
+
+**Herramientas.** Docker Compose, Nginx, Docker networking, curl y PowerShell. Sin dependencias nuevas ni migraciones.
+
+**Verificación.** Compose resuelve el upstream como `dependency-intelligence-backend-1`; todos los `proxy_pass` usan ese host. Frontend 8189, `/api/auth/csrf` y `/health` responden HTTP 200. El backend anterior inicia, conecta a PostgreSQL y `GITHUB_APP_ENABLED=true`; su callback local ahora es `http://localhost:8189/api/integrations/github/app-callback`. Se reconstruyó solo el frontend y se recreó el backend anterior con la configuración local. GitHub aún debe registrar los nuevos Homepage/Setup/Callback; no se cambió la configuración externa.
+
+**Siguiente paso.** En GitHub Developer Settings de la App, cambiar Homepage a `http://localhost:8189`, Setup a `http://localhost:8189/?view=repositories` y User authorization callback a `http://localhost:8189/api/integrations/github/app-callback`; dejar webhook desactivado. Luego entrar en 8189 con la cuenta local anterior y repetir la instalación/consentimiento. GitHub Login OAuth sigue desactivado; la App de repositorios es un flujo distinto.
+
 ## Bloque 112 — Cambio de vista y verificación de admisión (25/11/2026)
 
 **Petición.** El usuario eligió el frontend de revisión en 8189, pidió retirar el 8089 y su Mailpit y conservar el backend anterior; pidió comprobar el flujo de admisión.

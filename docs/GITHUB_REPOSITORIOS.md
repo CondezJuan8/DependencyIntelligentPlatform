@@ -28,9 +28,9 @@ Esta función es distinta del inicio de sesión GitHub. OAuth de identidad permi
 
 En GitHub, bajo la cuenta u organización propietaria (prevista: `CondezJuan8`), crea una GitHub App desde **Settings → Developer settings → GitHub Apps** y define:
 
-- Homepage URL: `http://localhost:8089`
-- Setup URL: `http://localhost:8089/?view=repositories`
-- User authorization callback URL: `http://localhost:8089/api/integrations/github/app-callback`
+- Homepage URL: `http://localhost:8189`
+- Setup URL: `http://localhost:8189/?view=repositories`
+- User authorization callback URL: `http://localhost:8189/api/integrations/github/app-callback`
 - Permisos de repositorio: **Contents: Read-only** y **Metadata: Read-only**.
 - Selecciona **Only select repositories** al instalarla. La persona propietaria decide en GitHub qué repositorios autoriza.
 - Desactiva webhooks durante este bloque; la recepción/validación de eventos aún no está implementada.
@@ -46,7 +46,7 @@ GITHUB_APP_ID=id-numerico-de-la-app
 GITHUB_APP_CLIENT_ID=client-id-de-la-app
 GITHUB_APP_CLIENT_SECRET=client-secret-de-la-app
 GITHUB_APP_PRIVATE_KEY_BASE64=llave-privada-pem-codificada-en-base64
-GITHUB_APP_CALLBACK_URL=http://localhost:8089/api/integrations/github/app-callback
+GITHUB_APP_CALLBACK_URL=http://localhost:8189/api/integrations/github/app-callback
 ```
 
 El **App ID**, el **Client ID** y el secreto de cliente son valores diferentes. La llave privada PEM que genera GitHub se codifica completa en Base64 para la variable indicada; no se sube el archivo PEM. Los valores predeterminados dejan la función apagada. En el servidor se reemplazan las URLs `localhost` por el origen público HTTPS y se suministran secretos con el almacén seguro del entorno.
@@ -79,7 +79,7 @@ Esto acredita estilos responsive en el código; no equivale a una comprobación 
 
 La pantalla consulta el estado seguro por organizacion y distingue configuracion incompleta de permisos insuficientes. La GitHub App de `CondezJuan8` ya esta creada y las variables locales completas estan en `.env`, ignorado por Git. La autenticacion de la App se verifico contra `GET https://api.github.com/app` (HTTP 200, App ID y slug coinciden). La instalacion en GitHub ya existe; falta completar el consentimiento OAuth/PKCE desde la plataforma. No poner secretos en Git/chat.
 
-Para esta instancia se usa `http://localhost:8089`; Homepage, Setup URL y callback deben coincidir con ese origen, en especial `http://localhost:8089/api/integrations/github/app-callback`. Si se cambia `WEB_PORT`, actualizar en GitHub y `.env` el callback con el mismo puerto y reiniciar backend.
+Para esta instancia se usa `http://localhost:8189`; Homepage, Setup URL y callback deben coincidir con ese origen, en especial `http://localhost:8189/api/integrations/github/app-callback`. Si se cambia `WEB_PORT`, actualizar en GitHub y `.env` el callback con el mismo puerto y reiniciar backend.
 
 La App ya existe con slug `dependency-intelligence-platform`. El CTA **Instalar GitHub App** inicia el flujo backend y redirige a `https://github.com/apps/{slug}/installations/new`; la autorización OAuth/PKCE termina en el callback registrado. Crear la App, instalarla en una cuenta y seleccionar repositorios son pasos distintos.
 

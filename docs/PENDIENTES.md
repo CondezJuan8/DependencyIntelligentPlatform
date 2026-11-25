@@ -4,9 +4,9 @@
 - [x] Recorrer las 11 vistas internas en escritorio (1440 px) y móvil (390 px) con autenticación real en Compose aislado. Probar el foco de búsqueda, menú y detalle de inventario, además de temas claro y oscuro.
 - [x] Verificar registro, solicitud explícita del enlace desde el panel, verificación, aprobación administrativa e inicio de sesión; también rechazo/auditoría e invitaciones en Mailpit.
 - [x] Probar carpeta local, ejecución npm, estado Maven sin manifiesto, comparación de snapshots, inventario, reportes y biblioteca en el entorno aislado.
-- [ ] Verificar Google/GitHub OAuth y el consentimiento de GitHub App con credenciales autorizadas para esta revisión. En el entorno aislado se verificó la interfaz con proveedores desactivados.
+- [ ] Actualizar en GitHub Developer Settings el Homepage URL, Setup URL y User authorization callback URL a `localhost:8189`; después volver a probar consentimiento e instalación. Google OAuth sigue desactivado.
 - [ ] Validar Nexo con un proveedor configurado, recuperación de un documento preparado y apertura de su cita desde la respuesta. Se comprobó el rechazo de un repositorio ajeno y el estado sin evidencia.
-- [ ] Continuar la revisi?n visual y funcional en `localhost:8189`. El frontend y Mailpit del Compose antiguo ya no se ejecutan; `compose.review.yaml` publica 8189 y 8126. Se conserva el backend y la base de datos anteriores.
+- [ ] Continuar la revisión en `localhost:8189`, ahora conectada al backend y la base de datos anteriores. Falta actualizar Homepage/Setup/Callback en la GitHub App; Mailpit de desarrollo está en 8126.
 - [ ] Reducir los avisos de presupuesto de Angular (objetivo de bundle inicial: 500 KB y de hojas Sass: 4 KB).
 
 ## Bloque 91 — prompt directo del usuario (24/11/2026; en curso)
@@ -230,7 +230,7 @@ El detalle y la evidencia por bloque están en la [bitácora](BITACORA_TRABAJO.m
 
 - [ ] **Google:** registrar/configurar cliente propio, consentimiento, audiencia/cuentas de prueba y callback; guardar ID/secret fuera del repositorio y activar el proveedor. Probar login, cuenta existente, vínculo, cancelación y errores con Google real.
 - [ ] **GitHub login:** elegir/configurar el registro de aplicación, credenciales, callback y permisos de identidad; probar consentimiento, correo principal verificado, login y vínculo con GitHub real. No equivale a autorizar repositorios.
-- [ ] Continuar la revisi?n visual y funcional en `localhost:8189`. El frontend y Mailpit del Compose antiguo ya no se ejecutan; `compose.review.yaml` publica 8189 y 8126. Se conserva el backend y la base de datos anteriores.
+- [ ] Continuar la revisión en `localhost:8189`, ahora conectada al backend y la base de datos anteriores. Falta actualizar Homepage/Setup/Callback en la GitHub App; Mailpit de desarrollo está en 8126.
 - [x] **GitHub App real en escritorio local:** OAuth/PKCE completado en `localhost:8089`, instalación de `CondezJuan8` activa en Dinamita, dos repositorios importados y descarga ZIP confirmada por el usuario. Queda pendiente revisión en móvil/otro dispositivo y automatizar sincronización ante cambios de selección en GitHub.
 - [x] **Arranque Compose y migraciones:** Flyway valida V1-V24; V24 aplicada. 128 tablas, 91 FORCE RLS, 227 FK. Health UP, PostgreSQL y Mailpit saludables; el volumen de base se conservó.
 - [ ] **Servidor y correo:** configurar SMTP real para entregar avisos de nuevas solicitudes de acceso con aprobación/rechazo; comprobar entrega y comportamiento ante escáneres que ejecutan enlaces. Mailpit cubre el aviso local, no entrega externa.
