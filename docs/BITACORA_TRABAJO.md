@@ -1,3 +1,15 @@
+## Bloque 124 — Espaciado en Vulnerabilidades (25/11/2026)
+
+**Petición.** El usuario pidió un borde visible para «Actualizar» y corregir espacios pegados en el resumen de severidad y los filtros.
+
+**Cambios.** Se reforzó el borde del botón con el token de controles. Todos los indicadores de severidad conservan relleno interior, incluido «Críticas» en escritorio y móvil. El panel de filtros ahora tiene borde completo, relleno horizontal y separación uniforme entre campos.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** Build Docker frontend correcto, con avisos de presupuesto preexistentes. Servicio frontend recreado en 8189; HTTP 200. Revisión visual autenticada pendiente.
+
+**Siguiente paso.** Comprobar la vista Vulnerabilidades con la sesión del usuario y atender ajustes visuales concretos si aparecen.
+
 ## Bloque 123 — Retiro de la guía del inventario (25/11/2026)
 
 **Petición.** El usuario pidió eliminar por completo la guía «Cómo leer los hallazgos» de Inventario.

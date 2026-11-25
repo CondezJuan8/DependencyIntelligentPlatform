@@ -1,5 +1,6 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Reforzar el borde de «Actualizar» y separar etiquetas, cifras y filtros en Vulnerabilidades. Frontend 8189 actualizado; falta revisión visual autenticada.
 - [x] Retirar por petición del usuario la guía de interpretación de Inventario y todos sus estilos. Frontend 8189 actualizado.
 - [x] Ajustar legibilidad, proporciones y separación de la guía de interpretación en Inventario. Frontend 8189 actualizado; revisión visual autenticada pendiente.
 - [x] Quitar la tabla «Paquete / Cambio» de la comparación en Análisis; conservar resumen y avisos OSV. Frontend 8189 actualizado, pendiente revisión visual autenticada.
