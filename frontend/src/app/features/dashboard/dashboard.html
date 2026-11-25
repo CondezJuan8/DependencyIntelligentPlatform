@@ -14,6 +14,14 @@
   </div>
 </div>
 
+<nav class="page-jump" [attr.aria-label]="'Secciones del resumen' | t">
+  <span class="page-jump-label">{{ 'Ir a' | t }}</span>
+  <a href="#dashboard-repositories">{{ 'Repositorios' | t }}</a>
+  <a href="#dashboard-security">{{ 'Seguridad' | t }}</a>
+  <a href="#dashboard-analyses">{{ 'Análisis recientes' | t }}</a>
+  @if (!isMember()) { <a href="#dashboard-organization">{{ 'Organización' | t }}</a> }
+</nav>
+
 @if (error()) {
   <p class="error" role="alert">{{ error() }} <button mat-button (click)="load()">Reintentar</button></p>
 }
@@ -28,7 +36,7 @@
   [failed]="!!error()"
 />
 
-<section class="panel repository-panel" aria-labelledby="repositories-heading">
+<section id="dashboard-repositories" class="panel repository-panel" aria-labelledby="repositories-heading">
   <div class="panel-title">
     <div><h2 id="repositories-heading">Repositorios conectados</h2><p>Abre un repositorio para consultar su inventario y el análisis más reciente.</p></div>
     <span class="di-tag">{{ repositories().length }} accesibles</span>
@@ -55,7 +63,7 @@
   }
 </section>
 
-<section class="panel security-panel" aria-labelledby="security-heading" aria-live="polite">
+<section id="dashboard-security" class="panel security-panel" aria-labelledby="security-heading" aria-live="polite">
   <div class="panel-title security-title">
     <div><p class="eyebrow">SEGURIDAD · OSV</p><h2 id="security-heading">Vulnerabilidades de tus repositorios</h2></div>
     <span class="di-tag">{{ findings.length }} avisos</span>
@@ -91,7 +99,7 @@
   </div>
 </section>
 
-<section class="panel analysis-panel" aria-labelledby="recent-analyses-heading">
+<section id="dashboard-analyses" class="panel analysis-panel" aria-labelledby="recent-analyses-heading">
   <div class="panel-title">
     <div>
       <h2 id="recent-analyses-heading">Análisis recientes</h2>
@@ -117,7 +125,7 @@
 </section>
 
 @if (!isMember()) {
-  <div class="secondary-grid">
+  <div id="dashboard-organization" class="secondary-grid">
     <section class="panel">
       <div class="panel-title"><div><h2>Tus organizaciones</h2><p>Espacios disponibles para tu cuenta.</p></div><button class="text-button" (click)="manage.emit()">Ver todas <app-di-icon name="arrow" /></button></div>
       @for (organization of organizations().slice(0, 3); track organization.id) {

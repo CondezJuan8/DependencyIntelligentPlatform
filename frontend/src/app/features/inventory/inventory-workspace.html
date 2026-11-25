@@ -65,7 +65,16 @@
     </div>
     <app-inventory-space-catalog [hidden]="mode() !== 'catalog'" [repositories]="repositories()" (openRepository)="openRepositoryLocation($event)" />
     @if (mode() === 'repository') {
-    <section class="control-panel" aria-label="Controles del inventario">
+    <nav class="page-jump" [attr.aria-label]="'Secciones del inventario' | t">
+      <span class="page-jump-label">{{ 'Ir a' | t }}</span>
+      <a href="#inventory-controls">{{ 'Seleccionar repositorio' | t }}</a>
+      @if (scanResults().length) { <a href="#inventory-analysis-status">{{ 'Estado del análisis' | t }}</a> }
+      @if (occurrences().length) {
+        <a href="#inventory-osv">{{ 'Evaluación OSV' | t }}</a>
+        <a href="#dependency-catalog">{{ 'Catálogo de dependencias' | t }}</a>
+      }
+    </nav>
+    <section id="inventory-controls" class="control-panel" [attr.aria-label]="'Controles del inventario' | t">
       <div class="repository-control">
         <label for="inventory-repository">Repositorio</label>
         <select id="inventory-repository" [value]="repository()?.id ?? ''" [disabled]="busy() || assessingVulnerabilities()" (change)="selectRepository($event)">
@@ -83,7 +92,7 @@
     </section>
 
     @if (scanResults().length > 0) {
-      <section class="scanner-status" aria-labelledby="scanner-heading">
+      <section id="inventory-analysis-status" class="scanner-status" aria-labelledby="scanner-heading">
         <header class="section-heading">
           <div><p class="eyebrow">{{ 'RESUMEN' | t }}</p><h2 id="scanner-heading">{{ 'Estado del análisis' | t }}</h2><p>{{ 'Los paquetes identificados están disponibles abajo. Si falta contexto, te explicamos qué se pudo confirmar.' | t }}</p></div>
         </header>
@@ -121,7 +130,7 @@
         <article class="summary-card"><span>Transitivas</span><strong>{{ transitiveCount }}</strong><small>Registradas en lockfiles</small></article>
       </section>
 
-      <section class="assessment-summary" aria-labelledby="assessment-heading" aria-live="polite">
+      <section id="inventory-osv" class="assessment-summary" aria-labelledby="assessment-heading" aria-live="polite">
         <div><p class="eyebrow">SEGURIDAD · OSV</p><h2 id="assessment-heading">Evaluación de vulnerabilidades</h2>
           <p>Comparamos versiones exactas con avisos publicados en OSV. Un resultado sin avisos conocidos no garantiza que una versión esté libre de vulnerabilidades.</p></div>
         @if (assessingVulnerabilities()) { <span class="assessment-progress" role="status"><span class="button-spinner" aria-hidden="true"></span> Consultando OSV…</span> }
@@ -140,7 +149,7 @@
         @if (staleCount > 0) { <p class="notice warning" role="status">{{ staleCount }} versiones tienen resultados desactualizados. Vuelve a analizar para consultar OSV de nuevo.</p> }
       }
 
-      <section class="catalog" aria-labelledby="catalog-heading">
+      <section id="dependency-catalog" class="catalog" aria-labelledby="catalog-heading">
         <header class="catalog-heading">
           <div><p class="eyebrow">{{ 'EXPLORAR' | t }}</p><h2 id="catalog-heading">{{ 'Catálogo de dependencias' | t }}</h2><p>{{ 'Busca un paquete y abre su fila para ver versiones, estado OSV y origen en el proyecto.' | t }}</p></div>
           <div class="catalog-count" aria-live="polite"><strong>{{ groups.length }} {{ 'de' | t }} {{ uniquePackageCount }}</strong><span>{{ 'paquetes visibles' | t }} · {{ visibleVersionCount }} {{ 'versiones' | t }}</span></div>

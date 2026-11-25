@@ -31,6 +31,12 @@
       <app-di-icon name="plus" />Invitar miembro
     </button>
   </div>
+  <p class="access-guidance" aria-live="polite">
+    @if (tab() === 'members') { {{ 'Revisa quién pertenece al espacio y administra sus roles. El alcance por repositorio se configura en Permisos.' | t }} }
+    @else if (tab() === 'invitations') { {{ 'Comprueba el estado de las invitaciones. Las personas aceptan con su correo verificado y el acceso puede requerir aprobación.' | t }} }
+    @else if (tab() === 'teams') { {{ 'Agrupa personas con el mismo trabajo y administra quién pertenece a cada equipo.' | t }} }
+    @else { {{ 'Elige un equipo y un repositorio para ajustar permisos; los permisos respetan el rol de cada persona.' | t }} }
+  </p>
   @if (loading()) {
     <div class="loading" role="status">Cargando el espacio de {{ organization.name }}…</div>
   }

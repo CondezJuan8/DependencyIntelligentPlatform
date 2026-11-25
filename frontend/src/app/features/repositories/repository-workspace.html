@@ -10,6 +10,16 @@
   }
 </div>
 
+@if (isOwner && organizations().length > 0) {
+  <nav class="page-jump" [attr.aria-label]="'Secciones de repositorios' | t">
+    <span class="page-jump-label">{{ 'Agregar o revisar' | t }}</span>
+    <a href="#github-integration">{{ 'Conectar GitHub' | t }}</a>
+    <a href="#local-project-import">{{ 'Importar carpeta' | t }}</a>
+    @if (installations().length > 0) { <a href="#github-installations">{{ 'Instalaciones conectadas' | t }}</a> }
+    @if (visibleRepositories().length > 0) { <a href="#workspace-repositories">{{ 'Repositorios del espacio' | t }}</a> }
+  </nav>
+}
+
 @if (error()) { <p class="notice error" role="alert">{{ error() | t }}</p> }
 @if (message()) { <p class="notice success" role="status">{{ message() | t }}</p> }
 @if (githubStatus(); as status) {
@@ -21,7 +31,7 @@
   @if (!organizations().length && !loading()) {
     <section class="empty"><app-di-icon name="box"/><h2>Primero crea tu organización</h2><p>Los repositorios de GitHub se agregan a una organización de Dependency Intelligence para aplicar sus equipos y permisos.</p></section>
   } @else {
-    <section class="connection-card">
+    <section id="github-integration" class="connection-card">
       <div class="connection-copy"><span class="github-mark">GH</span><div><h2>Conecta tu cuenta de GitHub</h2><p>La instalación y el acceso al código los autorizas tú en GitHub. Puedes limitar la aplicación a repositorios seleccionados.</p></div></div>
       @if (!statusLoading() && githubStatus()?.canManage && !githubStatus()?.configured) {
         <a class="primary" href="https://github.com/settings/apps/new" target="_blank" rel="noopener noreferrer">{{ 'Crear GitHub App en GitHub' | t }}</a>
@@ -43,7 +53,7 @@
         <a href="https://github.com/settings/installations" target="_blank" rel="noopener noreferrer">{{ 'Abrir mis instalaciones en GitHub' | t }}</a>
       </section>
     }
-    <section class="repo-section local-upload">
+    <section id="local-project-import" class="repo-section local-upload">
       <div><h2>{{ 'Importar carpeta local' | t }}</h2><p>{{ 'Sube el proyecto desde tu equipo a la organización. Límite: 300 MiB y 50.000 archivos. Se omiten .git, node_modules, carpetas de compilación y archivos de credenciales.' | t }}</p></div>
       <label class="folder-picker" for="local-project-folder">{{ 'Selecciona una carpeta de proyecto' | t }}</label>
       <input id="local-project-folder" type="file" webkitdirectory directory multiple (change)="selectLocalFolder($event)" [disabled]="pending()" />
@@ -60,6 +70,7 @@
         </div>
       }
     </section>
+    <div id="github-installations" class="installation-list">
     @for (installation of installations(); track installation.id) {
       <section class="repo-section"><div class="section-heading"><div><h2>{{ installation.accountLogin }}</h2><p>{{ installation.accountType === 'ORGANIZATION' ? 'Cuenta de organización GitHub' : 'Cuenta personal GitHub' }} · {{ installation.repositories.length }} repositorios autorizados</p></div></div>
         <div class="repo-list">
@@ -72,8 +83,9 @@
         </div>
       </section>
     }
+    </div>
     @if (selectedIds().size > 0) { <div class="selection-bar"><span>{{ selectedIds().size }} seleccionados</span><button class="primary" [disabled]="pending()" (click)="importSelected()">Agregar a la organización</button></div> }
-    @if (visibleRepositories().length > 0) { <section class="repo-section"><h2>{{ 'Repositorios de este espacio' | t }}</h2>@for(repo of visibleRepositories();track repo.id){<article class="repo-row"><div><h3>{{repo.fullName}}</h3><p>{{repo.organizationName}} · {{ 'rama' | t }} {{repo.defaultBranch}}</p></div><div class="repo-actions"><span class="badge">{{ sourceLabel(repo.source) | t }}</span>@if(repo.source === 'local' || repo.source === 'github'){<a [href]="sourceUrl(repo)">{{ 'Descargar fuente' | t }}</a>}@if(githubStatus()?.canManage){<button class="danger-action" type="button" [disabled]="pending()" (click)="deleteRepository(repo.id,repo.source,repo.fullName)">{{ 'Eliminar repositorio' | t }}</button>}</div></article>}</section> }
+    @if (visibleRepositories().length > 0) { <section id="workspace-repositories" class="repo-section"><h2>{{ 'Repositorios de este espacio' | t }}</h2>@for(repo of visibleRepositories();track repo.id){<article class="repo-row"><div><h3>{{repo.fullName}}</h3><p>{{repo.organizationName}} · {{ 'rama' | t }} {{repo.defaultBranch}}</p></div><div class="repo-actions"><span class="badge">{{ sourceLabel(repo.source) | t }}</span>@if(repo.source === 'local' || repo.source === 'github'){<a [href]="sourceUrl(repo)">{{ 'Descargar fuente' | t }}</a>}@if(githubStatus()?.canManage){<button class="danger-action" type="button" [disabled]="pending()" (click)="deleteRepository(repo.id,repo.source,repo.fullName)">{{ 'Eliminar repositorio' | t }}</button>}</div></article>}</section> }
   }
 } @else {
   <section class="repo-section"><h2>Repositorios habilitados para ti</h2>

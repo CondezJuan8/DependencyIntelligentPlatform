@@ -118,6 +118,73 @@ button:disabled {
   scroll-margin-top: 72px;
 }
 
+#workspace-main h1 {
+  font-size: clamp(25px, 2vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+#workspace-main :where(.page-heading, .analysis-heading, .vuln-heading, .reports-heading, .heading) {
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .risk-card, .document-card, .di-editor-card, .create, .rows article) {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+#workspace-main .page-jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 20px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--di-border);
+}
+
+#workspace-main .page-jump-label {
+  margin: 0 6px 0 0;
+  color: var(--di-text-subtle);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#workspace-main .page-jump a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--di-radius-control);
+  color: var(--di-link);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--di-duration-fast), border-color var(--di-duration-fast);
+}
+
+#workspace-main .page-jump a:hover {
+  border-color: var(--di-border);
+  background: var(--di-surface-muted);
+}
+
+#workspace-main .page-jump a:focus-visible {
+  outline: 2px solid var(--di-primary);
+  outline-offset: 2px;
+}
+
+#workspace-main :target {
+  scroll-margin-block-start: 88px;
+  outline: 2px solid var(--di-primary);
+  outline-offset: 6px;
+}
+
+#workspace-main tbody tr:hover td {
+  background: var(--di-surface-muted);
+}
+
 #workspace-main > * {
   min-width: 0;
 }

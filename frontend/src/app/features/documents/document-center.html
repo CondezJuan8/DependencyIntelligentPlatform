@@ -3,11 +3,16 @@
     <div><p class="eyebrow">{{ 'CONOCIMIENTO DEL ESPACIO' | t }}</p><h1 id="documents-title">{{ 'Documentación' | t }}</h1><p>{{ 'Guarda y encuentra documentación técnica asociada a tus repositorios.' | t }}</p></div>
     <label class="organization-picker"><span>{{ 'Organización' | t }}</span><select [value]="organizationId()" (change)="changeOrganization($event)"><option value="" disabled>{{ 'Selecciona una organización' | t }}</option>@for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }</select></label>
   </header>
+  <nav class="page-jump" [attr.aria-label]="'Secciones de documentación' | t">
+    <span class="page-jump-label">{{ 'Ir a' | t }}</span>
+    @if (canManage()) { <a href="#document-upload">{{ 'Agregar documentación' | t }}</a> }
+    <a href="#document-library">{{ 'Biblioteca del espacio' | t }}</a>
+  </nav>
   @if (error()) { <p class="feedback error" role="alert">{{ error() | t }}</p> }
   @if (notice()) { <p class="feedback success" role="status">{{ notice() | t }}</p> }
 
   @if (canManage()) {
-    <section class="panel upload-panel" aria-labelledby="upload-title">
+    <section id="document-upload" class="panel upload-panel" aria-labelledby="upload-title">
       <div class="section-heading"><div><h2 id="upload-title">{{ 'Agregar documentación' | t }}</h2><p>{{ 'Sube un archivo para conservar el original y preparar su texto para búsqueda.' | t }}</p></div><span class="size-hint">{{ 'Máximo 50 MiB por archivo' | t }}</span></div>
       <div class="upload-grid">
         <label><span>{{ 'Nombre para mostrar' | t }}</span><input [value]="name()" (input)="name.set($any($event.target).value)" maxlength="200" [placeholder]="'Usa el nombre del archivo si lo dejas vacío' | t" /></label>
@@ -19,7 +24,7 @@
     </section>
   }
 
-  <section class="panel library" aria-labelledby="library-title">
+  <section id="document-library" class="panel library" aria-labelledby="library-title">
     <div class="section-heading"><div><h2 id="library-title">{{ 'Biblioteca del espacio' | t }}</h2><p>{{ documents().length }} {{ 'documentos guardados' | t }}</p></div><button class="secondary" type="button" (click)="load()" [disabled]="loading()">{{ 'Actualizar' | t }}</button></div>
     <form class="search" (submit)="$event.preventDefault(); search()"><label for="document-search">{{ 'Buscar dentro de los documentos' | t }}</label><div><input id="document-search" type="search" [value]="query()" (input)="query.set($any($event.target).value)" [placeholder]="'Escribe una frase o término' | t" /><button class="secondary" type="submit">{{ 'Buscar' | t }}</button></div></form>
     @if (hits().length) { <div class="search-results" aria-live="polite"><h3>{{ 'Coincidencias' | t }}</h3>@for (hit of hits(); track hit.versionId + hit.excerpt) { <article><button type="button" class="text-button" (click)="download(hit.documentId, hit.versionId)">{{ hit.documentName }} · {{ hit.filename }}</button><p>{{ hit.excerpt }}</p>@if (hit.repositoryName) { <small>{{ hit.repositoryName }}</small> }</article> }</div> }
