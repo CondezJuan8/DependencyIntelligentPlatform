@@ -92,8 +92,10 @@ public final class CycloneDxManifestMapper {
             boolean missingManifest = manifests == 0;
             boolean emptyDetectedProject = manifests > 0 && dependencies.isEmpty();
             boolean partial = unresolved > 0 || mavenResolutionIsPartial || missingManifest || emptyDetectedProject;
-            String message = emptyDetectedProject
-                ? "Se detectó un manifiesto, pero cdxgen no devolvió componentes; no se marcará este inventario como completo."
+            String message = emptyDetectedProject && components.isEmpty()
+                ? "Se detectó un manifiesto, pero el SBOM de cdxgen contiene 0 componentes; no se marcará este inventario como completo."
+                : emptyDetectedProject
+                ? "cdxgen devolvió " + components.size() + " componentes, pero ninguno tuvo coordenadas y versión verificables; no se marcará este inventario como completo."
                 : mavenResolutionIsPartial
                 ? "Cobertura Maven parcial: el modo seguro lee POM y SBOM sin ejecutar Maven; no confirma todas las dependencias transitivas."
                 : unresolved > 0 ? "Hay componentes del SBOM sin versión o vínculo verificable." : null;
@@ -120,8 +122,17 @@ public final class CycloneDxManifestMapper {
         }
         if (!purl.startsWith("pkg:npm/")) return null;
         String packagePart = purl.substring("pkg:npm/".length());
+        // PURLs can append qualifiers and a subpath after the version. These
+        // fields do not change the version in CycloneDX's component.version.
         int at = packagePart.lastIndexOf('@');
-        if (at <= 0 || !decode(packagePart.substring(at + 1)).equals(version)) return null;
+        if (at <= 0) return null;
+        int qualifier = packagePart.indexOf('?', at + 1);
+        int subpath = packagePart.indexOf('#', at + 1);
+        int suffix = packagePart.length();
+        if (qualifier >= 0) suffix = Math.min(suffix, qualifier);
+        if (subpath >= 0) suffix = Math.min(suffix, subpath);
+        String purlVersion = decode(packagePart.substring(at + 1, suffix));
+        if (purlVersion.isBlank() || !purlVersion.equals(version)) return null;
         String name = decode(packagePart.substring(0, at));
         String componentName = node.path("name").asText("");
         String scopedLeaf = name.startsWith("@") && name.contains("/")

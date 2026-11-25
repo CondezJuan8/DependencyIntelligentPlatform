@@ -60,7 +60,10 @@ public class ScanController {
     public ResponseEntity<Void> label(@PathVariable UUID organizationId, @PathVariable UUID repositoryId,
             @PathVariable UUID scanId, @Valid @RequestBody ScanLabelRequest request, Principal principal) {
         access.execute(principal, organizationId, repositoryId, "scan.create", () ->
-            updateScanLabel.execute(organizationId, repositoryId, scanId, request.displayName()));
+        {
+            updateScanLabel.execute(organizationId, repositoryId, scanId, request.displayName());
+            return null;
+        });
         return ResponseEntity.noContent().build();
     }
 

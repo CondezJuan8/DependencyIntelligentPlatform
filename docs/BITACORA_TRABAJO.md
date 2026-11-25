@@ -1,3 +1,15 @@
+## Bloque 101 — reconciliación de componentes npm de cdxgen (24/11/2026)
+
+**Petición.** El usuario pidió corregir el mensaje de análisis que dice que cdxgen no devolvió componentes y conservar lo ya implementado.
+
+**Cambios.** `CycloneDxManifestMapper` ahora extrae la versión npm del PURL antes de `?qualifiers` y `#subpath`, y la contrasta con la versión del componente; antes, esos campos válidos hacían descartar el componente. Cuando no queda ningún componente verificable, el resultado ahora distingue un SBOM realmente vacío de componentes recibidos cuyas coordenadas/versión fueron rechazadas. Se preserva el respaldo existente de `package-lock.json` y su estado parcial. La compilación también reveló que el endpoint de nombres de snapshots pasaba una operación `void` a `AuthorizedRepositoryActions`; el bloque lambda ahora devuelve `null`, manteniendo respuesta 204 y la misma autorización.
+
+**Herramientas/tecnologías.** Java 21, Maven 3.9.11 en modo offline y parser CycloneDX/PURL ya existente. No se añadieron dependencias, pruebas, migraciones ni llamadas de actualización automática.
+
+**Verificación.** `mvn -o -B -ntp "-Dmaven.repo.local=C:\Users\yazst\DependencyIntelligentPlatform\.tools\m2" -DskipTests package`: BUILD SUCCESS para Domain, Application e Infrastructure. Una compilación inicial dentro del sandbox no pudo cerrar recursos del compilador; la compilación autorizada fuera del sandbox pasó. No se ejecutaron pruebas ni se reiniciaron servicios. La compilación limpia no pudo iniciarse porque el plugin Maven Clean 3.4.1 no está en el repositorio offline. El formato PURL npm permite calificadores y subrutas según la [definición oficial](https://github.com/package-url/purl-spec/blob/main/docs/types/definitions/npm-definition.md). No se pudo reproducir la respuesta del snapshot del usuario en el runtime disponible; la causa para ese scan concreto aún requiere reanálisis.
+
+**Siguiente paso.** Incorporar este build al backend del entorno acordado y volver a analizar el repositorio. Si el SBOM sigue vacío, el nuevo mensaje separará ausencia real de componentes de componentes descartados y ayudará a identificar la causa concreta. El endpoint de snapshots quedó corregido y se registra junto con este ajuste.
+
 ## Bloque 100 — activar el overlay de Inventario en Compose (24/11/2026)
 
 **Petición.** El usuario reportó que no veía la ventana emergente de carga en Inventario.

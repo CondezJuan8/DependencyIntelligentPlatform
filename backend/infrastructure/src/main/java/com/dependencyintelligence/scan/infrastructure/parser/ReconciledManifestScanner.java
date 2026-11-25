@@ -58,7 +58,10 @@ final class ReconciledManifestScanner {
             }
             if (sbom.dependencies().isEmpty()) {
                 if (ecosystem == Ecosystem.NPM && local.dependencies().isEmpty() && local.unresolvedCount() == 0) return local;
-                return partial(local, "cdxgen no devolvió componentes. " + recoveryMessage(ecosystem, local));
+                String detail = sbom.coverageMessage() == null
+                    ? "cdxgen no devolvió componentes utilizables."
+                    : sbom.coverageMessage();
+                return partial(local, detail + " " + recoveryMessage(ecosystem, local));
             }
             return reconcile(local, sbom, ecosystem);
         } catch (IOException failure) {
