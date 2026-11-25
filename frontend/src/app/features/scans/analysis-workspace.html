@@ -80,13 +80,11 @@
             <label>{{ 'Análisis base' | t }}<select [value]="baseScanId()" (change)="baseScanId.set($any($event.target).value)">
               @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== targetScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
             </select></label>
-            @if (selectedBaseScan(); as scan) { <div class="compare-name-editor"><label for="base-snapshot-name">{{ 'Nombre para comparar' | t }}</label><input id="base-snapshot-name" maxlength="100" [value]="labelDrafts()[scan.id] ?? ''" (input)="updateLabelDraft(scan.id, $event)" [placeholder]="'Ej.: Antes de actualizar dependencias' | t"><button type="button" class="secondary" (click)="saveScanLabel(scan)" [disabled]="savingLabelId() === scan.id">{{ (savingLabelId() === scan.id ? 'Guardando…' : 'Guardar nombre') | t }}</button><small>{{ 'Se mostrará como' | t }} {{ scanName(scan) }}</small></div> }
           </div>
           <div class="compare-choice">
             <label>{{ 'Análisis objetivo' | t }}<select [value]="targetScanId()" (change)="targetScanId.set($any($event.target).value)">
               @for (item of history(); track item.id) { @if (item.status === 'COMPLETED' && item.id !== baseScanId()) { <option [value]="item.id">{{ scanLabel(item) }}</option> } }
             </select></label>
-            @if (selectedTargetScan(); as scan) { <div class="compare-name-editor"><label for="target-snapshot-name">{{ 'Nombre para comparar' | t }}</label><input id="target-snapshot-name" maxlength="100" [value]="labelDrafts()[scan.id] ?? ''" (input)="updateLabelDraft(scan.id, $event)" [placeholder]="'Ej.: Después de actualizar dependencias' | t"><button type="button" class="secondary" (click)="saveScanLabel(scan)" [disabled]="savingLabelId() === scan.id">{{ (savingLabelId() === scan.id ? 'Guardando…' : 'Guardar nombre') | t }}</button><small>{{ 'Se mostrará como' | t }} {{ scanName(scan) }}</small></div> }
           </div>
           <button class="primary" type="button" (click)="compareScans()" [disabled]="comparing() || !baseScanId() || !targetScanId()">{{ comparing() ? ('Comparando…' | t) : ('Comparar' | t) }}</button>
         </div>
@@ -124,11 +122,10 @@
         @for (item of history(); track item.id) {
           <article class="history-card" [class.failed-card]="item.status === 'FAILED'">
             <div class="history-top"><div><span class="status" [class.failed]="item.status === 'FAILED'" [class.partial]="item.coverageStatus === 'PARTIAL' && item.status === 'COMPLETED'">{{ stateLabel(item) | t }}</span>
-                <h3><span class="scan-order">#{{ item.sequenceNumber }}</span> {{ item.displayName || item.scannerName || (sourceLabel(item) | t) }}</h3><p>{{ selected()?.fullName }} · {{ sourceLabel(item) | t }} · {{ item.requestedAt | date:'medium' }} · {{ 'Análisis' | t }} <code [title]="item.id">{{ shortId(item.id) }}</code></p></div>
+                <h3>{{ scanName(item) }}</h3><p>{{ 'Análisis' | t }} <code [title]="item.id">{{ shortId(item.id) }}</code></p></div>
               @if (item.status === 'FAILED') { <button class="retry" type="button" (click)="runAnalysis()" [disabled]="running()">{{ 'Reintentar análisis' | t }}</button> }
               @if (item.status === 'COMPLETED') { <button class="text-action" type="button" (click)="openInventory.emit(item.repositoryId)">{{ 'Ver inventario' | t }}</button> }
             </div>
-            @if (item.status === 'COMPLETED') { <div class="scan-label-editor"><label [for]="'scan-label-' + item.id">{{ 'Nombre de este análisis' | t }}</label><input [id]="'scan-label-' + item.id" maxlength="100" [value]="labelDrafts()[item.id] ?? ''" (input)="updateLabelDraft(item.id, $event)" [placeholder]="'Ej.: Antes de actualizar dependencias' | t"><button class="secondary" type="button" (click)="saveScanLabel(item)" [disabled]="savingLabelId() === item.id">{{ (savingLabelId() === item.id ? 'Guardando…' : 'Guardar nombre') | t }}</button></div> }
             <dl><div><dt>{{ 'Commit o referencia' | t }}</dt><dd>{{ item.commitSha || item.gitReference || 'No aplica / no informado' }}</dd></div>
               <div><dt>{{ 'Dependencias' | t }}</dt><dd>{{ item.dependencyCount }}</dd></div><div><dt>{{ 'Manifiestos' | t }}</dt><dd>{{ item.manifestCount }}</dd></div>
               <div><dt>{{ 'Sin resolver' | t }}</dt><dd>{{ item.unresolvedCount }}</dd></div><div><dt>{{ 'Duración' | t }}</dt><dd>{{ duration(item) }}</dd></div>

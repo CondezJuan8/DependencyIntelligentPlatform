@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { finalize, Subscription } from 'rxjs';
 import { AnalysisJobService, AnalysisJobStatus, AnalysisResult } from '../../core/analysis-job.service';
@@ -27,7 +26,7 @@ interface LoadingStep { title: string; detail: string; state: LoadingStepState; 
 
 @Component({
   selector: 'app-analysis-workspace',
-  imports: [DatePipe, TranslatePipe, DiIcon],
+  imports: [TranslatePipe, DiIcon],
   templateUrl: './analysis-workspace.html',
   styleUrls: ['./analysis-workspace.scss', './analysis-workspace-design.scss'],
 })
@@ -52,8 +51,6 @@ export class AnalysisWorkspace implements OnInit {
   readonly targetScanId = signal('');
   readonly comparing = signal(false);
   readonly comparison = signal<Comparison | null>(null);
-  readonly labelDrafts = signal<Record<string, string>>({});
-  readonly savingLabelId = signal('');
 
   ngOnInit(): void {
     this.api.get<Repository[]>('/api/account/workspace').pipe(finalize(() => this.loading.set(false))).subscribe({
@@ -226,7 +223,6 @@ export class AnalysisWorkspace implements OnInit {
     ).subscribe({
       next: items => {
         this.history.set(items);
-        this.labelDrafts.set(Object.fromEntries(items.map(item => [item.id, item.displayName ?? ''])));
         const complete = items.filter(item => item.status === 'COMPLETED');
         if (!complete.some(item => item.id === this.targetScanId())) this.targetScanId.set(complete[0]?.id ?? '');
         const alternative = complete.find(item => item.id !== this.targetScanId());
@@ -246,46 +242,21 @@ export class AnalysisWorkspace implements OnInit {
       .subscribe({ next: result => this.comparison.set(result), error: failure => this.error.set(accessError(failure)) });
   }
 
-  saveScanLabel(item: ScanHistory): void {
-    const repo = this.selected();
-    if (!repo || this.savingLabelId()) return;
-    this.savingLabelId.set(item.id);
-    this.api.put<void>(`${this.endpoint(repo, 'scans')}/${item.id}/label`, {
-      displayName: this.labelDrafts()[item.id]?.trim() || null,
-    }).pipe(finalize(() => this.savingLabelId.set(''))).subscribe({
-      next: () => { this.notice.set('Nombre del análisis guardado.'); this.refreshHistory(repo); },
-      error: failure => this.error.set(accessError(failure)),
-    });
-  }
-
-  updateLabelDraft(scanId: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.labelDrafts.update(drafts => ({ ...drafts, [scanId]: value }));
-  }
-
   scanName(item: ScanHistory | null | undefined): string {
     if (!item) return '—';
-    return `#${item.sequenceNumber} · ${item.displayName?.trim() || this.revisionLabel(item)}`;
-  }
-
-  selectedBaseScan(): ScanHistory | null {
-    return this.history().find(item => item.id === this.baseScanId()) ?? null;
-  }
-
-  selectedTargetScan(): ScanHistory | null {
-    return this.history().find(item => item.id === this.targetScanId()) ?? null;
+    const sequence = Number.isSafeInteger(item.sequenceNumber) && item.sequenceNumber > 0
+      ? item.sequenceNumber : this.history().length - this.history().findIndex(scan => scan.id === item.id);
+    const number = String(Math.max(1, sequence)).padStart(2, '0');
+    const repository = (item.repositoryName || this.selected()?.fullName || 'REPOSITORIO').split('/').at(-1) || 'REPOSITORIO';
+    const source = item.origin === 'LOCAL_UPLOAD_SCAN' ? 'LOCAL' : item.origin === 'SBOM_IMPORT' ? 'SBOM' : 'GITHUB';
+    const date = new Date(item.requestedAt);
+    const when = Number.isNaN(date.getTime()) ? item.requestedAt :
+      `${new Intl.DateTimeFormat('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' }).format(date)} ${new Intl.DateTimeFormat('es-CO', { hour:'2-digit', minute:'2-digit', hour12:false }).format(date)}`;
+    return `${number}-${repository}-${source}-${when}`;
   }
 
   comparisonScanName(point: Comparison['base']): string {
-    const label = point.displayName?.trim() || (point.commitSha
-      ? (point.commitSha.length > 14 ? `${point.commitSha.slice(0, 12)}…` : point.commitSha)
-      : 'Fuente local');
-    return `#${point.sequenceNumber} · ${label}`;
-  }
-
-  private revisionLabel(item: ScanHistory): string {
-    const revision = item.commitSha || item.gitReference || 'Fuente local';
-    return revision.length > 14 ? `${revision.slice(0, 12)}…` : revision;
+    return this.scanName(this.history().find(item => item.id === point.id));
   }
 
   private endpoint(repo: Repository, suffix: string): string {
@@ -312,8 +283,7 @@ export class AnalysisWorkspace implements OnInit {
   shortId(value: string): string { return value.length > 8 ? value.slice(0, 8) : value; }
   shortHash(value: string): string { return value.length > 16 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value; }
   scanLabel(item: ScanHistory): string {
-    const when = new Date(item.requestedAt).toLocaleString();
-    return `${this.scanName(item)} · ${when}`;
+    return this.scanName(item);
   }
   completedScans(): ScanHistory[] { return this.history().filter(item => item.status === 'COMPLETED'); }
 }
