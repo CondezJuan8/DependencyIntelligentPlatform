@@ -1,3 +1,15 @@
+## Bloque 121 — Ajuste de guía del inventario (25/11/2026)
+
+**Petición.** El usuario indicó que la guía «Cómo encontrar y entender un hallazgo» se veía mal en la vista de Inventario.
+
+**Cambios.** Se equilibraron el ancho del título y las tres etapas, se aumentó el espacio interior y la legibilidad del texto, y se separaron Scanner, OSV y Exposición en código con divisores. Se conservó el reflujo en una columna para pantallas estrechas.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** Build Docker frontend correcto; 8189 responde HTTP 200 y sirve el CSS nuevo. Falta revisión visual autenticada dentro del navegador del usuario.
+
+**Siguiente paso.** Recargar Inventario en 8189 y revisar el bloque en escritorio y móvil.
+
 ## Bloque 120 — Retiro de tabla de paquetes en comparación (25/11/2026)
 
 **Petición.** El usuario pidió quitar la tabla de Análisis que comienza con «Paquete / Cambio».

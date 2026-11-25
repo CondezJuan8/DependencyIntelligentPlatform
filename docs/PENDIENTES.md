@@ -1,5 +1,6 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Ajustar legibilidad, proporciones y separación de la guía de interpretación en Inventario. Frontend 8189 actualizado; revisión visual autenticada pendiente.
 - [x] Quitar la tabla «Paquete / Cambio» de la comparación en Análisis; conservar resumen y avisos OSV. Frontend 8189 actualizado, pendiente revisión visual autenticada.
 - [x] Limpiar todos los análisis de la instancia activa de 8189 con copia de seguridad previa: 91 scans y sus dependencias; 12 repositorios conservados. Backend migrado a V33.
 - [x] Mostrar los análisis nuevos con el formato `01-NOMBREREPOSITORIO-FUENTE-fecha y hora`, numerado por repositorio y sin `#undefined`.
