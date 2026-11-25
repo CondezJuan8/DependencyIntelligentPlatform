@@ -1,3 +1,15 @@
+## Bloque 128 — Texto legible en avisos OSV (25/11/2026)
+
+**Petición.** El usuario mostró que al abrir un aviso en Vulnerabilidades aparecían marcadores como `##`, comillas de código y etiquetas en la descripción.
+
+**Cambios.** La descripción de OSV se presenta como texto plano: se retiran marcadores Markdown, etiquetas HTML y bloques desplegables embebidos; se conservan los párrafos y el contenido descriptivo. El dato original no se modifica.
+
+**Herramientas y tecnologías.** Angular, TypeScript, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** Build Docker frontend correcto; servicio 8189 recreado y ruta de Vulnerabilidades con HTTP 200. Falta inspección visual autenticada por indisponibilidad del puente nativo de navegador.
+
+**Siguiente paso.** Revisar un aviso abierto en la sesión del usuario, especialmente descripciones OSV con formatos distintos.
+
 ## Bloque 127 — Posición del panel de paquetes (25/11/2026)
 
 **Petición.** El usuario precisó con una nueva captura que la ventana del paquete seguía demasiado alta y el botón de cierre quedaba tapado por la barra superior.
