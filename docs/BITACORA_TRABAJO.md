@@ -1,3 +1,15 @@
+## Bloque 127 — Posición del panel de paquetes (25/11/2026)
+
+**Petición.** El usuario precisó con una nueva captura que la ventana del paquete seguía demasiado alta y el botón de cierre quedaba tapado por la barra superior.
+
+**Cambios.** El panel y su fondo comienzan debajo de la barra superior: 62 px en escritorio y 58 px en pantallas estrechas. El panel limita su altura al espacio restante, mantiene el encabezado visible al desplazarse y refuerza el borde de «Cerrar».
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** Build Docker frontend correcto; servicio 8189 recreado y ruta de Inventario con HTTP 200. Sigue pendiente la inspección visual autenticada porque el puente nativo del navegador no está disponible.
+
+**Siguiente paso.** Comprobar visualmente la ficha abierta con la sesión del usuario.
+
 ## Bloque 126 — Recorte del panel de Inventario (25/11/2026)
 
 **Petición.** La nueva captura confirmó que el encabezado del panel de apariciones seguía oculto bajo la barra superior; el usuario pidió terminar la corrección.
