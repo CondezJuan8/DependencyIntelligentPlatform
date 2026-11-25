@@ -1,3 +1,15 @@
+## Bloque 120 — Retiro de tabla de paquetes en comparación (25/11/2026)
+
+**Petición.** El usuario pidió quitar la tabla de Análisis que comienza con «Paquete / Cambio».
+
+**Cambios.** Se retiró la tabla detallada de dependencias de la comparación y su regla visual específica. Permanecen los selectores de snapshots, los conteos de cambios, la cobertura, las recomendaciones y los avisos OSV. El backend y los datos no cambiaron.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** El build Docker de frontend pasó y se recreó únicamente el frontend de 8189. Falta inspección visual autenticada de esta sección.
+
+**Siguiente paso.** Recargar Análisis en 8189 y comprobar la comparación sin la tabla.
+
 ## Bloque 119 — Reinicio de análisis y nombres canónicos (25/11/2026)
 
 **Petición.** El usuario pidió eliminar todos los análisis existentes, afectados por etiquetas `#undefined`, y nombrar los siguientes con `01-NOMBREREPOSITORIO-FUENTE-fecha y hora`.
