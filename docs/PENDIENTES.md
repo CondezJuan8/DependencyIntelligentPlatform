@@ -1,5 +1,6 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Retirar las barras de atajos internos `page-jump` de seis ventanas; se conservaron acciones reales y navegación principal. Frontend 8189 actualizado; falta revisión visual autenticada.
 - [x] Compactar la conexión GitHub y dar ancho completo a «Importar carpeta local». El selector de carpeta usa un control visual propio y las carpetas importadas tienen acciones más claras. Frontend 8189 recompilado; queda la revisión visual autenticada por el usuario.
 - [ ] Identificar la petición API que muestra «Tu cuenta no tiene permiso para esta acción» en Dinamita. El estado GitHub permite mostrar el formulario, pero la captura no contiene método ni URL de la respuesta fallida; revisar Red/Network con la sesión autenticada antes de cambiar permisos.
 - [x] Integrar los cinco bloques de la guía «PORFAVOR» en Angular. La paleta, el alcance de las vistas y las variantes están en [DESIGN.md](../DESIGN.md).

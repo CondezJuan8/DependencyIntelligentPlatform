@@ -1,3 +1,15 @@
+## Bloque 116 — Retiro de atajos internos redundantes (25/11/2026)
+
+**Petición.** El usuario indicó que la mayoría de los enlaces de la barra «Agregar o revisar / Conectar GitHub / Importar carpeta» no funcionaban y pidió retirarlos o corregirlos en todas las ventanas.
+
+**Cambios.** Se retiró el patrón `page-jump` en Repositorios, Análisis, Inventario, Vulnerabilidades, Documentación y Reportes, junto con sus estilos compartidos y la regla de impresión. Eran enlaces de desplazamiento dentro de la misma vista; se conservaron la navegación principal, los controles de formulario y las acciones que realizan operaciones. El enlace específico del Dashboard hacia sus avisos no pertenece a esa barra y permanece.
+
+**Herramientas y tecnologías.** Skill `impeccable`, Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** No quedan usos de `page-jump` en `frontend/src`. `git diff --check`, el build Docker de frontend y `impeccable detect --json --changed` pasaron (detector `[]`). La imagen frontend se publicó recreando solo el contenedor de 8189; persisten avisos de presupuesto Angular/Sass. No se afirma recorrido visual autenticado por el bloqueo del puente nativo del navegador.
+
+**Siguiente paso.** Revisar las seis vistas en 8189 con la sesión del usuario y comunicar cualquier otro control concreto que no ejecute su acción; la investigación del 403 GitHub sigue pendiente por separado.
+
 ## Bloque 113 — Conexión del frontend nuevo con GitHub App existente (25/11/2026)
 
 **Petición.** El usuario indicó que su cuenta GitHub estaba vinculada en la interfaz anterior y solicitó ayuda para recuperarla en la elegida.
