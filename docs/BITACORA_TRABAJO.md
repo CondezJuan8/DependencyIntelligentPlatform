@@ -1,3 +1,13 @@
+## Bloque 122 — Guía compacta del inventario (25/11/2026)
+
+**Petición.** El usuario rechazó la composición de la guía en columnas y pidió arreglarla.
+
+**Cambios.** Se sustituyó la cuadrícula de cuatro zonas por una explicación breve de lectura continua: Scanner, OSV y evidencia de código. Se redujo la altura y se conservó la advertencia sobre evaluaciones inconclusas.
+
+**Herramientas y tecnologías.** Angular, Sass y Docker Compose; sin dependencias nuevas.
+
+**Verificación.** Build frontend correcto y contenedor 8189 actualizado. Revisión visual autenticada pendiente.
+
 ## Bloque 121 — Ajuste de guía del inventario (25/11/2026)
 
 **Petición.** El usuario indicó que la guía «Cómo encontrar y entender un hallazgo» se veía mal en la vista de Inventario.

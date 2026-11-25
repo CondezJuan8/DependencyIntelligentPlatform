@@ -85,8 +85,8 @@
 
   app-inventory-workspace {
     .inventory-page { max-width: none; }
-    .inventory-guide { display:grid; grid-template-columns:minmax(150px,.72fr) minmax(0,2.28fr); align-items:start; gap:8px 16px; padding:12px 14px; border:1px solid var(--di-border); border-radius:var(--di-radius-panel); background:var(--di-surface-muted); }
-    .inventory-guide > strong { align-self:start; max-width:20ch; color:var(--di-text); font-size:13px; line-height:1.4; }
+    .inventory-guide { display:block; margin:0; padding:10px 14px; border:1px solid var(--di-border); border-radius:var(--di-radius-panel); background:var(--di-surface-muted); color:var(--di-text-secondary); font-size:12px; line-height:1.5; }
+    .inventory-guide > strong { display:inline; margin-right:8px; color:var(--di-text); font-size:12px; line-height:inherit; }
     .inventory-guide ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
     .inventory-guide li { display:grid; align-content:start; gap:4px; min-width:0; padding:0; border:0; }
     .inventory-guide li b { font-size:11px; letter-spacing:.035em; text-transform:uppercase; color:var(--di-accent-text); }
