@@ -102,12 +102,6 @@
         @if (diff.securityChanges.length) { <div class="security-deltas"><h3>{{ 'Cambios en avisos OSV' | t }}</h3>
           @for (item of diff.securityChanges; track item.advisoryId + item.change + item.packageName) { <p><strong>{{ item.change === 'NEW' ? ('Nuevo' | t) : ('Ya no reportado' | t) }} · {{ item.advisoryId }}</strong> — {{ item.packageName }} @if(item.sourceUrl){<a [href]="item.sourceUrl" target="_blank" rel="noopener noreferrer">{{ 'Fuente OSV' | t }}</a>}</p> }
         </div> }
-        <div class="compare-table-wrap"><table><thead><tr><th>{{ 'Paquete' | t }}</th><th>{{ 'Cambio' | t }}</th><th>{{ 'Versiones base' | t }}</th><th>{{ 'Versiones objetivo' | t }}</th><th>{{ 'Avisos OSV objetivo' | t }}</th><th>{{ 'Evaluación OSV objetivo' | t }}</th></tr></thead><tbody>
-          @for (item of diff.dependencies; track item.ecosystem + item.namespace + item.name) { @if (item.change !== 'UNCHANGED') {
-            <tr><td>{{ item.ecosystem }} · {{ item.namespace ? item.namespace + ':' : '' }}{{ item.name }}</td><td>{{ item.change | t }}</td><td>{{ item.baseVersions.join(', ') || '—' }}</td><td>{{ item.targetVersions.join(', ') || '—' }}</td><td>{{ item.targetAdvisories.join(', ') || '—' }}</td><td>{{ item.targetAssessment | t }}</td></tr>
-          } }
-          @if (!diff.added && !diff.removed && !diff.updated) { <tr><td colspan="6">{{ 'No hay cambios de paquetes entre estos snapshots.' | t }}</td></tr> }
-        </tbody></table></div>
       }
     </section>
   }
