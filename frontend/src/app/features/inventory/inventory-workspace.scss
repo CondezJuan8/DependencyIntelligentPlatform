@@ -61,7 +61,7 @@ select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-v
 @keyframes spin { to { transform: rotate(360deg); } }
 .progress-copy { margin: 10px 2px 0; color: var(--di-info-text); font-size: 13px; }
 .inventory-analysis-backdrop { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--di-text) 48%, transparent); }
-.inventory-analysis-window { width: min(100%, 520px); max-height: min(90vh, 760px); overflow: auto; padding: 28px; border: 1px solid var(--di-border-soft); border-radius: var(--di-radius-dialog); background: var(--di-surface) url('/atlas-contours.svg') right top / 520px auto no-repeat; color: var(--di-text); box-shadow: 0 22px 64px #050d0780; text-align: center; }
+.inventory-analysis-window { width: min(100%, 520px); max-height: min(90vh, 760px); overflow: auto; padding: 28px; border: 1px solid var(--di-border-soft); border-radius: var(--di-radius-dialog); background: var(--di-surface) url('/auth-network.svg') right -90px top -80px / 300px auto no-repeat; color: var(--di-text); box-shadow: 0 22px 64px #050d0780; text-align: center; }
 .inventory-analysis-emblem { position: relative; width: 82px; height: 82px; margin: 0 auto 18px; display: grid; place-items: center; }
 .inventory-analysis-emblem > b { color: var(--di-primary); font-size: 18px; letter-spacing: .1em; }
 .inventory-analysis-wheel { position: absolute; inset: 0; border: 2px solid var(--di-border); border-top-color: var(--di-accent); border-right-color: var(--di-primary); border-radius: 50%; animation: inventory-wheel 1.15s linear infinite; }

@@ -18,10 +18,11 @@ get navigation(){return availableNavigation(this.api.account());}
   get navigationGroups() {
     const available = this.navigation;
     const groups: { label: string; ids: Page[] }[] = [
-      { label: 'Espacio', ids: ['dashboard'] },
-      { label: 'Dependencias', ids: ['repositories', 'analysis', 'inventory', 'vulnerabilities'] },
-      { label: 'Conocimiento', ids: ['documentation', 'assistant', 'reports'] },
-      { label: 'Administración', ids: ['organization', 'administration', 'settings'] },
+      { label: 'Espacio', ids: ['dashboard', 'repositories'] },
+      { label: 'Analizar', ids: ['analysis', 'inventory'] },
+      { label: 'Revisar', ids: ['vulnerabilities', 'reports'] },
+      { label: 'Conocimiento', ids: ['documentation', 'assistant'] },
+      { label: 'Equipo y cuenta', ids: ['organization', 'administration', 'settings'] },
     ];
     return groups.flatMap(group => {
       const items = group.ids.flatMap(id => {

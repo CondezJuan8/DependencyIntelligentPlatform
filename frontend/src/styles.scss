@@ -2,6 +2,7 @@
 @use './theme/tokens';
 @use './theme/workspace';
 @use './theme/appearance';
+@use './theme/observatory';
 
 html {
   color-scheme: dark;
@@ -121,10 +122,7 @@ button:disabled {
 
 #workspace-main {
   scroll-margin-top: 72px;
-  background-image: url('/atlas-contours.svg');
-  background-repeat: no-repeat;
-  background-position: right top 24px;
-  background-size: min(70vw, 880px) auto;
+  background: var(--di-background);
 }
 
 #workspace-main h1 {
@@ -286,12 +284,12 @@ button:disabled {
 #access-panel .switch { margin-top:20px; }
 
 #workspace-main > :is(app-dashboard, app-repository-workspace, app-inventory-workspace, app-vulnerabilities-workspace, app-analysis-workspace, app-document-center, app-assistant-workspace, app-reports-workspace, app-organization-workspace, app-platform-administration) {
-  animation: atlas-arrive 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: observatory-arrive 320ms cubic-bezier(.2,.8,.2,1) both;
 }
 
-@keyframes atlas-arrive {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes observatory-arrive {
+  from { opacity: 0; clip-path: inset(0 0 1.5% 0); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); }
 }
 
 ::selection {
@@ -320,7 +318,6 @@ button:disabled {
 }
 
 @media (max-width: 600px) {
-  #workspace-main { background-size: 620px auto; background-position: right -260px top 10px; }
   #access-panel .intro { margin-bottom:17px; }
   #access-panel form { gap:10px; }
 }
@@ -338,4 +335,154 @@ button:focus-visible {
   body.di-printing-report .workspace,
   body.di-printing-report #workspace-main { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; overflow:visible !important; }
   body.di-printing-report app-reports-workspace { display:block !important; }
+}
+
+/* Evidence Observatory: planes de trabajo, marcas precisas y lectura por capas. */
+#workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .risk-card, .document-card, .di-editor-card, .create, .rows article, .summary-card, .compare-section, .compare-summary article, .empty, .empty-state, .report-controls, .inventory-analysis-window) {
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+#workspace-main :where(.page-heading, .analysis-heading, .vuln-heading, .reports-heading, .heading) h1 {
+  max-width: 24ch;
+  color: var(--di-text);
+  font-size: clamp(27px, 2.6vw, 36px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+
+#workspace-main :where(.page-heading, .analysis-heading, .vuln-heading, .reports-heading, .heading) > div > p {
+  max-width: 68ch;
+  color: var(--di-text-secondary);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+#workspace-main :where(.connection-card, .repo-section, .launch-card, .result-card, .history-card, .compare-section, .report-card, .document-card, .panel, .catalog, .control-panel, .assessment-summary, .scanner-status, .report-controls, .organization-access) {
+  border-color: var(--di-border);
+  background-color: var(--di-surface);
+}
+
+#workspace-main :where(.section-heading, .panel-title, .report-card-heading) {
+  gap: 14px;
+}
+
+#workspace-main :where(.section-heading, .panel-title, .report-card-heading) h2 {
+  color: var(--di-text);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.025em;
+}
+
+#workspace-main :where(.section-heading, .panel-title, .report-card-heading) p {
+  color: var(--di-text-subtle);
+}
+
+#workspace-main :where(.connection-card, .repo-section, .launch-card, .report-controls, .assessment-summary, .scanner-status, .compare-section) {
+  border-color: var(--di-border);
+}
+
+#workspace-main :where(.primary, button.primary, .submit) {
+  min-height: 42px;
+  border-radius: var(--di-radius-control);
+  background: var(--di-primary);
+  color: var(--di-on-primary);
+  font-weight: 650;
+  box-shadow: none;
+  transition: background-color 170ms ease, color 170ms ease, transform 170ms ease;
+}
+
+#workspace-main :where(.primary, button.primary, .submit):hover:not(:disabled) {
+  background: var(--di-primary-hover);
+  color: var(--di-on-primary);
+}
+
+#workspace-main :where(.secondary-action, .secondary, button.secondary, .text-action) {
+  border-radius: var(--di-radius-control);
+}
+
+#workspace-main :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  min-height: 42px;
+  border-color: var(--di-control-border);
+  border-radius: var(--di-radius-control);
+  background: var(--di-background);
+  color: var(--di-text);
+  accent-color: var(--di-accent);
+}
+
+#workspace-main textarea { min-height: 96px; }
+
+#workspace-main :where(table th, table td) {
+  border-color: var(--di-border);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+#workspace-main table th {
+  background: var(--di-surface-muted);
+  color: var(--di-text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+#workspace-main :where(code, pre) {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+#workspace-main :where(.status, .status-pill, .risk, .risk-category, .di-tag, .badge) {
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+#workspace-main :where(.page-jump) {
+  gap: 5px;
+  border-bottom-color: var(--di-border);
+}
+
+#workspace-main .page-jump a {
+  min-height: 37px;
+  padding-inline: 9px;
+  border-radius: 2px;
+  color: var(--di-text-secondary);
+  font-size: 11px;
+}
+
+#workspace-main .page-jump a:hover {
+  border-color: transparent;
+  background: var(--di-surface-muted);
+  color: var(--di-link);
+}
+
+#workspace-main :where(.repo-row, .document-card, .history-card, .finding-row, .advisory-card, .organization-row) {
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+#workspace-main :where(.repository-pagination, .report-table-wrap, .compare-table-wrap) {
+  border-radius: 2px;
+  border-color: var(--di-border);
+}
+
+#workspace-main :where(.notice, .coverage, .failure-reason, .assessment-pending, .alert) {
+  border-radius: 2px;
+  line-height: 1.55;
+}
+
+#workspace-main :where(.analysis-route, .analysis-loading-window, .inventory-analysis-window) {
+  border-radius: var(--di-radius-dialog);
+}
+
+::-webkit-scrollbar-thumb { border-radius: 2px; }
+
+@media (max-width: 760px) {
+  #workspace-main :where(.page-heading, .analysis-heading, .vuln-heading, .reports-heading, .heading) { gap: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #workspace-main :where(.primary, button.primary, .submit, .repo-row, .document-card, .history-card, .finding-row, .advisory-card, .organization-row) { transition: none; }
 }

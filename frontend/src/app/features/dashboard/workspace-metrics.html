@@ -1,20 +1,8 @@
 <div class="metrics" aria-label="Resumen del espacio de trabajo">
   @if (!member()) {
-    <article>
-      <div><p>Organizaciones</p><strong>{{ loading() ? '…' : failed() ? '—' : count() }}</strong><small>Espacios a los que perteneces</small></div>
-      <span class="metric-icon blue"><app-di-icon name="users" /></span>
-    </article>
+    <article><strong>{{ loading() ? '…' : failed() ? '—' : count() }}</strong><span>Organizaciones</span><small>Espacios disponibles</small></article>
   }
-  <article>
-    <div><p>{{ member() ? 'Repositorios asignados' : 'Repositorios' }}</p><strong>{{ loading() ? '…' : failed() ? '—' : repositories() }}</strong><small>Acceso disponible para tu cuenta</small></div>
-    <span class="metric-icon cyan"><app-di-icon name="box" /></span>
-  </article>
-  <article>
-    <div><p>Versiones de dependencias</p><strong>{{ loading() ? '…' : dependencies() === null ? '—' : dependencies() }}</strong><small>{{ loading() ? 'Consultando snapshots' : dependencies() === null ? 'Aún no hay análisis' : 'Versiones únicas en los últimos análisis' }}</small></div>
-    <span class="metric-icon purple"><app-di-icon name="box" /></span>
-  </article>
-  <article>
-    <div><p>Repositorios analizados</p><strong>{{ loading() ? '…' : failed() ? '—' : analyzedRepositories() }}</strong><small>{{ loading() ? 'Consultando snapshots' : 'Con al menos un análisis guardado' }}</small></div>
-    <span class="metric-icon gray"><app-di-icon name="analysis" /></span>
-  </article>
+  <article><strong>{{ loading() ? '…' : failed() ? '—' : repositories() }}</strong><span>{{ member() ? 'Repositorios asignados' : 'Repositorios' }}</span><small>Con acceso para esta cuenta</small></article>
+  <article><strong>{{ loading() ? '…' : dependencies() === null ? '—' : dependencies() }}</strong><span>Versiones identificadas</span><small>{{ loading() ? 'Consultando snapshots' : dependencies() === null ? 'Aún no hay análisis' : 'En los últimos análisis' }}</small></article>
+  <article><strong>{{ loading() ? '…' : failed() ? '—' : analyzedRepositories() }}</strong><span>Repositorios analizados</span><small>{{ loading() ? 'Consultando snapshots' : 'Con un análisis guardado' }}</small></article>
 </div>
