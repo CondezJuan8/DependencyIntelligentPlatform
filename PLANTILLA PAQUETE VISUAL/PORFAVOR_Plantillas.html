@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plantillas visuales · PORFAVOR</title><style>:root{color-scheme:dark;--bg:#101722;--side:#0e1520;--panel:#161f2e;--raised:#1b2637;--inset:#111a27;--line:#2d394b;--line-strong:#415068;--ink:#f5f2eb;--muted:#abb7c8;--soft:#8798af;--amber:#f2bc79;--amber-dark:#2a1b0c;--amber-bg:#382b22;--mint:#94dcc2;--mint-bg:#1c3736;--rose:#f3a3a1;--rose-bg:#3b292f;--blue:#afcafc;--blue-bg:#253554;--paper:#f1ddbf;--paper-ink:#282012;--radius:13px;--mono:"Liberation Mono",Consolas,monospace;--sans:"Open Sans",system-ui,sans-serif}
+body.light{color-scheme:light;--bg:#f2eee6;--side:#e8e2d7;--panel:#fbf8f1;--raised:#f0eae0;--inset:#f6f2e9;--line:#d8cfc1;--line-strong:#b9af9e;--ink:#25281f;--muted:#555c59;--soft:#58636b;--amber:#795018;--amber-dark:#25180a;--amber-bg:#f4e5cd;--mint:#245f4b;--mint-bg:#e1eee5;--rose:#8a4343;--rose-bg:#f5e1dc;--blue:#355c89;--blue-bg:#e0e9f5;--paper:#f0d2a6;--paper-ink:#2a2217}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--sans);min-height:100vh}
+button,input,select,textarea{font:inherit}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+button,a{cursor:pointer}
+a{color:inherit;text-decoration:none}
+button{color:inherit}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+svg.ico{width:17px;height:17px;flex:none;vertical-align:middle}
+h1,h2,h3,p{margin:0}
+h1{font-size:47px;line-height:1.03;letter-spacing:-.054em;font-weight:700}
+h2{font-size:20px;line-height:1.24;letter-spacing:-.027em;font-weight:700}
+h3{font-size:15px;line-height:1.45;font-weight:650}
+small,.small{font-size:12px}
+.muted{color:var(--muted)}
+.soft{color:var(--soft)}
+.accent{color:var(--amber)}
+.mono,code,kbd{font-family:var(--mono);font-size:.91em}
+code{overflow-wrap:anywhere}
+.eyebrow{display:flex;align-items:center;gap:8px;font:11px/1.4 var(--mono);font-weight:bold;letter-spacing:.12em;color:var(--amber);text-transform:uppercase}
+.eyebrow:before{content:"";width:15px;height:1px;background:currentColor}
+.stack{display:grid;gap:16px}
+.stack.tight{gap:9px}
+.row,.between,.actions,.inline{display:flex;align-items:center;gap:10px}
+.row.wrap,.actions{flex-wrap:wrap}
+.inline{gap:7px}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.right{text-align:right}
+.nowrap{white-space:nowrap}
+.center{text-align:center}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.cols.wide{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
+.cols.third{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cols.equal{align-items:stretch}
+.separator{height:1px;background:var(--line);margin:5px 0}
+.btn{min-height:37px;display:inline-flex;justify-content:center;align-items:center;gap:8px;border:1px solid var(--line-strong);border-radius:8px;padding:7px 12px;background:var(--raised);font-size:12px;font-weight:650;line-height:1.3;text-align:center;white-space:nowrap}
+.btn:hover{border-color:var(--amber)}
+.btn.primary{background:#f2bc79;border-color:#f2bc79;color:#291b0d}
+.btn.ghost{background:transparent;border-color:var(--line)}
+.btn.link{border-color:transparent;background:transparent;color:var(--amber);padding-left:3px;padding-right:3px}
+.btn.danger{background:var(--rose-bg);color:var(--rose);border-color:var(--rose)}
+.btn.icon{padding:0;width:37px}
+.btn.full{width:100%}
+.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:15px;height:15px}
+.tag{padding:4px 7px;border-radius:5px;color:var(--muted);background:var(--raised);border:1px solid transparent;display:inline-flex;align-items:center;gap:5px;font-size:11px;line-height:1.15;font-weight:650;white-space:nowrap}
+.tag i,.status-dot{width:6px;height:6px;display:inline-block;border-radius:50%;background:currentColor;flex:none}
+.tag.amber,.notice.amber{background:var(--amber-bg);color:var(--amber)}
+.tag.mint,.notice.mint{background:var(--mint-bg);color:var(--mint)}
+.tag.rose,.notice.rose{background:var(--rose-bg);color:var(--rose)}
+.tag.blue,.notice.blue{background:var(--blue-bg);color:var(--blue)}
+.notice{border:1px solid currentColor;border-radius:9px;background:var(--raised);padding:11px 13px;font-size:12px;display:flex;align-items:flex-start;gap:10px;color:var(--muted)}
+.notice>svg{margin-top:2px}
+.notice strong{display:block;font-size:13px;margin-bottom:2px}
+.notice .btn{margin-left:auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);min-width:0}
+.pad{padding:18px}
+.panel-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:17px 18px}
+.panel-head p{margin-top:4px}
+.panel-foot{padding:11px 17px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+.inset{background:var(--inset);border:1px solid var(--line);border-radius:9px;padding:13px}
+.tile{height:37px;width:37px;display:grid;place-items:center;border-radius:9px;background:var(--raised);border:1px solid var(--line);color:var(--amber);flex:none}
+.tile.cream{background:var(--paper);color:var(--paper-ink);border:0}
+.tile svg{width:19px;height:19px}
+.brand{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.brand-name{font-size:20px;font-weight:800;letter-spacing:-.065em;line-height:1.1}
+.brand small{display:block;font:9px/1.45 var(--mono);color:var(--muted);letter-spacing:.02em;margin-top:4px}
+.brand-mark{width:31px;height:31px;flex:none;position:relative;display:block;background:#f2bc79;border-radius:8px}
+.brand-mark:before,.brand-mark:after{content:"";position:absolute;width:11px;height:11px;border:2px solid #261a10;transform:rotate(45deg);border-radius:2px;top:9px}
+.brand-mark:before{left:6px}.brand-mark:after{right:6px}
+.app{display:grid;grid-template-columns:222px minmax(0,1fr);min-height:100vh}
+.sidebar{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:100vh;padding:23px 14px 15px;position:sticky;top:0;height:100vh;z-index:4}
+.sidebar>.brand{padding:0 6px;margin-bottom:25px}
+.space-choice{display:flex;align-items:center;gap:9px;min-height:54px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px;margin-bottom:16px}
+.space-choice .tile{width:31px;height:31px;font:12px var(--mono);font-weight:bold;background:var(--amber-bg);border:0}
+.space-choice small,.identity small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.space-choice strong{display:block;font-size:12px;line-height:1.2}
+nav{display:grid;gap:12px;overflow:auto}
+.nav-group{display:grid;gap:2px}
+.nav-label{font:10px/1.4 var(--mono);font-weight:bold;text-transform:uppercase;letter-spacing:.12em;color:var(--soft);padding:8px 9px 5px}
+.navlink{display:flex;align-items:center;gap:9px;border-radius:7px;border:1px solid transparent;padding:8px 8px;color:var(--muted);font-weight:600;font-size:12px;white-space:nowrap;position:relative}
+.navlink svg{width:15px;height:15px}
+.navlink:hover{background:var(--panel)}
+.navlink.active{color:var(--amber);background:var(--amber-bg);border-color:color-mix(in srgb,var(--amber) 27%,transparent)}
+.navlink.active:before{content:"";position:absolute;left:-1px;top:8px;bottom:8px;width:2px;background:var(--amber);border-radius:2px}
+.navlink .inline-count{margin-left:auto;font:10px var(--mono)}
+.identity{margin-top:auto;border-top:1px solid var(--line);padding:13px 5px 0}
+.avatar{height:34px;width:34px;border:1px solid var(--line-strong);background:var(--blue-bg);color:var(--blue);border-radius:50%;display:grid;place-items:center;font:11px var(--mono);font-weight:bold;flex:none}
+.identity strong{display:block;font-size:12px;line-height:1.2}
+.top{height:67px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 30px;background:var(--side);position:relative;z-index:3}
+.crumb{font-size:12px;color:var(--muted);white-space:nowrap}
+.crumb b{color:var(--ink);font-weight:650}
+.crumb svg{width:13px}
+.top-actions{display:flex;align-items:center;gap:8px}
+.quick{display:flex;align-items:center;gap:8px;min-width:208px;justify-content:flex-start;color:var(--muted);margin-right:4px}
+kbd{border:1px solid var(--line-strong);border-radius:4px;padding:2px 4px;color:var(--muted);font-size:10px;line-height:1}
+.quick kbd{margin-left:auto}
+.top .avatar{width:33px;height:33px}
+.bell{position:relative}
+.bell:after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;right:6px;top:6px;background:var(--amber)}
+.mobile-menu{display:none}
+.content{max-width:1500px;margin:0 auto;padding:25px 30px 28px;display:grid;gap:17px}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin:2px 0 4px}
+.pagehead .eyebrow{margin-bottom:9px}
+.pagehead p{margin-top:8px}
+.pagehead aside{padding-bottom:2px}
+.footer-note{font-size:11px;color:var(--soft);display:flex;align-items:center;gap:6px}
+.footer-note svg{width:13px;height:13px}
+.metric-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:3px 0}
+.metric{padding:12px 16px;border-right:1px solid var(--line)}
+.metric:last-child{border:0}
+.metric span{display:block;color:var(--muted);font-size:11px;font-weight:650}
+.metric strong{font-size:32px;line-height:1.12;letter-spacing:-.065em;display:block;margin:4px 0 3px;font-variant-numeric:tabular-nums}
+.metric small{font-size:10px;color:var(--soft)}
+.field{display:grid;gap:5px;min-width:0;color:var(--muted);font-weight:650;font-size:12px}
+.field input,.field select,.field textarea,.searchbox{border:1px solid var(--line-strong);border-radius:8px;background:var(--inset);color:var(--ink);min-height:38px;padding:7px 10px;width:100%;font-size:13px}
+.field textarea{min-height:72px;resize:vertical}
+.field small{font-weight:400;color:var(--soft);font-size:11px}
+.field input[readonly]{color:var(--soft);border-style:dashed}
+.field input::placeholder,.field textarea::placeholder{color:var(--soft)}
+.searchbox{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.searchbox input{min-width:0;flex:1;background:transparent;border:0;padding:0;color:var(--ink);outline:0!important}
+.searchbox:focus-within{outline:2px solid var(--amber);outline-offset:2px}
+.filters{display:flex;flex-wrap:wrap;align-items:end;gap:9px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.filters .field{min-width:120px;flex:1}
+.filters .field.search-field{min-width:195px;flex:1.65}
+.tabs{display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding:0 16px;overflow:auto;scrollbar-width:thin}
+.tab{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:11px 2px 9px;white-space:nowrap;font-size:12px;font-weight:650}
+.tab.active{color:var(--amber);border-color:var(--amber)}
+.seg{display:inline-flex;gap:3px;padding:3px;background:var(--inset);border:1px solid var(--line);border-radius:9px}
+.seg .tab{padding:6px 9px;border:0;border-radius:6px}
+.seg .tab.active{background:var(--amber-bg);color:var(--amber)}
+.table-scroll{width:100%;overflow:auto}
+table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
+th{font-size:10px;color:var(--soft);font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:9px 12px;background:var(--inset);white-space:nowrap;text-align:left}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+td small,td .sub{display:block;margin-top:3px;color:var(--muted);font-size:10px}
+td:first-child,th:first-child{padding-left:17px}
+td:last-child,th:last-child{padding-right:17px}
+td a:hover{text-decoration:underline}
+.table-arrow{white-space:nowrap;color:var(--amber)}
+.list{display:grid}
+.list-row{padding:9px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px;font-size:12px}
+.list-row:last-child{border-bottom:0}
+.list-row small{display:block;font-size:10px}
+.checkrow{min-height:36px;display:flex;align-items:center;gap:8px;font-size:12px}
+input[type=checkbox]{accent-color:#e5a65a;width:15px;height:15px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:18px}
+.signal-card{border-radius:var(--radius);background:var(--paper);color:var(--paper-ink);padding:20px 23px;position:relative;isolation:isolate;overflow:hidden;min-height:250px}
+.signal-card .eyebrow{color:#6f430f}
+.signal-card h2{font-size:30px;margin-top:8px}
+.signal-number{display:flex;gap:11px;align-items:baseline;margin-top:10px}
+.signal-number b{font-size:58px;line-height:.94;letter-spacing:-.09em}
+.signal-number span{font-weight:700;font-size:14px}
+.signal-card p{font-size:12px;color:#57422b;margin-top:9px;max-width:320px}
+.signal-card .btn{margin-top:13px;background:#2c2117;color:#fff5e5;border-color:#2c2117}
+.orbits{position:absolute;right:-9%;top:-12%;width:61%;height:135%;z-index:-1;opacity:.67;background:repeating-radial-gradient(ellipse at 65% 50%,transparent 0 15px,#a6672c55 16px 17px,transparent 18px 25px),linear-gradient(102deg,transparent 2%,#ce924d52)}
+.orbits:after,.orbits:before{content:"";position:absolute;border-radius:50%;background:#9f5a1c;width:7px;height:7px;box-shadow:0 0 0 5px #b7773e3c}
+.orbits:after{top:35%;left:55%}.orbits:before{top:60%;left:36%}
+.rail{height:8px;width:100%;border-radius:8px;display:flex;gap:3px;overflow:hidden;background:var(--line)}
+.rail span{min-width:4px}
+.rail .mint{background:#80c6ad}.rail .amber{background:#ebb66f}.rail .rose{background:#e88d8e}.rail .blue{background:#9ab6e5}.rail .gray{background:#55647a}
+.legend{display:flex;flex-wrap:wrap;gap:9px 15px;font-size:11px;color:var(--muted)}
+.legend b{color:var(--ink)}
+.legend i{margin-right:4px}
+.progress{height:7px;background:var(--line);border-radius:10px;overflow:hidden}
+.progress span{display:block;height:100%;background:#edb776}
+.dashed{border-style:dashed}
+.quote{border-left:2px solid var(--amber);padding:7px 0 7px 11px;color:var(--muted);font-size:12px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-bottom:1px solid var(--line);padding-bottom:13px}
+.meta-grid span{display:block;color:var(--soft);font-size:11px}
+.meta-grid strong{font-size:13px}
+.toast{position:fixed;right:22px;bottom:22px;z-index:12;padding:10px 14px;border:1px solid var(--line-strong);border-radius:9px;background:var(--raised);color:var(--ink);box-shadow:0 10px 30px #0005}
+.auth{min-height:100vh;display:grid;grid-template-columns:46% 54%;background:var(--bg)}
+.auth-art{display:flex;flex-direction:column;justify-content:space-between;background:#111c2b;position:relative;isolation:isolate;overflow:hidden;padding:49px 54px;color:#f5f0e5;border-right:1px solid #354151}
+.auth-art .brand small{color:#aebacf}
+.auth-art>.contours{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 82% 68%,#81532851,transparent 52%),repeating-radial-gradient(ellipse at 95% 69%,transparent 0 25px,#d99e5729 26px 27px,transparent 28px 35px);mask-image:linear-gradient(to bottom,transparent 4%,#000 37%)}
+.auth-art>.frame-detail{position:absolute;width:49%;height:35%;right:-10%;top:29%;border:1px solid #d69b5555;transform:rotate(-30deg);border-radius:28px;z-index:-1}
+.auth-copy{max-width:440px;margin-bottom:70px}
+.auth-copy .eyebrow{color:#f2bc79;margin-bottom:17px}
+.auth-copy h1{font-size:64px;line-height:.99;color:#faefe0}
+.auth-copy h1 em{font-style:normal;color:#f2bc79}
+.auth-copy p{margin-top:18px;max-width:325px;color:#c7c9ce}
+.auth-foot{display:flex;gap:11px;color:#b9b9c2;font:11px var(--mono);align-items:center}
+.auth-main{padding:36px 30px 34px;display:grid;align-content:center;justify-items:center;position:relative}
+.auth-main>.auth-switch{position:absolute;top:24px;right:29px}
+.auth-form{width:min(100%,470px);display:grid;gap:14px}
+.auth-form h1{font-size:40px}
+.auth-form .field input{min-height:43px}
+.auth-form .provider{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.auth-form .provider .btn{min-height:41px}
+.auth-form .between .btn{min-height:auto}
+.status-board{width:min(100%,528px);display:grid;gap:16px}
+.status-board h1{font-size:43px}
+.status-step{display:grid;grid-template-columns:29px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.status-step .tile{width:28px;height:28px}
+.status-step .tile svg{width:14px;height:14px}
+.status-step p{font-size:11px;color:var(--muted)}
+.overlay{position:fixed;inset:0;z-index:8;background:#070d18ac;display:flex;align-items:flex-start;justify-content:center;padding:112px 30px 24px;overflow:auto}
+.dialog{width:min(100%,553px);background:var(--panel);border:1px solid var(--line-strong);border-radius:15px;box-shadow:0 22px 70px #0007}
+.dialog>header,.dialog>footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px}
+.dialog>header{border-bottom:1px solid var(--line)}
+.dialog>footer{border-top:1px solid var(--line);justify-content:flex-end}
+.dialog .body{padding:16px 18px;display:grid;gap:12px}
+.overlay.drawer-wrap{justify-content:flex-end;padding:0}
+.drawer{width:min(100%,490px);min-height:100%;border-radius:0;border-top:0;border-bottom:0;align-self:stretch}
+.popover{position:absolute;right:30px;top:58px;width:328px;z-index:5;box-shadow:0 17px 50px #0006;border-color:var(--line-strong)}
+.popover .list-row{padding:8px}
+.command-result{width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;background:transparent;border:1px solid transparent;text-align:left;border-radius:7px;color:var(--muted)}
+.command-result:hover,.command-result.selected{background:var(--amber-bg);color:var(--amber);border-color:color-mix(in srgb,var(--amber) 25%,transparent)}
+.command-result strong{color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden}
+.assistant-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:17px}
+.chat{display:grid;gap:13px;padding:15px 17px}
+.message{padding:11px 13px;border-radius:9px;border:1px solid var(--line);font-size:13px}
+.message.user{background:var(--raised);max-width:87%;justify-self:end}
+.message.nexo{background:var(--inset)}
+.message p+p{margin-top:8px}
+.chat-input{border-top:1px solid var(--line);padding:12px 16px}
+.cite{display:inline-flex;align-items:center;justify-content:center;border-radius:4px;background:var(--amber-bg);color:var(--amber);min-width:18px;height:18px;font:10px var(--mono);margin-left:4px;border:0}
+.permissions td:not(:first-child),.permissions th:not(:first-child){text-align:center}
+.flow-board{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.flow-board .panel{height:100%}
+.flow-board h2{margin:10px 0 6px}
+.flow-board .stack{margin-top:12px}
+@media(max-width:1200px){.sidebar{padding-left:10px;padding-right:10px}.app{grid-template-columns:196px minmax(0,1fr)}.quick{min-width:150px}.content,.top{padding-left:22px;padding-right:22px}}
+@media(max-width:980px){.app{grid-template-columns:minmax(0,1fr)}.sidebar{display:none;position:fixed;left:0;top:0;bottom:0;width:248px;height:100dvh;z-index:8}.sidebar.open{display:flex}.mobile-menu{display:inline-flex}.menu-shade{position:fixed;inset:0;background:#070d18ac;z-index:7}.auth-art{padding:38px 30px}.auth-copy h1{font-size:52px}.content{max-width:960px}}
+@media(max-width:680px){h1{font-size:37px}.top{height:58px;padding:0 13px}.top-actions{gap:5px}.top .btn.icon,.top .btn.mobile-menu{width:34px;min-height:34px}.top .crumb,.top .top-lang,.top .top-theme,.top .quick span,.top .quick kbd,.top .nexo-label{display:none}.top .quick{min-width:34px;width:34px;padding:0;justify-content:center;margin-right:0;min-height:34px}.top .nexo-btn{padding:0;width:34px;min-height:34px}.top .avatar{width:30px;height:30px}.content{gap:13px;padding:16px 13px 24px}.pagehead{align-items:flex-start;flex-direction:column;margin-bottom:1px}.pagehead p{font-size:12px}.cols,.cols.wide,.cols.third,.hero-grid,.assistant-grid{grid-template-columns:1fr}.metric-strip{grid-template-columns:1fr 1fr}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--line)}.metric strong{font-size:29px}.metric{padding:10px 13px}.panel-head{padding:12px 12px}.pad{padding:13px}.table-scroll table{min-width:560px}.auth{display:block}.auth-art{padding:15px 15px;min-height:64px}.auth-copy,.auth-foot{display:none}.auth-main{padding:23px 15px 24px;display:block}.auth-main>.auth-switch{position:static;text-align:right;margin-bottom:15px}.auth-form h1,.status-board h1{font-size:34px}.overlay{padding:72px 9px 15px}.popover{right:10px;width:min(328px,calc(100vw - 20px))}.notice{flex-wrap:wrap}.notice .grow{flex-basis:calc(100% - 30px)}.notice .btn{margin-left:26px}.flow-board .panel{height:auto}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+[hidden]{display:none!important}
+.actions>.btn+.btn,td>.btn+.btn{margin-left:3px}
+button.avatar{padding:0}
+.inset.stack>.table-scroll{border:1px solid var(--line);border-radius:7px}
+.table-scroll th:last-child:empty{min-width:42px}
+.gallery{max-width:1240px;margin:auto;padding:30px 28px 55px}
+.gallery .gallery-top{margin-bottom:35px}
+.gallery .gallery-title{max-width:760px;padding:28px 0 24px}
+.gallery-title h1{font-size:clamp(40px,6vw,78px);margin:12px 0;line-height:.95}
+.gallery-title p{max-width:610px}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gallery-item{padding:13px;display:flex;align-items:center;gap:10px;font-weight:700}
+.gallery-item:hover{border-color:var(--amber)}
+.gallery-item small{display:block;font:10px var(--mono);color:var(--soft)}
+.gallery .eyebrow{color:var(--amber)}
+@media(max-width:830px){.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:510px){.gallery-grid{grid-template-columns:1fr}.gallery{padding:19px 14px}}
+@media(max-width:680px){
+ .table-scroll .inventory-table{min-width:0;display:block;padding:0 10px}
+ .inventory-table thead{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden}
+ .inventory-table tbody{display:grid;gap:9px;padding:10px 0}
+ .inventory-table tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 6px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--inset)}
+ .inventory-table td{border:0;padding:2px 0;min-width:0}
+ .inventory-table td:first-child{grid-column:1/-1;padding:1px 0 4px}
+ .inventory-table td:nth-child(2):before,.inventory-table td:nth-child(3):before{content:attr(data-label);display:block;color:var(--soft);font-size:10px}
+ .inventory-table td:nth-child(5){grid-column:1/2}
+ .inventory-table td:nth-child(7){text-align:right;padding:0}
+ .inventory-table td:nth-child(7) .btn{min-height:30px}
+}
+</style></head><body><div id="app-root"></div><script>
+const ICONS = {"circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"/>","globe":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\"/><path d=\"M2 12h20\"/>","panels-top-left":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M3 9h18\"/><path d=\"M9 21V9\"/>","search":"<path d=\"m21 21-4.34-4.34\"/><circle cx=\"11\" cy=\"11\" r=\"8\"/>","chevrons-up-down":"<path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/>","menu":"<path d=\"M4 5h16\"/><path d=\"M4 12h16\"/><path d=\"M4 19h16\"/>","building-2":"<path d=\"M10 12h4\"/><path d=\"M10 8h4\"/><path d=\"M14 21v-3a2 2 0 0 0-4 0v3\"/><path d=\"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2\"/><path d=\"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16\"/>","chevron-right":"<path d=\"m9 18 6-6-6-6\"/>","sparkles":"<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\"/><path d=\"M20 2v4\"/><path d=\"M22 4h-4\"/><circle cx=\"4\" cy=\"20\" r=\"2\"/>","fingerprint":"<path d=\"M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4\"/><path d=\"M14 13.12c0 2.38 0 6.38-1 8.88\"/><path d=\"M17.29 21.02c.12-.6.43-2.3.5-3.02\"/><path d=\"M2 12a10 10 0 0 1 18-6\"/><path d=\"M2 16h.01\"/><path d=\"M21.8 16c.2-2 .131-5.354 0-6\"/><path d=\"M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2\"/><path d=\"M8.65 22c.21-.66.45-1.32.57-2\"/><path d=\"M9 6.8a6 6 0 0 1 9 5.2v2\"/>","mail-open":"<path d=\"M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z\"/><path d=\"m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10\"/>","arrow-right":"<path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/>","arrow-left":"<path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/>","mail":"<path d=\"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7\"/><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/>","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>","mail-check":"<path d=\"M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8\"/><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\"/><path d=\"m16 19 2 2 4-4\"/>","clock-3":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6h4\"/>","refresh-cw":"<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/>","log-out":"<path d=\"m16 17 5-5-5-5\"/><path d=\"M21 12H9\"/><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"/>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/>","arrow-up-right":"<path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/>","history":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/><path d=\"M12 7v5l4 2\"/>","radar":"<path d=\"M19.07 4.93A10 10 0 0 0 6.99 3.34\"/><path d=\"M4 6h.01\"/><path d=\"M2.29 9.62A10 10 0 1 0 21.31 8.35\"/><path d=\"M16.24 7.76A6 6 0 1 0 8.23 16.67\"/><path d=\"M12 18h.01\"/><path d=\"M17.99 11.66A6 6 0 0 1 15.77 16.67\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"m13.41 10.59 5.66-5.66\"/>","folder-up":"<path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z\"/><path d=\"M12 10v6\"/><path d=\"m9 13 3-3 3 3\"/>","plug":"<path d=\"M12 22v-5\"/><path d=\"M15 8V2\"/><path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\"/><path d=\"M9 8V2\"/>","link-2":"<path d=\"M9 17H7A5 5 0 0 1 7 7h2\"/><path d=\"M15 7h2a5 5 0 1 1 0 10h-2\"/><line x1=\"8\" x2=\"16\" y1=\"12\" y2=\"12\"/>","plus":"<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/><path d=\"m15 5 4 4\"/>","git-compare-arrows":"<circle cx=\"5\" cy=\"6\" r=\"3\"/><path d=\"M12 6h5a2 2 0 0 1 2 2v7\"/><path d=\"m15 9-3-3 3-3\"/><circle cx=\"19\" cy=\"18\" r=\"3\"/><path d=\"M12 18H7a2 2 0 0 1-2-2V9\"/><path d=\"m9 15 3 3-3 3\"/>","scan-line":"<path d=\"M3 7V5a2 2 0 0 1 2-2h2\"/><path d=\"M17 3h2a2 2 0 0 1 2 2v2\"/><path d=\"M21 17v2a2 2 0 0 1-2 2h-2\"/><path d=\"M7 21H5a2 2 0 0 1-2-2v-2\"/><path d=\"M7 12h10\"/>","git-branch":"<path d=\"M15 6a9 9 0 0 0-9 9V3\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/>","shield-check":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/>","check":"<path d=\"M20 6 9 17l-5-5\"/>","mail-plus":"<path d=\"M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8\"/><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\"/><path d=\"M19 16v6\"/><path d=\"M16 19h6\"/>","upload":"<path d=\"M12 3v12\"/><path d=\"m17 8-5-5-5 5\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>","database-zap":"<ellipse cx=\"12\" cy=\"5\" rx=\"9\" ry=\"3\"/><path d=\"M3 5V19A9 3 0 0 0 15 21.84\"/><path d=\"M21 5V8\"/><path d=\"M21 12L18 17H22L19 22\"/><path d=\"M3 12A9 3 0 0 0 14.59 14.87\"/>","copy":"<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/>","send":"<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\"/><path d=\"m21.854 2.147-10.94 10.939\"/>","file-text":"<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\"/><path d=\"M14 2v5a1 1 0 0 0 1 1h5\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/>","download":"<path d=\"M12 15V3\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5\"/>","list-filter":"<path d=\"M2 5h20\"/><path d=\"M6 12h12\"/><path d=\"M9 19h6\"/>","trash-2":"<path d=\"M10 11v6\"/><path d=\"M14 11v6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M3 6h18\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/>","settings-2":"<path d=\"M14 17H5\"/><path d=\"M19 7h-9\"/><circle cx=\"17\" cy=\"17\" r=\"3\"/><circle cx=\"7\" cy=\"7\" r=\"3\"/>","user-check":"<path d=\"m16 11 2 2 4-4\"/><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","layout-dashboard":"<rect width=\"7\" height=\"9\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"5\" x=\"14\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"9\" x=\"14\" y=\"12\" rx=\"1\"/><rect width=\"7\" height=\"5\" x=\"3\" y=\"16\" rx=\"1\"/>","git-fork":"<circle cx=\"12\" cy=\"18\" r=\"3\"/><circle cx=\"6\" cy=\"6\" r=\"3\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/><path d=\"M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9\"/><path d=\"M12 12v3\"/>","boxes":"<path d=\"M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z\"/><path d=\"m7 16.5-4.74-2.85\"/><path d=\"m7 16.5 5-3\"/><path d=\"M7 16.5v5.17\"/><path d=\"M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z\"/><path d=\"m17 16.5-5-3\"/><path d=\"m17 16.5 4.74-2.85\"/><path d=\"M17 16.5v5.17\"/><path d=\"M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z\"/><path d=\"M12 8 7.26 5.15\"/><path d=\"m12 8 4.74-2.85\"/><path d=\"M12 13.5V8\"/>","shield-alert":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/>","chart-no-axes-column":"<path d=\"M5 21v-6\"/><path d=\"M12 21V3\"/><path d=\"M19 21V9\"/>","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>","text":"<path d=\"M21 5H3\"/><path d=\"M15 12H3\"/><path d=\"M17 19H3\"/>","ellipsis":"<circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/>","sun-moon":"<path d=\"M12 2v2\"/><path d=\"M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715\"/><path d=\"M16 12a4 4 0 0 0-4-4\"/><path d=\"m19 5-1.256 1.256\"/><path d=\"M20 12h2\"/>","bell":"<path d=\"M10.268 21a2 2 0 0 0 3.464 0\"/><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\"/>","ghost":"<path d=\"M9 10h.01\"/><path d=\"M15 10h.01\"/><path d=\"M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z\"/>","link":"<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><path d=\"M16 3.128a4 4 0 0 1 0 7.744\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","rose":"<path d=\"M17 10h-1a4 4 0 1 1 4-4v.534\"/><path d=\"M17 6h1a4 4 0 0 1 1.42 7.74l-2.29.87a6 6 0 0 1-5.339-10.68l2.069-1.31\"/><path d=\"M4.5 17c2.8-.5 4.4 0 5.5.8s1.8 2.2 2.3 3.7c-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2\"/><path d=\"M9.77 12C4 15 2 22 2 22\"/><circle cx=\"17\" cy=\"8\" r=\"2\"/>","folder-open":"<path d=\"m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2\"/>","scan":"<path d=\"M3 7V5a2 2 0 0 1 2-2h2\"/><path d=\"M17 3h2a2 2 0 0 1 2 2v2\"/><path d=\"M21 17v2a2 2 0 0 1-2 2h-2\"/><path d=\"M7 21H5a2 2 0 0 1-2-2v-2\"/>","chevron-down":"<path d=\"m6 9 6 6 6-6\"/>","user-round":"<circle cx=\"12\" cy=\"8\" r=\"5\"/><path d=\"M20 21a8 8 0 0 0-16 0\"/>","circle-x":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m15 9-6 6\"/><path d=\"m9 9 6 6\"/>","x":"<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>","command":"<path d=\"M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3\"/>","github":"<path d=\"M9 19c-4 1-4-2-6-2m12 5v-3.9c.04-1-.35-1.7-.84-2.1 2.8-.31 5.75-1.37 5.75-6.26a4.9 4.9 0 0 0-1.31-3.4 4.55 4.55 0 0 0-.13-3.36s-1.04-.33-3.42 1.3a11.7 11.7 0 0 0-6.12 0C6.55 2.65 5.5 2.98 5.5 2.98a4.55 4.55 0 0 0-.13 3.36 4.9 4.9 0 0 0-1.31 3.42c0 4.87 2.94 5.94 5.72 6.26-.43.37-.76 1.01-.78 1.98V22\"/>"};
+const routes={
+ acceso:['Acceso y registro','lock','01-Acceso-y-registro'],
+ estado:['Estado de la cuenta','user-check','02-Estado-de-la-cuenta'],
+ espacio:['Área de trabajo global','panels-top-left','03-Area-de-trabajo'],
+ dashboard:['Centro de revisión','layout-dashboard','04-Centro-de-revision'],
+ repositorios:['Mis repositorios','git-fork','05-Mis-repositorios'],
+ analisis:['Análisis','scan-line','06-Analisis'],
+ inventario:['Inventario','boxes','07-Inventario'],
+ vulnerabilidades:['Vulnerabilidades','shield-alert','08-Vulnerabilidades'],
+ organizacion:['Organización','building-2','09-Organizacion'],
+ documentacion:['Documentación','file-text','10-Documentacion'],
+ nexo:['Nexo','sparkles','11-Nexo'],
+ reportes:['Reportes','chart-no-axes-column','12-Reportes'],
+ configuracion:['Configuración','settings-2','13-Configuracion'],
+ administracion:['Administración de plataforma','shield','14-Administracion']
+};
+const supplemental={
+ solicitud:['Solicitar cuenta','15-Solicitar-cuenta'],
+ recuperar:['Recuperar contraseña','16-Recuperar-contrasena'],
+ invitacion:['Aceptar invitación','17-Aceptar-invitacion'],
+ comparacion:['Comparar snapshots','18-Comparar-snapshots'],
+ detalle:['Detalle de dependencia','19-Detalle-de-dependencia'],
+ permisos:['Permisos por repositorio','20-Permisos-por-repositorio'],
+ motivo:['Motivo y auditoría','21-Motivo-y-auditoria'],
+ estados:['Variantes de estado','22-Variantes-de-estado'],
+ movil:['Navegación móvil','23-Navegacion-movil'],
+ claro:['Tema claro','24-Tema-claro']
+};
+const nav=[
+ ['Supervisión',['dashboard','vulnerabilidades','reportes']],
+ ['Evidencia',['repositorios','analisis','inventario','documentacion']],
+ ['Espacio',['organizacion','configuracion']],
+ ['Plataforma',['administracion']]
+];
+const sample=(main,sub='')=>`<strong>${main}</strong>${sub?`<small>${sub}</small>`:''}`;
+const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const ico=(key)=>`<svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]||ICONS.circle}</svg>`;
+const tag=(label,tone='',dot=true)=>`<span class="tag ${tone}">${dot?'<i></i>':''}${label}</span>`;
+const mono=s=>`<code>${s}</code>`;
+const btn=(label,{icon='',kind='',route='',action='',disabled=false,end=false}={})=>{
+ const inn=`${icon&&!end?ico(icon):''}${label}${icon&&end?ico(icon):''}`;
+ return route?`<a class="btn ${kind}" href="#${route}">${inn}</a>`:`<button type="button" class="btn ${kind}" ${action?`data-act="${action}"`:''} ${disabled?'disabled':''}>${inn}</button>`;
+};
+const iconBtn=(label,icon,act,cls='')=>`<button type="button" title="${label}" aria-label="${label}" class="btn ghost icon ${cls}" data-act="${act}">${ico(icon)}</button>`;
+const notice=(title,text,tone='amber',action='')=>`<div class="notice ${tone}">${ico(tone==='mint'?'circle-check':tone==='blue'?'info':'triangle-alert')}<div class="grow">${title?`<strong>${title}</strong>`:''}${text}</div>${action}</div>`;
+const brand=()=>`<a class="brand" href="#dashboard" aria-label="PORFAVOR, Centro de revisión"><span class="brand-mark"></span><span><span class="brand-name">PORFAVOR</span><small>Dependency Intelligence</small></span></a>`;
+const tile=(icon,tone='')=>`<span class="tile ${tone}">${ico(icon)}</span>`;
+const head=(section,title,sub,actions='')=>`<header class="pagehead"><div><div class="eyebrow">${section}</div><h1>${title}</h1><p class="muted">${sub}</p></div>${actions?`<aside class="actions">${actions}</aside>`:''}</header>`;
+const block=(title,sub='',right='',body='',foot='')=>`<section class="panel"><div class="panel-head"><div><h2>${title}</h2>${sub?`<p class="muted small">${sub}</p>`:''}</div>${right}</div>${body}${foot?`<div class="panel-foot">${foot}</div>`:''}</section>`;
+const table=(heads,rows,cls='')=>`<div class="table-scroll"><table class="${cls}"><thead><tr>${heads.map(x=>`<th scope="col">${x}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((x,i)=>`<td data-label="${esc(heads[i])}">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const badgeText=(title,text,icon,tone='')=>`<div class="row">${tile(icon,tone)}<div class="grow"><h3>${title}</h3><p class="muted small">${text}</p></div></div>`;
+const listRow=(title,sub,right='',icon='')=>`<div class="list-row">${icon?tile(icon):''}<div class="grow">${sample(title,sub)}</div>${right}</div>`;
+const field=(label,value='',opts={})=>`<label class="field">${label}<input type="${opts.type||'text'}" ${opts.readonly?'readonly':''} value="${esc(value)}" ${opts.placeholder?`placeholder="${esc(opts.placeholder)}"`:''}>${opts.help?`<small>${opts.help}</small>`:''}</label>`;
+const select=(label,options)=>`<label class="field">${label}<select>${options.map(s=>`<option>${s}</option>`).join('')}</select></label>`;
+const area=(label,text='',placeholder='')=>`<label class="field">${label}<textarea placeholder="${esc(placeholder)}">${esc(text)}</textarea></label>`;
+const search=(label,placeholder=label,val='')=>`<label class="field search-field">${label}<span class="searchbox">${ico('search')}<input type="search" placeholder="${esc(placeholder)}" value="${esc(val)}" data-search></span></label>`;
+const tabs=(names,active,segment=false)=>`<div class="${segment?'seg':'tabs'}">${names.map(item=>{const [n,id]=Array.isArray(item)?item:[item,''];return id?`<a class="tab ${n===active?'active':''}" href="#${id}" ${n===active?'aria-current="page"':''}>${n}</a>`:`<button class="tab ${n===active?'active':''}" type="button" data-act="tab">${n}</button>`}).join('')}</div>`;
+const metrics=(items)=>`<div class="panel metric-strip">${items.map(([title,num,note])=>`<div class="metric"><span>${title}</span><strong>${num}</strong><small>${note}</small></div>`).join('')}</div>`;
+const navA=(id,active)=>`<a class="navlink ${id===active?'active':''}" href="#${id}" ${id===active?'aria-current="page"':''}>${ico(routes[id][1])}<span>${id==='administracion'?'Administración':routes[id][0]}</span>${id==='vulnerabilidades'?'<span class="inline-count">06</span>':''}</a>`;
+const navAside=(active,role='admin')=>`<aside class="sidebar">${brand()}
+ <button class="space-choice" data-act="spaces"><span class="tile">OM</span><span class="grow"><strong>Omega Labs</strong><small>Organización activa</small></span>${ico('chevrons-up-down')}</button>
+ <nav aria-label="Navegación principal">${nav.filter(([g])=>g!=='Plataforma'||role==='admin').map(([g,items])=>`<div class="nav-group"><div class="nav-label">${g}</div>${items.filter(id=>id!=='organizacion'||role!=='viewer').map(id=>navA(id,active)).join('')}</div>`).join('')}</nav>
+ <div class="identity row"><span class="avatar">AR</span><span class="grow"><strong>Alex Rivera</strong><small>${role==='viewer'?'Lector':'Propietario del espacio'}</small></span>${iconBtn('Preferencias y sesión','ellipsis','profile')}</div></aside>`;
+const shell=(id,body,role='admin')=>`<div class="app">${navAside(id,role)}<div class="workspace"><header class="top">
+ <div class="row"><button class="btn ghost icon mobile-menu" aria-label="Abrir menú" data-act="menu">${ico('menu')}</button>
+ <div class="crumb row">${ico('building-2')} <span>Omega Labs</span> ${ico('chevron-right')} <b>${routes[id][0]}</b></div><a class="brand mobile-menu" href="#dashboard" aria-label="PORFAVOR"><span class="brand-mark"></span></a></div>
+ <div class="top-actions">
+ <button class="btn ghost quick" data-act="command" aria-label="Buscar sección">${ico('search')}<span>Buscar sección</span><kbd>Ctrl K</kbd></button>
+ <button class="btn ghost icon top-lang" data-act="language" aria-label="Cambiar idioma">ES</button>
+ ${iconBtn('Cambiar tema','sun-moon','theme','top-theme')}
+ ${iconBtn('Notificaciones','bell','notifications','bell')}
+ <a class="btn ghost nexo-btn" href="#nexo" aria-label="Abrir Nexo">${ico('sparkles')}<span class="nexo-label">Nexo</span></a>
+ <button class="avatar" data-act="profile" aria-label="Menú de perfil">AR</button></div></header>
+ <main class="content">${body}</main></div></div>`;
+const auth=(body)=>`<div class="auth"><aside class="auth-art"><div class="contours"></div><div class="frame-detail"></div>${brand()}
+ <div class="auth-copy"><div class="eyebrow">Observatorio de Evidencias</div><h1>Inteligencia de <em>dependencias.</em></h1><p>Reúne el inventario, los avisos OSV y la documentación de tus repositorios autorizados.</p></div>
+ <div class="auth-foot">${ico('fingerprint')} Acceso controlado por organización</div></aside><main class="auth-main"><div class="auth-switch">${btn('Español',{icon:'globe',kind:'ghost',action:'language'})}</div>${body}</main></div>`;
+const invitesMini=()=>`<div class="panel pad stack tight"><div class="row"><div class="grow"><h3>Invitaciones recibidas</h3><p class="muted small">Abre la invitación de tu correo para revisar el acceso.</p></div>${ico('mail-open')}</div>${btn('Revisar invitación',{icon:'arrow-right',end:true,route:'invitacion',kind:'ghost'})}</div>`;
+const access=()=>auth(`<form class="auth-form" data-demo="Sesión de demostración"><div class="eyebrow">Acceso al espacio</div><h1>Iniciar sesión</h1><p class="muted">Ingresa con el correo asociado a tu cuenta.</p>
+ ${field('Correo electrónico','',{type:'email',placeholder:'nombre@empresa.com'})}${field('Contraseña','',{type:'password',placeholder:'Ingresa tu contraseña'})}
+ <div class="between"><label class="checkrow"><input type="checkbox"> Recordar correo</label>${btn('Olvidé mi contraseña',{route:'recuperar',kind:'link'})}</div>
+ ${btn('Iniciar sesión',{route:'dashboard',icon:'arrow-right',end:true,kind:'primary full'})}
+ <div class="between"><span class="muted small">¿Primera vez en PORFAVOR?</span>${btn('Solicitar una cuenta',{route:'solicitud',kind:'link'})}</div><div class="separator"></div>
+ <div class="provider">${btn('Google',{icon:'globe',action:'oauth'})}${btn('GitHub',{icon:'github',action:'oauth'})}</div><p class="small muted">Los métodos externos aparecen cuando están configurados.</p>
+ ${invitesMini()}</form>`);
+const register=()=>auth(`<form class="auth-form"><div class="eyebrow">Registro</div><h1>Solicitar una cuenta</h1><p class="muted">Crearemos una solicitud para revisión de la administración de plataforma.</p>
+ ${field('Nombre completo','',{placeholder:'Tu nombre y apellido'})}${field('Correo electrónico','',{type:'email',placeholder:'nombre@empresa.com'})}${field('Contraseña','',{type:'password',placeholder:'Elige una contraseña'})}${field('Confirmar contraseña','',{type:'password',placeholder:'Repite la contraseña'})}
+ ${notice('Verificación y aprobación','Recibirás un enlace para verificar el correo. El estado de la solicitud se puede consultar desde tu cuenta.','blue')}
+ ${btn('Enviar solicitud',{kind:'primary full',route:'estado',icon:'arrow-right',end:true})}${btn('Volver a iniciar sesión',{route:'acceso',kind:'link',icon:'arrow-left'})}</form>`);
+const recover=()=>auth(`<form class="auth-form"><div class="eyebrow">Seguridad de la cuenta</div><h1>Recuperar contraseña</h1><p class="muted">Ingresa el correo con el que creaste tu cuenta.</p>
+ ${field('Correo electrónico','',{type:'email',placeholder:'nombre@empresa.com'})}
+ ${btn('Enviar enlace de recuperación',{kind:'primary full',action:'recover',icon:'mail'})}${notice('', 'Si existe una cuenta con ese correo, enviaremos un enlace para restablecer la contraseña.','blue')}
+ ${btn('Volver a iniciar sesión',{route:'acceso',kind:'link',icon:'arrow-left'})}</form>`);
+const inviteView=()=>auth(`<section class="status-board"><div class="eyebrow">Invitación a una organización</div><h1>Únete a Omega Labs</h1><p class="muted">La invitación está dirigida a <strong>alex@ejemplo.test</strong>.</p>
+ <div class="panel pad stack">${badgeText('Plataforma Web','Equipo asignado','users')}<div class="meta-grid"><div><span>Repositorio</span><strong>portal-web</strong></div><div><span>Rol propuesto</span><strong>Miembro</strong></div></div>
+ ${notice('Inicia sesión y verifica el correo','Usa el correo invitado. Luego de aceptar, la persona que te invitó revisará la activación de tu acceso.','amber')}
+ ${btn('Iniciar sesión con el correo invitado',{route:'acceso',kind:'primary full',icon:'arrow-right',end:true})}
+ ${btn('Aceptar invitación',{kind:'ghost full',disabled:true,icon:'lock'})}<p class="muted small">Disponible con el correo invitado verificado.</p></div>
+ </section>`);
+const statusView=()=>auth(`<section class="status-board"><div class="eyebrow">Identidad y acceso</div><h1>Estado de la cuenta</h1><p class="muted">Sesión de <strong>alex@ejemplo.test</strong></p>
+ <section class="panel pad stack"><div class="between"><h2>Tu solicitud</h2>${tag('Pendiente de aprobación','amber')}</div>
+ <p class="muted small">La administración de plataforma revisará la solicitud. Puedes volver a consultar el estado desde aquí.</p>
+ <div><div class="status-step">${tile('mail-check')}<div><h3>Correo electrónico</h3><p>Dirección de acceso confirmada.</p></div>${tag('Verificado','mint')}</div>
+ <div class="status-step">${tile('clock-3')}<div><h3>Admisión a la plataforma</h3><p>En espera de revisión.</p></div>${tag('Pendiente','amber')}</div>
+ <div class="status-step">${tile('lock')}<div><h3>Acceso al espacio</h3><p>Disponible al aprobar la solicitud.</p></div>${tag('En espera')}</div></div>
+ <div class="actions">${btn('Volver a consultar',{icon:'refresh-cw',kind:'primary',action:'status'})}${btn('Cerrar sesión',{icon:'log-out',route:'acceso',kind:'ghost'})}</div></section>
+ <p class="footer-note">${ico('info')} La verificación del correo y la aprobación son pasos independientes.</p></section>`);
+const coverage=(s)=>tag(s,{'Completa':'mint','Parcial':'amber','Error':'rose','Sin manifiesto':'blue'}[s]||'');
+const osv=(s)=>tag(s,{'Con avisos':'rose','Sin avisos conocidos':'mint','Por consultar':'amber','Consulta incompleta':'amber','Desactualizada':'amber'}[s]||'');
+const sev=(s)=>tag(s,{'Crítica':'rose','Alta':'rose','Media':'amber','Baja':'blue','Sin dato':''}[s]||'');
+const routeArrow=(label,id)=>btn(label,{route:id,icon:'arrow-up-right',kind:'link',end:true});
+const rail=(items)=>`<div class="rail" aria-hidden="true">${items.map(([v,c])=>`<span class="${c}" style="width:${v}%"></span>`).join('')}</div>`;
+const legend=(items)=>`<div class="legend">${items.map(([val,s,c])=>`<span><i class="status-dot" style="color:var(--${c})"></i><b>${val}</b> ${s}</span>`).join('')}</div>`;
+const dashMetrics=()=>metrics([['Organizaciones','02','En el alcance de tu cuenta'],['Repositorios accesibles','12','9 GitHub · 3 locales'],['Repositorios analizados','09','Con al menos un análisis'],['Versiones observadas','468','Por repositorio y ecosistema']]);
+const dash=(workspace=false)=>`${head('Supervisión / Resumen',workspace?'Área de trabajo':'Centro de revisión',workspace?'Omega Labs · Navega por las secciones de tu organización.':'Dependencias, avisos OSV y cobertura de los repositorios a los que tienes acceso.',workspace?'':btn('Abrir registro de análisis',{route:'analisis',icon:'history'}))}
+ ${workspace?notice('Verifica tu correo','Confirma tu dirección para activar las acciones protegidas.','amber',btn('Reenviar correo',{action:'verification',kind:'ghost',icon:'mail'})):''}
+ ${dashMetrics()}
+ <div class="hero-grid"><section class="signal-card"><div class="orbits"></div><div class="eyebrow">Prioridad de revisión</div><h2>Avisos OSV activos</h2><div class="signal-number"><b>06</b><span>avisos agrupados</span></div><p>12 versiones con avisos conocidos en las evaluaciones guardadas de tus repositorios.</p>${btn('Abrir vulnerabilidades',{route:'vulnerabilidades',icon:'arrow-up-right',end:true})}</section>
+ <section class="panel pad stack"><div class="between"><div><h2>Cobertura y consultas</h2><p class="muted small">Repositorios analizados y versiones observadas</p></div>${tile('radar')}</div>
+ <div class="stack tight"><div class="between small"><strong>Cobertura del scanner</strong><span class="muted">9 repositorios</span></div>${rail([[66,'mint'],[23,'amber'],[11,'rose']])}${legend([['6','Completa','mint'],['2','Parcial','amber'],['1','Con error','rose']])}</div>
+ <div class="separator"></div><div class="stack tight"><div class="between small"><strong>Consulta OSV</strong><span class="muted">468 versiones</span></div>${rail([[90,'mint'],[7,'amber'],[3,'rose']])}${legend([['421','Sin avisos conocidos','mint'],['35','Requieren consulta','amber'],['12','Con avisos','rose']])}</div></section></div>
+ <div class="cols wide">${block('Análisis recientes','Último resultado disponible por repositorio',routeArrow('Ver historial','analisis'),table(['Repositorio','Ecosistema','Cobertura','Inventario'],[
+ [sample('servicios-core','25 nov · 08:40'),'Maven',coverage('Completa'),routeArrow('Abrir','inventario')],
+ [sample('portal-web','24 nov · 16:12'),'npm',coverage('Parcial'),routeArrow('Abrir','inventario')],
+ [sample('facturacion-api','24 nov · 10:28'),'Maven',coverage('Error'),routeArrow('Revisar','analisis')]]))}
+ ${block('Organizaciones y fuentes','El acceso y las acciones dependen de tu rol.',routeArrow('Gestionar','organizacion'),`<div class="pad list" style="padding-top:0">${listRow('Omega Labs','GitHub App · 9 repositorios',tag('Propietario','blue'), 'building-2')}${listRow('Atlas Studio','Carpetas locales · 3 repositorios',tag('Lector'),'folder-open')}</div>`)}
+ </div><p class="footer-note">${ico('info')} Las 35 versiones pendientes incluyen consultas desactualizadas, incompletas y por realizar.</p>`;
+const repos=()=>`${head('Evidencia / Fuentes','Mis repositorios','Conecta fuentes y consulta los repositorios habilitados para tu cuenta.',btn('Importar carpeta',{kind:'primary',icon:'folder-up',action:'import-folder'}))}
+ <div class="cols equal"><section class="panel pad stack">${badgeText('GitHub App','Instalación omega-labs · último acceso sincronizado hoy, 08:25','github','cream')}
+ <div class="actions">${btn('Conectar App',{action:'github-app',icon:'plug'})}${btn('Sincronizar',{action:'sync',icon:'refresh-cw'})}${btn('Vincular instalación',{action:'link-install',icon:'link-2',kind:'ghost'})}</div>
+ <p class="small muted">La GitHub App autoriza repositorios para Omega Labs. Iniciar sesión con GitHub autentica tu identidad.</p></section>
+ <section class="panel pad stack">${badgeText('Importación local','operacion-local · cargando carpeta','folder-open')}
+ <div class="stack tight"><div class="between small"><strong>Subiendo archivos</strong><span class="mono accent">62 %</span></div><div class="progress" role="progressbar" aria-label="Carga de la carpeta" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"><span style="width:62%"></span></div>
+ <div class="between small muted"><span>36 MB de 58 MB</span>${btn('Cancelar',{kind:'link',action:'cancel-import'})}</div></div></section></div>
+ ${block('Repositorios habilitados','Omega Labs · según los permisos de tu cuenta',btn('Agregar desde GitHub',{kind:'primary',icon:'plus',action:'github-repos'}),
+ `<div class="filters">${search('Buscar repositorio','Nombre del repositorio')}${select('Origen',['Todos','GitHub','Carpeta local'])}${select('Acceso',['Habilitados','Todos'])}</div>`+
+ table(['Repositorio','Origen','Acceso','Último análisis','Acciones'],[
+ [sample('servicios-core','omega-labs / servicios-core'),'GitHub App',tag('Habilitado','mint'),'25 nov · 08:40',`<div class="actions">${routeArrow('Inventario','inventario')}${iconBtn('Descargar servicios-core','download','download')}${iconBtn('Retirar servicios-core','trash-2','remove-repo')}</div>`],
+ [sample('portal-web','omega-labs / portal-web'),'GitHub App',tag('Habilitado','mint'),'24 nov · 16:12',`<div class="actions">${routeArrow('Inventario','inventario')}${iconBtn('Descargar portal-web','download','download')}${iconBtn('Retirar portal-web','trash-2','remove-repo')}</div>`],
+ [sample('facturacion-api','Carpeta importada'),'Carpeta local',tag('Habilitado','mint'),'24 nov · 10:28',`<div class="actions">${routeArrow('Inventario','inventario')}${iconBtn('Descargar facturacion-api','download','download')}${iconBtn('Eliminar carpeta de facturacion-api','trash-2','remove-local')}</div>`]
+ ]),'<span>3 repositorios en el ejemplo</span><span>Omega Labs</span>')}`;
+const analysesRows=()=>[
+ [sample('Cierre de noviembre','25 nov · 08:40'),mono('e27ac19'),'Maven',coverage('Completa'),'182',btn('Renombrar',{icon:'pencil',kind:'link',action:'rename-snapshot'})],
+ [sample('Base de noviembre','21 nov · 14:22'),mono('b690ee2'),'Maven',coverage('Parcial'),'176',btn('Renombrar',{icon:'pencil',kind:'link',action:'rename-snapshot'})],
+ [sample('Análisis 20 nov','20 nov · 09:18'),mono('a8216bc'),'Maven',coverage('Error'),'—',btn('Ver error',{kind:'link',action:'scan-error'})]
+];
+const analysis=()=>`${head('Evidencia / Scanner','Análisis','Ejecuta un análisis manual sobre una fuente autorizada y revisa la procedencia de sus snapshots.',btn('Comparar snapshots',{route:'comparacion',icon:'git-compare-arrows'})+btn('Ejecutar análisis',{kind:'primary',icon:'scan-line',action:'scan'}))}
+ <section class="panel"><div class="filters">${select('Repositorio autorizado',['servicios-core','portal-web','facturacion-api'])}${select('Ecosistema en pantalla',['Java / Maven','JavaScript / npm'])}${select('Fuente',['Rama principal · main'])}</div><div class="panel-foot">${ico('git-branch')} <span class="grow">Ejecutar análisis solicita la detección disponible de Maven y npm. El historial se consulta por ecosistema.</span>${routeArrow('Abrir inventario','inventario')}</div></section>
+ <div class="cols wide equal"><section class="panel pad stack"><div class="between"><div><h2>Cierre de noviembre</h2><p class="muted small">Resultado de Java / Maven · 25 nov, 08:40</p></div>${coverage('Completa')}</div><div class="meta-grid"><div><span>Commit observado</span><strong class="mono">e27ac19</strong></div><div><span>Scanner</span><strong>cdxgen · Maven</strong></div><div><span>Duración</span><strong>1 min 48 s</strong></div><div><span>Manifiestos</span><strong>3 pom.xml</strong></div></div><div class="between small"><span>182 versiones · 0 sin resolver</span>${btn('Ver procedencia',{action:'scan-source',kind:'link',icon:'fingerprint'})}</div></section>
+ <section class="panel pad stack"><div class="between"><div><h2>Último resultado npm</h2><p class="muted small">25 nov · mismo repositorio</p></div>${coverage('Sin manifiesto')}</div><p class="muted small">No se encontró un manifiesto npm compatible en la fuente analizada.</p>${notice('Consulta OSV independiente','El scanner registra dependencias. OSV consulta las versiones detectadas.','blue')}</section></div>
+ ${block('Registro de análisis','Snapshots de servicios-core · Maven',routeArrow('Comparar','comparacion'),table(['Snapshot','Commit','Ecosistema','Cobertura','Versiones','Acción'],analysesRows()))}
+ <p class="footer-note">${ico('info')} Mientras un análisis está en curso, la pantalla muestra su estado y la última etapa confirmada.</p>`;
+const compare=()=>`${head('Evidencia / Análisis','Comparar snapshots','Selecciona dos análisis completados del mismo repositorio.',btn('Volver a Análisis',{route:'analisis',icon:'arrow-left'}))}
+ <section class="panel"><div class="filters">${select('Repositorio',['servicios-core'])}${select('Ecosistema',['Java / Maven'])}${select('Base',['Base de noviembre · b690ee2'])}${select('Comparar con',['Cierre de noviembre · e27ac19'])}${btn('Comparar',{kind:'primary',action:'compare',icon:'git-compare-arrows'})}</div></section>
+ ${metrics([['Agregadas','8','Paquetes nuevos'],['Actualizadas','5','Cambios de versión'],['Retiradas','2','Ausentes en el destino'],['Sin cambios','161','Paquete y versión coinciden']])}
+ ${block('Cambios de dependencias','Maven · comparación de versiones guardadas',routeArrow('Abrir inventario','inventario'),tabs(['Todos','Agregadas','Actualizadas','Retiradas','Sin cambios'],'Todos')+table(['Paquete','Cambio','Versión base','Versión destino','Evidencia OSV'],[
+ ['org.acme:billing-connector',tag('Actualizada','blue'),mono('1.6.0'),mono('1.7.0'),tag('Aviso ausente en destino','mint')],
+ ['org.acme:api-schema',tag('Agregada','mint'),'—',mono('2.1.0'),osv('Por consultar')],
+ ['org.acme:legacy-config',tag('Retirada','rose'),mono('0.8.4'),'—','Sin comparación OSV'],
+ ['org.acme:gateway-spi',tag('Sin cambios'),mono('3.2.1'),mono('3.2.1'),osv('Sin avisos conocidos')]
+ ]))}
+ ${notice('Cambios OSV según evidencia guardada','1 aviso ausente en destino · 2 versiones requieren consulta. Una versión sin evaluación queda fuera de la comparación OSV.','amber')}`;
+const inventoryFilters=()=>`<div class="filters">${search('Buscar','Paquete, versión o archivo')}${select('Ecosistema',['Todos','Maven','npm'])}${select('Tipo',['Todos','Directa','Transitiva'])}${select('Estado OSV',['Todos','Con avisos','Por consultar','Consulta incompleta','Desactualizada','Sin avisos conocidos'])}${field('Versión exacta','',{placeholder:'p. ej. 1.7.0'})}${select('Severidad',['Todas','Crítica','Alta','Media','Baja'])}</div>`;
+const inventory=(repo=false)=>`${head('Evidencia / Dependencias','Inventario',repo?'servicios-core · últimas detecciones por ecosistema y versión.':'Catálogo de dependencias y versiones en los repositorios accesibles.',repo?btn('Consultar OSV',{kind:'primary',icon:'shield-check',action:'osv'}):btn('Consultar OSV',{kind:'primary',icon:'shield-check',route:'inventario-repo'}))}
+ <div class="between row wrap">${tabs([['Catálogo del espacio','inventario'],['Por repositorio','inventario-repo']],repo?'Por repositorio':'Catálogo del espacio',true)}${repo?select('Repositorio',['servicios-core','portal-web','facturacion-api']):'<span class="small muted row">'+ico('building-2')+' Omega Labs · alcance autorizado</span>'}</div>
+ ${block(repo?'servicios-core':'Dependencias observadas','La detección del scanner y la evaluación OSV se muestran por separado.',routeArrow('Ir a Análisis','analisis'),inventoryFilters()+table(['Dependencia / archivo','Ecosistema','Versión','Tipo','Estado OSV','Severidad','Detalle'],[
+ [sample('org.acme:payments-client','services/payments/pom.xml'),'Maven',mono('1.6.0'),tag('Directa','blue',false),osv('Con avisos'),sev('Alta'),routeArrow('Abrir','detalle')],
+ [sample('@acme/ui-router','apps/portal/package-lock.json'),'npm',mono('3.4.2'),tag('Directa','blue',false),osv('Por consultar'),'—',routeArrow('Abrir','detalle')],
+ [sample('org.acme:gateway-spi','services/gateway/pom.xml'),'Maven',mono('3.2.1'),tag('Transitiva','',false),osv('Sin avisos conocidos'),'—',routeArrow('Abrir','detalle')],
+ [sample('@acme/serializer','apps/portal/package-lock.json'),'npm',mono('2.8.0'),tag('Transitiva','',false),osv('Consulta incompleta'),'—',routeArrow('Abrir','detalle')],
+ [sample('org.acme:config-parser','services/core/pom.xml'),'Maven',mono('1.4.5'),tag('Transitiva','',false),osv('Desactualizada'),'—',routeArrow('Abrir','detalle')]
+ ],'inventory-table'),'<span>Ejemplo · 5 dependencias visibles</span><span>Página 1</span>')}
+ ${notice('Exposición en código','El detalle muestra procedencia, avisos y la evidencia disponible para el snapshot observado. Si la evidencia es insuficiente, la exposición queda inconclusa.','blue')}
+ `;
+const advisoryID='OSV-DEMO-001';
+const vulnerability=()=>`${head('Supervisión / Avisos OSV','Vulnerabilidades','Explora avisos agrupados y actualiza su seguimiento dentro de Omega Labs.',routeArrow('Abrir reportes','reportes'))}
+ ${block('Avisos agrupados','6 avisos en repositorios autorizados',tag('Evidencia guardada · OSV','blue'),
+ `<div class="filters">${search('Buscar aviso','ID o paquete')}${select('Severidad',['Todas','Crítica','Alta','Media','Baja'])}${select('Ecosistema',['Todos','Maven','npm'])}${select('Repositorio',['Todos los accesibles','servicios-core','portal-web'])}${select('Seguimiento',['Todos','Pendiente','En revisión','Riesgo aceptado','Resuelto'])}</div>`+
+ table(['Aviso','Severidad','Ecosistema','Impacto observado','Seguimiento',''],[
+ [sample(advisoryID,'Aviso de ejemplo · procesamiento de configuración'),sev('Alta'),'Maven','1 paquete · 2 repositorios',tag('En revisión','blue'),iconBtn('Expandir aviso','chevron-down','advisory')]
+ ])+
+ `<section class="inset stack" style="margin:0 14px 10px" id="advisory"><div class="between"><h3>Paquetes y versiones afectados</h3>${tag('Ejemplo','blue',false)}</div>
+ ${table(['Paquete','Detectada','Primera corregida publicada','Repositorio'],[
+  ['org.acme:payments-client',mono('1.6.0'),mono('1.7.0'),'servicios-core'],
+  ['org.acme:payments-client',mono('1.5.4'),mono('1.7.0'),'facturacion-api']
+ ])}<div class="cols wide">
+ <div><p class="small muted">Publicado 17 nov · actualizado 23 nov 2026</p><p class="small">Referencias <span class="muted">· Ficha OSV · Nota de la versión corregida</span></p></div>
+ <div class="actions">${select('Seguimiento del equipo',['En revisión','Pendiente','Riesgo aceptado','Resuelto'])}${btn('Guardar',{kind:'primary',action:'tracking',icon:'check'})}</div></div>
+ <p class="footer-note">${ico('info')} Resolver el seguimiento registra una decisión del equipo. La corrección se verifica con evidencia posterior.</p></section>`+
+ table(['Aviso','Severidad','Ecosistema','Impacto observado','Seguimiento',''],[
+ [sample('OSV-DEMO-002','Aviso de ejemplo · serialización'),sev('Media'),'npm','1 paquete · 1 repositorio',tag('Pendiente','amber'),iconBtn('Expandir aviso de ejemplo','chevron-right','advisory-other')],
+ [sample('OSV-DEMO-003','Aviso de ejemplo · validación'),sev('Baja'),'Maven','1 paquete · 1 repositorio',tag('Riesgo aceptado'),iconBtn('Expandir aviso de ejemplo','chevron-right','advisory-other')]
+ ]),'<span>3 de 6 avisos · muestra de diseño</span><span>Seguimiento independiente de OSV</span>')}`;
+const detailBody=()=>`<div class="meta-grid">
+ <div><span>Versión detectada</span><strong class="mono">1.6.0</strong></div><div><span>Ecosistema / tipo</span><strong>Maven · directa</strong></div>
+ <div><span>Repositorio</span><strong>servicios-core</strong></div><div><span>Snapshot / commit</span><strong class="mono">e27ac19</strong></div></div>
+ <div class="stack tight"><h3>Procedencia</h3><p class="small muted">Manifiesto observado</p><div class="inset mono">services/payments/pom.xml</div><p class="small muted">Scanner cdxgen · Maven · 25 nov 2026, 08:40</p></div>
+ <div class="separator"></div><div class="between"><h3>Avisos OSV</h3>${osv('Con avisos')}</div><div class="inset"><div class="between"><strong class="mono">${advisoryID}</strong>${sev('Alta')}</div><p class="muted small">Versión corregida publicada: 1.7.0 · datos de ejemplo</p></div>
+ <div class="separator"></div><div class="between"><h3>Exposición en código</h3>${tag('Inconclusa','amber')}</div>
+ <p class="muted small">La huella del snapshot histórico no está disponible para verificar el código observado. Conservamos el aviso por versión y el archivo de procedencia.</p>${routeArrow('Abrir avisos','vulnerabilidades')}`;
+const organization=(tab='Miembros')=>{
+ const subnav=tabs([['Miembros','organizacion'],['Invitaciones','org-invitaciones'],['Equipos','org-equipos'],['Permisos','permisos']],tab);
+ const orgHeader=`${head('Espacio / Gestión','Organización','Administra los accesos autorizados por tu rol en cada organización.',btn('Crear organización',{icon:'plus',action:'new-org'}))}
+ <div class="panel pad between"><div>${badgeText('Omega Labs','Organización activa · 8 miembros · 3 equipos','building-2','cream')}</div><div class="actions">${tag('Tu rol: Propietario','blue')}${btn('Cambiar organización',{icon:'chevrons-up-down',action:'spaces'})}</div></div>`;
+ if(tab==='Invitaciones')return `${orgHeader}${block('Invitaciones','Gestiona invitaciones emitidas por tu cuenta.',btn('Invitar por correo',{kind:'primary',icon:'mail-plus',action:'invite'}),subnav+
+ `<div class="filters">${search('Buscar invitación','Correo o equipo')}${select('Estado',['Todos','Enviada','Pendiente de aprobación','Revocada','Expirada'])}</div>`+table(['Correo','Equipo','Repositorio','Estado','Acciones'],[
+  ['maria@ejemplo.test','Plataforma Web','portal-web',tag('Pendiente de aprobación','amber'),btn('Aprobar',{action:'approve-invite',kind:'primary'})+btn('Revocar',{action:'revoke-invite',kind:'link'})],
+  ['sam@ejemplo.test','Backend','servicios-core',tag('Enviada','blue'),btn('Revocar',{action:'revoke-invite',kind:'link'})]
+ ]))}`;
+ if(tab==='Equipos')return `${orgHeader}${block('Equipos','Los permisos se asignan por repositorio.',btn('Crear equipo',{kind:'primary',icon:'plus',action:'new-team'}),subnav+table(['Equipo','Miembros','Repositorios autorizados','Acciones'],[
+  ['Plataforma Web','4','2',btn('Renombrar',{kind:'link',action:'rename-team'})+routeArrow('Permisos','permisos')],
+  ['Backend','3','2',btn('Renombrar',{kind:'link',action:'rename-team'})+routeArrow('Permisos','permisos')],
+  ['Seguridad','2','3',btn('Renombrar',{kind:'link',action:'rename-team'})+routeArrow('Permisos','permisos')]
+ ]))}`;
+ if(tab==='Permisos')return `${orgHeader}${block('Permisos por repositorio','El alcance efectivo combina el rol y la asignación al repositorio.',btn('Guardar accesos',{kind:'primary',icon:'check',action:'save-permissions'}),subnav+
+ `<div class="filters">${select('Equipo',['Plataforma Web','Backend','Seguridad'])}${select('Alcance',['Repositorios asignados','Equipo completo'])}${search('Buscar repositorio','Nombre del repositorio')}</div>`+
+ table(['Repositorio','Leer repositorio','Ejecutar análisis','Leer documentos','Administrar repositorio'],[
+  ['portal-web',check('Lectura portal-web',true),check('Análisis portal-web',true),check('Documentos portal-web',true),check('Administrar portal-web')],
+  ['servicios-core',check('Lectura servicios-core',true),check('Análisis servicios-core'),check('Documentos servicios-core',true),check('Administrar servicios-core')],
+  ['facturacion-api',check('Lectura facturacion-api'),check('Análisis facturacion-api'),check('Documentos facturacion-api'),check('Administrar facturacion-api')]
+ ],'permissions'),'<span>Los permisos del equipo aplican a las membresías activas.</span>')}${notice('Alcance del rol','Un permiso de equipo solo habilita acciones que el rol admite.','blue')}`;
+ return `${orgHeader}${block('Miembros','Gestiona roles y estados de membresía.',btn('Invitar por correo',{kind:'primary',icon:'mail-plus',action:'invite'}),subnav+
+ `<div class="filters">${search('Buscar miembro','Nombre o correo')}${select('Estado',['Todos','Activo','Suspendido','Retirado'])}${select('Rol',['Todos','Propietario','Administrador','Miembro','Lector'])}</div>`+
+ table(['Persona','Rol','Equipo','Estado','Acción'],[
+ [sample('Alex Rivera','alex@ejemplo.test'),tag('Propietario','blue'),'Seguridad',tag('Activo','mint'),tag('Tu cuenta','',false)],
+ [sample('María León','maria@ejemplo.test'),tag('Administradora','blue'),'Backend',tag('Activo','mint'),btn('Editar acceso',{kind:'link',action:'edit-member',icon:'pencil'})],
+ [sample('Nico Silva','nico@ejemplo.test'),tag('Miembro'),'Plataforma Web',tag('Activo','mint'),btn('Editar acceso',{kind:'link',action:'edit-member',icon:'pencil'})],
+ [sample('Sam Díaz','sam@ejemplo.test'),tag('Lector'),'Seguridad',tag('Suspendido','amber'),btn('Editar acceso',{kind:'link',action:'edit-member',icon:'pencil'})]
+ ]),'<span>4 de 8 membresías · muestra de diseño</span><span>Las invitaciones se revisan en su propia pestaña.</span>')}`;
+};
+const check=(label,active=false)=>`<input type="checkbox" aria-label="${label}" ${active?'checked':''}>`;
+const docs=(results=false)=>`${head('Evidencia / Biblioteca','Documentación','Busca en el texto autorizado y consulta las versiones de cada documento.',btn('Subir documento',{kind:'primary',icon:'upload',action:'upload-doc'}))}
+ <section class="panel">${tabs([['Biblioteca','documentacion'],['Buscar en el texto','documentos-buscar']],results?'Buscar en el texto':'Biblioteca')}
+ <div class="filters">${search(results?'Buscar en el texto indexado':'Buscar documentos',results?'Término dentro de los documentos':'Título, archivo o repositorio',results?'estabilización':'')}${select('Repositorio',['Todos los accesibles','servicios-core','portal-web','De la organización'])}${select('Preparación del texto',['Todos','Listo','Preparando','Sin texto extraíble','Error'])}${btn('Buscar en texto',{route:'documentos-buscar',icon:'search',kind:'ghost'})}</div>
+ ${results?`<div class="pad stack"><h2>Resultados para «estabilización»</h2><div class="inset stack tight"><div class="between"><h3>Política de versiones</h3><span class="mono muted">versionado.pdf · pág. 4</span></div><p class="quote">Durante la estabilización, los cambios de dependencias requieren revisión del equipo responsable.</p>${btn('Ver versiones',{kind:'link',action:'doc-versions',icon:'history'})}</div></div>`:table(['Documento','Repositorio','Versión','Preparación del texto','Actualizado','Acciones'],[
+ [sample('Política de versiones','versionado.pdf'),'servicios-core',mono('v3'),tag('Listo','mint'),'25 nov',btn('Versiones',{kind:'link',action:'doc-versions',icon:'history'})+iconBtn('Descargar Política de versiones','download','download')],
+ [sample('Contrato de la API','openapi.yaml'),'servicios-core',mono('v2'),tag('Listo','mint'),'24 nov',btn('Versiones',{kind:'link',action:'doc-versions',icon:'history'})+iconBtn('Descargar Contrato de la API','download','download')],
+ [sample('Decisión de arquitectura','ADR-008.md'),'De la organización',mono('v1'),tag('Preparando','blue'),'24 nov',btn('Versiones',{kind:'link',action:'doc-versions',icon:'history'})+iconBtn('Gestionar documento','ellipsis','doc-versions')],
+ [sample('Acta de despliegue','acta.docx'),'portal-web',mono('v1'),tag('Sin texto extraíble','amber'),'22 nov',btn('Versiones',{kind:'link',action:'doc-versions',icon:'history'})+iconBtn('Gestionar documento','ellipsis','doc-versions')]
+ ])}<div class="panel-foot"><span>Formatos: PDF, DOCX, Markdown, TXT, OpenAPI, ADR y CHANGELOG</span><span>Hasta 50 MiB por archivo</span></div></section>
+ ${notice('Preparación del texto','Los documentos con texto disponible pueden buscarse en la biblioteca. Usa Nexo para preparar los documentos autorizados para el asistente.','blue',routeArrow('Ir a Nexo','nexo'))}`;
+const nexo=()=>`${head('Asistencia documental','Nexo','Haz preguntas sobre la documentación que tu cuenta puede consultar.',tag('Solo lectura','blue'))}
+ <div class="panel pad between"><div class="row wrap">${select('Organización',['Omega Labs','Atlas Studio'])}<span class="small muted">12 documentos preparados · 1 pendiente</span></div>${btn('Preparar documentos para búsqueda',{icon:'database-zap',kind:'primary',action:'prepare-docs'})}</div>
+ <div class="assistant-grid"><section class="panel"><div class="panel-head"><div>${badgeText('Conversación','Omega Labs · documentación autorizada','sparkles','cream')}</div></div>
+ <div class="chat"><div class="message user">¿Qué debo revisar antes de actualizar una dependencia de servicios-core?</div>
+ <div class="message nexo"><p><strong>Revisa la política de versiones y solicita validación del equipo responsable.</strong></p><p>La política pide verificar compatibilidad y registrar el cambio propuesto antes de aprobar una actualización. <button class="cite" data-act="cite-one" aria-label="Ir a la cita 1">1</button></p><p>El ADR de integración pide validar el contrato de la API cuando el paquete interviene en servicios compartidos. <button class="cite" data-act="cite-two" aria-label="Ir a la cita 2">2</button></p></div>
+ <div class="inset stack tight"><div class="between"><h3>Prompt de reparación propuesto</h3>${btn('Copiar prompt',{icon:'copy',kind:'ghost',action:'copy'})}</div><p id="prompt-text" class="small muted">Revisa la compatibilidad de la versión propuesta, contrasta el contrato de la API y enumera las pruebas que respaldarían la actualización.</p></div></div>
+ <div class="chat-input"><div class="row"><div class="grow">${search('Tu pregunta','Pregunta sobre tus documentos')}</div>${btn('Enviar',{kind:'primary',icon:'send',action:'ask'})}</div><p class="footer-note" style="margin-top:6px">Nexo cita documentos y propone texto para revisión humana.</p></div></section>
+ ${block('Evidencia citada','2 fuentes de la organización',tag('2 citas','blue',false),`<div class="pad stack" style="padding-top:0">
+ <article class="inset stack tight" id="cite-one"><div class="between"><h3>1 · Política de versiones</h3>${ico('file-text')}</div><span class="mono muted small">versionado.pdf · pág. 4</span><p class="quote">Toda actualización debe registrar la versión objetivo y ser revisada por el equipo responsable.</p>${btn('Ver documento',{route:'documentacion',kind:'link',icon:'arrow-up-right',end:true})}</article>
+ <article class="inset stack tight" id="cite-two"><div class="between"><h3>2 · Decisión de integración</h3>${ico('file-text')}</div><span class="mono muted small">ADR-008.md · Validación</span><p class="quote">Validar el contrato de la API para cambios que afecten a servicios compartidos.</p>${btn('Ver documento',{route:'documentacion',kind:'link',icon:'arrow-up-right',end:true})}</article></div>`)}</div>
+ <p class="footer-note">${ico('lock')} Nexo responde y copia propuestas de texto. Los archivos y la ejecución de cambios quedan a cargo del equipo.</p>`;
+const reports=(technical=false)=>`${head('Supervisión / Informes','Reportes','Filtra hallazgos OSV y previsualiza el alcance antes de exportar.',btn('CSV',{icon:'download',action:'export-csv'})+btn('JSON',{icon:'download',action:'export-json'})+btn('PDF',{kind:'primary',icon:'download',action:'export-pdf'}))}
+ <section class="panel"><div class="filters">${select('Repositorio',['Todos los accesibles','servicios-core','portal-web','facturacion-api'])}${select('Ecosistema',['Todos','Maven','npm'])}${select('Severidad',['Todas','Crítica','Alta','Media','Baja'])}${btn('Aplicar filtros',{icon:'list-filter',action:'refresh-report'})}</div></section>
+ ${notice('Cobertura OSV incompleta','35 versiones requieren consulta o actualización. El informe presenta los avisos disponibles para los filtros seleccionados.','amber')}
+ ${block('Vista previa del informe','Omega Labs · 25 nov 2026 · todos los repositorios accesibles',tag('Datos guardados · OSV','blue'),tabs([['Ejecutivo','reportes'],['Técnico','reportes-tecnico']],technical?'Técnico':'Ejecutivo')+
+ (technical?table(['Aviso','Paquete / versión','Repositorio','Severidad','Versión corregida OSV','Cobertura'],[
+  [advisoryID,sample('org.acme:payments-client','1.6.0'),'servicios-core',sev('Alta'),mono('1.7.0'),coverage('Completa')],
+  ['OSV-DEMO-002',sample('@acme/serializer','2.8.0'),'portal-web',sev('Media'),'Sin dato publicado',coverage('Parcial')]
+ ]):`<div class="pad stack"><div class="cols third">
+ <div class="inset"><p class="small muted">Avisos agrupados</p><h2>6</h2></div><div class="inset"><p class="small muted">Versiones con avisos</p><h2>12</h2></div><div class="inset"><p class="small muted">Versiones con consulta pendiente</p><h2 class="accent">35</h2></div></div>
+ <div class="stack tight"><h3>Hallazgos destacados</h3>${listRow('servicios-core','Maven · 1 aviso de severidad alta',routeArrow('Ver aviso','vulnerabilidades'),'shield-alert')}${listRow('portal-web','npm · cobertura parcial del scanner',routeArrow('Ver análisis','analisis'),'scan-line')}</div></div>`),
+ '<span>La exportación incluye alcance, filtros, fecha y cobertura de la consulta.</span>')}`;
+const config=(tab='Perfil y apariencia')=>`${head('Espacio / Preferencias','Configuración','Administra tus preferencias personales, la apariencia de la organización y tus métodos de acceso.',btn('Guardar cambios',{kind:'primary',icon:'check',action:'save-config'}))}
+ <section class="panel">${tabs([['Perfil y apariencia','configuracion'],['Seguridad','config-seguridad']],tab)}</section>
+ ${tab==='Seguridad'?`<div class="cols wide"><section class="panel pad stack"><h2>Métodos de acceso</h2><p class="muted small">Vincular o desvincular requiere correo verificado y autenticación reciente.</p>
+ ${listRow('Google','Método vinculado',btn('Desvincular',{kind:'ghost',action:'oauth-link'}),'globe')}${listRow('GitHub','Disponible cuando el proveedor está configurado',btn('Vincular',{action:'oauth-link'}),'github')}</section>
+ <section class="panel pad stack"><h2>Contraseña</h2><p class="small muted">Solicita un enlace de cambio para alex@ejemplo.test.</p>${btn('Solicitar cambio de contraseña',{icon:'mail',action:'recover'})}</section></div>`:
+ `<div class="cols wide"><div class="stack"><section class="panel pad stack"><div>${badgeText('Perfil personal','Identidad visible en tu organización','user-round','cream')}</div>${field('Nombre visible','Alex Rivera')}${field('Correo de acceso','alex@ejemplo.test',{type:'email',readonly:true})}<div>${tag('Correo verificado','mint')}</div></section>
+ <section class="panel pad stack"><h2>Apariencia personal</h2><div class="cols">${select('Tema personal',['Oscuro','Claro','Sistema','Heredar del espacio'])}${select('Idioma personal',['Español','English','Heredar del espacio'])}</div></section></div>
+ <div class="stack"><section class="panel pad stack"><div class="between"><h2>Omega Labs</h2>${tag('Propietario','blue')}</div><p class="muted small">Preferencias compartidas que se aplican cuando un miembro hereda la configuración del espacio.</p>${select('Tema de la organización',['Oscuro','Claro','Sistema'])}${select('Idioma de la organización',['Español','English'])}</section>
+ <section class="panel pad stack"><h2>Acceso y seguridad</h2><p class="muted small">Cambia tu contraseña y administra los proveedores vinculados.</p>${btn('Ver métodos de acceso',{route:'config-seguridad',icon:'lock',kind:'ghost'})}</section></div></div>`}`;
+const adminTabs=[
+ ['Solicitudes','administracion'],['Cuentas','admin-cuentas'],['Organizaciones','admin-organizaciones'],['Equipos','admin-equipos'],
+ ['Repositorios','admin-repositorios'],['Membresías','admin-membresias'],['Invitaciones','admin-invitaciones'],['Auditoría','admin-auditoria']
+];
+const adm=(tab='Solicitudes')=>`${head('Plataforma / Control global','Administración de plataforma','Acceso exclusivo para administradores de plataforma.',tag('Administrador de plataforma','blue'))}
+ ${metrics([['Solicitudes pendientes','03','Revisión de acceso'],['Cuentas habilitadas','28','Usuarios de la plataforma'],['Organizaciones activas','05','Espacios habilitados'],['Repositorios registrados','34','Todos los espacios']])}
+ ${block(tab,tab==='Solicitudes'?'Revisa las solicitudes de admisión de la plataforma.':tab==='Auditoría'?'Consulta las acciones y los motivos registrados.':'Consulta y gestiona registros de la plataforma.',tab==='Auditoría'?'':routeArrow('Ver auditoría','admin-auditoria'),
+ tabs(adminTabs,tab)+`<div class="filters">${search('Buscar registro','Nombre, correo o ID')}${select('Estado',['Todos',tab==='Solicitudes'?'Pendiente':'Habilitado',tab==='Solicitudes'?'Aprobado':'Deshabilitado',tab==='Solicitudes'?'Rechazado':'Retirado'])}</div>`+
+ (tab==='Solicitudes'?table(['Solicitante','Recibida','Correo','Admisión','Acción'],[
+ [sample('Lina Torres','lina@ejemplo.test'),'25 nov · 07:48',tag('Verificado','mint'),tag('Pendiente','amber'),btn('Aprobar',{route:'motivo',kind:'primary'})+btn('Rechazar',{action:'reject-account',kind:'link'})],
+ [sample('Iván Ríos','ivan@ejemplo.test'),'24 nov · 18:40',tag('Por verificar','amber'),tag('Pendiente','amber'),btn('Aprobar',{route:'motivo',kind:'primary'})+btn('Rechazar',{action:'reject-account',kind:'link'})],
+ [sample('Sofía Ruiz','sofia@ejemplo.test'),'24 nov · 14:05',tag('Verificado','mint'),tag('Aprobada','mint'),btn('Ver auditoría',{route:'admin-auditoria',kind:'link'})]
+ ]):tab==='Auditoría'?table(['Fecha','Actor','Acción','Registro','Motivo'],[
+ ['25 nov · 07:15','Alex Rivera','Aprobó solicitud','sofia@ejemplo.test','Identidad y solicitud revisadas.'],
+ ['24 nov · 16:05','Alex Rivera','Deshabilitó repositorio','legacy-portal','Retiro solicitado por la organización.']
+ ]):table(['Registro','Organización / alcance','Estado','Acciones'],[
+ [sample(({'Cuentas':'Lina Torres','Organizaciones':'Omega Labs','Equipos':'Plataforma Web','Repositorios':'portal-web','Membresías':'Nico Silva','Invitaciones':'maria@ejemplo.test'})[tab],'Registro de demostración'),tab==='Cuentas'?'Plataforma':'Omega Labs',tag('Habilitado','mint'),btn('Deshabilitar',{action:'disable-resource',kind:'link'})+(tab==='Cuentas'||tab==='Membresías'?btn('Retirar',{action:'remove-resource',kind:'danger'}):'')],
+ [sample('Registro anterior','Registro de demostración'),'Atlas Studio',tag('Deshabilitado','amber'),btn('Habilitar',{action:'enable-resource',kind:'link'})]
+ ])),
+ '<span>Los cambios sensibles requieren un motivo y quedan en auditoría.</span>')}
+ ${notice('Permisos de plataforma','Este panel usa autorización global. Los roles de organización se administran en su propio espacio.','blue')}`;
+const variants=()=>`${head('Identidad / Estados','Variantes de estado','La verificación del correo y la admisión se muestran con etiquetas independientes.',btn('Ver estado de cuenta',{route:'estado',icon:'arrow-up-right'}))}
+ <div class="cols third flow-board">
+ ${[['Pendiente','amber','clock-3','Por verificar','amber','La solicitud está en revisión. Reenvía el enlace si aún no verificaste tu correo.','Reenviar verificación','verification'],['Aprobada','mint','circle-check','Verificado','mint','La cuenta está aprobada y el correo quedó verificado. Puedes entrar al espacio autorizado.','Abrir espacio','dashboard'],['Rechazada','rose','circle-x','Verificado','mint','La solicitud de admisión fue rechazada. Cierra sesión para volver a la pantalla de acceso.','Cerrar sesión','acceso']].map(([status,tone,icon,mail,mt,desc,cta,act])=>`<section class="panel pad">${tile(icon)}<h2>${status}</h2><p class="muted small">${desc}</p><div class="stack">${listRow('Correo electrónico','',tag(mail,mt))}${listRow('Admisión','',tag(status,tone))}${btn(cta,{kind:'primary',...(act==='verification'?{action:act}:{route:act})})}</div></section>`).join('')}
+ </div>${block('Estados de datos','Texto e indicador acompañan cada estado de color.','',table(['Capa','Estados que deben distinguirse'],[
+ ['Scanner',`${coverage('Completa')} ${coverage('Parcial')} ${coverage('Error')} ${coverage('Sin manifiesto')}`],
+ ['OSV',`${osv('Con avisos')} ${osv('Sin avisos conocidos')} ${osv('Por consultar')} ${osv('Consulta incompleta')} ${osv('Desactualizada')}`],
+ ['Seguimiento',`${tag('Pendiente','amber')} ${tag('En revisión','blue')} ${tag('Riesgo aceptado')} ${tag('Resuelto','mint')}`],
+ ['Exposición',`${tag('Inconclusa','amber')} <span class="muted small">Muestra explicación cuando el snapshot o la regla son insuficientes.</span>`]
+ ]))}`;
+
+const main=document.querySelector('#app-root');
+let lastFocus;
+let accessRole='admin';
+function modal(title,description,body,buttons='',drawer=false){
+ clearOverlay();
+ lastFocus=document.activeElement;
+ main.insertAdjacentHTML('beforeend',`<div class="overlay ${drawer?'drawer-wrap':''}"><section class="dialog ${drawer?'drawer':''}" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><header><div><h2 id="dialog-title">${title}</h2>${description?`<p class="small muted">${description}</p>`:''}</div>${iconBtn('Cerrar diálogo','x','close')}</header><div class="body">${body}</div>${buttons?`<footer>${buttons}</footer>`:''}</section></div>`);
+ if(!document.body.classList.contains('capture')) main.querySelector('.dialog input,.dialog textarea,.dialog button')?.focus({preventScroll:true});
+}
+function clearOverlay(){
+ main.querySelector('.overlay')?.remove();
+ main.querySelector('.popover')?.remove();
+ if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});
+ lastFocus=null;
+}
+const cancel=()=>btn('Cancelar',{action:'close',kind:'ghost'});
+const confirmBtn=(label,icon='check',kind='primary')=>btn(label,{action:'done',icon,kind});
+function popover(title,body){
+ const target=main.querySelector('.top')||main.querySelector('.auth-main');
+ if(target.querySelector('.popover')){clearOverlay();return}
+ clearOverlay();
+ target.insertAdjacentHTML('beforeend',`<section class="panel popover" aria-label="${title}"><div class="panel-head"><h2>${title}</h2>${iconBtn('Cerrar menú','x','close')}</div><div class="pad stack tight" style="padding-top:0">${body}</div></section>`);
+}
+function command(){
+ const ids=['dashboard','repositorios','analisis','inventario','vulnerabilidades','documentacion','nexo','reportes','organizacion','configuracion','administracion'].filter(id=>accessRole!=='viewer'||!['organizacion','administracion'].includes(id));
+ modal('Buscar secciones','Encuentra una pantalla de la plataforma.',`<label class="searchbox"><span class="sr-only">Buscar secciones</span>${ico('search')}<input id="command-input" placeholder="Escribe el nombre de una sección" type="search"></label>
+ <div class="list" id="command-list">${ids.map((id,j)=>`<a href="#${id}" class="command-result ${j===0?'selected':''}" ${j>5?'hidden':''}>${ico(routes[id][1])}<strong class="grow">${routes[id][0]}</strong>${ico('arrow-up-right')}</a>`).join('')}</div>
+ <div class="between small muted"><span>Buscar por nombre de sección</span><span><kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd> <kbd>Esc</kbd></span></div>`);
+ const input=main.querySelector('#command-input');if(!document.body.classList.contains('capture')) input.focus();
+ input.addEventListener('input',()=>{
+  const normalized=s=>s.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().trim();
+  const q=normalized(input.value);
+  const links=[...main.querySelectorAll('.command-result')];
+  for(const [i,a] of links.entries()) {a.hidden=q?!normalized(a.textContent).includes(q):i>5;a.classList.remove('selected')}
+  links.find(a=>!a.hidden)?.classList.add('selected');
+ });
+}
+function adminReason(action,resource='Lina Torres · lina@ejemplo.test',danger=false){
+ modal(action,'Administración de plataforma',`<section class="inset">${badgeText(resource,'Registro de demostración','shield')}</section>
+ ${area('Motivo obligatorio','','Explica brevemente la decisión administrativa.')}
+ ${notice('Registro de auditoría','La acción guardará tu cuenta, fecha, registro afectado y motivo.','blue')}`,
+ cancel()+btn(action,{action:'commit-admin',kind:danger?'danger':'primary',icon:danger?'triangle-alert':'check'}));
+ main.querySelector('.dialog textarea').required=true;
+}
+function toast(s){
+ document.querySelector('.toast')?.remove();
+ document.body.insertAdjacentHTML('beforeend',`<div class="toast" role="status">${esc(s)}</div>`);
+ const t=document.querySelector('.toast');setTimeout(()=>t?.remove(),2600);
+}
+const staticDialogs={
+ 'github-app':['Conectar GitHub App','Autoriza el acceso al código desde la instalación de Omega Labs.',notice('Permisos de la instalación','Selecciona en GitHub los repositorios que la App podrá leer.','blue'),'Continuar a GitHub'],
+ 'link-install':['Vincular instalación existente','Selecciona una instalación autorizada para esta organización.',select('Instalación GitHub App',['omega-labs · instalación existente']),'Vincular instalación'],
+ 'github-repos':['Agregar repositorios de GitHub','Los repositorios seleccionados se agregan a Omega Labs.',select('Instalación',['omega-labs'])+`<label class="checkrow">${check('servicios-auth',true)} omega-labs / servicios-auth</label><label class="checkrow">${check('docs-platform')} omega-labs / docs-platform</label>`, 'Agregar seleccionados'],
+ 'import-folder':['Importar carpeta local','La carpeta se guardará en Omega Labs.',`<label class="field">Carpeta local<input type="file" webkitdirectory multiple></label><p class="muted small">Hasta 300 MiB y 50.000 archivos.</p>`, 'Importar carpeta'],
+ 'remove-repo':['Retirar repositorio de Omega Labs','El registro local se deshabilita y conserva el historial de análisis.',notice('Repositorio remoto','El código permanece en GitHub.','blue'),'Retirar repositorio','danger'],
+ 'remove-local':['Eliminar carpeta local','La copia privada importada se elimina y se conserva el historial de análisis.',notice('Confirmar eliminación','La carpeta original de tu equipo permanece disponible.','rose'),'Eliminar copia','danger'],
+ 'scan':['Ejecutar análisis manual','Repositorio autorizado: servicios-core · rama main.',notice('Scanner','Se detectarán dependencias de los manifiestos compatibles de Maven y npm. Podrás seguir el estado desde el registro.','blue'),'Iniciar análisis'],
+ 'rename-snapshot':['Asignar nombre al snapshot','servicios-core · commit e27ac19',field('Nombre del snapshot','Cierre de noviembre'),'Guardar nombre'],
+ 'scan-source':['Procedencia del análisis','servicios-core · Java / Maven','<div class="inset"><p>Commit observado <code>e27ac19</code></p><p>Fuente · GitHub App / main</p><p>Manifiesto · <code>services/payments/pom.xml</code></p></div>','Cerrar'],
+ 'scan-error':['Error de análisis','servicios-core · Maven',notice('Error de lectura','El scanner no pudo leer un manifiesto. Está disponible el último resultado válido.','rose'),'Cerrar'],
+ 'osv':['Consultar avisos OSV','servicios-core · versiones detectadas en el último snapshot válido.',notice('Evaluación por versión exacta','Se consultan las versiones observadas por el scanner.','blue'),'Consultar OSV'],
+ 'invite':['Invitar por correo','Omega Labs · invitación para un equipo y repositorio concretos.',field('Correo invitado','',{type:'email',placeholder:'nombre@empresa.com'})+select('Rol',['Miembro','Lector'])+select('Equipo',['Plataforma Web','Backend','Seguridad'])+select('Repositorio',['portal-web','servicios-core']),'Enviar invitación'],
+ 'edit-member':['Editar membresía','Nico Silva · nico@ejemplo.test',select('Rol de organización',['Miembro','Lector','Administrador'])+select('Estado de membresía',['Activo','Suspendido','Retirado']),'Guardar acceso'],
+ 'new-org':['Crear organización','Configura un nuevo espacio.',field('Nombre de la organización','',{placeholder:'Nombre visible'}),'Crear organización'],
+ 'new-team':['Crear equipo','Organización: Omega Labs.',field('Nombre del equipo','',{placeholder:'Nombre visible'}),'Crear equipo'],
+ 'rename-team':['Renombrar equipo','Organización: Omega Labs.',field('Nombre del equipo','Plataforma Web'),'Guardar nombre'],
+ 'upload-doc':['Subir documento','Selecciona un archivo y, si corresponde, asócialo a un repositorio.',`<label class="field">Archivo<input type="file" accept=".pdf,.docx,.md,.txt,.json,.yaml,.yml"></label>`+select('Repositorio (opcional)',['De la organización','servicios-core','portal-web'])+'<p class="small muted">PDF, DOCX, Markdown, TXT, OpenAPI, ADR y CHANGELOG · Hasta 50 MiB.</p>','Subir documento'],
+ 'doc-versions':['Versiones del documento','Política de versiones · servicios-core',listRow('v3 · versionado.pdf','25 nov · texto listo',iconBtn('Descargar versión 3','download','download'))+listRow('v2 · versionado.pdf','12 nov · texto listo',iconBtn('Descargar versión 2','download','download'))+btn('Agregar versión',{icon:'plus',action:'add-doc-version'})+btn('Eliminar documento',{icon:'trash-2',kind:'danger',action:'delete-doc'}),'Cerrar'],
+ 'add-doc-version':['Agregar versión','Política de versiones',`<label class="field">Archivo de la nueva versión<input type="file"></label>`,'Subir versión'],
+ 'delete-doc':['Eliminar documento','Política de versiones',notice('Versiones y texto','La eliminación retira los archivos, el texto indexado y sus versiones de esta biblioteca.','rose'),'Eliminar documento','danger'],
+ 'oauth-link':['Verificar sesión reciente','Confirma tu identidad para administrar un método externo.',field('Contraseña de la cuenta','',{type:'password',placeholder:'Ingresa tu contraseña'}),'Confirmar'],
+ 'prepare-docs':['Preparar documentos para búsqueda','Omega Labs · 12 preparados y 1 pendiente.',notice('Indexación para Nexo','Se preparará el texto autorizado que está disponible en la biblioteca.','blue'),'Preparar documentos'],
+};
+function adjustTop(){
+ document.querySelector('.workspace')?.setAttribute('data-role',accessRole);
+}
+function gallery(){
+ const items=(entries,extra=false)=>entries.map(([id,item])=>`<a class="panel gallery-item" href="#${id}">${tile(extra?'panels-top-left':item[1])}<span class="grow"><small>${(extra?item[1]:item[2]).slice(0,2)}</small>${item[0]}</span>${ico('arrow-up-right')}</a>`).join('');
+ return `<main class="gallery"><header class="between gallery-top">${brand()}${tag('Prototipo · datos de ejemplo','blue')}</header><div class="signal-card gallery-title" style="max-width:none;padding:28px 27px"><div class="orbits"></div><div class="eyebrow" style="color:#6f430f">Observatorio de Evidencias</div><h1>Plantillas visuales</h1><p>Explora las pantallas de Dependency Intelligence Platform y sus estados clave.</p></div><div class="stack" style="margin-top:22px"><h2>14 pantallas</h2><div class="gallery-grid">${items(Object.entries(routes))}</div><h2>Flujos y variantes</h2><div class="gallery-grid">${items(Object.entries(supplemental),true)}</div></div></main>`;
+}
+const renderers={
+ galeria:gallery,
+ acceso:access,estado:statusView,solicitud:register,recuperar:recover,invitacion:inviteView,
+ dashboard:()=>shell('dashboard',dash(),accessRole),
+ espacio:()=>shell('espacio',dash(true),accessRole),
+ repositorios:()=>shell('repositorios',repos(),accessRole),
+ analisis:()=>shell('analisis',analysis(),accessRole),
+ comparacion:()=>shell('analisis',compare(),accessRole),
+ inventario:()=>shell('inventario',inventory(),accessRole),
+ 'inventario-repo':()=>shell('inventario',inventory(true),accessRole),
+ detalle:()=>shell('inventario',inventory(true),accessRole),
+ vulnerabilidades:()=>shell('vulnerabilidades',vulnerability(),accessRole),
+ organizacion:()=>shell('organizacion',organization(),accessRole),
+ 'org-invitaciones':()=>shell('organizacion',organization('Invitaciones'),accessRole),
+ 'org-equipos':()=>shell('organizacion',organization('Equipos'),accessRole),
+ permisos:()=>shell('organizacion',organization('Permisos'),accessRole),
+ documentacion:()=>shell('documentacion',docs(),accessRole),
+ 'documentos-buscar':()=>shell('documentacion',docs(true),accessRole),
+ nexo:()=>shell('nexo',nexo(),accessRole),
+ reportes:()=>shell('reportes',reports(),accessRole),
+ 'reportes-tecnico':()=>shell('reportes',reports(true),accessRole),
+ configuracion:()=>shell('configuracion',config(),accessRole),
+ 'config-seguridad':()=>shell('configuracion',config('Seguridad'),accessRole),
+ administracion:()=>shell('administracion',adm(),accessRole),
+ motivo:()=>shell('administracion',adm(),accessRole),
+ estados:()=>shell('dashboard',variants(),accessRole),
+ movil:()=>shell('espacio',dash(true),accessRole),
+ claro:()=>shell('dashboard',dash(),accessRole)
+};
+for(const [tab,id] of adminTabs.slice(1))renderers[id]=()=>shell('administracion',adm(tab),accessRole);
+function current(){return location.hash.slice(1)||'galeria'}
+function menu(){
+ const s=main.querySelector('.sidebar');if(!s)return;
+ const open=s.classList.toggle('open');
+ main.querySelector('.menu-shade')?.remove();
+ if(open)main.insertAdjacentHTML('beforeend','<button class="menu-shade" data-act="menu" aria-label="Cerrar menú lateral" style="border:0"></button>');
+}
+function navigate(){
+ clearOverlay();
+ const id=current();
+ const isAdmin=id==='administracion'||id==='motivo'||id.startsWith('admin-');
+ const isOrg=['organizacion','org-equipos','org-invitaciones','permisos'].includes(id);
+ const allowed=accessRole!=='viewer'||(!isAdmin&&!isOrg);
+ document.body.classList.toggle('light',id==='claro'||sessionStorage.getItem('porfavor-theme')==='light');
+ const draw=allowed?(renderers[id]||renderers.dashboard):renderers.dashboard;
+ main.innerHTML=draw();
+ adjustTop();
+ document.title=`${routes[id]?.[0]||supplemental[id]?.[0]||'Plantillas visuales'} · PORFAVOR`;
+ window.scrollTo(0,0);
+ if(id==='espacio')command();
+ if(id==='movil')menu();
+ if(id==='detalle')modal('org.acme:payments-client','Detalle de dependencia · servicios-core',detailBody(),'',true);
+ if(id==='motivo'&&allowed)adminReason('Aprobar solicitud');
+}
+const simpleActions={
+ oauth:'Método externo mostrado en la plantilla de demostración.',
+ sync:'Sincronización de ejemplo iniciada.',
+ 'cancel-import':'Importación cancelada en el ejemplo.',
+ 'export-csv':'Exportación CSV · acción de ejemplo.',
+ 'export-json':'Exportación JSON · acción de ejemplo.',
+ 'export-pdf':'Vista PDF · acción de ejemplo.',
+ download:'Descarga de ejemplo.',
+ status:'Estado consultado: pendiente de aprobación.',
+ verification:'Solicitud de reenvío simulada.',
+ recover:'Si existe una cuenta con este correo, recibirá un enlace.',
+ tracking:'Seguimiento guardado en el ejemplo.',
+ 'save-permissions':'Cambios de acceso guardados en el ejemplo.',
+ 'save-config':'Preferencias guardadas en el ejemplo.',
+ compare:'Comparación de dos snapshots completados.',
+ 'refresh-report':'Previsualización actualizada.',
+ 'advisory-other':'Aviso de demostración. El primer aviso muestra la expansión completa.',
+ 'approve-invite':'Invitación aprobada en el ejemplo.',
+ 'revoke-invite':'Invitación revocada en el ejemplo.',
+ ask:'Conversación de muestra basada en los documentos de ejemplo.'
+};
+function doAction(action,el){
+ if(action==='close'){clearOverlay();return}
+ if(action==='menu'){menu();return}
+ if(action==='command'){command();return}
+ if(action==='theme'){
+  const light=!document.body.classList.contains('light');
+  document.body.classList.toggle('light',light);
+  sessionStorage.setItem('porfavor-theme',light?'light':'dark');
+  return;
+ }
+ if(action==='profile'){popover('Alex Rivera',
+  `<p class="muted small">alex@ejemplo.test</p>${btn('Perfil y configuración',{route:'configuracion',icon:'settings-2'})}${btn('Estado de cuenta',{route:'estado',icon:'user-check'})}${btn('Cerrar sesión',{route:'acceso',icon:'log-out',kind:'ghost'})}${btn('Volver al índice visual',{route:'galeria',icon:'panels-top-left',kind:'link'})}`);return}
+ if(action==='language'){popover('Idioma',`<p class="small muted">Preferencia de la plataforma</p>${select('Idioma personal',['Español','English'])}${btn('Aplicar',{kind:'primary',action:'done'})}`);return}
+ if(action==='spaces'){popover('Organizaciones',`${listRow('Omega Labs','Propietario',tag('Activa','mint'),'building-2')}${listRow('Atlas Studio','Lector',btn('Usar vista de lector',{kind:'ghost',action:'viewer'}),'building-2')}${btn('Volver a vista administradora',{kind:'link',action:'admin-role'})}`);return}
+ if(action==='viewer'||action==='admin-role'){accessRole=action==='viewer'?'viewer':'admin';location.hash='dashboard';navigate();return}
+ if(action==='notifications'){popover('Notificaciones',`${listRow('Aviso OSV actualizado','servicios-core · 25 nov',routeArrow('Abrir','vulnerabilidades'),'shield-alert')}${listRow('35 versiones por consultar','Inventario de repositorios accesibles',routeArrow('Ver','inventario'),'clock-3')}${notice('Cobertura de notificaciones','Hay repositorios con consulta incompleta.','amber')}`);return}
+ if(action==='advisory'){const a=document.querySelector('#advisory');a.hidden=!a.hidden;el.setAttribute('aria-expanded',String(!a.hidden));return}
+ if(action==='reject-account'){adminReason('Rechazar solicitud',undefined,true);return}
+ if(action==='disable-resource'||action==='enable-resource'||action==='remove-resource'){adminReason({'disable-resource':'Deshabilitar registro','enable-resource':'Habilitar registro','remove-resource':'Retirar registro'}[action], 'Registro seleccionado',action!=='enable-resource');return}
+ if(action==='commit-admin'){const area=main.querySelector('.dialog textarea');if(!area.value.trim()){area.reportValidity();area.focus();return}clearOverlay();toast('Acción registrada en la auditoría de demostración.');return}
+ if(action==='done'){clearOverlay();toast('Acción de demostración completada.');return}
+ if(action==='cite-one'||action==='cite-two'){const cite=document.getElementById(action);cite?.scrollIntoView({block:'nearest'});cite?.animate([{outline:'2px solid var(--amber)'},{outline:'2px solid transparent'}],800);return}
+ if(action==='copy'){
+  const phrase=document.getElementById('prompt-text').textContent;
+  navigator.clipboard?.writeText(phrase).then(()=>toast('Prompt copiado')).catch(()=>toast('Selecciona el texto del prompt para copiarlo.'));
+  return;
+ }
+ if(action==='tab'){
+  for(const tab of el.parentElement.children)tab.classList.toggle('active',tab===el);
+  if(current()==='comparacion'){
+   const rows=el.parentElement.closest('.panel').querySelectorAll('tbody tr');
+   const matches={'Todos':'','Agregadas':'Agregada','Actualizadas':'Actualizada','Retiradas':'Retirada','Sin cambios':'Sin cambios'};
+   for(const row of rows)row.hidden=!row.cells[1].textContent.includes(matches[el.textContent]);
+  }
+  return;
+ }
+ if(action in staticDialogs){const [title,sub,body,label,kind]=staticDialogs[action];modal(title,sub,body,cancel()+confirmBtn(label,'check',kind));return}
+ if(action in simpleActions){toast(simpleActions[action]);}
+}
+main.addEventListener('click',e=>{
+ const action=e.target.closest('[data-act]');
+ if(action){doAction(action.dataset.act,action);return}
+ const link=e.target.closest('a[href^="#"]');
+ if(link&&link.hash===location.hash){e.preventDefault();clearOverlay();return}
+ if(e.target.classList.contains('overlay'))clearOverlay();
+});
+main.addEventListener('input',e=>{
+ if(!e.target.matches('[data-search]')||!e.target.closest('.filters'))return;
+ const q=e.target.value.toLocaleLowerCase('es').trim();
+ const context=e.target.closest('.panel');
+ for(const r of context?.querySelectorAll('tbody tr')||[])r.hidden=!!q&&!r.textContent.toLocaleLowerCase('es').includes(q);
+});
+document.addEventListener('keydown',e=>{
+ const dialog=main.querySelector('.dialog');
+ const commandField=document.querySelector('#command-input');
+ if(e.key==='Escape'){clearOverlay();if(main.querySelector('.sidebar.open'))menu();return}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){if(main.querySelector('.top')){e.preventDefault();command()}return}
+ if(commandField===document.activeElement&&['ArrowDown','ArrowUp','Enter'].includes(e.key)){
+  const links=[...main.querySelectorAll('.command-result:not([hidden])')];
+  if(!links.length)return;
+  e.preventDefault();
+  const idx=links.findIndex(a=>a.classList.contains('selected'));
+  if(e.key==='Enter'){links[Math.max(0,idx)].click();return}
+  links[idx]?.classList.remove('selected');
+  links[(idx+(e.key==='ArrowDown'?1:-1)+links.length)%links.length].classList.add('selected');
+ }
+ if(e.key==='Tab'&&dialog){
+  const controls=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')].filter(x=>x.getClientRects().length);
+  const first=controls[0],last=controls.at(-1);
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}
+  if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}
+ }
+});
+window.addEventListener('hashchange',navigate);
+window.addEventListener('DOMContentLoaded',navigate);
+
+</script></body></html>
