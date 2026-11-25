@@ -44,7 +44,7 @@
           </button>
           @if (isExpanded(group.id)) {
             <div class="finding-detail" [id]="'finding-' + group.id">
-              @if (group.advisory.details) { <section class="advisory-description"><h2>{{ 'Qué publica OSV' | t }}</h2><p>{{ group.advisory.details }}</p></section> }
+              @if (group.advisory.details) { <section class="advisory-description"><h2>{{ 'Qué publica OSV' | t }}</h2><p>{{ plainDescription(group.advisory.details) }}</p></section> }
               <section><h2>{{ 'Paquetes afectados y seguimiento' | t }}</h2><p class="review-disclaimer">{{ 'Resuelto indica que el equipo cerró el seguimiento. La verificación técnica requiere un análisis posterior.' | t }}</p>
                 <div class="occurrence-list">
                   @for (item of group.occurrences; track item.key) {
