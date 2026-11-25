@@ -1929,3 +1929,14 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** El build Docker de `frontend` pasó; bundle inicial 647,42 KB frente al presupuesto de 500 KB y avisos Sass preexistentes. Se recreó únicamente el contenedor frontend de revisión; `http://localhost:8189/?view=repositories` respondió HTTP 200 con `styles-VBTXPSI3.css`. El backend anterior seguía activo. CUA no pudo conectar con el puente nativo del navegador, por lo que no se afirma inspección visual de la sesión autenticada ni resolución del aviso de permisos mostrado en la captura.
 
 **Siguiente paso.** El usuario puede recargar 8189 y comprobar la composición con su sesión. Para diagnosticar el aviso de permisos hace falta el método y URL de la petición 403 en Red/Network o acceso a la sesión del navegador; no se cambian roles sin esa evidencia.
+## Bloque 115 — Ajuste de importación local (25/11/2026)
+
+**Petición.** El usuario mostró la sección «Importar carpeta local» y pidió corregir su aspecto: control nativo de archivos cortado, espacio vacío amplio y filas comprimidas.
+
+**Cambios.** GitHub, instalación existente e importación local se disponen en franjas de ancho completo para evitar que el formulario de importación quede encerrado en media columna. La descripción y la selección de carpeta comparten la franja superior; el `input` nativo permanece accesible pero queda visualmente oculto, con un `label` operable, foco visible y estado deshabilitado. La lista de carpetas usa filas de dos zonas, refluye en anchos menores y elimina la insignia «Local» redundante. Se conserva el flujo y la autorización del backend.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** `docker compose build frontend` pasó con los avisos de presupuesto previos (bundle inicial 646,98 KB/500 KB). Se recreó solo el contenedor frontend de 8189. Falta revisión visual de esta vista dentro de la sesión del usuario, pues el puente nativo de navegador no está disponible en esta sesión.
+
+**Siguiente paso.** Recargar 8189 y revisar la importación local en escritorio y móvil; el aviso 403 de GitHub sigue separado y requiere identificar la petición fallida.
