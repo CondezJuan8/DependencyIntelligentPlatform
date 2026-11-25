@@ -46,7 +46,11 @@ body {
   line-height: 1.55;
   background: var(--di-background);
   color: var(--di-text);
+  transition: background-color 220ms ease, color 220ms ease;
 }
+
+html { scrollbar-color: var(--di-border) var(--di-background); scrollbar-width: thin; }
+::selection { background: color-mix(in srgb, var(--di-primary) 28%, var(--di-surface)); color: var(--di-text); }
 
 a {
   color: var(--di-link);
@@ -104,10 +108,6 @@ button {
 }
 button:disabled {
   cursor: not-allowed;
-}
-::selection {
-  background: var(--di-primary);
-  color: #fff;
 }
 .skip-link {
   position: fixed;
@@ -484,5 +484,6 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
   #workspace-main :where(.primary, button.primary, .submit, .repo-row, .document-card, .history-card, .finding-row, .advisory-card, .organization-row) { transition: none; }
 }
