@@ -13,3 +13,4 @@
 !.env.example
 .DS_Store
 .tools/
+.impeccable-cache/
