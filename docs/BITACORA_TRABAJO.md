@@ -1,3 +1,15 @@
+## Bloque 118 — Acciones compactas en notificaciones (25/11/2026)
+
+**Petición.** El usuario mostró que «Actualizar» y «Descartar todas» se apilaban, y que el texto «Descartar» ocupaba demasiado ancho en cada aviso. Solicitó papelera individual, mejores espacios y una acción para borrar todo.
+
+**Cambios.** El encabezado del panel muestra actualización como icono accesible y «Borrar todo» como acción única, alineados en una fila. Cada aviso usa una papelera de 34 px con etiqueta accesible y título; se retiró la flecha decorativa y se amplió el espacio disponible para el texto. Se añadió el icono al sistema SVG existente y su traducción inglesa. El descarte continúa por cuenta en el navegador, sin borrar evidencia OSV.
+
+**Herramientas y tecnologías.** Angular, Sass, SVG local, Docker Compose y PowerShell; sin dependencias nuevas.
+
+**Verificación.** El build Docker de frontend pasó y se recreó solo el contenedor de 8189. Queda pendiente la inspección visual dentro de la sesión autenticada del usuario.
+
+**Siguiente paso.** Recargar 8189 y comprobar el panel en escritorio y móvil.
+
 ## Bloque 117 — Descarte de notificaciones (25/11/2026)
 
 **Petición.** El usuario pidió poder borrar todas las notificaciones o hacerlo una por una desde el panel del encabezado.
