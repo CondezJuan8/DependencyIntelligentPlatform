@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Reorganizar Documentación: un solo borde por sección, filas con divisores, formulario alineado y adaptación a ancho estrecho. Frontend 8189 actualizado; maqueta estática inspeccionada.
+- [ ] Revisar Documentación en la sesión autenticada con contenido real en escritorio y móvil; el puente conectado de navegador no inició en esta sesión.
 - [x] Documentación permite un contexto maestro versionado por repositorio y referencias de vulnerabilidades sin repositorio. Nexo contempla los documentos generales y los repositorios autorizados en su recuperación con Ollama/pgvector; backend V34 y frontend 8189 activos.
 - [ ] Validar con sesión autenticada la carga del contexto maestro y una referencia global, preparación de embeddings y respuesta con citas en Nexo; verificar también acceso de otra cuenta con permisos limitados.
 - [x] Rediseñar Reportes con avisos OSV de severidad media a crítica, fichas ejecutivas y técnicas específicas, adaptación móvil y descarga de PDF A4 independiente. Frontend 8189 actualizado; PDF de muestra renderizado.

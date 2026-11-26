@@ -1,3 +1,15 @@
+## Bloque 131 — Composición de Documentación (25/11/2026)
+
+**Petición.** Ordenar la vista Documentación y cuidar la alineación de sus bordes.
+
+**Cambios.** Se unificó el contorno y el radio de las tres secciones principales. La selección de repositorios y la biblioteca usan filas con divisores discretos en lugar de tarjetas y bordes anidados. El formulario tiene dos columnas de igual ancho en escritorio y una en móvil; se alinearon los controles de archivo, texto y selección. Se agrupó el límite de carga junto al selector de archivo y se retiraron avisos separados del encabezado. Se ajustaron espacios, anchuras mínimas y acciones para evitar desbordamientos sin cambiar permisos, datos ni comportamiento.
+
+**Herramientas y tecnologías.** Skills `arrange` y `frontend-design`; Angular, Sass, tokens existentes, Docker Compose, Chrome sin sesión para una maqueta estática de revisión y PowerShell. No se añadieron dependencias.
+
+**Verificación.** El build frontend pasó. Se inspeccionó una maqueta estática de los bordes en escritorio y ancho estrecho; la herramienta de navegador conectada no inició porque falta su runtime Node, por lo que no se afirma revisión visual de la sesión autenticada. El frontend de `localhost:8189` fue recreado y la ruta de Documentación respondió HTTP 200. `git diff --check` no encontró errores de formato.
+
+**Siguiente paso.** Recargar Documentación en la sesión autenticada y comprobar los tres bloques con datos reales en escritorio y móvil; ajustar cualquier diferencia que aparezca por el contenido del usuario.
+
 ## Bloque 130 — Contexto maestro y referencias de vulnerabilidades (25/11/2026)
 
 **Petición.** Ampliar Documentación para guardar las reglas y el contexto maestro de cada repositorio, aceptar referencias de vulnerabilidades sin asociación obligatoria y recuperar los documentos mediante embeddings de Ollama y pgvector.
