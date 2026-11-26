@@ -1,7 +1,7 @@
 :host { display: block; color: var(--di-text); }
 :host *, :host *::before, :host *::after { box-sizing: border-box; }
 
-.documents-page { display: grid; gap: 18px; width: min(100%, 1200px); margin: 0 auto; }
+.documents-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; width: min(100%, 1200px); margin: 0 auto; }
 .page-heading, .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .page-heading > div, .section-heading > div { min-width: 0; }
 .eyebrow { display: block; margin-bottom: 6px; color: var(--di-accent-text); font-size: 12px; font-weight: 750; letter-spacing: .09em; }

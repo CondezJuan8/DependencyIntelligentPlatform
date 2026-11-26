@@ -121,25 +121,6 @@
     .occurrence { padding:10px 0; border-top:1px solid var(--di-border); }
   }
 
-  app-document-center {
-    .documents-page > .panel + .panel { margin-top:20px; }
-    .upload-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px 18px; }
-    .upload-grid .wide { grid-column:1 / -1; }
-    .repo-options .repo-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; }
-    .repo-options .check { min-height:39px; border-bottom:1px solid var(--di-border); }
-    .upload-actions { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:15px; padding-top:12px; border-top:1px solid var(--di-border); }
-    .upload-actions p { max-width:70ch; margin:0; color:var(--di-text-subtle); font-size:11px; line-height:1.5; }
-    .document-list { display:grid; }
-    .document-card { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px 20px; padding:15px 4px; border:0; border-bottom:1px solid var(--di-border); border-radius:0; background:transparent; }
-    .document-main { align-items:start; }
-    .file-type { width:37px; height:37px; border:1px solid var(--di-border-soft); border-radius:2px; background:var(--di-surface-muted); color:var(--di-accent-text); }
-    .document-card .actions { flex-wrap:wrap; justify-content:flex-end; }
-    .document-card .metadata { gap:5px 13px; }
-    .document-card .versions, .document-card .integrity { grid-column:1 / -1; }
-    .library .search { max-width:680px; }
-    .library .search > div { gap:7px; }
-  }
-
   app-assistant-workspace {
     .assistant-card { border:0; border-top:1px solid var(--di-border); border-radius:0; background:transparent; }
     .conversation { min-height:220px; max-height:58vh; padding:18px clamp(0px,4vw,56px); border-block:1px solid var(--di-border); background:var(--di-surface); }
@@ -162,8 +143,6 @@
   #workspace-main app-repository-workspace .local-upload > * { grid-column:1; }
   #workspace-main app-repository-workspace .local-upload .folder-picker { grid-row:auto; justify-self:start; }
   #workspace-main app-vulnerabilities-workspace .filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  #workspace-main app-document-center .document-card { grid-template-columns:minmax(0,1fr); }
-  #workspace-main app-document-center .document-card .actions { justify-content:flex-start; }
 }
 
 @media (max-width:600px) {
@@ -193,10 +172,6 @@
   #workspace-main app-vulnerabilities-workspace .risk-card:nth-child(n+3) { border-top:1px solid var(--di-border); }
   #workspace-main app-vulnerabilities-workspace .filters { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-vulnerabilities-workspace .finding-detail { margin-left:0; }
-  #workspace-main app-document-center .upload-grid { grid-template-columns:minmax(0,1fr); }
-  #workspace-main app-document-center .upload-grid .wide { grid-column:1; }
-  #workspace-main app-document-center .repo-options .repo-list { grid-template-columns:minmax(0,1fr); }
-  #workspace-main app-document-center .upload-actions { align-items:stretch; flex-direction:column; }
   #workspace-main app-reports-workspace .report-controls { grid-template-columns:minmax(0,1fr); }
   #workspace-main app-reports-workspace .report-card-heading { align-items:start; flex-direction:column; }
   #workspace-main app-reports-workspace .export-actions { width:100%; flex-wrap:wrap; }
@@ -285,30 +260,6 @@
   .results-meta { padding-block: 8px; border-bottom: 1px solid var(--di-border); }
 }
 
-#workspace-main app-document-center {
-  .documents-page {
-    display: grid;
-    grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
-    align-items: start;
-    gap: 0 28px;
-  }
-  .documents-page > .page-heading,
-  .documents-page > .feedback,
-  .documents-page > .scope-note { grid-column: 1 / -1; }
-  .documents-page > .upload-panel { grid-column: 1; align-self: start; }
-  .documents-page > .library { grid-column: 2; min-width: 0; }
-  .documents-page:not(:has(.upload-panel)) > .library { grid-column: 1 / -1; grid-row: auto; }
-  .upload-panel { padding: 15px; border-radius: var(--di-radius-panel); background: var(--di-surface-muted); }
-  .upload-panel .section-heading { align-items: start; }
-  .upload-grid { grid-template-columns: minmax(0, 1fr); }
-  .upload-grid .wide { grid-column: 1; }
-  .repo-options .repo-list { grid-template-columns: minmax(0, 1fr); max-height: 260px; overflow: auto; }
-  .upload-actions { align-items: stretch; flex-direction: column; }
-  .library { padding: 0 0 0 20px; border: 0; border-left: 1px solid var(--di-border); border-radius: 0; background: transparent; }
-  .document-card { grid-template-columns: minmax(0, 1fr) auto; gap: 10px 16px; }
-  .document-card h3 { font-size: 15px; }
-}
-
 #workspace-main app-assistant-workspace {
   .assistant-page { max-width: 1440px; }
   .assistant-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, .35fr); align-items: start; gap: 0 28px; border: 0; border-top: 1px solid var(--di-border); border-radius: 0; background: transparent; padding: 18px 0 0; }
@@ -360,10 +311,6 @@
 }
 
 @media (max-width: 900px) {
-  #workspace-main app-document-center .documents-page { grid-template-columns: minmax(0, 1fr); }
-  #workspace-main app-document-center .documents-page > .upload-panel,
-  #workspace-main app-document-center .documents-page > .library { grid-column: 1; grid-row: auto; }
-  #workspace-main app-document-center .library { padding: 17px 0 0; border: 0; border-top: 1px solid var(--di-border); }
   #workspace-main app-assistant-workspace .assistant-card { grid-template-columns: minmax(0, 1fr); }
   #workspace-main app-assistant-workspace .conversation,
   #workspace-main app-assistant-workspace .composer { grid-column: 1; }
