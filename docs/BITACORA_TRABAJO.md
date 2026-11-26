@@ -1,3 +1,15 @@
+## Bloque 133 — Recuperación híbrida RAG (25/11/2026)
+
+**Petición.** El usuario pidió marcar como correctos los requisitos restantes de `Requerimientos.md` y resolver la brecha señalada: la consulta RAG solo usaba distancia vectorial, sin búsqueda textual combinada ni reranking.
+
+**Cambios.** `EvidenceSearch` y `AskAssistantUseCase` ahora pasan también el texto original de la pregunta. `JdbcAssistantKnowledgeBase` reúne hasta 40 candidatos pgvector por distancia cosine y hasta 40 candidatos PostgreSQL FTS con `websearch_to_tsquery`/`ts_rank_cd`; Reciprocal Rank Fusion con constante 60 combina posiciones, y entrega los seis primeros. Se mantienen organización, repositorios permitidos, documentos activos y versión vigente en la misma consulta. La revisión de requerimientos registra los demás puntos como aceptados en el alcance actual y conserva explícitas las decisiones distintas al texto histórico (original privado en servidor y Ollama para embeddings).
+
+**Herramientas y tecnologías.** Java, Spring/JDBC, PostgreSQL/pgvector, FTS PostgreSQL, Maven, Docker Compose, PowerShell y Git. Sin dependencias ni migraciones nuevas.
+
+**Verificación.** El backend compiló con `mvn package -DskipTests` dentro de Docker; no se ejecutaron pruebas automatizadas. El contenedor backend asociado a `localhost:8189` se recreó y Spring Boot informó `Started`; la ruta del asistente respondió HTTP 200. No se hizo una pregunta RAG autenticada con documentos para medir relevancia de la fusión.
+
+**Siguiente paso.** Si se desea afinar calidad, medir rankings vectorial, textual y fusionado con consultas/documentos representativos y ajustar el máximo de candidatos/constante RRF según evidencia.
+
 ## Bloque 132 — Corregir columna estrecha en Documentación (25/11/2026)
 
 **Petición.** La captura del usuario mostró «Contexto maestro del repositorio» ocupando una columna estrecha y un gran vacío a la derecha.

@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Recuperación RAG híbrida para Nexo: candidatos textuales y vectoriales, fusión RRF y selección de seis evidencias dentro del alcance autorizado. Backend desplegado en el servicio conectado a 8189; build de producción correcto.
+- [x] Los demás criterios de `Requerimientos.md` quedan aceptados como correctos para el alcance vigente, con las sustituciones de arquitectura ya documentadas; no se abren como brechas de este bloque.
 - [x] Retirar el CSS global que forzaba Documentación a dos columnas y dejaba Contexto maestro estrecho; frontend 8189 reconstruido y activo.
 - [ ] Confirmar en la sesión autenticada que las tres secciones de Documentación comparten ancho después de recargar.
 - [x] Reorganizar Documentación: un solo borde por sección, filas con divisores, formulario alineado y adaptación a ancho estrecho. Frontend 8189 actualizado; maqueta estática inspeccionada.

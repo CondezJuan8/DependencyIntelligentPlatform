@@ -54,7 +54,9 @@ La migración [V29](../backend/infrastructure/src/main/resources/db/migration/V2
 3. Guarda `embedding` con tipo `vector` sin declarar una dimensión fija. Un trigger compara `vector_dims(embedding)` con la dimensión registrada en `embedding_models` y rechaza discrepancias.
 4. Fuerza RLS y exige que `organization_id` coincida con el tenant de la transacción.
 
-Cuando una pregunta llega al backend, Ollama crea su vector. SQL ordena los fragmentos autorizados con el operador de distancia cosine `<=>` y limita la recuperación a seis resultados. El score se calcula como `1 - distancia`. La consulta incluye únicamente documentos activos, versiones originales retenidas y repositorios que pasaron el control `document.read`.
+Cuando una pregunta llega al backend, Ollama crea su vector y el backend conserva también el texto original de la pregunta para la recuperación lexical. La consulta obtiene hasta 40 candidatos por similitud cosine de pgvector y hasta 40 por búsqueda textual PostgreSQL (`websearch_to_tsquery` sobre el índice GIN de fragmentos). Fusiona ambos rankings con Reciprocal Rank Fusion (RRF, constante 60) y entrega los seis fragmentos con mejor puntuación combinada. Un fragmento presente en ambos rankings sube por evidencia coincidente; los fragmentos exclusivos de una modalidad también pueden competir. Solo participan documentos activos, la versión retenida vigente y contenido dentro del tenant/repositorios que pasaron `document.read`.
+
+La fusión es la etapa de reranking actual; no es un modelo de reranking entrenado. El límite de 40 candidatos por modalidad y la constante RRF son parámetros iniciales en código que aún requieren medición con preguntas y documentos representativos. No se cambia el permiso ni el alcance al mezclar rankings.
 
 Por ahora la búsqueda es exacta y no hay un índice ANN como HNSW. Esto evita elegir parámetros de rendimiento sin mediciones reales, pero puede tardar más al crecer mucho el corpus. Antes de añadir un índice se deben medir tamaño, latencia y calidad de recuperación con documentos representativos.
 
