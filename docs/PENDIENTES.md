@@ -1,3 +1,10 @@
+## Nexo: fuentes del espacio y chats (25/11/2026)
+
+- [x] Incorporar datos autorizados del último scan y de OSV a las preguntas por repositorio o paquete; conservar la recuperación de Documentación con embeddings y citas.
+- [x] Exponer un resumen derivado de OSV para preguntas de reportes, indicando que no representa un informe persistido.
+- [x] Añadir eliminación del chat propio con confirmación y borrado transaccional de mensajes y citas.
+- [ ] Confirmar con la sesión autenticada en `localhost:8189` una pregunta sobre `Bot-de-Whatsapp-plantilla--main`, citas tras recarga y eliminación/cancelación de un chat de prueba.
+
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
 - [ ] Confirmar en Dinamita una pregunta autenticada en Nexo y Guardar permisos con las 12 casillas seleccionadas después de recargar.

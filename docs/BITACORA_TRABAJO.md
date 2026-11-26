@@ -1,3 +1,15 @@
+## Bloque 138 — Fuentes de Nexo y eliminación de chats (25/11/2026)
+
+**Petición.** Nexo respondió sin evidencia a una pregunta sobre las vulnerabilidades del repositorio de WhatsApp, aunque existían evaluaciones OSV. El usuario pidió consultar Documentación, OSV, scans y reportes, y añadir eliminación de chats con validación.
+
+**Cambios.** La recuperación añade evaluaciones OSV y datos del último scan de repositorios con `scan.read`; sigue usando el RAG documental con `document.read`. La pregunta puede identificar por nombre un repositorio accesible. Las preguntas por reportes obtienen un resumen de severidades medias a críticas derivado de OSV, con `report.read`, y se identifica expresamente que no es un informe persistido. V35 guarda citas estructuradas con RLS y enlace a la vista de origen, y las vuelve a presentar al reabrir el chat. La API permite borrar solo conversaciones propias y elimina mensajes/citas en una transacción. La UI exige un segundo clic de confirmación y permite cancelar.
+
+**Herramientas y tecnologías.** Java 21, Spring MVC/JDBC, PostgreSQL/Flyway, Angular, Sass, Docker Compose, PowerShell y Git. Sin dependencias nuevas.
+
+**Verificación.** La base activa mostró dos scans y 291 evaluaciones del repositorio de WhatsApp, de las cuales 11 tienen coincidencias OSV. Los builds de Angular y backend pasaron; el backend ejecutó 79 pruebas correctas. Flyway aplicó V35, Spring inició y frontend/health en 8189 respondieron HTTP 200. La prueba autenticada de respuesta y eliminación sigue pendiente porque estas herramientas no acceden a la sesión del usuario.
+
+**Siguiente paso.** Comprobar en la sesión autenticada la respuesta y las citas sobre el repositorio, reabrir el chat y cancelar/eliminar un chat de prueba.
+
 ## Bloque 137 — Acceso a Nexo y guardado de permisos (25/11/2026)
 
 **Petición.** El propietario único de Dinamita informó que Nexo decía no tener permisos y que Guardar permisos fallaba aun con «Consultar asistente» y «Consultar documentos» marcados.
