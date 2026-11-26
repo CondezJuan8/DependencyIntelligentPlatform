@@ -5,6 +5,7 @@ import com.dependencyintelligence.document.application.port.in.ManageDocuments;
 import com.dependencyintelligence.document.application.port.out.DocumentLibrary;
 import com.dependencyintelligence.document.domain.DocumentName;
 import com.dependencyintelligence.document.domain.DocumentType;
+import com.dependencyintelligence.document.domain.DocumentPurpose;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,5 +30,11 @@ public final class ManageDocumentsUseCase implements ManageDocuments {
         if (upload.content().length == 0) throw new IllegalArgumentException("El archivo está vacío.");
         if (upload.content().length > MAX_UPLOAD_BYTES) throw new IllegalArgumentException("El límite por documento es 50 MiB.");
         if (upload.repositoryIds().size() > 20) throw new IllegalArgumentException("Puedes asociar el documento a un máximo de 20 repositorios.");
+        if (upload.purpose() == DocumentPurpose.MASTER_CONTEXT) {
+            if (upload.repositoryIds().size() != 1) throw new IllegalArgumentException("El contexto maestro debe pertenecer a un repositorio.");
+            if (DocumentType.fromFilename(upload.originalFilename()) != DocumentType.MARKDOWN)
+                throw new IllegalArgumentException("El contexto maestro debe guardarse como Markdown.");
+            if (upload.content().length > 128 * 1024) throw new IllegalArgumentException("El contexto maestro supera 128 KiB.");
+        }
     }
 }

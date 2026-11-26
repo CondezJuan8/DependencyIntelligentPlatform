@@ -26,10 +26,6 @@ public final class AskAssistantUseCase implements AskAssistant {
 
         int userOrdinal = conversations.nextOrdinal(request.organizationId(), conversation);
         conversations.saveMessage(request.organizationId(), conversation, userOrdinal, "USER", request.question(), null);
-        if (request.repositoryIds().isEmpty()) {
-            UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", NO_EVIDENCE, null);
-            return new Answer(conversation, message, NO_EVIDENCE, null, List.of(), "NO_EVIDENCE", null);
-        }
         Embedding embedding = embeddings.embed(request.question());
         List<Evidence> evidence = search.search(request.organizationId(), request.repositoryIds(), embedding.model(), embedding.revision(), embedding.values(), 6);
         if (evidence.isEmpty()) {

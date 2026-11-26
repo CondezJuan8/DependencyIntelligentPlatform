@@ -32,6 +32,7 @@ public final class AssistantController {
     public Answer ask(@PathVariable UUID organizationId, @RequestBody AskRequest body, Principal principal) {
         UUID userId = UUID.fromString(principal.getName());
         access.execute(principal, organizationId, null, "assistant.query", () -> Boolean.TRUE);
+        access.execute(principal, organizationId, null, "document.read", () -> Boolean.TRUE);
         List<UUID> repositories = visibleRepositories(principal, userId, organizationId);
         if (body.repositoryId() != null) {
             if (!repositories.contains(body.repositoryId())) throw new PermissionDeniedException();
@@ -43,6 +44,7 @@ public final class AssistantController {
     public IndexResult index(@PathVariable UUID organizationId, Principal principal) {
         UUID userId = UUID.fromString(principal.getName());
         access.execute(principal, organizationId, null, "assistant.query", () -> Boolean.TRUE);
+        access.execute(principal, organizationId, null, "document.read", () -> Boolean.TRUE);
         List<UUID> repositories = visibleRepositories(principal, userId, organizationId);
         return indexing.execute(organizationId, repositories);
     }

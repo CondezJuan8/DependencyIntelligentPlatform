@@ -3,6 +3,7 @@ package com.dependencyintelligence.document.infrastructure.persistence;
 import com.dependencyintelligence.document.application.dto.DocumentModels.*;
 import com.dependencyintelligence.document.application.port.out.DocumentLibrary;
 import com.dependencyintelligence.document.domain.DocumentType;
+import com.dependencyintelligence.document.domain.DocumentPurpose;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -89,7 +90,7 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
                        coalesce(latest.indexing_status,'PENDING'),coalesce(latest.version_number,0),
                        (select count(*) from document_versions count_version where count_version.organization_id=d.organization_id and count_version.document_id=d.id),
                        coalesce(latest.size_bytes,0),latest.mime_type,latest.sha256,latest.uploaded_at,
-                       coalesce(repos.names,'')
+                       coalesce(repos.names,''),d.purpose,d.context_repository_id
                 from documents d
                 left join lateral (select v.* from document_versions v where v.organization_id=d.organization_id and v.document_id=d.id and v.original_status='RETAINED' order by v.version_number desc limit 1) latest on true
                 left join lateral (
@@ -101,7 +102,8 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
                 (row, i) -> new Summary(row.getObject(1, UUID.class), row.getString(2), row.getString(3), row.getString(4),
                     row.getString(5), row.getString(6), row.getInt(7), Math.toIntExact(row.getLong(8)), row.getLong(9),
                     row.getString(10), row.getString(11), row.getTimestamp(12) == null ? null : row.getTimestamp(12).toInstant(),
-                    row.getString(13).isBlank() ? List.of() : List.of(row.getString(13).split(", "))), args.toArray());
+                    row.getString(13).isBlank() ? List.of() : List.of(row.getString(13).split(", ")),
+                    DocumentPurpose.from(row.getString(14)), row.getObject(15, UUID.class)), args.toArray());
         });
     }
 
@@ -129,9 +131,10 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
             return tenants.execute(upload.organizationId(), () -> {
                 if (createDocument) {
                     jdbc.update("""
-                        insert into documents(id,organization_id,name,document_type,origin,description,status,uploaded_by_membership_id)
-                        values(?,?,?,?,'UPLOAD',?,'ACTIVE',(select id from organization_memberships where organization_id=? and user_id=? and status='ACTIVE'))
-                        """, documentId, upload.organizationId(), upload.name().strip(), type.code(), upload.description(), upload.organizationId(), upload.userId());
+                        insert into documents(id,organization_id,name,document_type,origin,description,status,uploaded_by_membership_id,purpose,context_repository_id)
+                        values(?,?,?,?,'UPLOAD',?,'ACTIVE',(select id from organization_memberships where organization_id=? and user_id=? and status='ACTIVE'),?,?)
+                        """, documentId, upload.organizationId(), upload.name().strip(), type.code(), upload.description(), upload.organizationId(), upload.userId(),
+                        upload.purpose().name(), upload.purpose() == DocumentPurpose.MASTER_CONTEXT ? upload.repositoryIds().getFirst() : null);
                 } else if (!Boolean.TRUE.equals(jdbc.queryForObject("select exists(select 1 from documents where organization_id=? and id=? and status='ACTIVE')", Boolean.class, upload.organizationId(), documentId))) {
                     throw new IllegalArgumentException("No encontramos el documento activo para añadir la versión.");
                 }
@@ -232,13 +235,14 @@ public final class JdbcDocumentLibrary implements DocumentLibrary {
         return jdbc.queryForObject("""
             select d.id,d.name,d.document_type,d.description,d.status,v.indexing_status,v.version_number,
                    (select count(*) from document_versions allv where allv.organization_id=d.organization_id and allv.document_id=d.id),
-                   v.size_bytes,v.mime_type,v.sha256,v.uploaded_at,coalesce(repos.names,'')
+                   v.size_bytes,v.mime_type,v.sha256,v.uploaded_at,coalesce(repos.names,''),d.purpose,d.context_repository_id
             from documents d join document_versions v on v.organization_id=d.organization_id and v.document_id=d.id
             left join lateral (select string_agg(r.full_name,', ' order by r.full_name) names from document_repositories dr join repositories r on r.organization_id=dr.organization_id and r.id=dr.repository_id where dr.organization_id=d.organization_id and dr.document_id=d.id) repos on true
             where d.organization_id=? and d.id=? and v.version_number=(select max(latest.version_number) from document_versions latest where latest.organization_id=d.organization_id and latest.document_id=d.id)
             """, (row, i) -> new Summary(row.getObject(1, UUID.class), row.getString(2), row.getString(3), row.getString(4),
                 row.getString(5), row.getString(6), row.getInt(7), Math.toIntExact(row.getLong(8)), row.getLong(9), row.getString(10),
-                row.getString(11), row.getTimestamp(12).toInstant(), row.getString(13).isBlank() ? List.of() : List.of(row.getString(13).split(", "))), organizationId, documentId);
+                row.getString(11), row.getTimestamp(12).toInstant(), row.getString(13).isBlank() ? List.of() : List.of(row.getString(13).split(", ")),
+                DocumentPurpose.from(row.getString(14)), row.getObject(15, UUID.class)), organizationId, documentId);
     }
 
     private void saveProcessingRun(UUID org, UUID version, String stage, String status, String error) {

@@ -17,38 +17,38 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
     public JdbcAssistantKnowledgeBase(JdbcTemplate jdbc, TenantTransactions tenants) { this.jdbc = jdbc; this.tenants = tenants; }
 
     @Override public List<Chunk> pending(UUID organizationId, List<UUID> repositoryIds, String model, String revision) {
-        if (repositoryIds.isEmpty()) return List.of();
         return tenants.execute(organizationId, () -> {
-            var args = new ArrayList<Object>(); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(model); args.add(revision); args.addAll(repositoryIds);
+            var args = new ArrayList<Object>(); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(model); args.add(revision);
+            String visible = visibleDocuments(repositoryIds, args);
             return jdbc.query("""
                 select distinct c.id,c.content from document_chunks c
                 join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
                 join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
-                                where c.organization_id=? and v.organization_id=? and d.organization_id=? and dr.organization_id=?
+                where c.organization_id=? and v.organization_id=? and d.organization_id=?
+                  and v.version_number=(select max(latest.version_number) from document_versions latest where latest.organization_id=d.organization_id and latest.document_id=d.id and latest.original_status='RETAINED')
                   and not exists (select 1 from document_chunk_embeddings e join embedding_models m on m.id=e.embedding_model_id
                     where e.organization_id=c.organization_id and e.document_chunk_id=c.id and m.provider='ollama' and m.model_name=? and m.revision=?)
-                  and dr.repository_id in (
-                """ + marks(repositoryIds.size()) + """
-                ) order by c.id limit 32
+                  and """ + visible + """
+                order by c.id limit 32
                 """, (row, i) -> new Chunk(row.getObject(1, UUID.class), row.getString(2)), args.toArray());
         });
     }
 
     @Override public boolean hasPending(UUID organizationId, List<UUID> repositoryIds, String model, String revision) {
-        if (repositoryIds.isEmpty()) return false;
         return tenants.execute(organizationId, () -> {
-            var args = new ArrayList<Object>(); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(organizationId);
-            args.add(model); args.add(revision); args.addAll(repositoryIds);
+            var args = new ArrayList<Object>(); args.add(organizationId); args.add(organizationId); args.add(organizationId);
+            args.add(model); args.add(revision);
+            String visible = visibleDocuments(repositoryIds, args);
             return Boolean.TRUE.equals(jdbc.queryForObject("""
                 select exists(select 1 from document_chunks c
                   join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
                   join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
-                                    where c.organization_id=? and v.organization_id=? and d.organization_id=? and dr.organization_id=?
+                  where c.organization_id=? and v.organization_id=? and d.organization_id=?
+                    and v.version_number=(select max(latest.version_number) from document_versions latest where latest.organization_id=d.organization_id and latest.document_id=d.id and latest.original_status='RETAINED')
                     and not exists(select 1 from document_chunk_embeddings e join embedding_models m on m.id=e.embedding_model_id
                       where e.organization_id=c.organization_id and e.document_chunk_id=c.id and m.provider='ollama' and m.model_name=? and m.revision=?)
-                    and dr.repository_id in (
-                """ + marks(repositoryIds.size()) + """
-                    ) limit 1)
+                    and """ + visible + """
+                    limit 1)
                 """, Boolean.class, args.toArray()));
         });
     }
@@ -71,10 +71,11 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
     }
 
     @Override public List<Evidence> search(UUID organizationId, List<UUID> repositoryIds, String model, String revision, float[] vector, int limit) {
-        if (repositoryIds.isEmpty()) return List.of();
         return tenants.execute(organizationId, () -> {
             var args = new ArrayList<Object>(); args.add(vector(vector)); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(organizationId);
-            args.add(model); args.add(revision); args.addAll(repositoryIds); args.add(vector(vector)); args.add(limit);
+            args.add(model); args.add(revision);
+            String visible = visibleDocuments(repositoryIds, args);
+            args.add(vector(vector)); args.add(limit);
             return jdbc.query("""
                 select c.id,d.id,v.id,d.name,v.original_filename,c.page_start,
                        case when c.page_start is null then coalesce(nullif(c.section_path,''), 'Texto extraído · fragmento ' || c.ordinal)
@@ -87,12 +88,9 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
                 join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
                 join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
                 where vc.organization_id=? and e.organization_id=? and c.organization_id=? and d.organization_id=?
-                  and em.model_name=? and em.revision=? and exists (
-                    select 1 from document_repositories dr
-                    where dr.organization_id=d.organization_id and dr.document_id=d.id and dr.repository_id in (
-                """ + marks(repositoryIds.size()) + """
-                    )
-                  )
+                  and em.model_name=? and em.revision=?
+                  and v.version_number=(select max(latest.version_number) from document_versions latest where latest.organization_id=d.organization_id and latest.document_id=d.id and latest.original_status='RETAINED')
+                  and """ + visible + """
                 order by vc.embedding <=> ?::vector limit ?
                 """, (row, i) -> new Evidence(row.getObject(1, UUID.class), row.getObject(2, UUID.class), row.getObject(3, UUID.class),
                     row.getString(4), row.getString(5), (Integer) row.getObject(6), row.getString(7), row.getString(8), row.getDouble(9)), args.toArray());
@@ -148,6 +146,12 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
         StringBuilder result = new StringBuilder("[");
         for (int i = 0; i < values.length; i++) { if (i > 0) result.append(','); result.append(Float.toString(values[i])); }
         return result.append(']').toString();
+    }
+    private static String visibleDocuments(List<UUID> repositoryIds, List<Object> args) {
+        String general = "not exists(select 1 from document_repositories scope where scope.organization_id=d.organization_id and scope.document_id=d.id)";
+        if (repositoryIds.isEmpty()) return general;
+        args.addAll(repositoryIds);
+        return "(" + general + " or exists(select 1 from document_repositories scope where scope.organization_id=d.organization_id and scope.document_id=d.id and scope.repository_id in (" + marks(repositoryIds.size()) + ")))";
     }
     private static String marks(int count) { return String.join(",", java.util.Collections.nCopies(count, "?")); }
 }

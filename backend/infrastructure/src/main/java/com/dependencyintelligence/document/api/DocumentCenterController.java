@@ -2,11 +2,13 @@ package com.dependencyintelligence.document.api;
 
 import com.dependencyintelligence.document.application.dto.DocumentModels.*;
 import com.dependencyintelligence.document.application.dto.DocumentModels;
+import com.dependencyintelligence.document.domain.DocumentPurpose;
 import com.dependencyintelligence.document.application.port.in.ManageDocuments;
 import com.dependencyintelligence.identity.application.port.in.FindAccountWorkspace;
 import com.dependencyintelligence.identity.application.exception.PermissionDeniedException;
 import com.dependencyintelligence.identity.infrastructure.security.AuthorizedRepositoryActions;
 import java.security.Principal;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ContentDisposition;
@@ -64,13 +66,14 @@ public final class DocumentCenterController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Summary upload(@PathVariable UUID organizationId, @RequestParam String name,
             @RequestParam(required = false, defaultValue = "") String description,
-            @RequestParam MultipartFile file, @RequestParam(required = false) List<UUID> repositoryIds, Principal principal) {
+            @RequestParam MultipartFile file, @RequestParam(required = false) List<UUID> repositoryIds,
+            @RequestParam(required = false, defaultValue = "GENERAL") String purpose, Principal principal) {
         UUID user = UUID.fromString(principal.getName());
         List<UUID> selected = repositoryIds == null ? List.of() : List.copyOf(repositoryIds);
         var allowed = visibleRepositories(user, organizationId);
         if (!allowed.containsAll(selected)) throw new IllegalArgumentException("Solo puedes asociar documentos a repositorios que tienes autorizados.");
         return access.execute(principal, organizationId, null, "document.manage", () -> {
-            Summary created = documents.upload(upload(organizationId, user, name, description, file, selected));
+            Summary created = documents.upload(upload(organizationId, user, name, description, file, selected, DocumentPurpose.from(purpose)));
             return visibleSummary(organizationId, created.id(), allowed);
         });
     }
@@ -85,14 +88,28 @@ public final class DocumentCenterController {
         });
     }
 
+    public record TextContent(String text) { }
+
+    @GetMapping("/{documentId}/text")
+    public TextContent text(@PathVariable UUID organizationId, @PathVariable UUID documentId, Principal principal) {
+        UUID user = UUID.fromString(principal.getName());
+        var visible = visibleRepositories(user, organizationId);
+        return access.execute(principal, organizationId, null, "document.read", () -> {
+            Summary summary = visibleSummary(organizationId, documentId, visible);
+            if (summary.purpose() != DocumentPurpose.MASTER_CONTEXT) throw new IllegalArgumentException("El documento no es un contexto maestro.");
+            return new TextContent(new String(documents.download(organizationId, documentId, null).content(), StandardCharsets.UTF_8));
+        });
+    }
+
     @PostMapping(value = "/{documentId}/versions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Summary addVersion(@PathVariable UUID organizationId, @PathVariable UUID documentId,
             @RequestParam MultipartFile file, Principal principal) {
         UUID user = UUID.fromString(principal.getName());
         var visible = visibleRepositories(user, organizationId);
         return access.execute(principal, organizationId, null, "document.manage", () -> {
-            requireVisibleDocument(organizationId, documentId, visible);
-            documents.addVersion(upload(organizationId, user, "version", "", file, List.of()), documentId);
+            Summary summary = visibleSummary(organizationId, documentId, visible);
+            List<UUID> repositories = summary.contextRepositoryId() == null ? List.of() : List.of(summary.contextRepositoryId());
+            documents.addVersion(upload(organizationId, user, "version", "", file, repositories, summary.purpose()), documentId);
             return visibleSummary(organizationId, documentId, visible);
         });
     }
@@ -123,10 +140,11 @@ public final class DocumentCenterController {
         return ResponseEntity.noContent().build();
     }
 
-    private DocumentModels.Upload upload(UUID org, UUID user, String name, String description, MultipartFile file, List<UUID> repositories) {
+    private DocumentModels.Upload upload(UUID org, UUID user, String name, String description, MultipartFile file,
+            List<UUID> repositories, DocumentPurpose purpose) {
         if (file.getSize() > MAX_DOCUMENT_BYTES) throw new IllegalArgumentException("El lÃ­mite por documento es 50 MiB.");
         try {
-            return new DocumentModels.Upload(org, user, name, description, file.getOriginalFilename(), file.getContentType(), file.getBytes(), repositories);
+            return new DocumentModels.Upload(org, user, name, description, file.getOriginalFilename(), file.getContentType(), file.getBytes(), repositories, purpose);
         } catch (java.io.IOException failure) { throw new IllegalArgumentException("No se pudo leer el archivo que seleccionaste.", failure); }
     }
 

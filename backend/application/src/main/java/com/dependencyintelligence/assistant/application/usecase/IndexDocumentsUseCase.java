@@ -11,7 +11,6 @@ public final class IndexDocumentsUseCase implements IndexDocuments {
     private final IndexableChunks chunks;
     public IndexDocumentsUseCase(Embeddings embeddings, IndexableChunks chunks) { this.embeddings = embeddings; this.chunks = chunks; }
     @Override public IndexResult execute(UUID organizationId, List<UUID> repositoryIds) {
-        if (repositoryIds.isEmpty()) return new IndexResult(0, 0, false);
         Embedding probe = embeddings.embed("verificación de dimensión de embedding");
         List<Chunk> pending = chunks.pending(organizationId, repositoryIds, probe.model(), probe.revision());
         int indexed = 0, failed = 0;
