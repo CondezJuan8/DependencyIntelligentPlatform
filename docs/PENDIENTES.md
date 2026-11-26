@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Rediseñar Reportes con avisos OSV de severidad media a crítica, fichas ejecutivas y técnicas específicas, adaptación móvil y descarga de PDF A4 independiente. Frontend 8189 actualizado; PDF de muestra renderizado.
+- [ ] Validar Reportes en la sesión autenticada con datos reales: filtros, lenguaje de los avisos, PDF técnico y ejecutivo, y tamaños de escritorio y móvil.
 - [x] Mostrar la descripción expandida de OSV como texto legible, sin marcadores Markdown ni etiquetas embebidas. Frontend 8189 actualizado; falta revisión visual autenticada.
 - [x] Bajar la ventana de detalle de paquetes bajo la barra superior y mantener accesible «Cerrar» en Inventario. Frontend 8189 actualizado; falta revisión visual autenticada.
 - [x] Corregir la composición del panel de apariciones al pulsar un paquete en Inventario y retirar el recorte de animación que ocultaba su encabezado. Frontend 8189 actualizado; falta revisión visual autenticada.

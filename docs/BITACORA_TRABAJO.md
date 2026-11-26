@@ -1,3 +1,15 @@
+## Bloque 129 — Informes de vulnerabilidades y PDF propio (25/11/2026)
+
+**Petición.** El usuario pidió que Reportes incluyera únicamente vulnerabilidades de severidad media a crítica, un informe técnico con versión, dependencia, paquete y explicación específica, un informe ejecutivo con causa y motivo de cambio en lenguaje no técnico, diseño adaptable y un PDF real en lugar de imprimir la ventana.
+
+**Cambios.** Se filtran y ordenan avisos críticos, altos y medios, con deduplicación por paquete, versión y aviso. La vista previa usa fichas por severidad. El técnico muestra mecanismo resumido y la descripción completa publicada por OSV sin marcas de formato. El ejecutivo explica efectos reconocibles del aviso y por qué sustituir la versión; si el aviso no permite precisar el efecto, se indica el límite sin inventarlo. CSV y JSON usan el mismo conjunto. Se sustituyó `window.print()` por generación y descarga de un PDF A4 con páginas, encabezados, fuentes OSV y numeración. Se corrigió la adaptación móvil y se eliminó el estilo de impresión anterior. La exportación conserva la comprobación de permiso `report.export`.
+
+**Herramientas y tecnologías.** Angular, TypeScript, Sass, Docker Compose, PowerShell, esbuild, Poppler y la guía local PDF; dependencia nueva implementada: jsPDF 4.2.1. La guía Impeccable se usó para revisar la composición; el detector no encontró observaciones.
+
+**Verificación.** Build Docker frontend correcto; instalación npm sin vulnerabilidades reportadas. Muestra técnica de cuatro páginas y ejecutiva de una página generadas, renderizadas e inspeccionadas; extracción de texto y página A4 verificadas. Prueba del texto para un aviso Axios con controles DNS/proxy correcta. Frontend 8189 recreado, ruta de Reportes HTTP 200. Falta probar selección y descarga con la sesión autenticada y datos reales porque el puente nativo del navegador no está disponible.
+
+**Siguiente paso.** Revisar Reportes en escritorio y móvil con un repositorio que tenga avisos OSV reales; comprobar la descarga y el texto de avisos cuya categoría no pueda inferirse con seguridad.
+
 ## Bloque 128 — Texto legible en avisos OSV (25/11/2026)
 
 **Petición.** El usuario mostró que al abrir un aviso en Vulnerabilidades aparecían marcadores como `##`, comillas de código y etiquetas en la descripción.
