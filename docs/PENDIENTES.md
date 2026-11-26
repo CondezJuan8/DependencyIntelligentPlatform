@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Documentación permite un contexto maestro versionado por repositorio y referencias de vulnerabilidades sin repositorio. Nexo contempla los documentos generales y los repositorios autorizados en su recuperación con Ollama/pgvector; backend V34 y frontend 8189 activos.
+- [ ] Validar con sesión autenticada la carga del contexto maestro y una referencia global, preparación de embeddings y respuesta con citas en Nexo; verificar también acceso de otra cuenta con permisos limitados.
 - [x] Rediseñar Reportes con avisos OSV de severidad media a crítica, fichas ejecutivas y técnicas específicas, adaptación móvil y descarga de PDF A4 independiente. Frontend 8189 actualizado; PDF de muestra renderizado.
 - [ ] Validar Reportes en la sesión autenticada con datos reales: filtros, lenguaje de los avisos, PDF técnico y ejecutivo, y tamaños de escritorio y móvil.
 - [x] Mostrar la descripción expandida de OSV como texto legible, sin marcadores Markdown ni etiquetas embebidas. Frontend 8189 actualizado; falta revisión visual autenticada.

@@ -1,3 +1,15 @@
+## Bloque 130 — Contexto maestro y referencias de vulnerabilidades (25/11/2026)
+
+**Petición.** Ampliar Documentación para guardar las reglas y el contexto maestro de cada repositorio, aceptar referencias de vulnerabilidades sin asociación obligatoria y recuperar los documentos mediante embeddings de Ollama y pgvector.
+
+**Cambios.** Se añadió una clasificación persistente (`GENERAL`, `MASTER_CONTEXT`, `VULNERABILITY_REFERENCE`) y una referencia al repositorio del contexto maestro, con una única ficha activa por repositorio. La vista Documentación permite escribir y versionar ese contexto como Markdown; también permite subir referencias de vulnerabilidades generales para toda la organización o asociadas a repositorios autorizados. Nexo incluye documentos generales y contextos de los repositorios visibles al preparar y recuperar fragmentos. Se corrigieron las consultas de fragmentos pendientes, que referían un alias SQL inexistente, y se restringió la búsqueda vectorial a la versión vigente de cada documento. El acceso a documentos generales exige el permiso documental de la organización. Se actualizaron los textos de alcance y sus traducciones al inglés.
+
+**Herramientas y tecnologías.** Java 21, Spring Boot, JDBC, Flyway V34, PostgreSQL/pgvector, Ollama, Apache Tika, Angular, TypeScript, Sass, Docker Compose, PowerShell y Git. No se incorporaron dependencias nuevas.
+
+**Verificación.** El build backend pasó con 38 pruebas y el frontend compiló. Flyway aplicó V34 primero en la base aislada y después en el backend que atiende a `localhost:8189`; el documento anterior permaneció. Se ejecutó la consulta de fragmentos pendientes en PostgreSQL sin error de SQL. La extensión `vector` está activa, el modelo configurado figura en Ollama y el backend puede alcanzar su API (HTTP 200). La aplicación y la ruta de Documentación respondieron HTTP 200; la API sin sesión respondió 401. No se probó aún una carga, indexación, pregunta y cita completa con una sesión autenticada; tampoco se afirma que haya nuevos vectores generados.
+
+**Siguiente paso.** Con una cuenta autorizada, guardar contexto de un repositorio y una referencia global, usar «Preparar documentos para búsqueda» en Nexo y comprobar que ambos aparezcan como citas sin exponer documentos de repositorios ajenos.
+
 ## Bloque 129 — Informes de vulnerabilidades y PDF propio (25/11/2026)
 
 **Petición.** El usuario pidió que Reportes incluyera únicamente vulnerabilidades de severidad media a crítica, un informe técnico con versión, dependencia, paquete y explicación específica, un informe ejecutivo con causa y motivo de cambio en lenguaje no técnico, diseño adaptable y un PDF real en lugar de imprimir la ventana.
