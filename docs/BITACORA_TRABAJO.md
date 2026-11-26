@@ -1,3 +1,15 @@
+## Bloque 137 — Acceso a Nexo y guardado de permisos (25/11/2026)
+
+**Petición.** El propietario único de Dinamita informó que Nexo decía no tener permisos y que Guardar permisos fallaba aun con «Consultar asistente» y «Consultar documentos» marcados.
+
+**Diagnóstico y cambios.** La cuenta está activa, verificada y aprobada, tiene membresía OWNER activa y el rol incluye `assistant.query` y `document.read`; el problema observado no era una concesión faltante. El log de una pregunta mostró que la recuperación RAG usaba `component.purl`, columna eliminada al normalizar componentes en V4. Se sustituyó por `namespace/name`, columnas vigentes. En la gestión de equipos, la API aceptaba como máximo 11 permisos mientras el catálogo de repositorio contiene 12; se retiró ese límite duplicado del DTO HTTP y se conserva la validación de la lista en Application contra el catálogo permitido.
+
+**Herramientas y tecnologías.** Java, Spring MVC/JDBC, PostgreSQL/pgvector, Docker Compose, PowerShell y Git. Sin dependencias ni migraciones.
+
+**Verificación.** La base activa confirmó 12 permisos de repositorio, OWNER activo con `assistant.query`, y que la expresión SQL corregida usa columnas presentes. El build Docker del backend pasó con 79 pruebas unitarias y de arquitectura correctas (5 Domain, 36 Application y 38 Infrastructure); el backend se recreó y Spring informó `Started`. El frontend de `localhost:8189` respondió HTTP 200. La herramienta de navegador conectado no inició porque falta su runtime Node, así que la prueba autenticada de Nexo y del botón Guardar permisos sigue pendiente.
+
+**Siguiente paso.** Recargar la sesión autenticada, repetir una consulta en Nexo y Guardar permisos; confirmar respuesta, citas y ausencia de errores SQL/validación.
+
 ## Bloque 136 — Chats y preparación automática de Nexo (25/11/2026)
 
 **Petición.** El usuario pidió varios chats, lectura automática de documentación por embeddings al preguntar por repositorios o paquetes, quitar el texto que limita Nexo a documentos asociados y corregir la altura y el desplazamiento del panel abierto desde el encabezado.

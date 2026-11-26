@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [ ] Confirmar en Dinamita una pregunta autenticada en Nexo y Guardar permisos con las 12 casillas seleccionadas después de recargar.
+- [x] Corregir las dos causas: búsqueda RAG con `component.purl` obsoleto y API de permisos limitada a 11 frente a 12 opciones. Backend reconstruido y activo; roles y datos conservados.
 - [x] Nexo permite listar y reabrir varios chats propios por organización; la pregunta prepara automáticamente embeddings pendientes y la búsqueda textual considera repositorio y paquete asociados. Panel del encabezado compacto sin desplazamiento exterior. Backend y frontend 8189 activos.
 - [ ] Validar con la sesión autenticada dos chats tras recargar, preparación automática de un documento nuevo, búsqueda por repositorio y paquete, citas reabiertas y altura del panel en escritorio y móvil.
 - [x] Ampliar el texto introductorio y el ejemplo de Nexo; unificar pregunta, ayuda, contador y acción en un panel con foco visible y adaptación móvil. Frontend 8189 actualizado.
