@@ -1,3 +1,17 @@
+## Bloque 139 — Respuesta de Nexo y borrado de chats (25/11/2026)
+
+**Petición.** La captura mostró «OpenAI no pudo completar la respuesta» y el usuario informó que no podía borrar chats.
+
+**Diagnóstico.** La credencial configurada para el proveedor de generación recibió HTTP 401 al consultar su API. La API de borrado sí pasó autorización, pero falló con HTTP 500 porque el SQL refería `retention_requests`; la tabla existente se llama `data_deletion_requests`. Cuando fallaba la generación, el backend ya había creado el chat y el frontend no actualizaba la lista, por eso «Eliminar chat» seguía desactivado.
+
+**Cambios.** Se corrigió el nombre de la tabla en la eliminación transaccional. Si el proveedor no está configurado o rechaza la solicitud, Nexo devuelve un resumen breve y citado de la evidencia recuperada e indica que la generación de IA no está disponible; no presenta ese resumen como respuesta de un modelo. La interfaz recupera el chat creado si una solicitud falla. Los avisos OSV se ordenan por gravedad para presentar primero los más relevantes.
+
+**Herramientas y tecnologías.** Java 21, Spring JDBC, Angular, PostgreSQL, Docker Compose, PowerShell y Git. Sin dependencias nuevas.
+
+**Verificación.** La API externa respondió HTTP 401 sin exponer la credencial. El log del backend confirmó el nombre de tabla erróneo en los intentos de borrado del usuario. Los builds de Angular y backend pasaron; el backend ejecutó 79 pruebas correctas. Se recrearon ambos servicios conectados a 8189 y `/health` respondió HTTP 200. La secuencia SQL de eliminación pasó dentro de una transacción que se revirtió; los nueve chats existentes permanecieron. La respuesta y el borrado desde la sesión autenticada del usuario siguen pendientes de confirmar.
+
+**Siguiente paso.** Probar una pregunta sobre el repositorio de WhatsApp y cancelar/eliminar un chat en la sesión autenticada. Para respuestas redactadas por IA, configurar una credencial válida del proveedor.
+
 ## Bloque 138 — Fuentes de Nexo y eliminación de chats (25/11/2026)
 
 **Petición.** Nexo respondió sin evidencia a una pregunta sobre las vulnerabilidades del repositorio de WhatsApp, aunque existían evaluaciones OSV. El usuario pidió consultar Documentación, OSV, scans y reportes, y añadir eliminación de chats con validación.

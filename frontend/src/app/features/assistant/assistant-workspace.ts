@@ -113,7 +113,7 @@ export class AssistantWorkspace {
             : result.answer;
           this.turns.update(turns => [...turns, { role: 'ASSISTANT', content: answer, citations: result.citations, proposedRepairPrompt: result.proposedRepairPrompt }]);
         },
-        error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.error.set(accessError(error)); },
+        error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.error.set(accessError(error)); this.loadChats(true); },
       });
   }
   questionKeydown(event: KeyboardEvent):void {

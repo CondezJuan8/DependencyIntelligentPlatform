@@ -1,3 +1,11 @@
+## Corrección de Nexo tras prueba real (25/11/2026)
+
+- [x] Corregir el borrado de chats: la tabla real es `data_deletion_requests`; el nombre anterior causaba HTTP 500 después de pasar autorización.
+- [x] Responder con un resumen citado de fuentes cuando el proveedor externo rechace la generación; señalar expresamente que la IA no está disponible.
+- [x] Recuperar el chat creado por una consulta fallida para poder abrirlo o eliminarlo.
+- [ ] Reprobar en la sesión autenticada una pregunta OSV, reabrirla y eliminar un chat de prueba.
+- [ ] Configurar una credencial válida del proveedor de generación para respuestas redactadas por IA; la credencial local actual recibe HTTP 401.
+
 ## Nexo: fuentes del espacio y chats (25/11/2026)
 
 - [x] Incorporar datos autorizados del último scan y de OSV a las preguntas por repositorio o paquete; conservar la recuperación de Documentación con embeddings y citas.
