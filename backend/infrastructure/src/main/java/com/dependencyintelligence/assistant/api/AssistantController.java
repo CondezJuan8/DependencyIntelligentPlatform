@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,37 +41,52 @@ public final class AssistantController {
     @GetMapping("/conversations/{conversationId}")
     public List<ConversationStore.Message> conversation(@PathVariable UUID organizationId, @PathVariable UUID conversationId, Principal principal) {
         authorize(principal, organizationId);
+        List<UUID> repositories = visibleRepositories(UUID.fromString(principal.getName()), organizationId);
+        List<UUID> scanRepositories = visibleForAction(principal, organizationId, repositories, "scan.read");
         return conversations.readConversation(organizationId, UUID.fromString(principal.getName()), conversationId,
-            visibleRepositories(principal, UUID.fromString(principal.getName()), organizationId));
+            visibleForAction(principal, organizationId, repositories, "document.read"), scanRepositories,
+            visibleForAction(principal, organizationId, scanRepositories, "report.read"));
+    }
+    @DeleteMapping("/conversations/{conversationId}")
+    public ResponseEntity<Void> deleteConversation(@PathVariable UUID organizationId, @PathVariable UUID conversationId, Principal principal) {
+        authorize(principal, organizationId);
+        conversations.deleteConversation(organizationId, UUID.fromString(principal.getName()), conversationId);
+        return ResponseEntity.noContent().build();
     }
     @PostMapping("/ask")
     public Answer ask(@PathVariable UUID organizationId, @RequestBody AskRequest body, Principal principal) {
         UUID userId = UUID.fromString(principal.getName());
         authorize(principal, organizationId);
-        List<UUID> repositories = visibleRepositories(principal, userId, organizationId);
+        List<UUID> repositories = visibleRepositories(userId, organizationId);
         if (body.repositoryId() != null) {
             if (!repositories.contains(body.repositoryId())) throw new PermissionDeniedException();
             repositories = List.of(body.repositoryId());
         }
-        return assistant.execute(new Ask(organizationId, userId, repositories, body.conversationId(), body.question()));
+        List<UUID> scanRepositories = visibleForAction(principal, organizationId, repositories, "scan.read");
+        List<UUID> reportRepositories = visibleForAction(principal, organizationId, scanRepositories, "report.read");
+        return assistant.execute(new Ask(organizationId, userId,
+            visibleForAction(principal, organizationId, repositories, "document.read"), scanRepositories, reportRepositories,
+            body.conversationId(), body.question()));
     }
     @PostMapping("/index")
     public IndexResult index(@PathVariable UUID organizationId, Principal principal) {
         UUID userId = UUID.fromString(principal.getName());
         authorize(principal, organizationId);
-        List<UUID> repositories = visibleRepositories(principal, userId, organizationId);
+        access.execute(principal, organizationId, null, "document.read", () -> Boolean.TRUE);
+        List<UUID> repositories = visibleForAction(principal, organizationId, visibleRepositories(userId, organizationId), "document.read");
         return indexing.execute(organizationId, repositories);
     }
     private void authorize(Principal principal, UUID organizationId) {
         access.execute(principal, organizationId, null, "assistant.query", () -> Boolean.TRUE);
-        access.execute(principal, organizationId, null, "document.read", () -> Boolean.TRUE);
     }
-    private List<UUID> visibleRepositories(Principal principal, UUID user, UUID organizationId) {
+    private List<UUID> visibleRepositories(UUID user, UUID organizationId) {
         return workspace.repositories(user).stream().filter(repository -> repository.organizationId().equals(organizationId))
-            .map(FindAccountWorkspace.Repository::id).filter(repository -> canReadDocuments(principal, organizationId, repository)).toList();
+            .map(FindAccountWorkspace.Repository::id).toList();
     }
-    private boolean canReadDocuments(Principal principal, UUID organizationId, UUID repositoryId) {
-        try { access.execute(principal, organizationId, repositoryId, "document.read", () -> Boolean.TRUE); return true; }
-        catch (PermissionDeniedException denied) { return false; }
+    private List<UUID> visibleForAction(Principal principal, UUID organizationId, List<UUID> repositories, String action) {
+        return repositories.stream().filter(repository -> {
+            try { access.execute(principal, organizationId, repository, action, () -> Boolean.TRUE); return true; }
+            catch (PermissionDeniedException denied) { return false; }
+        }).toList();
     }
 }

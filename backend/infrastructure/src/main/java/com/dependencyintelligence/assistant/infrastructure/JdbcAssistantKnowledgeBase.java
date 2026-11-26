@@ -146,7 +146,8 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
             """, (row, index) -> new ConversationStore.Summary(row.getObject(1, UUID.class), row.getString(2),
                 row.getTimestamp(3).toInstant().toString()), userId, organizationId));
     }
-    @Override public List<ConversationStore.Message> readConversation(UUID organizationId, UUID userId, UUID conversationId, List<UUID> repositoryIds) {
+    @Override public List<ConversationStore.Message> readConversation(UUID organizationId, UUID userId, UUID conversationId,
+            List<UUID> repositoryIds, List<UUID> scanRepositoryIds, List<UUID> reportRepositoryIds) {
         if (!canAccess(organizationId, userId, conversationId)) throw new IllegalArgumentException("La conversación no existe o no tienes acceso a ella.");
         return tenants.execute(organizationId, () -> jdbc.query("""
             select message.id,message.role,message.content from assistant_messages message
@@ -164,14 +165,15 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
                     if (position >= 0) { proposedPrompt = content.substring(position + marker.length()); content = content.substring(0, position); }
                 }
                 return new ConversationStore.Message(role, content, proposedPrompt,
-                    "ASSISTANT".equals(role) ? citations(organizationId, messageId, repositoryIds) : List.of());
+                    "ASSISTANT".equals(role) ? citations(organizationId, messageId, repositoryIds, scanRepositoryIds, reportRepositoryIds) : List.of());
             }, userId, organizationId, conversationId));
     }
-    private List<Citation> citations(UUID organizationId, UUID messageId, List<UUID> repositoryIds) {
+    private List<Citation> citations(UUID organizationId, UUID messageId, List<UUID> repositoryIds,
+                                     List<UUID> scanRepositoryIds, List<UUID> reportRepositoryIds) {
         var args = new ArrayList<Object>(); args.add(organizationId); args.add(messageId);
         String visible = visibleDocuments(repositoryIds, args);
-        return jdbc.query("""
-            select d.id,v.id,c.id,d.name,v.original_filename,c.page_start,c.section_path,c.content
+        List<Citation> citations = new ArrayList<>(jdbc.query("""
+            select d.id,v.id,c.id,d.name,v.original_filename,c.page_start,c.section_path,c.content,evidence.ordinal
             from assistant_message_evidences evidence
             join document_chunks c on c.organization_id=evidence.organization_id and c.id=evidence.document_chunk_id
             join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
@@ -180,7 +182,20 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
             order by evidence.ordinal
             """, (row, index) -> new Citation(row.getObject(1, UUID.class), row.getObject(2, UUID.class),
                 row.getObject(3, UUID.class), row.getString(4), row.getString(5), (Integer) row.getObject(6),
-                row.getString(7), excerpt(row.getString(8))), args.toArray());
+                row.getString(7), excerpt(row.getString(8)), null, row.getInt(9)), args.toArray()));
+        for (UUID repositoryId : scanRepositoryIds) {
+            citations.addAll(jdbc.query("""
+                select source.id,source.source_name,source.filename,source.section,source.content,source.source_url,source.ordinal
+                from assistant_message_workspace_sources source
+                where source.organization_id=? and source.message_id=? and source.repository_id=?
+                  and (source.source_type<>'REPORT' or ?)
+                order by source.ordinal
+                """, (row, index) -> new Citation(null, null, row.getObject(1, UUID.class), row.getString(2), row.getString(3),
+                    null, row.getString(4), excerpt(row.getString(5)), row.getString(6), row.getInt(7)),
+                organizationId, messageId, repositoryId, reportRepositoryIds.contains(repositoryId)));
+        }
+        citations.sort(java.util.Comparator.comparingInt(Citation::ordinal));
+        return citations;
     }
     private static String excerpt(String content) { return content.length() <= 420 ? content : content.substring(0, 417) + "…"; }
     @Override public int nextOrdinal(UUID organizationId, UUID conversationId) {
@@ -200,8 +215,16 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
         tenants.execute(organizationId, () -> {
             for (int i = 0; i < evidence.size(); i++) {
                 Evidence item = evidence.get(i);
-                jdbc.update("insert into assistant_message_evidences(organization_id,message_id,ordinal,document_chunk_id,citation_label) values(?,?,?,?,?)",
-                    organizationId, messageId, i + 1, item.chunkId(), "[" + (i + 1) + "] " + item.documentName());
+                if ("DOCUMENT".equals(item.sourceType())) {
+                    jdbc.update("insert into assistant_message_evidences(organization_id,message_id,ordinal,document_chunk_id,citation_label) values(?,?,?,?,?)",
+                        organizationId, messageId, i + 1, item.chunkId(), "[" + (i + 1) + "] " + item.documentName());
+                } else {
+                    jdbc.update("""
+                        insert into assistant_message_workspace_sources(organization_id,message_id,ordinal,repository_id,source_type,
+                            source_name,filename,section,content,source_url) values(?,?,?,?,?,?,?,?,?,?)
+                        """, organizationId, messageId, i + 1, item.repositoryId(), item.sourceType(), item.documentName(),
+                        item.filename(), item.section(), item.content(), item.sourceUrl());
+                }
             }
             return null;
         });
@@ -212,6 +235,20 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
               on m.organization_id=c.organization_id and m.id=c.created_by_membership_id
             where c.organization_id=? and c.id=? and m.user_id=? and m.status='ACTIVE')
             """, Boolean.class, organizationId, conversationId, userId)));
+    }
+    @Override public void deleteConversation(UUID organizationId, UUID userId, UUID conversationId) {
+        tenants.execute(organizationId, () -> {
+            if (!canAccess(organizationId, userId, conversationId))
+                throw new IllegalArgumentException("La conversación no existe o no tienes acceso a ella.");
+            jdbc.update("delete from assistant_message_workspace_sources where organization_id=? and message_id in (select id from assistant_messages where organization_id=? and conversation_id=?)",
+                organizationId, organizationId, conversationId);
+            jdbc.update("delete from assistant_message_evidences where organization_id=? and message_id in (select id from assistant_messages where organization_id=? and conversation_id=?)",
+                organizationId, organizationId, conversationId);
+            jdbc.update("delete from assistant_messages where organization_id=? and conversation_id=?", organizationId, conversationId);
+            jdbc.update("delete from retention_requests where organization_id=? and conversation_id=?", organizationId, conversationId);
+            jdbc.update("delete from assistant_conversations where organization_id=? and id=?", organizationId, conversationId);
+            return null;
+        });
     }
 
     private UUID model(Embedding embedding) {

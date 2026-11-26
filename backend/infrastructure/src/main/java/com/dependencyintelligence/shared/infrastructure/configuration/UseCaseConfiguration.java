@@ -67,6 +67,7 @@ import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.
 import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.ConversationStore;
 import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.Embeddings;
 import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.EvidenceSearch;
+import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.WorkspaceEvidenceSearch;
 import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.IndexableChunks;
 import com.dependencyintelligence.assistant.application.usecase.AskAssistantUseCase;
 import com.dependencyintelligence.assistant.application.usecase.IndexDocumentsUseCase;
@@ -179,8 +180,9 @@ public class UseCaseConfiguration {
     }
 
     @Bean ManageDocuments manageDocuments(DocumentLibrary documents) { return new ManageDocumentsUseCase(documents); }
-    @Bean AskAssistant askAssistant(Embeddings embeddings, EvidenceSearch search, AnswerGeneration answers, ConversationStore conversations) {
-        return new AskAssistantUseCase(embeddings, search, answers, conversations);
+    @Bean AskAssistant askAssistant(Embeddings embeddings, EvidenceSearch search, WorkspaceEvidenceSearch workspaceSearch,
+                                    AnswerGeneration answers, ConversationStore conversations) {
+        return new AskAssistantUseCase(embeddings, search, workspaceSearch, answers, conversations);
     }
     @Bean IndexDocuments indexDocuments(Embeddings embeddings, IndexableChunks chunks) { return new IndexDocumentsUseCase(embeddings, chunks); }
 
