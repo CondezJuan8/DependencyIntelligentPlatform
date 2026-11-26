@@ -1,3 +1,17 @@
+## Bloque 142 — reparar respuestas de Nexo y conservar preguntas fallidas (25/11/2026)
+
+**Petición.** El usuario informó que enviaba preguntas a Nexo y la conversación se cortaba sin mostrar una respuesta.
+
+**Diagnóstico.** El runtime recibía `permission denied for table assistant_model_versions` al guardar la respuesta generada. El índice de documentos también registra filas en `embedding_models`, tabla que tenía solo lectura para el runtime. La excepción HTTP 500 llegaba al frontend, que quitaba el último turno del usuario; por eso desaparecían tanto la respuesta como la pregunta.
+
+**Cambios.** Flyway V36 concede `SELECT`, `INSERT` y `UPDATE` sobre `assistant_model_versions`; V37 concede lo mismo sobre `embedding_models`, ambas tablas compartidas de metadatos. El frontend conserva la pregunta y el turno visible ante errores, recupera el chat más reciente y no duplica la última pregunta al reintentar. Backend y frontend se actualizaron en el entorno conectado a `localhost:8189`.
+
+**Herramientas y tecnologías.** PostgreSQL, Flyway, Java 21, Maven, Angular, Docker Compose y Git. Sin dependencias nuevas.
+
+**Verificación.** El build Maven del backend con `-DskipTests` y el build Angular finalizaron correctamente. PostgreSQL aplicó V36 y V37; el rol `dependency_app` tiene los permisos requeridos en ambas tablas. `http://localhost:8189/health` respondió HTTP 200 y los contenedores de backend/frontend están activos. El build Angular conserva avisos de presupuesto existentes. No se hizo una pregunta autenticada de extremo a extremo: el reinicio invalidó la sesión en memoria.
+
+**Siguiente paso.** Iniciar sesión de nuevo en 8189 y enviar una pregunta sobre un repositorio para confirmar respuesta, citas y persistencia tras recargar.
+
 ## Bloque 141 — habilitar conexión GitHub con clave PEM por archivo (25/11/2026)
 
 **Petición.** El usuario informó que GitHub mostraba un error de permisos al conectar la cuenta desde «Mis repositorios».

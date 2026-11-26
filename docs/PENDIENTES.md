@@ -5,8 +5,14 @@
 - [x] Preparar montajes de solo lectura desde `.local-secrets/`, ignorada por Git, para ambas credenciales.
 - [x] Alinear la validación de GitHub App para aceptar la clave privada montada como archivo; el backend conectado a 8189 ya está actualizado y saludable.
 - [x] Confirmar `repository.manage` con el rol OWNER de base de datos del backend (`dependency_app`) y el contexto de Dinamita.
-- [ ] Completar el flujo OAuth de GitHub desde la sesión autenticada después de volver a iniciar sesión; el despliegue del backend reinició la sesión en memoria.
-- [ ] Confirmar en el backend desplegado una respuesta generada por Gemini a una pregunta real de Nexo.
+- [ ] Confirmar un mensaje real de Nexo y completar el flujo OAuth de GitHub desde una sesión autenticada; los despliegues del backend reinician la sesión en memoria.
+
+## Respuesta de Nexo y persistencia de modelos (25/11/2026)
+
+- [x] Dar al rol runtime permisos mínimos de inserción/actualización en `assistant_model_versions` y `embedding_models`; migraciones Flyway V36 y V37 aplicadas.
+- [x] Mantener la pregunta en la conversación y en el campo de envío si falla una petición, recuperar el chat y evitar duplicar el último mensaje al reintentar.
+- [x] Backend y frontend de `localhost:8189` reconstruidos; base y servicio saludables.
+- [ ] Comprobar una respuesta autenticada con fuentes de scan/OSV/documentación y recargar el chat. Iniciar sesión de nuevo después del reinicio del backend.
 
 ## Corrección de Nexo tras prueba real (25/11/2026)
 
@@ -14,7 +20,7 @@
 - [x] Responder con un resumen citado de fuentes cuando el proveedor externo rechace la generación; señalar expresamente que la IA no está disponible.
 - [x] Recuperar el chat creado por una consulta fallida para poder abrirlo o eliminarlo.
 - [ ] Reprobar en la sesión autenticada una pregunta OSV, reabrirla y eliminar un chat de prueba.
-- [ ] Configurar una credencial válida del proveedor de generación para respuestas redactadas por IA; la credencial local actual recibe HTTP 401.
+- [x] Validar la clave local de Gemini: `models.list` y `generateContent` respondieron HTTP 200; el error 500 del chat provenía de permisos de persistencia, corregidos en V36/V37.
 
 ## Nexo: fuentes del espacio y chats (25/11/2026)
 
