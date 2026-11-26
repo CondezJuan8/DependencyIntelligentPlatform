@@ -70,28 +70,48 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
         });
     }
 
-    @Override public List<Evidence> search(UUID organizationId, List<UUID> repositoryIds, String model, String revision, float[] vector, int limit) {
+    @Override public List<Evidence> search(UUID organizationId, List<UUID> repositoryIds, String model, String revision, String query, float[] vector, int limit) {
         return tenants.execute(organizationId, () -> {
-            var args = new ArrayList<Object>(); args.add(vector(vector)); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(organizationId);
+            var args = new ArrayList<Object>(); args.add(organizationId); args.add(organizationId); args.add(organizationId); args.add(organizationId);
             args.add(model); args.add(revision);
             String visible = visibleDocuments(repositoryIds, args);
-            args.add(vector(vector)); args.add(limit);
+            args.add(vector(vector)); args.add(query); args.add(query); args.add(limit);
             return jdbc.query("""
-                select c.id,d.id,v.id,d.name,v.original_filename,c.page_start,
+                with authorized_chunks as materialized (
+                  select c.id,c.content,c.ordinal,c.page_start,c.section_path,d.id document_id,d.name document_name,
+                         v.id version_id,v.original_filename,vc.embedding
+                  from document_chunk_vectors vc
+                  join document_chunk_embeddings e on e.organization_id=vc.organization_id and e.id=vc.embedding_id and e.embedding_model_id=vc.embedding_model_id and e.status='READY'
+                  join embedding_models em on em.id=e.embedding_model_id and em.provider='ollama'
+                  join document_chunks c on c.organization_id=e.organization_id and c.id=e.document_chunk_id
+                  join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
+                  join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
+                  where vc.organization_id=? and e.organization_id=? and c.organization_id=? and d.organization_id=?
+                    and em.model_name=? and em.revision=?
+                    and v.version_number=(select max(latest.version_number) from document_versions latest where latest.organization_id=d.organization_id and latest.document_id=d.id and latest.original_status='RETAINED')
+                    and """ + visible + """
+                ), vector_candidates as (
+                  select id,row_number() over(order by distance) as rank_order
+                  from (select id,embedding <=> ?::vector as distance from authorized_chunks order by distance limit 40) nearest
+                ), text_candidates as (
+                  select id,row_number() over(order by relevance desc,id) as rank_order
+                  from (
+                    select c.id,ts_rank_cd(to_tsvector('simple',c.content),websearch_to_tsquery('simple',?)) as relevance
+                    from authorized_chunks c
+                    where to_tsvector('simple',c.content) @@ websearch_to_tsquery('simple',?)
+                    order by relevance desc,c.id limit 40
+                  ) relevant
+                ), fused_candidates as (
+                  select coalesce(v.id,t.id) as id,
+                         coalesce(1.0/(60+v.rank_order),0)+coalesce(1.0/(60+t.rank_order),0) as score
+                  from vector_candidates v full outer join text_candidates t on t.id=v.id
+                )
+                select c.id,c.document_id,c.version_id,c.document_name,c.original_filename,c.page_start,
                        case when c.page_start is null then coalesce(nullif(c.section_path,''), 'Texto extraído · fragmento ' || c.ordinal)
                             else c.section_path end,
-                       c.content,1-(vc.embedding <=> ?::vector) as score
-                from document_chunk_vectors vc
-                join document_chunk_embeddings e on e.organization_id=vc.organization_id and e.id=vc.embedding_id and e.embedding_model_id=vc.embedding_model_id and e.status='READY'
-                join embedding_models em on em.id=e.embedding_model_id and em.provider='ollama'
-                join document_chunks c on c.organization_id=e.organization_id and c.id=e.document_chunk_id
-                join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
-                join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
-                where vc.organization_id=? and e.organization_id=? and c.organization_id=? and d.organization_id=?
-                  and em.model_name=? and em.revision=?
-                  and v.version_number=(select max(latest.version_number) from document_versions latest where latest.organization_id=d.organization_id and latest.document_id=d.id and latest.original_status='RETAINED')
-                  and """ + visible + """
-                order by vc.embedding <=> ?::vector limit ?
+                       c.content,f.score
+                from fused_candidates f join authorized_chunks c on c.id=f.id
+                order by f.score desc,c.id limit ?
                 """, (row, i) -> new Evidence(row.getObject(1, UUID.class), row.getObject(2, UUID.class), row.getObject(3, UUID.class),
                     row.getString(4), row.getString(5), (Integer) row.getObject(6), row.getString(7), row.getString(8), row.getDouble(9)), args.toArray());
         });

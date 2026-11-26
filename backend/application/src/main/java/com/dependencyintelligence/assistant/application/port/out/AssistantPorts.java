@@ -10,7 +10,7 @@ public final class AssistantPorts {
         Embedding embed(String text);
         default List<Embedding> embedBatch(List<String> texts) { return texts.stream().map(this::embed).toList(); }
     }
-    public interface EvidenceSearch { List<Evidence> search(UUID organizationId, List<UUID> repositoryIds, String model, String revision, float[] vector, int limit); }
+    public interface EvidenceSearch { List<Evidence> search(UUID organizationId, List<UUID> repositoryIds, String model, String revision, String query, float[] vector, int limit); }
     public interface AnswerGeneration { Generated answer(String question, List<Evidence> evidence); }
     public interface ConversationStore {
         UUID createConversation(UUID organizationId, UUID userId, String title);
