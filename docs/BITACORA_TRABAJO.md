@@ -1,3 +1,15 @@
+## Bloque 135 — Texto y formulario de Nexo (25/11/2026)
+
+**Petición.** La nueva captura mostró que las indicaciones y el ejemplo de Nexo seguían estrechos y que la caja de pregunta se veía aislada; el usuario pidió ampliar el texto y mejorar el campo.
+
+**Cambios.** El texto de Conversación aprovecha el espacio disponible junto a la acción de preparación. El ejemplo inicial ocupa una fila completa con icono y texto alineados. El formulario de pregunta reúne etiqueta, área de escritura, ayuda de teclado, contador y botón dentro de un panel con borde único; el foco resalta el panel, el botón usa el contraste del acento oficial y el pie se apila en móvil. Se conservaron el envío, el límite de caracteres y los estados de carga.
+
+**Herramientas y tecnologías.** Angular, Sass, tokens de la paleta oficial, Docker Compose, PowerShell y Git. Sin dependencias nuevas.
+
+**Verificación.** `git diff --check` y el build de producción del frontend pasaron; el contenedor de `localhost:8189` se recreó. No se obtuvo una nueva captura autenticada desde las herramientas para confirmar el resultado visual con los datos del usuario.
+
+**Siguiente paso.** Recargar Nexo y comprobar el formulario vacío, el foco, una respuesta con citas y la disposición móvil en la sesión autenticada.
+
 ## Bloque 134 — Composición de Nexo (25/11/2026)
 
 **Petición.** La captura del usuario mostró un gran espacio vacío en Conversación y el formulario de pregunta comprimido en una columna lateral.

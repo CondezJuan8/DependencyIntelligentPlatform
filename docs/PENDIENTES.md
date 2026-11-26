@@ -1,5 +1,6 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Ampliar el texto introductorio y el ejemplo de Nexo; unificar pregunta, ayuda, contador y acción en un panel con foco visible y adaptación móvil. Frontend 8189 actualizado.
 - [x] Reordenar Nexo en una sola columna, reducir el espacio vacío inicial y colocar la pregunta bajo la conversación. Frontend 8189 reconstruido y activo.
 - [ ] Confirmar Nexo con la sesión autenticada, vacío y con citas, después de recargar en escritorio y móvil.
 - [x] Recuperación RAG híbrida para Nexo: candidatos textuales y vectoriales, fusión RRF y selección de seis evidencias dentro del alcance autorizado. Backend desplegado en el servicio conectado a 8189; build de producción correcto.
