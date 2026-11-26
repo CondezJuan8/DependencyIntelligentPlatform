@@ -1,3 +1,15 @@
+## Bloque 136 — Chats y preparación automática de Nexo (25/11/2026)
+
+**Petición.** El usuario pidió varios chats, lectura automática de documentación por embeddings al preguntar por repositorios o paquetes, quitar el texto que limita Nexo a documentos asociados y corregir la altura y el desplazamiento del panel abierto desde el encabezado.
+
+**Cambios.** Se añadieron rutas autenticadas para listar y reabrir conversaciones propias de una organización. La lectura reconstruye mensajes, prompts propuestos y citas todavía autorizadas; el selector de chats y la acción Nuevo chat usan la persistencia ya existente, sin migración. Al enviar una pregunta, el frontend prepara por lotes los fragmentos pendientes con Ollama antes de consultar; informa si quedan fragmentos tras errores o el límite de 100 lotes. La recuperación híbrida ahora incluye nombre del documento, repositorios asociados y paquetes asociados en la rama textual, además del contenido vectorizado. Se retiraron el aviso Solo lectura, las instrucciones de pulsar Preparar y el botón manual de Nexo; Documentación indica el flujo automático. El panel del encabezado oculta la introducción extensa, fija el formulario abajo y limita el desplazamiento a la conversación cuando hay muchos mensajes.
+
+**Herramientas y tecnologías.** Java 21, Spring MVC/JDBC, PostgreSQL/pgvector/FTS, Angular, Sass, Ollama ya configurado, Docker Compose, PowerShell y Git. No se añadieron dependencias ni migraciones.
+
+**Verificación.** Builds Docker backend y frontend correctos; `mvn verify` ejecutó 79 pruebas unitarias y de arquitectura sin fallos (5 Domain, 36 Application, 38 Infrastructure). Se recrearon únicamente el backend original y el frontend de `localhost:8189`; Spring informó `Started`, la página respondió HTTP 200 y la ruta de chats respondió 401 sin sesión. La consulta SQL del listado se ejecutó contra la base activa en modo lectura. `git diff --check` no mostró errores. No se pudo probar una pregunta autenticada con documentos ni inspeccionar visualmente el panel de la sesión del usuario.
+
+**Siguiente paso.** En la sesión autenticada, abrir dos chats, recargar, reabrir ambos y preguntar por un repositorio y un paquete con documentación nueva; verificar citas, preparación automática y la altura del panel del encabezado.
+
 ## Bloque 135 — Texto y formulario de Nexo (25/11/2026)
 
 **Petición.** La nueva captura mostró que las indicaciones y el ejemplo de Nexo seguían estrechos y que la caja de pregunta se veía aislada; el usuario pidió ampliar el texto y mejorar el campo.

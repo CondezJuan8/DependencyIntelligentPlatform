@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Nexo permite listar y reabrir varios chats propios por organización; la pregunta prepara automáticamente embeddings pendientes y la búsqueda textual considera repositorio y paquete asociados. Panel del encabezado compacto sin desplazamiento exterior. Backend y frontend 8189 activos.
+- [ ] Validar con la sesión autenticada dos chats tras recargar, preparación automática de un documento nuevo, búsqueda por repositorio y paquete, citas reabiertas y altura del panel en escritorio y móvil.
 - [x] Ampliar el texto introductorio y el ejemplo de Nexo; unificar pregunta, ayuda, contador y acción en un panel con foco visible y adaptación móvil. Frontend 8189 actualizado.
 - [x] Reordenar Nexo en una sola columna, reducir el espacio vacío inicial y colocar la pregunta bajo la conversación. Frontend 8189 reconstruido y activo.
 - [ ] Confirmar Nexo con la sesión autenticada, vacío y con citas, después de recargar en escritorio y móvil.
