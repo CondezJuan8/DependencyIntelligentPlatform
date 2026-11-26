@@ -8,6 +8,7 @@ interface Answer { conversationId: string; messageId: string; answer: string; pr
 interface Repository { id: string; organizationId: string; fullName: string; }
 interface Citation { documentId: string; versionId?: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
 interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; proposedRepairPrompt?: string | null; }
+interface ChatSummary { id: string; title: string; updatedAt: string; }
 
 @Component({ selector: 'app-assistant-workspace', imports: [DiIcon], templateUrl: './assistant-workspace.html', styleUrl: './assistant-workspace.scss' })
 export class AssistantWorkspace {
@@ -21,15 +22,15 @@ export class AssistantWorkspace {
   readonly visibleRepositories = computed(() => this.repositories().filter(repo => repo.organizationId === this.organizationId()));
   readonly question = signal('');
   readonly conversationId = signal<string | null>(null);
+  readonly chats = signal<ChatSummary[]>([]);
   readonly turns = signal<Turn[]>([]);
   readonly pending = signal(false);
-  readonly indexing = signal(false);
   readonly error = signal('');
   readonly notice = signal('');
 
   constructor() {
     this.api.get<Organization[]>('/api/organizations').subscribe({
-      next: organizations => { this.organizations.set(organizations); this.organizationId.set(organizations[0]?.id ?? ''); },
+      next: organizations => { this.organizations.set(organizations); this.organizationId.set(organizations[0]?.id ?? ''); this.loadChats(); },
       error: error => this.error.set(accessError(error)),
     });
     this.api.get<Repository[]>('/api/account/workspace').subscribe({
@@ -37,7 +38,7 @@ export class AssistantWorkspace {
       error: error => this.error.set(accessError(error)),
     });
   }
-  changeOrganization(event: Event): void { this.organizationId.set((event.target as HTMLSelectElement).value); this.repositoryId.set(''); this.reset(); }
+  changeOrganization(event: Event): void { this.organizationId.set((event.target as HTMLSelectElement).value); this.repositoryId.set(''); this.reset(); this.loadChats(); }
   changeRepository(event: Event): void {
     this.repositoryId.set((event.target as HTMLSelectElement).value);
     this.reset();
@@ -46,29 +47,25 @@ export class AssistantWorkspace {
     const query = new URLSearchParams({ versionId: citation.versionId ?? '' });
     return `/api/organizations/${this.organizationId()}/documents/${citation.documentId}/download?${query}`;
   }
-  reset(): void { this.conversationId.set(null); this.turns.set([]); this.error.set(''); this.notice.set(''); }
-  indexDocuments(): void {
-    const org = this.organizationId(); if (!org || this.indexing()) return;
-    this.indexing.set(true); this.error.set(''); this.notice.set('');
-    this.indexPendingBatch(org, 0, 0, 0);
-  }
-  private indexPendingBatch(org: string, indexed: number, failed: number, batches: number): void {
-    this.api.post<{ indexed: number; failed: number; morePending: boolean }>(`/api/organizations/${org}/assistant/index`, {}).subscribe({
-      next: result => {
-        const totalIndexed = indexed + result.indexed, totalFailed = failed + result.failed, totalBatches = batches + 1;
-        const english = this.preferences.language() === 'en';
-        if (result.morePending && result.indexed > 0 && totalBatches < 100) {
-          this.notice.set(english ? `Preparing passages: ${totalIndexed} ready, ${totalFailed} failed.` : `Preparando fragmentos: ${totalIndexed} listos, ${totalFailed} con error.`);
-          this.indexPendingBatch(org, totalIndexed, totalFailed, totalBatches);
-          return;
-        }
-        this.indexing.set(false);
-        const stopped = result.morePending;
-        this.notice.set(english
-          ? `Prepared ${totalIndexed} passages; ${totalFailed} failed.${stopped ? (totalFailed ? ' Some remain after failures; check extraction/provider availability and retry.' : ' The per-run limit was reached; select this action again to continue.') : ''}`
-          : `Se prepararon ${totalIndexed} fragmentos; ${totalFailed} con error.${stopped ? (totalFailed ? ' Quedan fragmentos tras errores; revisa la extracción o el proveedor y vuelve a intentarlo.' : ' Se alcanzó el límite por ejecución; pulsa de nuevo para continuar.') : ''}`);
+  reset(): void { this.conversationId.set(null); this.turns.set([]); this.question.set(''); this.error.set(''); this.notice.set(''); }
+  loadChats(selectLatest = false): void {
+    const org = this.organizationId(); if (!org) { this.chats.set([]); return; }
+    this.api.get<ChatSummary[]>(`/api/organizations/${org}/assistant/conversations`).subscribe({
+      next: chats => {
+        if (this.organizationId() !== org) return;
+        this.chats.set(chats);
+        if (selectLatest && chats.length) this.openChat(chats[0].id);
       },
-      error: error => { this.indexing.set(false); this.error.set(accessError(error)); },
+      error: error => this.error.set(accessError(error)),
+    });
+  }
+  openChat(id: string): void {
+    if (this.pending()) return;
+    if (!id) { this.reset(); return; }
+    const org = this.organizationId();
+    this.api.get<Turn[]>(`/api/organizations/${org}/assistant/conversations/${id}`).subscribe({
+      next: turns => { if (this.organizationId() !== org) return; this.conversationId.set(id); this.turns.set(turns); this.question.set(''); this.error.set(''); this.notice.set(''); },
+      error: error => this.error.set(accessError(error)),
     });
   }
   ask(event: Event): void {
@@ -76,12 +73,27 @@ export class AssistantWorkspace {
     const org = this.organizationId(), question = this.question().trim(); if (!org || !question || this.pending()) return;
     this.turns.update(turns => [...turns, { role: 'USER', content: question }]);
     this.question.set(''); this.pending.set(true); this.error.set(''); this.notice.set('');
+    this.prepareForQuestion(org, question, 0);
+  }
+  private prepareForQuestion(org: string, question: string, batch: number): void {
+    this.notice.set(this.preferences.text('Preparando documentación para la búsqueda…'));
+    this.api.post<{ indexed: number; failed: number; morePending: boolean }>(`/api/organizations/${org}/assistant/index`, {}).subscribe({
+      next: result => {
+        if (result.morePending && result.indexed > 0 && batch < 99) { this.prepareForQuestion(org, question, batch + 1); return; }
+        this.notice.set(result.morePending ? this.preferences.text('Algunos documentos siguen pendientes de preparación; puedes volver a preguntar para incluirlos.') : '');
+        this.sendQuestion(org, question);
+      },
+      error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.pending.set(false); this.notice.set(''); this.error.set(accessError(error)); },
+    });
+  }
+  private sendQuestion(org: string, question: string): void {
     this.api.post<Answer>(`/api/organizations/${org}/assistant/ask`, { conversationId: this.conversationId(), question, repositoryId: this.repositoryId() || null })
       .pipe(finalize(() => this.pending.set(false))).subscribe({
         next: result => {
           this.conversationId.set(result.conversationId);
+          this.loadChats();
           const answer = result.status === 'NO_EVIDENCE' && this.preferences.language() === 'en'
-            ? 'I could not find authorized document evidence to answer this question. Link relevant documentation or ask a more specific question.'
+            ? 'I could not find enough information in the sources you can access. Add more context or ask about another repository or package.'
             : result.answer;
           this.turns.update(turns => [...turns, { role: 'ASSISTANT', content: answer, citations: result.citations, proposedRepairPrompt: result.proposedRepairPrompt }]);
         },

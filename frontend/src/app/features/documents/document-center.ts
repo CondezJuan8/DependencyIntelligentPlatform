@@ -126,7 +126,7 @@ export class DocumentCenter implements OnInit {
     const endpoint = `/api/organizations/${this.organizationId()}/documents${existing ? `/${existing.id}/versions` : ''}`;
     this.masterPending.set(true); this.error.set(''); this.notice.set('');
     this.api.upload<DocumentSummary>(endpoint, form).pipe(finalize(() => this.masterPending.set(false))).subscribe({
-      next: event => { if (event.type === HttpEventType.Response) { this.notice.set('Contexto maestro guardado como nueva versión. Prepara documentos en Nexo para actualizar sus embeddings.'); this.load(); } },
+      next: event => { if (event.type === HttpEventType.Response) { this.notice.set('Contexto maestro guardado como nueva versión. Nexo lo preparará automáticamente en la próxima pregunta.'); this.load(); } },
       error: error => this.error.set(accessError(error)),
     });
   }
@@ -138,7 +138,7 @@ export class DocumentCenter implements OnInit {
     for (const repositoryId of this.selectedRepositories()) form.append('repositoryIds', repositoryId);
     this.pending.set(true); this.error.set(''); this.notice.set('');
     this.api.upload<DocumentSummary>(`/api/organizations/${org}/documents`, form).pipe(finalize(() => this.pending.set(false))).subscribe({
-      next: event => { if (event.type === HttpEventType.Response && event.body) { this.notice.set(this.preferences.text('Documento agregado al centro. Prepáralo en Nexo para usar embeddings.')); this.file.set(null); this.name.set(''); this.description.set(''); this.purpose.set('GENERAL'); this.selectedRepositories.set(new Set()); this.load(); } },
+      next: event => { if (event.type === HttpEventType.Response && event.body) { this.notice.set(this.preferences.text('Documento agregado. Nexo lo preparará automáticamente en la próxima pregunta.')); this.file.set(null); this.name.set(''); this.description.set(''); this.purpose.set('GENERAL'); this.selectedRepositories.set(new Set()); this.load(); } },
       error: error => this.error.set(accessError(error)),
     });
   }

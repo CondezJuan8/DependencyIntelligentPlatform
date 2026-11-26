@@ -1,9 +1,9 @@
 <section class="assistant-page" [class.compact]="compact">
   <header class="page-heading">
-    <div><span class="eyebrow">{{ preferences.text('Asistencia documental') }}</span><h1>Nexo</h1>
-      <p>{{ preferences.text('Pregunta sobre el contexto de tus repositorios y los documentos del espacio. Revisa las fuentes de cada respuesta.') }}</p></div>
+    <div><span class="eyebrow">{{ preferences.text('Asistente del espacio') }}</span><h1>Nexo</h1>
+      <p>{{ preferences.text('Haz preguntas sobre tus repositorios y paquetes. Revisa las fuentes de cada respuesta.') }}</p></div>
     <div class="assistant-scope"><label class="organization-picker">{{ preferences.text('Espacio') }}
-      <select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending() || indexing()">
+      <select [value]="organizationId()" (change)="changeOrganization($event)" [disabled]="pending()">
         @for (organization of organizations(); track organization.id) { <option [value]="organization.id">{{ organization.name }}</option> }
       </select>
     </label>
@@ -17,11 +17,16 @@
   </header>
 
   <section class="assistant-card" aria-labelledby="assistant-title">
-    <div class="section-heading"><div><h2 id="assistant-title">{{ preferences.text('Conversación') }}</h2><span class="read-only">{{ preferences.text('Solo lectura') }}</span>
-      <p>{{ preferences.text('Consulta los repositorios que puedes ver y los documentos generales de tu organización. Las respuestas incluyen citas.') }}</p><small class="indexing-hint">{{ preferences.text('Tras guardar o actualizar documentos, pulsa Preparar documentos para búsqueda. Nexo crea embeddings con Ollama y los guarda en pgvector por lotes; revisa el aviso si quedan fragmentos pendientes.') }}</small></div>
-      <button type="button" class="secondary" [disabled]="indexing() || !organizationId()" (click)="indexDocuments()">
-        {{ indexing() ? preferences.text('Preparando documentos…') : preferences.text('Preparar documentos para búsqueda') }}
-      </button>
+    <div class="section-heading"><div><h2 id="assistant-title">{{ preferences.text('Conversación') }}</h2>
+      <p>{{ preferences.text('Pregunta por un repositorio o un paquete. Nexo buscará el contexto disponible y citará sus fuentes.') }}</p></div></div>
+    <div class="chat-toolbar">
+      <label class="chat-picker">{{ preferences.text('Tus chats') }}
+        <select [value]="conversationId() ?? ''" (change)="openChat($any($event.target).value)" [disabled]="pending() || !organizationId()">
+          <option value="">{{ preferences.text('Nuevo chat') }}</option>
+          @for (chat of chats(); track chat.id) { <option [value]="chat.id">{{ chat.title }}</option> }
+        </select>
+      </label>
+      <button type="button" class="secondary new-chat" (click)="reset()" [disabled]="pending() || !organizationId()">{{ preferences.text('Nuevo chat') }}</button>
     </div>
     @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
@@ -50,7 +55,7 @@
     </div>
     <form class="composer" (submit)="ask($event)">
       <label for="assistant-question">{{ preferences.text('Tu pregunta') }}</label>
-      <textarea id="assistant-question" rows="3" maxlength="4000" [value]="question()" (input)="question.set($any($event.target).value)" (keydown)="questionKeydown($event)" [placeholder]="preferences.text('Escribe una pregunta sobre la documentación del espacio…')" [disabled]="pending() || !organizationId()"></textarea>
+      <textarea id="assistant-question" rows="3" maxlength="4000" [value]="question()" (input)="question.set($any($event.target).value)" (keydown)="questionKeydown($event)" [placeholder]="preferences.text('Pregunta por un repositorio, paquete o decisión del proyecto…')" [disabled]="pending() || !organizationId()"></textarea>
       <div class="composer-footer"><div class="composer-meta"><small class="keyboard-hint">{{preferences.text('Enter para enviar · Shift+Enter para una nueva línea')}}</small><span>{{ question().length }}/4000</span></div><button type="submit" [disabled]="pending() || !question().trim() || !organizationId()">{{ pending() ? preferences.text('Consultando…') : preferences.text('Preguntar') }}</button></div>
     </form>
   </section>
