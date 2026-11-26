@@ -140,20 +140,6 @@
     .library .search > div { gap:7px; }
   }
 
-  app-reports-workspace {
-    .report-controls { display:grid; grid-template-columns:minmax(200px,1.3fr) repeat(2,minmax(145px,.7fr)); gap:12px; padding:14px 0; border:0; border-block:1px solid var(--di-border); border-radius:0; background:transparent; }
-    .report-tabs { display:flex; gap:0; width:max-content; max-width:100%; margin:16px 0; border-bottom:1px solid var(--di-border); }
-    .report-tabs button { min-height:38px; padding-inline:15px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:var(--di-text-secondary); font-size:12px; }
-    .report-tabs button.active { border-bottom-color:var(--di-accent); color:var(--di-text); }
-    .report-card { padding:18px 0; border:0; border-top:1px solid var(--di-border); border-radius:0; background:transparent; }
-    .executive-summary { padding:14px 16px; border:1px solid var(--di-border); border-radius:var(--di-radius-panel); background:var(--di-surface-muted); }
-    .report-metrics { gap:0; border-block:1px solid var(--di-border); }
-    .report-metrics article { min-height:62px; padding:10px 13px; border:0; border-right:1px solid var(--di-border); border-radius:0; background:transparent; }
-    .report-metrics article:last-child { border:0; }
-    .report-table-wrap { border:0; border-radius:0; overflow:auto; }
-    .report-table-wrap table { min-width:760px; }
-  }
-
   app-assistant-workspace {
     .assistant-card { border:0; border-top:1px solid var(--di-border); border-radius:0; background:transparent; }
     .conversation { min-height:220px; max-height:58vh; padding:18px clamp(0px,4vw,56px); border-block:1px solid var(--di-border); background:var(--di-surface); }
@@ -323,26 +309,6 @@
   .document-card h3 { font-size: 15px; }
 }
 
-#workspace-main app-reports-workspace {
-  .reports-page {
-    display: grid;
-    grid-template-columns: minmax(220px, .34fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 0 28px;
-  }
-  .reports-heading,
-  .reports-page > .empty,
-  .reports-page > .feedback { grid-column: 1 / -1; }
-  .report-controls { grid-column: 1; grid-template-columns: minmax(0, 1fr); align-content: start; padding: 0 18px 17px 0; border: 0; border-bottom: 1px solid var(--di-border); border-radius: 0; background: transparent; }
-  .report-tabs { grid-column: 1; display: grid; width: 100%; gap: 0; margin: 16px 0; border: 0; }
-  .report-tabs button { justify-content: start; text-align: left; border: 0; border-left: 2px solid transparent; border-radius: 0; background: transparent; }
-  .report-tabs button.active { border-left-color: var(--di-accent); background: var(--di-surface-muted); color: var(--di-text); }
-  .report-card { grid-column: 2; grid-row: 3 / span 2; min-width: 0; padding: 18px 20px; border: 1px solid var(--di-border); border-radius: var(--di-radius-panel); background: var(--di-surface); box-shadow: none; }
-  .report-metrics { background: var(--di-surface-muted); }
-  .report-metrics article { border-radius: 0; }
-  .executive-summary { border-radius: var(--di-radius-panel); }
-}
-
 #workspace-main app-assistant-workspace {
   .assistant-page { max-width: 1440px; }
   .assistant-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, .35fr); align-items: start; gap: 0 28px; border: 0; border-top: 1px solid var(--di-border); border-radius: 0; background: transparent; padding: 18px 0 0; }
@@ -398,14 +364,6 @@
   #workspace-main app-document-center .documents-page > .upload-panel,
   #workspace-main app-document-center .documents-page > .library { grid-column: 1; grid-row: auto; }
   #workspace-main app-document-center .library { padding: 17px 0 0; border: 0; border-top: 1px solid var(--di-border); }
-  #workspace-main app-reports-workspace .reports-page { grid-template-columns: minmax(0, 1fr); }
-  #workspace-main app-reports-workspace .reports-page > .report-controls,
-  #workspace-main app-reports-workspace .reports-page > .report-tabs,
-  #workspace-main app-reports-workspace .reports-page > .report-card { grid-column: 1; grid-row: auto; }
-  #workspace-main app-reports-workspace .report-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 0 15px; }
-  #workspace-main app-reports-workspace .report-tabs { display: flex; width: fit-content; border-bottom: 1px solid var(--di-border); }
-  #workspace-main app-reports-workspace .report-tabs button { border-left: 0; border-bottom: 2px solid transparent; }
-  #workspace-main app-reports-workspace .report-tabs button.active { border-bottom-color: var(--di-accent); }
   #workspace-main app-assistant-workspace .assistant-card { grid-template-columns: minmax(0, 1fr); }
   #workspace-main app-assistant-workspace .conversation,
   #workspace-main app-assistant-workspace .composer { grid-column: 1; }
@@ -420,7 +378,6 @@
   #workspace-main app-repository-workspace > .local-upload,
   #workspace-main app-repository-workspace > .repo-section { grid-column: 1; }
   #workspace-main app-repository-workspace > .existing-installation { margin-top: 12px; }
-  #workspace-main app-reports-workspace .report-controls { grid-template-columns: minmax(0, 1fr); }
   #workspace-main app-platform-administration .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #workspace-main app-platform-administration .metrics article:nth-child(2) { border-right: 0; }
   #workspace-main app-platform-administration .metrics article:nth-child(n+3) { border-top: 1px solid var(--di-border); }

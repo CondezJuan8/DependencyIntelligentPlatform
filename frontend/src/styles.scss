@@ -286,25 +286,6 @@ button:focus-visible {
   outline: 2px solid var(--di-primary);
   outline-offset: 3px;
 }
-@media print {
-  html:has(body.di-printing-report) { color-scheme: light; background: #fff; }
-  body.di-printing-report {
-    --di-background: #fff;
-    --di-accent-text: #795018;
-    background: #fff;
-  }
-  body.di-printing-report .skip-link,
-  body.di-printing-report app-workspace-sidebar,
-  body.di-printing-report app-workspace-topbar,
-  body.di-printing-report #workspace-main > :not(app-reports-workspace) { display:none !important; }
-  body.di-printing-report .app-layout,
-  body.di-printing-report .workspace,
-  body.di-printing-report #workspace-main { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; overflow:visible !important; }
-  body.di-printing-report app-reports-workspace { display:block !important; }
-  body.di-printing-report #workspace-main :is(th, td) { padding: 4pt; font-size: 9pt; line-height: 1.35; }
-  body.di-printing-report #workspace-main th { text-transform: none; letter-spacing: normal; }
-}
-
 /* Evidence Observatory: planes de trabajo, marcas precisas y lectura por capas. */
 #workspace-main :where(.panel, .report-card, .connection-card, .repo-section, .catalog, .scanner-status, .control-panel, .launch-card, .assessment-summary, .history-card, .finding-card, .risk-card, .document-card, .di-editor-card, .create, .rows article, .summary-card, .compare-section, .compare-summary article, .empty, .empty-state, .report-controls, .inventory-analysis-window) {
   border-radius: 3px;

@@ -1,52 +1,78 @@
 <section class="reports-page" aria-labelledby="reports-title">
-  <header class="reports-heading"><div><span class="eyebrow">{{ 'Supervisión / Informes' | t }}</span><h1 id="reports-title">{{ 'Reportes' | t }}</h1>
-    <p>{{ 'Previsualiza riesgos y dependencias del inventario autorizado. La exportación no envía información por correo.' | t }}</p></div></header>
+  <header class="reports-heading">
+    <span class="eyebrow">Supervisión / Informes</span>
+    <h1 id="reports-title">Reportes de vulnerabilidades</h1>
+    <p>Informes basados en avisos OSV guardados para el repositorio seleccionado. Se incluyen solo hallazgos de severidad media, alta o crítica.</p>
+  </header>
 
-  @if (loading() && !repositories().length) { <p class="feedback" role="status">{{ 'Cargando tus repositorios…' | t }}</p> }
-  @else if (!repositories().length) { <section class="empty"><h2>{{ 'No hay repositorios disponibles' | t }}</h2><p>{{ 'Conecta o importa un repositorio y genera un análisis antes de crear un reporte.' | t }}</p></section> }
+  @if (loading() && !repositories().length) { <p class="feedback" role="status">Cargando tus repositorios…</p> }
+  @else if (!repositories().length) { <section class="empty"><h2>No hay repositorios disponibles</h2><p>Conecta o importa un repositorio y genera un análisis antes de crear un reporte.</p></section> }
   @else {
-    <section id="report-scope" class="report-controls" aria-label="{{ 'Filtros y formato del reporte' | t }}">
-      <label>{{ 'Repositorio' | t }}<select [value]="repositoryId()" (change)="changeRepository($event)">@for (repo of repositories(); track repo.id) { <option [value]="repo.id">{{ repo.fullName }} · {{ repo.source | t }}</option> }</select></label>
-      <label>{{ 'Ecosistema' | t }}<select [value]="ecosystem()" (change)="changeFilter($event,'ecosystem')"><option value="ALL">{{ 'Todos' | t }}</option><option value="MAVEN">Java · Maven</option><option value="NPM">JavaScript · npm</option></select></label>
-      <label>{{ 'Severidad' | t }}<select [value]="severity()" (change)="changeFilter($event,'severity')"><option value="ALL">{{ 'Todas' | t }}</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option><option>UNKNOWN</option></select></label>
+    <section class="report-controls" aria-label="Alcance del reporte">
+      <label>Repositorio<select [value]="repositoryId()" (change)="changeRepository($event)">@for (repo of repositories(); track repo.id) { <option [value]="repo.id">{{ repo.fullName }} · {{ repo.source | t }}</option> }</select></label>
+      <label>Ecosistema<select [value]="ecosystem()" (change)="changeFilter($event,'ecosystem')"><option value="ALL">Todos</option><option value="MAVEN">Java · Maven</option><option value="NPM">JavaScript · npm</option></select></label>
+      <label>Severidad<select [value]="severity()" (change)="changeFilter($event,'severity')"><option value="ALL">Media a crítica</option><option value="CRITICAL">Crítica</option><option value="HIGH">Alta</option><option value="MEDIUM">Media</option></select></label>
     </section>
-    <nav id="report-type" class="report-tabs" aria-label="{{ 'Tipo de reporte' | t }}">
-      <button type="button" [class.active]="kind()==='EXECUTIVE'" (click)="setKind('EXECUTIVE')">{{ 'Ejecutivo' | t }}</button>
-      <button type="button" [class.active]="kind()==='TECHNICAL'" (click)="setKind('TECHNICAL')">{{ 'Técnico' | t }}</button>
+
+    <nav class="report-tabs" aria-label="Tipo de reporte">
+      <button type="button" [class.active]="kind()==='EXECUTIVE'" [attr.aria-pressed]="kind()==='EXECUTIVE'" (click)="setKind('EXECUTIVE')">Ejecutivo</button>
+      <button type="button" [class.active]="kind()==='TECHNICAL'" [attr.aria-pressed]="kind()==='TECHNICAL'" (click)="setKind('TECHNICAL')">Técnico</button>
     </nav>
     @if (error()) { <p class="alert" role="alert">{{ error() }}</p> }
     @if (exportError()) { <p class="alert" role="alert">{{ exportError() }}</p> }
-    @if (notice()) { <p class="notice" role="status">{{ notice() | t }}</p> }
-    <section id="report-preview" class="report-card" aria-labelledby="preview-title">
-      <div class="report-card-heading"><div><h2 id="preview-title">{{ kind()==='EXECUTIVE' ? ('Resumen ejecutivo' | t) : ('Detalle técnico' | t) }}</h2><p>{{ currentRepository()?.fullName }} · {{ currentRepository()?.source | t }} @if (generatedAt()) { · {{ 'Generado' | t }} {{ generatedAt() | date:'medium' }} }</p></div>
-        <div class="export-actions"><button type="button" class="secondary" (click)="export('CSV')" [disabled]="loading() || exporting() || !generatedAt()">CSV</button><button type="button" class="secondary" (click)="export('JSON')" [disabled]="loading() || exporting() || !generatedAt()">JSON</button><button type="button" class="primary" (click)="export('PDF')" [disabled]="loading() || exporting() || !generatedAt()">{{ exporting() ? ('Preparando…' | t) : ('Guardar como PDF' | t) }}</button></div>
-      </div>
+    @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
+
+    <section class="report-card" aria-labelledby="preview-title">
+      <header class="report-card-heading">
+        <div><span class="eyebrow">Vista previa</span><h2 id="preview-title">{{ kind()==='EXECUTIVE' ? 'Informe ejecutivo' : 'Informe técnico' }}</h2>
+          <p>{{ currentRepository()?.fullName }} @if (generatedAt()) { · Generado {{ generatedAt() | date:'medium' }} }</p></div>
+        <div class="export-actions">
+          <button type="button" class="secondary" (click)="export('CSV')" [disabled]="loading() || exporting() || !generatedAt()">CSV</button>
+          <button type="button" class="secondary" (click)="export('JSON')" [disabled]="loading() || exporting() || !generatedAt()">JSON</button>
+          <button type="button" class="primary" (click)="export('PDF')" [disabled]="loading() || exporting() || !generatedAt()">{{ exporting() ? 'Preparando…' : 'Descargar PDF' }}</button>
+        </div>
+      </header>
+
       @if (generatedAt()) {
-        <p class="report-scope">{{ 'Ecosistema' | t }} <strong>{{ ecosystem() | t }}</strong> · {{ 'Severidad' | t }} <strong>{{ severity() | t }}</strong>
-          @if (assessmentDate()) { · OSV <time [attr.datetime]="assessmentDate()">{{ assessmentDate() | date:'medium' }}</time> }
+        <p class="report-scope">{{ ecosystem() === 'ALL' ? 'Todos los ecosistemas' : ecosystem() }} · {{ selectedSeverityLabel() }}
+          @if (assessmentDate()) { · Evidencia OSV <time [attr.datetime]="assessmentDate()">{{ assessmentDate() | date:'medium' }}</time> }
         </p>
-        @if (coverageNote(); as coverage) { <p class="coverage">{{ coverage | t }}</p> }
+        @if (coverageNote(); as coverage) { <p class="coverage" role="status">{{ coverage }}</p> }
       }
-      @if (loading()) { <p class="feedback" role="status">{{ 'Preparando la vista previa…' | t }}</p> }
-      @else if (error()) { <button class="secondary" type="button" (click)="loadPreview()">{{ 'Reintentar' | t }}</button> }
-      @else if (!issueCount()) { <div class="empty"><h3>{{ 'No hay hallazgos OSV en estos filtros' | t }}</h3><p>{{ 'Revisa el estado de la consulta OSV en Inventario para confirmar la cobertura.' | t }}</p></div> }
+      @if (loading()) { <p class="feedback" role="status">Preparando la vista previa…</p> }
+      @else if (error()) { <button class="secondary" type="button" (click)="loadPreview()">Reintentar</button> }
+      @else if (!issueCount()) { <div class="empty"><h3>Sin avisos de severidad media a crítica</h3><p>Revisa el estado de la consulta OSV en Inventario para confirmar la cobertura.</p></div> }
       @else {
-        @if (kind()==='EXECUTIVE') {
-          <section class="executive-summary"><h3>{{ 'Hay avisos conocidos en versiones que usa este repositorio' | t }}</h3><p>{{ 'Resumen del riesgo' | t }}: {{ issueCount() }} {{ 'registros OSV afectan' | t }} {{ affectedVersions() }} {{ 'versiones de' | t }} {{ packagesWithAdvisories() }} {{ 'paquetes' | t }}. {{ 'Empieza por los avisos críticos y altos; valida la versión corregida publicada antes de planificar la actualización.' | t }}</p></section>
-          <div class="report-metrics"><article><strong>{{ severityCount('CRITICAL') }}</strong><span>{{ 'Críticos' | t }}</span></article><article><strong>{{ severityCount('HIGH') }}</strong><span>{{ 'Altos' | t }}</span></article><article><strong>{{ severityCount('MEDIUM') }}</strong><span>{{ 'Medios' | t }}</span></article><article><strong>{{ severityCount('LOW') }}</strong><span>{{ 'Bajos' | t }}</span></article></div>
-          @if (executiveIssues().length) { <h3>{{ 'Prioridades para el equipo' | t }}</h3><div class="report-table-wrap"><table><thead><tr><th>{{ 'Prioridad' | t }}</th><th>{{ 'Dependencia afectada' | t }}</th><th>{{ 'Problema reportado' | t }}</th><th>{{ 'Por qué conviene cambiarlo' | t }}</th><th>{{ 'Siguiente paso' | t }}</th></tr></thead><tbody>
-            @for (item of executiveIssues(); track item.ecosystem + item.packageName + item.version + item.advisoryId) { <tr><td><span class="risk" [attr.data-severity]="item.severity">{{ item.severity | t }}</span></td><td>{{ item.packageName }} <code>{{ item.version }}</code></td><td>{{ item.summary }} <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.advisoryId }}</a></td><td>{{ item.whyChange | t }}</td><td>{{ item.nextStep | t }} @if (item.fixedVersions.length) { <code>{{ item.fixedVersions.join(', ') }}</code> }</td></tr> }
-          </tbody></table></div> }
-        } @else {
-          <div class="report-metrics"><article><strong>{{ packagesWithAdvisories() }}</strong><span>{{ 'Paquetes afectados' | t }}</span></article><article><strong>{{ affectedVersions() }}</strong><span>{{ 'Versiones afectadas' | t }}</span></article><article><strong>{{ issueCount() }}</strong><span>{{ 'Registros de aviso por versión' | t }}</span></article><article><strong>{{ severityCount('CRITICAL') + severityCount('HIGH') }}</strong><span>{{ 'Críticos y altos' | t }}</span></article></div>
-          <div class="report-table-wrap"><table class="technical-report"><thead><tr><th>{{ 'Severidad' | t }}</th><th>{{ 'Dependencia' | t }}</th><th>{{ 'Versión afectada' | t }}</th><th>{{ 'Problema reportado por OSV' | t }}</th><th>{{ 'Versión corregida' | t }}</th><th>{{ 'Referencia' | t }}</th></tr></thead><tbody>
-            @for (item of reportIssues(); track item.ecosystem + item.packageName + item.version + item.advisoryId) { <tr><td><span class="risk" [attr.data-severity]="item.severity">{{ item.severity | t }}</span></td><td>{{ item.ecosystem }} · {{ item.packageName }}</td><td><code>{{ item.version }}</code></td><td><strong>{{ item.summary }}</strong>@if (item.details && item.details !== item.summary) { <details class="osv-details"><summary>{{ 'Descripción de OSV' | t }}</summary><p>{{ item.details }}</p></details> }</td><td>{{ item.fixedVersions.join(', ') || '—' }}</td><td><a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.advisoryId }}</a>
-                @if (item.assessedAt) { <small class="assessment-date"><time [attr.datetime]="item.assessedAt">{{ item.assessedAt | date:'mediumDate' }}</time></small> }
-              </td></tr> }
-          </tbody></table></div>
-          <p class="print-scope">{{ 'El PDF incluye el resumen y la referencia OSV de cada hallazgo.' | t }}</p>
+        <div class="report-metrics" aria-label="Resumen de severidad">
+          <article><strong>{{ severityCount('CRITICAL') }}</strong><span>Críticas</span></article>
+          <article><strong>{{ severityCount('HIGH') }}</strong><span>Altas</span></article>
+          <article><strong>{{ severityCount('MEDIUM') }}</strong><span>Medias</span></article>
+          <article><strong>{{ packagesWithAdvisories() }}</strong><span>Paquetes afectados</span></article>
+        </div>
+        <p class="report-intro">{{ issueCount() }} avisos afectan {{ affectedVersions() }} versiones. Cada entrada indica la dependencia, la versión y la fuente OSV.</p>
+        @for (level of reportSeverities; track level) {
+          @if (issuesFor(level).length) {
+            <section class="severity-section" [attr.aria-label]="severityLabels[level]">
+              <h3>{{ severityLabels[level] }} <span>{{ issuesFor(level).length }} {{ issuesFor(level).length === 1 ? 'aviso' : 'avisos' }}</span></h3>
+              <div class="issue-list">
+                @for (item of issuesFor(level); track item.ecosystem + item.packageName + item.version + item.advisoryId) {
+                  <article class="report-issue">
+                    <header class="issue-heading"><div><span class="issue-kicker">{{ item.ecosystem }} · {{ item.advisoryId }}</span><h4>{{ item.dependency }}</h4><p>{{ item.packageName }} · Versión {{ item.version }}</p></div><span class="risk" [attr.data-severity]="item.severity">{{ severityLabels[item.severity] }}</span></header>
+                    @if (kind()==='EXECUTIVE') {
+                      <div class="issue-fields"><div><h5>Qué puede causar</h5><p>{{ item.businessImpact }}</p></div><div><h5>Por qué cambiarla</h5><p>{{ item.whyChange }}</p></div></div>
+                    } @else {
+                      <div class="technical-fields"><div><h5>Dependencia</h5><p>{{ item.dependency }}</p></div><div><h5>Paquete</h5><p>{{ item.packageName }}</p></div><div><h5>Versión</h5><p>{{ item.version }}</p></div></div>
+                      <div class="technical-description"><h5>Qué hace la vulnerabilidad</h5><p>{{ item.technicalEffect }}</p><h5>Descripción detallada publicada por OSV</h5><p>{{ item.technicalDescription || item.title }}</p></div>
+                      @if (item.fixedVersions.length) { <p class="fixed-versions"><strong>Versiones corregidas según OSV:</strong> {{ item.fixedVersions.join(', ') }}</p> }
+                    }
+                    <a [href]="item.url" target="_blank" rel="noopener noreferrer">Ver aviso original {{ item.advisoryId }}<span class="visually-hidden"> (abre en otra pestaña)</span></a>
+                  </article>
+                }
+              </div>
+            </section>
+          }
         }
-        <p class="report-footnote">{{ 'Los hallazgos dependen de la evidencia OSV guardada. “Sin avisos conocidos” no garantiza que un paquete esté libre de vulnerabilidades.' | t }}</p>
+        <p class="report-footnote">El informe refleja avisos OSV guardados. La presencia de una dependencia no demuestra que el código vulnerable se ejecute.</p>
       }
     </section>
   }

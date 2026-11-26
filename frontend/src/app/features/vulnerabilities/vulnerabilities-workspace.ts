@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { catchError, finalize, forkJoin, from, map, mergeMap, of, toArray } from 'rxjs';
 import { SessionApiService, accessError } from '../../core/session-api.service';
+import { plainOsvText } from '../../core/osv-text';
 import { TranslatePipe } from '../../core/translate.pipe';
 import { DiIcon } from '../../shared/di-icon';
 import { fixesForPackage } from '../inventory/inventory-evidence';
@@ -23,6 +24,7 @@ interface FindingGroup { id: string; advisory: Advisory; risk: Risk; occurrences
   styleUrl: './vulnerabilities-workspace.scss',
 })
 export class VulnerabilitiesWorkspace implements OnInit {
+  readonly plainDescription = plainOsvText;
   private readonly api = inject(SessionApiService);
   readonly repositories = signal<Repository[]>([]);
   readonly findings = signal<FindingOccurrence[]>([]);
@@ -120,23 +122,6 @@ export class VulnerabilitiesWorkspace implements OnInit {
     return fixesForPackage(item.advisory.affectedJson, item.ecosystem, packageName);
   }
 
-  plainDescription(details: string): string {
-    return details
-      .replace(/<details\b[^>]*>[\s\S]*?<\/details\s*>/gi, '')
-      .replace(/<\/?(?:summary|h[1-6]|p|div|br|ul|ol|li|pre|code|blockquote)\b[^>]*>/gi, '\n')
-      .replace(/\r\n?/g, '\n')
-      .replace(/^[ \t]{0,3}#{1,6}[ \t]+/gm, '')
-      .replace(/^[ \t]{0,3}(?:[-*+]|\d+\.)[ \t]+/gm, '')
-      .replace(/^[ \t]{0,3}>[ \t]?/gm, '')
-      .replace(/!?\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/`{1,3}|\*\*|__/g, '')
-      .replace(/&(?:amp|lt|gt|quot|apos|nbsp);/gi, entity => ({
-        '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&apos;': "'", '&nbsp;': ' ',
-      })[entity.toLowerCase()] ?? entity)
-      .replace(/[ \t]+\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }
 
   setReview(item: FindingOccurrence, status: ReviewStatus): void {
     const key = item.key;
