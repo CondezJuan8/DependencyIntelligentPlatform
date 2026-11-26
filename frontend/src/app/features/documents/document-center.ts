@@ -6,7 +6,8 @@ import { PreferencesService } from '../../core/preferences.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 
 interface Repository { id: string; organizationId: string; organizationName: string; fullName: string; source: string; }
-interface DocumentSummary { id: string; name: string; type: string; description: string; status: string; indexingStatus: string; latestVersion: number; versionCount: number; sizeBytes: number; mimeType: string; sha256: string; uploadedAt: string; repositories: string[]; }
+type DocumentPurpose = 'GENERAL' | 'MASTER_CONTEXT' | 'VULNERABILITY_REFERENCE';
+interface DocumentSummary { id: string; name: string; type: string; description: string; status: string; indexingStatus: string; latestVersion: number; versionCount: number; sizeBytes: number; mimeType: string; sha256: string; uploadedAt: string; repositories: string[]; purpose: DocumentPurpose; contextRepositoryId: string | null; }
 interface DocumentVersion { id: string; version: number; filename: string; mimeType: string; sizeBytes: number; sha256: string; indexingStatus: string; uploadedAt: string; }
 interface SearchHit { documentId: string; versionId: string; documentName: string; filename: string; excerpt: string; pageStart: number | null; repositoryName: string; }
 
@@ -24,6 +25,11 @@ export class DocumentCenter implements OnInit {
   readonly hits = signal<SearchHit[]>([]);
   readonly name = signal('');
   readonly description = signal('');
+  readonly purpose = signal<DocumentPurpose>('GENERAL');
+  readonly masterRepositoryId = signal('');
+  readonly masterText = signal('');
+  readonly masterLoading = signal(false);
+  readonly masterPending = signal(false);
   readonly file = signal<File | null>(null);
   readonly pending = signal(false);
   readonly loading = signal(false);
@@ -33,6 +39,7 @@ export class DocumentCenter implements OnInit {
   readonly searched = signal(false);
   private listRequest = 0;
   private searchRequest = 0;
+  private masterRequest = 0;
 
   ngOnInit(): void {
     this.api.get<Organization[]>('/api/organizations').subscribe({
@@ -43,7 +50,7 @@ export class DocumentCenter implements OnInit {
       }, error: error => this.error.set(accessError(error)),
     });
     this.api.get<Repository[]>('/api/account/workspace').subscribe({
-      next: repos => this.repositories.set(repos), error: error => this.error.set(accessError(error)),
+      next: repos => { this.repositories.set(repos); this.ensureMasterRepository(); this.loadMasterText(); }, error: error => this.error.set(accessError(error)),
     });
   }
 
@@ -53,6 +60,8 @@ export class DocumentCenter implements OnInit {
     this.documents.set([]);
     this.versions.set({});
     this.selectedRepositories.set(new Set());
+    this.masterRepositoryId.set('');
+    this.masterText.set('');
     this.notice.set('');
     this.resetSearch();
     this.load();
@@ -72,22 +81,64 @@ export class DocumentCenter implements OnInit {
     this.api.get<DocumentSummary[]>(endpoint).pipe(finalize(() => {
       if (request === this.listRequest) this.loading.set(false);
     })).subscribe({
-      next: data => { if (request === this.listRequest) this.documents.set(data); },
+      next: data => { if (request === this.listRequest) { this.documents.set(data); this.ensureMasterRepository(); this.loadMasterText(); } },
       error: error => { if (request === this.listRequest) this.error.set(accessError(error)); },
     });
   }
   toggleRepository(id: string, checked: boolean): void {
     const next = new Set(this.selectedRepositories()); checked ? next.add(id) : next.delete(id); this.selectedRepositories.set(next);
   }
+  masterDocument(): DocumentSummary | null {
+    return this.documents().find(document => document.purpose === 'MASTER_CONTEXT' && document.contextRepositoryId === this.masterRepositoryId()) ?? null;
+  }
+  chooseMasterRepository(event: Event): void {
+    this.masterRepositoryId.set((event.target as HTMLSelectElement).value);
+    this.loadMasterText();
+  }
+  private ensureMasterRepository(): void {
+    if (!this.visibleRepositories().some(repo => repo.id === this.masterRepositoryId()))
+      this.masterRepositoryId.set(this.visibleRepositories()[0]?.id ?? '');
+  }
+  private loadMasterText(): void {
+    const document = this.masterDocument();
+    const request = ++this.masterRequest;
+    this.masterText.set('');
+    if (!document) { this.masterLoading.set(false); return; }
+    this.masterLoading.set(true);
+    this.api.get<{ text: string }>(`/api/organizations/${this.organizationId()}/documents/${document.id}/text`).subscribe({
+      next: result => { if (request === this.masterRequest) { this.masterText.set(result.text); this.masterLoading.set(false); } },
+      error: error => { if (request === this.masterRequest) { this.masterLoading.set(false); this.error.set(accessError(error)); } },
+    });
+  }
+  saveMasterContext(): void {
+    const repo = this.visibleRepositories().find(item => item.id === this.masterRepositoryId());
+    const content = this.masterText().trim();
+    if (!repo || !content || this.masterPending() || !this.canManage()) return;
+    const form = new FormData();
+    form.append('file', new File([content], 'contexto-maestro.md', { type: 'text/markdown' }));
+    const existing = this.masterDocument();
+    if (!existing) {
+      form.append('name', `Contexto maestro · ${repo.fullName}`);
+      form.append('description', 'Reglas y contexto del repositorio');
+      form.append('purpose', 'MASTER_CONTEXT');
+      form.append('repositoryIds', repo.id);
+    }
+    const endpoint = `/api/organizations/${this.organizationId()}/documents${existing ? `/${existing.id}/versions` : ''}`;
+    this.masterPending.set(true); this.error.set(''); this.notice.set('');
+    this.api.upload<DocumentSummary>(endpoint, form).pipe(finalize(() => this.masterPending.set(false))).subscribe({
+      next: event => { if (event.type === HttpEventType.Response) { this.notice.set('Contexto maestro guardado como nueva versión. Prepara documentos en Nexo para actualizar sus embeddings.'); this.load(); } },
+      error: error => this.error.set(accessError(error)),
+    });
+  }
   chooseFile(event: Event): void { this.file.set((event.target as HTMLInputElement).files?.[0] ?? null); }
   upload(): void {
     const file = this.file(), org = this.organizationId();
     if (!file || !org || this.pending() || !this.canManage()) return;
-    const form = new FormData(); form.append('name', this.name().trim() || file.name); form.append('description', this.description()); form.append('file', file);
+    const form = new FormData(); form.append('name', this.name().trim() || file.name); form.append('description', this.description()); form.append('file', file); form.append('purpose', this.purpose());
     for (const repositoryId of this.selectedRepositories()) form.append('repositoryIds', repositoryId);
     this.pending.set(true); this.error.set(''); this.notice.set('');
     this.api.upload<DocumentSummary>(`/api/organizations/${org}/documents`, form).pipe(finalize(() => this.pending.set(false))).subscribe({
-      next: event => { if (event.type === HttpEventType.Response && event.body) { this.notice.set(this.preferences.text('Documento agregado al centro.')); this.file.set(null); this.name.set(''); this.description.set(''); this.selectedRepositories.set(new Set()); this.load(); } },
+      next: event => { if (event.type === HttpEventType.Response && event.body) { this.notice.set(this.preferences.text('Documento agregado al centro. Prepáralo en Nexo para usar embeddings.')); this.file.set(null); this.name.set(''); this.description.set(''); this.purpose.set('GENERAL'); this.selectedRepositories.set(new Set()); this.load(); } },
       error: error => this.error.set(accessError(error)),
     });
   }
