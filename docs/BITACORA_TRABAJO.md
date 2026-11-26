@@ -1,3 +1,17 @@
+## Bloque 141 — habilitar conexión GitHub con clave PEM por archivo (25/11/2026)
+
+**Petición.** El usuario informó que GitHub mostraba un error de permisos al conectar la cuenta desde «Mis repositorios».
+
+**Diagnóstico.** La cuenta `condez.juanp@gmail.com` tiene membresía activa como OWNER de Dinamita. La comprobación de `repository.manage` también devuelve verdadero al ejecutarse con el rol restringido `dependency_app` y el contexto de organización. La pantalla reconocía `GITHUB_APP_PRIVATE_KEY_FILE` como configuración válida, pero `GitHubAppRestAdapter.requireConfigured()` seguía exigiendo la clave en Base64; la acción quedaba bloqueada aunque el PEM montado fuera legible.
+
+**Cambios.** La comprobación del adaptador acepta ahora la clave privada tanto desde archivo como desde Base64, igual que el endpoint de estado. Se reconstruyó y actualizó únicamente el backend que usa `localhost:8189`; la clave continúa fuera de `.env` y montada en solo lectura desde `.local-secrets/`.
+
+**Herramientas y tecnologías.** Java 21, Maven, PostgreSQL, Docker Compose, PowerShell y Git. Sin dependencias nuevas.
+
+**Verificación.** Consulta SQL con el usuario runtime y el tenant real: `repository.manage = true`. Build del backend con `OPERATOR_TOOL_IMAGE=true` (pruebas omitidas), archivo PEM legible dentro del contenedor y `http://localhost:8189/health` respondió HTTP 200. No se completó el consentimiento OAuth en la sesión autenticada; el reinicio del backend invalida sesiones en memoria y exige iniciar sesión otra vez.
+
+**Siguiente paso.** Iniciar sesión de nuevo en 8189 y pulsar «Conectar GitHub» para continuar el consentimiento/verificación de la instalación existente.
+
 ## Bloque 140 — Gemini y credenciales de GitHub App (25/11/2026)
 
 **Petición.** El usuario no dispone de créditos OpenAI y entregó una clave de Gemini, con instrucción explícita de no guardarla en `.env`. También adjuntó el PEM de `dependency-intelligence-platform` para restablecer GitHub.
