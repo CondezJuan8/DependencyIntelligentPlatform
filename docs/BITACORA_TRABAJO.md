@@ -1,3 +1,15 @@
+## Bloque 132 — Corregir columna estrecha en Documentación (25/11/2026)
+
+**Petición.** La captura del usuario mostró «Contexto maestro del repositorio» ocupando una columna estrecha y un gran vacío a la derecha.
+
+**Diagnóstico y cambios.** El tema global `_observatory.scss` conservaba una distribución anterior de dos columnas con selectores más específicos que el CSS actualizado del componente. La nueva sección de contexto caía en la primera columna y empujaba los formularios hacia abajo. Se retiraron las reglas globales de distribución y presentación obsoletas de Documentación; el componente define ahora una sola columna de ancho completo con `minmax(0, 1fr)`. El cambio conserva controles, estados, permisos y datos.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose, PowerShell y Git; ninguna dependencia nueva.
+
+**Verificación.** Build Docker frontend correcto; el servicio 8189 se recreó y la ruta respondió HTTP 200. La búsqueda de los selectores globales que forzaban las dos columnas no devolvió coincidencias. La captura autenticada que reveló el defecto provino del usuario; falta una captura nueva de su sesión para confirmar el aspecto final en sus datos.
+
+**Siguiente paso.** Recargar 8189 y comprobar que Contexto maestro, Agregar documentos y Biblioteca ocupan el mismo ancho y mantienen sus bordes alineados.
+
 ## Bloque 131 — Composición de Documentación (25/11/2026)
 
 **Petición.** Ordenar la vista Documentación y cuidar la alineación de sus bordes.
