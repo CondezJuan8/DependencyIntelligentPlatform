@@ -269,10 +269,18 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
     private static String normalizeVisibility(String value) { return value == null ? "UNKNOWN" : switch(value.toLowerCase()) { case "public" -> "PUBLIC"; case "private" -> "PRIVATE"; case "internal" -> "INTERNAL"; default -> "UNKNOWN"; }; }
     private void requireConfigured() {
         if (!properties.enabled() || properties.slug() == null || properties.slug().isBlank() || properties.id() == null || properties.id().isBlank()
-                || properties.privateKeyBase64() == null || properties.privateKeyBase64().isBlank()) {
+                || !hasPrivateKeySource()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "La GitHub App local todavía no está configurada.");
         }
     }
+    private boolean hasPrivateKeySource() {
+        return present(properties.privateKeyFile()) || present(properties.privateKeyBase64());
+    }
+
+    private static boolean present(String value) {
+        return value != null && !value.isBlank();
+    }
+
     private void requireAuthorizationConfigured() {
         requireConfigured();
         if (properties.clientId() == null || properties.clientId().isBlank() || properties.clientSecret() == null
