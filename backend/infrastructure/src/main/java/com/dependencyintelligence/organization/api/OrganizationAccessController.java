@@ -63,5 +63,5 @@ public class OrganizationAccessController {
     }
     public record TeamName(@NotBlank @Size(max = 200) String name) { }
     public record TeamMember(@NotNull Boolean included) { }
-    public record Permissions(@NotNull @Size(max = 11) List<@NotBlank @Size(max = 50) String> permissions) { }
+    public record Permissions(@NotNull List<@NotBlank @Size(max = 50) String> permissions) { }
 }

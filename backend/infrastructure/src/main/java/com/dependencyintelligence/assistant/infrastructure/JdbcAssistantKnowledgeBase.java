@@ -85,7 +85,7 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
                            from document_repositories scope join repositories r
                              on r.organization_id=scope.organization_id and r.id=scope.repository_id
                            where scope.organization_id=d.organization_id and scope.document_id=d.id),'') repository_names,
-                         coalesce((select string_agg(component.name || ' ' || component.purl,' ')
+                         coalesce((select string_agg(coalesce(component.namespace || '/', '') || component.name,' ')
                            from document_components relation join components component
                              on component.organization_id=relation.organization_id and component.id=relation.component_id
                            where relation.organization_id=d.organization_id and relation.document_id=d.id),'') package_names
