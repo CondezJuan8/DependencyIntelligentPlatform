@@ -1,3 +1,10 @@
+## Gemini y GitHub App (25/11/2026)
+
+- [x] Validar la clave de Gemini sin guardarla en `.env`; `models.list` y `generateContent` respondieron HTTP 200 para `gemini-3.1-flash-lite`.
+- [x] Validar el PEM correcto de `dependency-intelligence-platform`: GitHub `/app` respondió HTTP 200 y el App ID coincide.
+- [x] Preparar montajes de solo lectura desde `.local-secrets/`, ignorada por Git, para ambas credenciales.
+- [ ] Confirmar en el backend desplegado una respuesta generada por Gemini a una pregunta real de Nexo y la conexión GitHub desde la sesión autenticada.
+
 ## Corrección de Nexo tras prueba real (25/11/2026)
 
 - [x] Corregir el borrado de chats: la tabla real es `data_deletion_requests`; el nombre anterior causaba HTTP 500 después de pasar autorización.

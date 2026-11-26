@@ -1,3 +1,15 @@
+## Bloque 140 — Gemini y credenciales de GitHub App (25/11/2026)
+
+**Petición.** El usuario no dispone de créditos OpenAI y entregó una clave de Gemini, con instrucción explícita de no guardarla en `.env`. También adjuntó el PEM de `dependency-intelligence-platform` para restablecer GitHub.
+
+**Cambios.** La clave de Gemini y el PEM se guardan en `.local-secrets/`, ignorada por Git, y se montan como archivos de solo lectura en el backend. Nexo usa el adaptador Gemini con evidencia autorizada y citas, sin exigir un prompt de reparación para preguntas informativas. El backend registra el modelo bajo el proveedor Gemini. La GitHub App puede leer su PEM de archivo; el status de configuración reconoce ese mecanismo.
+
+**Herramientas y tecnologías.** Java 21, Spring RestClient, Docker Compose, PowerShell, Node para verificación de JWT y Git. Sin dependencias nuevas de producto.
+
+**Verificación.** La clave de Gemini respondió HTTP 200 en `models.list` y `generateContent` con `gemini-3.1-flash-lite`; una prueba con instrucciones y fuente devolvió texto español citado. El PEM correcto firmó un JWT aceptado por GitHub `/app` con HTTP 200 y App ID coincidente. El build backend pasó con 79 pruebas y el servicio se recreó, inició y respondió HTTP 200 desde `/health` en 8189. El contenedor confirmó lectura de ambos archivos secretos. La prueba desde la sesión autenticada de Nexo y GitHub sigue pendiente.
+
+**Siguiente paso.** Confirmar Nexo y GitHub desde la sesión autenticada en 8189.
+
 ## Bloque 139 — Respuesta de Nexo y borrado de chats (25/11/2026)
 
 **Petición.** La captura mostró «OpenAI no pudo completar la respuesta» y el usuario informó que no podía borrar chats.
