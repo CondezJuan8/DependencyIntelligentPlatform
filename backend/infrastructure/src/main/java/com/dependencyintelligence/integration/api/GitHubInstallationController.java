@@ -37,7 +37,8 @@ public class GitHubInstallationController {
             canManage = false;
         }
         boolean configured = present(properties.enabled()) && present(properties.slug()) && present(properties.id())
-            && present(properties.clientId()) && present(properties.clientSecret()) && present(properties.privateKeyBase64())
+            && present(properties.clientId()) && present(properties.clientSecret())
+            && (present(properties.privateKeyBase64()) || present(properties.privateKeyFile()))
             && present(properties.callbackUrl());
         String detail = !canManage
             ? "Solo el propietario o un administrador de esta organización puede conectar GitHub."

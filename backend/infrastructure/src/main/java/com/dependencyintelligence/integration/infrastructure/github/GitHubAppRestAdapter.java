@@ -242,7 +242,9 @@ public class GitHubAppRestAdapter implements GitHubAppGateway {
     }
 
     private PrivateKey privateKey() throws Exception {
-        byte[] pem = Base64.getDecoder().decode(properties.privateKeyBase64());
+        byte[] pem = properties.privateKeyFile() != null && !properties.privateKeyFile().isBlank()
+            ? java.nio.file.Files.readAllBytes(java.nio.file.Path.of(properties.privateKeyFile()))
+            : Base64.getDecoder().decode(properties.privateKeyBase64());
         String text = new String(pem, StandardCharsets.US_ASCII);
         String encoded = text.replaceAll("-----BEGIN [^-]+-----", "").replaceAll("-----END [^-]+-----", "").replaceAll("\\s", "");
         byte[] der = Base64.getDecoder().decode(encoded);
