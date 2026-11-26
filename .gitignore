@@ -13,4 +13,5 @@
 !.env.example
 .DS_Store
 .tools/
+.local-secrets/
 .impeccable-cache/

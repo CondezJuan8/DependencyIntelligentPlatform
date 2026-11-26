@@ -71,6 +71,10 @@ app:
       base-url: ${OPENAI_API_BASE_URL:https://api.openai.com}
       api-key: ${OPENAI_API_KEY:}
       model: ${OPENAI_MODEL:gpt-6.2-sol}
+    gemini:
+      base-url: ${GEMINI_API_BASE_URL:https://generativelanguage.googleapis.com}
+      api-key-file: ${GEMINI_API_KEY_FILE:}
+      model: ${GEMINI_MODEL:gemini-3.1-flash-lite}
   vulnerability:
     osv:
       base-url: ${OSV_API_BASE_URL:https://api.osv.dev}
@@ -88,6 +92,7 @@ app:
       client-id: ${GITHUB_APP_CLIENT_ID:}
       client-secret: ${GITHUB_APP_CLIENT_SECRET:}
       private-key-base64: ${GITHUB_APP_PRIVATE_KEY_BASE64:}
+      private-key-file: ${GITHUB_APP_PRIVATE_KEY_FILE:}
       callback-url: ${GITHUB_APP_CALLBACK_URL:${PUBLIC_BASE_URL:http://localhost:8088}/api/integrations/github/app-callback}
       api-base-url: ${GITHUB_APP_API_BASE_URL:https://api.github.com}
   organization:

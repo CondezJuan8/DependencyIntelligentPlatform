@@ -204,9 +204,9 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
     @Override public UUID saveMessage(UUID organizationId, UUID conversationId, int ordinal, String role, String content, String modelName) {
         return tenants.execute(organizationId, () -> {
             UUID modelId = modelName == null ? null : jdbc.queryForObject("""
-                insert into assistant_model_versions(provider,model_name,revision) values('openai',?,?)
+                insert into assistant_model_versions(provider,model_name,revision) values(?,?,?)
                 on conflict(provider,model_name,revision) do update set model_name=excluded.model_name returning id
-                """, UUID.class, modelName, modelName);
+                """, UUID.class, modelName.startsWith("gemini-") ? "gemini" : "openai", modelName, modelName);
             return jdbc.queryForObject("insert into assistant_messages(organization_id,conversation_id,ordinal,role,content,model_version_id) values(?,?,?,?,?,?) returning id",
                 UUID.class, organizationId, conversationId, ordinal, role, content, modelId);
         });

@@ -92,6 +92,7 @@ services:
       GITHUB_APP_CLIENT_ID: ${GITHUB_APP_CLIENT_ID:-}
       GITHUB_APP_CLIENT_SECRET: ${GITHUB_APP_CLIENT_SECRET:-}
       GITHUB_APP_PRIVATE_KEY_BASE64: ${GITHUB_APP_PRIVATE_KEY_BASE64:-}
+      GITHUB_APP_PRIVATE_KEY_FILE: /run/secrets/github_app_private_key.pem
       GITHUB_APP_CALLBACK_URL: ${GITHUB_APP_CALLBACK_URL:-http://localhost:${WEB_PORT:-8088}/api/integrations/github/app-callback}
       GITHUB_APP_API_BASE_URL: ${GITHUB_APP_API_BASE_URL:-https://api.github.com}
       LOCAL_REPOSITORY_STORAGE_ROOT: /var/lib/dependency-intelligence/repositories
@@ -105,9 +106,8 @@ services:
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-}
       OLLAMA_EMBEDDING_REVISION: ${OLLAMA_EMBEDDING_REVISION:-}
       AI_REQUEST_TIMEOUT: ${AI_REQUEST_TIMEOUT:-PT45S}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6.2-sol}
-      OPENAI_API_BASE_URL: ${OPENAI_API_BASE_URL:-https://api.openai.com}
+      GEMINI_API_KEY_FILE: /run/secrets/gemini_api_key
+      GEMINI_MODEL: gemini-3.1-flash-lite
       DEPENDENCY_INTELLIGENCE_SCANNER_CDXGEN_URL: http://cdxgen-scanner:9090
       DEPENDENCY_INTELLIGENCE_SCANNER_WORKSPACE: /app/scanner-work
       OAUTH_AUTHORIZATION_LIFETIME: ${OAUTH_AUTHORIZATION_LIFETIME:-PT5M}
@@ -117,6 +117,8 @@ services:
       - repository_data:/var/lib/dependency-intelligence/repositories
       - document_data:/var/lib/dependency-intelligence/documents
       - scanner_work:/app/scanner-work
+      - ./.local-secrets/gemini_api_key:/run/secrets/gemini_api_key:ro
+      - ./.local-secrets/github_app_private_key.pem:/run/secrets/github_app_private_key.pem:ro
     networks:
       - default
       - ai_internal

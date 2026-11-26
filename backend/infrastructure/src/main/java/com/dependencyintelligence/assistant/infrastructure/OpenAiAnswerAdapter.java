@@ -14,12 +14,10 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 /** OpenAI Responses adapter. It has no tools and can only produce a reviewable proposal. */
-@Component
 public final class OpenAiAnswerAdapter implements AnswerGeneration {
     private static final String INSTRUCTIONS = """
         Eres el asistente técnico de Dependency Intelligence. Responde en el idioma de la pregunta y usa solo la evidencia autorizada recibida.
