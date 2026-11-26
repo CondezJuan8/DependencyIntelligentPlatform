@@ -15,6 +15,11 @@ select,textarea { width:100%; min-height:44px; padding:10px 12px; border:1px sol
 .chat-picker { display:grid; gap:6px; width:min(100%,420px); min-width:0; color:var(--di-text-secondary); font-size:12px; font-weight:700; }
 .chat-picker select { overflow:hidden; text-overflow:ellipsis; }
 .new-chat { white-space:nowrap; }
+.delete-chat { white-space:nowrap; }
+.delete-confirmation { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin:0 0 14px; padding:14px 16px; border:1px solid var(--di-control-border); border-radius:10px; background:var(--di-surface-muted); }
+.delete-confirmation p { margin:0; }
+.delete-confirmation > div { display:flex; flex-wrap:wrap; gap:8px; }
+.delete-confirmation .confirm-delete { background:var(--di-critical-background); color:var(--di-critical-text); border:1px solid var(--di-critical-text); }
 button { min-height:44px; padding:0 17px; border:0; border-radius:9px; background:var(--di-primary); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
 button.secondary { border:1px solid var(--di-control-border); background:var(--di-surface); color:var(--di-text); }
 button:disabled { opacity:.55; cursor:not-allowed; }
@@ -60,4 +65,4 @@ blockquote { margin:5px 0 0; padding-left:12px; border-left:3px solid var(--di-a
 @media(max-width:720px) { .page-heading,.section-heading { align-items:stretch; flex-direction:column; } .conversation { max-height:55vh; } .turn { max-width:100%; } }
 
 .assistant-scope { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
-@media(max-width:520px) { .assistant-scope,.organization-picker { width:100%; } .empty { padding:16px; } .composer { padding:16px; } .composer-footer { align-items:stretch; flex-direction:column; } .composer-footer button { width:100%; } .assistant-page.compact .composer-footer { flex-direction:row; align-items:center; } .assistant-page.compact .composer-footer button { width:auto; } }
+@media(max-width:520px) { .assistant-scope,.organization-picker { width:100%; } .chat-toolbar { flex-wrap:wrap; } .chat-picker { width:100%; } .empty { padding:16px; } .composer { padding:16px; } .composer-footer { align-items:stretch; flex-direction:column; } .composer-footer button { width:100%; } .assistant-page.compact .composer-footer { flex-direction:row; align-items:center; } .assistant-page.compact .composer-footer button { width:auto; } }

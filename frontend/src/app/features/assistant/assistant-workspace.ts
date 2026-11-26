@@ -6,7 +6,7 @@ import { DiIcon } from '../../shared/di-icon';
 
 interface Answer { conversationId: string; messageId: string; answer: string; proposedRepairPrompt: string | null; citations: Citation[]; status: string; model: string | null; }
 interface Repository { id: string; organizationId: string; fullName: string; }
-interface Citation { documentId: string; versionId?: string; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; }
+interface Citation { documentId: string | null; versionId?: string | null; chunkId: string; documentName: string; filename: string; page: number | null; section: string | null; excerpt: string; sourceUrl?: string | null; }
 interface Turn { role: 'USER' | 'ASSISTANT'; content: string; citations?: Citation[]; proposedRepairPrompt?: string | null; }
 interface ChatSummary { id: string; title: string; updatedAt: string; }
 
@@ -27,6 +27,7 @@ export class AssistantWorkspace {
   readonly pending = signal(false);
   readonly error = signal('');
   readonly notice = signal('');
+  readonly confirmingDelete = signal(false);
 
   constructor() {
     this.api.get<Organization[]>('/api/organizations').subscribe({
@@ -47,7 +48,19 @@ export class AssistantWorkspace {
     const query = new URLSearchParams({ versionId: citation.versionId ?? '' });
     return `/api/organizations/${this.organizationId()}/documents/${citation.documentId}/download?${query}`;
   }
-  reset(): void { this.conversationId.set(null); this.turns.set([]); this.question.set(''); this.error.set(''); this.notice.set(''); }
+  reset(): void { this.conversationId.set(null); this.turns.set([]); this.question.set(''); this.error.set(''); this.notice.set(''); this.confirmingDelete.set(false); }
+  requestDelete(): void { if (this.conversationId() && !this.pending()) this.confirmingDelete.set(true); }
+  cancelDelete(): void { this.confirmingDelete.set(false); }
+  deleteChat(): void {
+    const org = this.organizationId(), id = this.conversationId();
+    if (!org || !id || !this.confirmingDelete() || this.pending()) return;
+    this.pending.set(true); this.error.set('');
+    this.api.delete<void>(`/api/organizations/${org}/assistant/conversations/${id}`)
+      .pipe(finalize(() => this.pending.set(false))).subscribe({
+        next: () => { this.reset(); this.loadChats(); this.notice.set(this.preferences.text('Chat eliminado.')); },
+        error: error => { this.confirmingDelete.set(false); this.error.set(accessError(error)); },
+      });
+  }
   loadChats(selectLatest = false): void {
     const org = this.organizationId(); if (!org) { this.chats.set([]); return; }
     this.api.get<ChatSummary[]>(`/api/organizations/${org}/assistant/conversations`).subscribe({
@@ -83,7 +96,10 @@ export class AssistantWorkspace {
         this.notice.set(result.morePending ? this.preferences.text('Algunos documentos siguen pendientes de preparación; puedes volver a preguntar para incluirlos.') : '');
         this.sendQuestion(org, question);
       },
-      error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.pending.set(false); this.notice.set(''); this.error.set(accessError(error)); },
+      error: error => {
+        if (error.status === 403) { this.notice.set(''); this.sendQuestion(org, question); return; }
+        this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.pending.set(false); this.notice.set(''); this.error.set(accessError(error));
+      },
     });
   }
   private sendQuestion(org: string, question: string): void {

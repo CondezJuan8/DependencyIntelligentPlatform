@@ -27,7 +27,13 @@
         </select>
       </label>
       <button type="button" class="secondary new-chat" (click)="reset()" [disabled]="pending() || !organizationId()">{{ preferences.text('Nuevo chat') }}</button>
+      <button type="button" class="secondary delete-chat" (click)="requestDelete()" [disabled]="pending() || !conversationId()">{{ preferences.text('Eliminar chat') }}</button>
     </div>
+    @if (confirmingDelete()) { <div class="delete-confirmation" role="alertdialog" aria-modal="false" [attr.aria-label]="preferences.text('Confirmar eliminación del chat')">
+      <p>{{ preferences.text('¿Eliminar este chat y todos sus mensajes? Esta acción no se puede deshacer.') }}</p>
+      <div><button type="button" class="secondary" (click)="cancelDelete()" [disabled]="pending()">{{ preferences.text('Cancelar') }}</button>
+        <button type="button" class="confirm-delete" (click)="deleteChat()" [disabled]="pending()">{{ preferences.text('Sí, eliminar chat') }}</button></div>
+    </div> }
     @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
     <div class="conversation" [class.is-empty]="!turns().length" aria-live="polite" aria-relevant="additions text">
@@ -46,6 +52,7 @@
             @for (citation of turn.citations; track citation.chunkId; let index = $index) {
               <li><strong>[{{ index + 1 }}] {{ citation.documentName }}</strong><span>{{ citation.filename }}@if(citation.page){ · {{ preferences.text('página') }} {{ citation.page }} }@if(citation.section){ · {{ citation.section }} }</span><blockquote>{{ citation.excerpt }}</blockquote>
               @if (citation.versionId) { <a [href]="citationLink(citation)">{{ preferences.text('Descargar versión citada') }}</a> }
+              @if (citation.sourceUrl) { <a [href]="citation.sourceUrl">{{ preferences.text('Ver fuente en el espacio') }}</a> }
               </li>
             }
           </ol> }
