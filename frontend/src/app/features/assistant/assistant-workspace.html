@@ -26,8 +26,8 @@
     @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
     <div class="conversation" [class.is-empty]="!turns().length" aria-live="polite" aria-relevant="additions text">
-      @if (!turns().length) { <div class="empty"><app-di-icon name="document" /><h3>{{ preferences.text('Empieza con una pregunta concreta') }}</h3>
-        <p>{{ preferences.text('Por ejemplo: ¿qué decisiones de arquitectura documentamos para este repositorio?') }}</p></div> }
+      @if (!turns().length) { <div class="empty"><app-di-icon name="document" /><div><h3>{{ preferences.text('Empieza con una pregunta concreta') }}</h3>
+        <p>{{ preferences.text('Por ejemplo: ¿qué decisiones de arquitectura documentamos para este repositorio?') }}</p></div></div> }
       @for (turn of turns(); track $index) {
         <article class="turn" [class.user-turn]="turn.role === 'USER'" [class.assistant-turn]="turn.role === 'ASSISTANT'">
           <strong>{{ turn.role === 'USER' ? preferences.text('Tú') : preferences.text('Asistente') }}</strong>
@@ -51,8 +51,7 @@
     <form class="composer" (submit)="ask($event)">
       <label for="assistant-question">{{ preferences.text('Tu pregunta') }}</label>
       <textarea id="assistant-question" rows="3" maxlength="4000" [value]="question()" (input)="question.set($any($event.target).value)" (keydown)="questionKeydown($event)" [placeholder]="preferences.text('Escribe una pregunta sobre la documentación del espacio…')" [disabled]="pending() || !organizationId()"></textarea>
-      <small class="keyboard-hint">{{preferences.text('Enter para enviar · Shift+Enter para una nueva línea')}}</small>
-      <div class="composer-actions"><span>{{ question().length }}/4000</span><button type="submit" [disabled]="pending() || !question().trim() || !organizationId()">{{ pending() ? preferences.text('Consultando…') : preferences.text('Preguntar') }}</button></div>
+      <div class="composer-footer"><div class="composer-meta"><small class="keyboard-hint">{{preferences.text('Enter para enviar · Shift+Enter para una nueva línea')}}</small><span>{{ question().length }}/4000</span></div><button type="submit" [disabled]="pending() || !question().trim() || !organizationId()">{{ pending() ? preferences.text('Consultando…') : preferences.text('Preguntar') }}</button></div>
     </form>
   </section>
 </section>
