@@ -13,7 +13,11 @@ public final class AssistantPorts {
     public interface EvidenceSearch { List<Evidence> search(UUID organizationId, List<UUID> repositoryIds, String model, String revision, String query, float[] vector, int limit); }
     public interface AnswerGeneration { Generated answer(String question, List<Evidence> evidence); }
     public interface ConversationStore {
+        record Summary(UUID id, String title, String updatedAt) { }
+        record Message(String role, String content, String proposedRepairPrompt, List<Citation> citations) { }
         UUID createConversation(UUID organizationId, UUID userId, String title);
+        List<Summary> listConversations(UUID organizationId, UUID userId);
+        List<Message> readConversation(UUID organizationId, UUID userId, UUID conversationId, List<UUID> repositoryIds);
         int nextOrdinal(UUID organizationId, UUID conversationId);
         UUID saveMessage(UUID organizationId, UUID conversationId, int ordinal, String role, String content, String model);
         void saveEvidence(UUID organizationId, UUID messageId, List<Evidence> evidence);

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /** Coordinates retrieval and generation; providers and persistence remain outside Application. */
 public final class AskAssistantUseCase implements AskAssistant {
-    private static final String NO_EVIDENCE = "No encontré evidencia documental autorizada que permita responder esta pregunta. Asocia documentación pertinente o formula una pregunta más concreta.";
+    private static final String NO_EVIDENCE = "No encontré suficiente información en las fuentes a las que tienes acceso para responder. Puedes aportar más contexto o preguntar por otro repositorio o paquete.";
     private final Embeddings embeddings;
     private final EvidenceSearch search;
     private final AnswerGeneration generation;

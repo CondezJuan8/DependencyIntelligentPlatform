@@ -1,6 +1,7 @@
 package com.dependencyintelligence.assistant.infrastructure;
 
 import com.dependencyintelligence.assistant.application.dto.AssistantModels.Evidence;
+import com.dependencyintelligence.assistant.application.dto.AssistantModels.Citation;
 import com.dependencyintelligence.assistant.application.port.out.AssistantPorts.*;
 import com.dependencyintelligence.shared.infrastructure.persistence.TenantTransactions;
 import java.util.ArrayList;
@@ -79,7 +80,15 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
             return jdbc.query("""
                 with authorized_chunks as materialized (
                   select c.id,c.content,c.ordinal,c.page_start,c.section_path,d.id document_id,d.name document_name,
-                         v.id version_id,v.original_filename,vc.embedding
+                         v.id version_id,v.original_filename,vc.embedding,
+                         coalesce((select string_agg(r.full_name,' ')
+                           from document_repositories scope join repositories r
+                             on r.organization_id=scope.organization_id and r.id=scope.repository_id
+                           where scope.organization_id=d.organization_id and scope.document_id=d.id),'') repository_names,
+                         coalesce((select string_agg(component.name || ' ' || component.purl,' ')
+                           from document_components relation join components component
+                             on component.organization_id=relation.organization_id and component.id=relation.component_id
+                           where relation.organization_id=d.organization_id and relation.document_id=d.id),'') package_names
                   from document_chunk_vectors vc
                   join document_chunk_embeddings e on e.organization_id=vc.organization_id and e.id=vc.embedding_id and e.embedding_model_id=vc.embedding_model_id and e.status='READY'
                   join embedding_models em on em.id=e.embedding_model_id and em.provider='ollama'
@@ -96,9 +105,9 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
                 ), text_candidates as (
                   select id,row_number() over(order by relevance desc,id) as rank_order
                   from (
-                    select c.id,ts_rank_cd(to_tsvector('simple',c.content),websearch_to_tsquery('simple',?)) as relevance
+                    select c.id,ts_rank_cd(to_tsvector('simple',c.document_name || ' ' || c.repository_names || ' ' || c.package_names || ' ' || c.content),websearch_to_tsquery('simple',?)) as relevance
                     from authorized_chunks c
-                    where to_tsvector('simple',c.content) @@ websearch_to_tsquery('simple',?)
+                    where to_tsvector('simple',c.document_name || ' ' || c.repository_names || ' ' || c.package_names || ' ' || c.content) @@ websearch_to_tsquery('simple',?)
                     order by relevance desc,c.id limit 40
                   ) relevant
                 ), fused_candidates as (
@@ -124,6 +133,56 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
             returning id
             """, UUID.class, organizationId, title, organizationId, userId));
     }
+    @Override public List<ConversationStore.Summary> listConversations(UUID organizationId, UUID userId) {
+        return tenants.execute(organizationId, () -> jdbc.query("""
+            select c.id,coalesce(c.title,'Sin título'),coalesce(max(message.created_at),c.created_at) updated_at
+            from assistant_conversations c
+            join organization_memberships membership on membership.organization_id=c.organization_id
+              and membership.id=c.created_by_membership_id and membership.user_id=? and membership.status='ACTIVE'
+            left join assistant_messages message on message.organization_id=c.organization_id and message.conversation_id=c.id
+            where c.organization_id=?
+            group by c.id,c.title,c.created_at
+            order by updated_at desc,c.id desc limit 100
+            """, (row, index) -> new ConversationStore.Summary(row.getObject(1, UUID.class), row.getString(2),
+                row.getTimestamp(3).toInstant().toString()), userId, organizationId));
+    }
+    @Override public List<ConversationStore.Message> readConversation(UUID organizationId, UUID userId, UUID conversationId, List<UUID> repositoryIds) {
+        if (!canAccess(organizationId, userId, conversationId)) throw new IllegalArgumentException("La conversación no existe o no tienes acceso a ella.");
+        return tenants.execute(organizationId, () -> jdbc.query("""
+            select message.id,message.role,message.content from assistant_messages message
+            join assistant_conversations conversation on conversation.organization_id=message.organization_id and conversation.id=message.conversation_id
+            join organization_memberships membership on membership.organization_id=conversation.organization_id
+              and membership.id=conversation.created_by_membership_id and membership.user_id=? and membership.status='ACTIVE'
+            where message.organization_id=? and message.conversation_id=? and message.status='COMPLETED' and message.role in ('USER','ASSISTANT')
+            order by message.ordinal
+            """, (row, index) -> {
+                UUID messageId = row.getObject(1, UUID.class);
+                String role = row.getString(2), content = row.getString(3), proposedPrompt = null;
+                String marker = "\n\nPrompt de reparación propuesto (requiere revisión humana):\n";
+                if ("ASSISTANT".equals(role)) {
+                    int position = content.indexOf(marker);
+                    if (position >= 0) { proposedPrompt = content.substring(position + marker.length()); content = content.substring(0, position); }
+                }
+                return new ConversationStore.Message(role, content, proposedPrompt,
+                    "ASSISTANT".equals(role) ? citations(organizationId, messageId, repositoryIds) : List.of());
+            }, userId, organizationId, conversationId));
+    }
+    private List<Citation> citations(UUID organizationId, UUID messageId, List<UUID> repositoryIds) {
+        var args = new ArrayList<Object>(); args.add(organizationId); args.add(messageId);
+        String visible = visibleDocuments(repositoryIds, args);
+        return jdbc.query("""
+            select d.id,v.id,c.id,d.name,v.original_filename,c.page_start,c.section_path,c.content
+            from assistant_message_evidences evidence
+            join document_chunks c on c.organization_id=evidence.organization_id and c.id=evidence.document_chunk_id
+            join document_versions v on v.organization_id=c.organization_id and v.id=c.document_version_id and v.original_status='RETAINED'
+            join documents d on d.organization_id=v.organization_id and d.id=v.document_id and d.status='ACTIVE'
+            where evidence.organization_id=? and evidence.message_id=? and """ + visible + """
+            order by evidence.ordinal
+            """, (row, index) -> new Citation(row.getObject(1, UUID.class), row.getObject(2, UUID.class),
+                row.getObject(3, UUID.class), row.getString(4), row.getString(5), (Integer) row.getObject(6),
+                row.getString(7), excerpt(row.getString(8))), args.toArray());
+    }
+    private static String excerpt(String content) { return content.length() <= 420 ? content : content.substring(0, 417) + "…"; }
     @Override public int nextOrdinal(UUID organizationId, UUID conversationId) {
         return tenants.execute(organizationId, () -> jdbc.queryForObject("select coalesce(max(ordinal),0)+1 from assistant_messages where organization_id=? and conversation_id=?", Integer.class, organizationId, conversationId));
     }
