@@ -1,5 +1,7 @@
 ## Estado visual vigente — Observatorio de Evidencias (25/11/2026)
 
+- [x] Reordenar Nexo en una sola columna, reducir el espacio vacío inicial y colocar la pregunta bajo la conversación. Frontend 8189 reconstruido y activo.
+- [ ] Confirmar Nexo con la sesión autenticada, vacío y con citas, después de recargar en escritorio y móvil.
 - [x] Recuperación RAG híbrida para Nexo: candidatos textuales y vectoriales, fusión RRF y selección de seis evidencias dentro del alcance autorizado. Backend desplegado en el servicio conectado a 8189; build de producción correcto.
 - [x] Los demás criterios de `Requerimientos.md` quedan aceptados como correctos para el alcance vigente, con las sustituciones de arquitectura ya documentadas; no se abren como brechas de este bloque.
 - [x] Retirar el CSS global que forzaba Documentación a dos columnas y dejaba Contexto maestro estrecho; frontend 8189 reconstruido y activo.

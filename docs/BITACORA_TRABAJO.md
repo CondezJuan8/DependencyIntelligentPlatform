@@ -1,3 +1,15 @@
+## Bloque 134 — Composición de Nexo (25/11/2026)
+
+**Petición.** La captura del usuario mostró un gran espacio vacío en Conversación y el formulario de pregunta comprimido en una columna lateral.
+
+**Diagnóstico y cambios.** `_observatory.scss` aún imponía una cuadrícula de dos columnas, una conversación de al menos 420 px y un formulario lateral mediante reglas más específicas que los estilos del componente. Se retiraron esas reglas obsoletas. Nexo usa ahora una sola columna con ancho de lectura, el estado sin mensajes ocupa 140 px y el formulario queda debajo de la conversación. Los selectores de espacio y repositorio se ajustaron para compartir fila cuando cabe y ocupar el ancho disponible en móvil. No cambian la consulta, los permisos ni la preparación de documentos.
+
+**Herramientas y tecnologías.** Angular, Sass, Docker Compose, PowerShell y Git. Sin dependencias nuevas.
+
+**Verificación.** El build de producción del frontend pasó y el contenedor de `localhost:8189` se recreó. `git diff --check` no encontró errores de formato. Falta confirmar la composición con una captura de la sesión autenticada después de recargar.
+
+**Siguiente paso.** Revisar Nexo en la sesión autenticada, tanto vacío como con una respuesta y sus citas, en escritorio y móvil.
+
 ## Bloque 133 — Recuperación híbrida RAG (25/11/2026)
 
 **Petición.** El usuario pidió marcar como correctos los requisitos restantes de `Requerimientos.md` y resolver la brecha señalada: la consulta RAG solo usaba distancia vectorial, sin búsqueda textual combinada ni reranking.
