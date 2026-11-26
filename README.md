@@ -1,80 +1,154 @@
 # Dependency Intelligence
 
-Base inicial de una plataforma de inventario de dependencias y vulnerabilidades. Ejecución local con Docker Compose; sin hosting ni despliegue público.
+Plataforma local para conectar repositorios, analizar dependencias Maven/npm, consultar avisos OSV, documentar contexto y responder preguntas con Nexo.
 
-## Arranque local
+> **Instancia comprobada el 25/11/2026:** interfaz en `http://localhost:8189`; Mailpit en `http://localhost:8126`. Son puertos del entorno de revisión activo.
 
-Requiere Docker Engine y Docker Compose v2. No requiere Java, Maven ni Node instalados en el host.
+## Funciones
 
-```bash
-cp -n .env.example .env
-docker compose up --build -d
-```
+- Conectar GitHub o importar una carpeta local, con permisos por organización/equipo/repositorio.
+- Análisis manual durable; scanner cdxgen genera SBOM CycloneDX para Inventario.
+- Evaluación OSV de versiones exactas, revisión de vulnerabilidades, reportes ejecutivos/técnicos y PDF.
+- Contexto maestro por repositorio, biblioteca documental y Nexo con citas.
+- Sesiones, aprobación de cuentas, invitaciones, equipos, permisos y notificaciones.
 
-En PowerShell, crea `.env` sin reemplazar uno existente con `if (-not (Test-Path .env)) { Copy-Item .env.example .env }` y luego ejecuta `docker compose up --build -d`.
+## Dominios locales
 
-El archivo `.env` no se versiona; `cp -n` conserva una configuración local existente. Configurar `POSTGRES_PASSWORD` y `POSTGRES_APP_PASSWORD` distintas; esta última es obligatoria para el login runtime limitado. Para volúmenes existentes seguir el [aprovisionamiento y actualización](docs/database/README.md#arranque-y-actualización) antes de iniciar el backend.
+| Dirección | Uso actual |
+| --- | --- |
+| `http://localhost:8189` | Frontend Angular; Nginx reenvía `/api` y `/health` al backend. |
+| `http://localhost:8189/health` | Estado publicado detrás del proxy. |
+| `http://localhost:8126` | Bandeja de Mailpit para correo de desarrollo. |
+| `127.0.0.1:1126` | SMTP Mailpit desde el host; entre contenedores: `mailpit:1025`. |
 
-Abrir http://localhost:8088 y comprobar http://localhost:8088/health. Para cambiar el puerto, editar `WEB_PORT` en `.env`.
+Esta sesión tiene listeners en 8189, 8126 y 1126, no en 8088 ni 8089. `8088` es el valor predeterminado de `.env.example` para otra instalación; `8089` corresponde a una instancia anterior. PostgreSQL (`database:5432`), Ollama (`ollama:11434`), backend (`backend:8080`) y cdxgen (`cdxgen-scanner:9090`) son internos de Docker y no publican puertos al host. Gemini y OSV son HTTPS externos.
 
-En una base vacía, crea el primer administrador antes de registrar usuarios. El operador es interactivo, solo corre cuando se invoca y rechaza una base que ya contiene datos:
+## Arquitectura
 
-```bash
-docker compose --profile bootstrap build platform-admin-bootstrap
-docker compose --profile bootstrap run --rm -it platform-admin-bootstrap
-```
+| Módulo | Función |
+| --- | --- |
+| `frontend/` | Angular 22, TypeScript y Angular Material. |
+| `backend/domain/` | Entidades/reglas, Java independiente de Spring/JPA. |
+| `backend/application/` | Casos de uso, DTO y puertos. |
+| `backend/infrastructure/` | Spring Boot, REST, seguridad, SQL, configuración y adaptadores. |
+| `compose.yaml` / `infra/` | Servicios, redes, volúmenes y bootstrap. |
+| `backend/infrastructure/src/main/resources/db/migration/` | Migraciones Flyway; el checkout llega a V37. |
 
-Después inicia sesión con esa cuenta, crea una organización y entra en **Mis repositorios** para importar una carpeta local o conectar GitHub. Selecciona **Analizar** manualmente; el trabajo queda consultable y, al terminar, sus snapshots aparecen en **Inventario**. Las cuentas OWNER de plataforma no reciben acceso automático a otras organizaciones: para analizar se necesita membresía activa en la organización seleccionada y permiso `scan.create`. Las cuentas del registro normal esperan aprobación de un administrador de plataforma.
+El **orquestador** son los casos de uso de Application, no un servicio aparte como Airflow o n8n. Coordina escáner, base de datos, OSV, recuperación documental y generación; los adaptadores concretos están en Infrastructure.
 
-```bash
-docker compose logs -f
-docker compose down
-```
+## Nexo, embeddings y RAG
 
-La base persiste en el volumen `postgres_data`. `down` conserva los datos. Las imágenes y dependencias se descargan durante la primera construcción. Las integraciones futuras con GitHub y OSV necesitarán internet.
+- **Embeddings:** Ollama convierte texto en vectores numéricos para buscar similitud semántica. Modelo de este Compose: `embeddinggemma-2:latest`. Un vector no es resumen ni respuesta.
+- **Persistencia:** PostgreSQL guarda documentos, fragmentos, metadatos, chats y citas; pgvector guarda los vectores asociados.
+- **RAG híbrido:** combina similitud vectorial y búsqueda textual PostgreSQL. Reciprocal Rank Fusion (RRF) fusiona rankings y completa hasta seis evidencias en total; las fuentes estructuradas pueden ocupar parte de ese cupo.
+- **Reranking:** la fusión RRF es la etapa actual; no es un modelo entrenado.
+- **Fuentes:** Nexo suma evidencia autorizada de análisis, OSV e informes.
+- **Generación:** Gemini recibe la pregunta y evidencia seleccionada para redactar con citas. Nexo es de solo lectura; sin evidencia debe abstenerse.
+- **Indexación:** antes de enviar una pregunta, la interfaz intenta preparar automáticamente fragmentos pendientes. La acción manual permite reintentar.
 
-## Estructura
+Ver [guía técnica de RAG](docs/OLLAMA_PGVECTOR_RAG.md) y [manual](docs/MANUAL_USUARIO.md).
 
-- `backend/`: Java 21, Spring Boot 3.5 y Maven; proyectos independientes **Domain**, **Application** e **Infrastructure**, con contextos DDD dentro de cada capa. Importar `backend/pom.xml` en el IDE.
-- `frontend/`: Angular 22, TypeScript y Angular Material; `core`, `shared` y funcionalidades del MVP.
-- `infra/`: límites y documentación de infraestructura local y scanner.
-- `docs/`: requisitos, contexto, stack y convenciones de commits.
+## Scanner y OSV
 
-La paleta visual y los hitos para probar recorridos con el usuario están documentados en [diseño frontend](docs/DISENO_FRONTEND.md).
+El contenedor aislado `cdxgen-secure:13.8.0` lee una instantánea autorizada y produce un SBOM CycloneDX. No instala las dependencias del proyecto ni accede al socket Docker. Los análisis son manuales, consultables y cancelables.
 
-Domain contiene agregados, reglas y value objects en Java puro. Application coordina casos de uso mediante DTO y puertos de entrada/salida. Infrastructure implementa HTTP, JPA/JDBC, configuración y transacciones. Las dependencias Maven apuntan hacia Domain; las pruebas ArchUnit protegen los límites. Ver [arquitectura del backend](docs/ARQUITECTURA_BACKEND.md).
+El backend consulta `https://api.osv.dev/v1/querybatch` con ecosistema, nombre y versión exacta. “Sin avisos conocidos” indica que OSV no encontró coincidencia para esa consulta; no prueba ausencia de todo riesgo. La cobertura depende de nombres/versiones detectables. Ver [OSV](docs/OSV_VULNERABILIDADES.md).
 
-## Estado y decisiones
+## Base de datos y seguridad
 
-Consultar el [roadmap](docs/ROADMAP.md) para fases y estado; todavía no hay fecha total nueva comprometida.
+- PostgreSQL 17.7, pgvector 0.8.7 y Flyway.
+- Rol runtime limitado; la aplicación fija el tenant por transacción y las tablas tenant-scoped aplican RLS.
+- Volúmenes separados para PostgreSQL, repositorios, documentos, scanner y modelos de Ollama.
+- `docker compose down` conserva volúmenes. `docker compose down -v` los elimina.
+- No reescribas migraciones aplicadas; agrega una nueva.
 
-Objetivo vigente: producto completo listo para usar por fases, primero local y después servidor. Alcance, decisiones y matriz de pendientes: [contexto maestro](docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md). El plan anterior de demo/50 horas ya no limita la aceptación.
+Los catálogos/diagramas históricos pueden no incluir V37; verifica migraciones e historial Flyway antes de asumir que representan una instancia actual.
 
-El progreso de cada bloque se registra en la [bitácora de trabajo](docs/BITACORA_TRABAJO.md). Referencias de datos: [nueva especificación](docs/CODEX_DATABASE_DEPENDENCY_INTELLIGENCE.md) y [estado ejecutable/pendientes](docs/database/implementation-report.md).
+## API e integraciones
 
-Incluye PostgreSQL/Flyway hasta V32, permisos por organización/equipo/repositorio y análisis manual durable. Análisis e Inventario trabajan con snapshots Maven/npm; la cola registra el estado y las etapas confirmadas y no inventa porcentajes. Acceso local, verificación/recuperación de correo y organizaciones están disponibles en Angular y API. El bootstrap, las reglas de admisión y el alcance de OWNER están descritos en [ACCESO_LOCAL](docs/ACCESO_LOCAL.md). Diccionario y diagramas en [database](docs/database/README.md).
+La API propia se publica detrás de Nginx bajo `/api`. Rutas representativas:
 
-El backend normaliza paquetes, versiones y apariciones de análisis tenant-scoped. El scanner procesa Maven y npm con cdxgen; el inventario consulta resultados OSV por versión exacta. Consulta el contexto maestro para el alcance y estado de las pantallas.
+| Área | Rutas |
+| --- | --- |
+| Sesión | `GET /api/auth/csrf`, `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |
+| Organización | `/api/organizations` y `/api/organizations/{organizationId}/repositories` |
+| Análisis | `POST .../repositories/{repositoryId}/dependency-analysis`, `GET /{jobId}`, `/active`, `DELETE /{jobId}` |
+| Inventario/OSV | `.../inventory`, `.../inventory/occurrences`, `.../repositories/{repositoryId}/vulnerability-analysis` |
+| Reportes | `.../reports/preview` y `.../reports/export-data` |
+| Documentación | `.../documents`, `.../documents/search`, versiones/descarga |
+| Nexo | `.../assistant/conversations`, `.../assistant/index`, `.../assistant/ask` |
 
-Los endpoints de repositorios/scans comprueban sesión, membresía y permisos de rol/equipo. Flyway y datasource usan credenciales separadas. Verificación y recuperación de correo disponibles con Mailpit local en `http://localhost:8025`, tokens de un uso y revocación de sesiones. Google/GitHub y vinculación explícita disponibles en backend/Angular, deshabilitados hasta configurar clientes propios: [activación y límites](docs/IDENTIDAD_GOOGLE_GITHUB.md). El consentimiento real sigue pendiente. Disponibles [invitaciones y gestión de miembros/equipos/permisos](docs/INVITACIONES_EQUIPOS_PERMISOS.md), con SMTP y autorización probados; falta revisión visual conjunta. Sesiones y cola de recuperación en memoria. Configuración SMTP en [verificación y recuperación](docs/VERIFICACION_Y_RECUPERACION.md).
+`...` representa `/api/organizations/{organizationId}`. Cambios requieren sesión y CSRF; la UI gestiona el token. OpenAPI/Swagger está deshabilitado por defecto.
 
-Health y los contratos públicos de registro/login/CSRF permiten iniciar el acceso. Los POST exigen CSRF y las operaciones de organización/repositorio exigen sesión. OpenAPI permanece deshabilitado. PostgreSQL y backend se conectan por la red interna de Compose y Nginx publica en `127.0.0.1`. La revisión visual quedó pendiente por falta de acceso al navegador. Build Angular y pruebas HTTP correctos.
+Gemini usa `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`; Ollama usa `/api/tags` y `/api/embed` en su endpoint interno; OSV consulta `https://api.osv.dev/v1/querybatch`; GitHub REST usa `https://api.github.com`. SMTP envía correo configurado y Mailpit solo lo captura en desarrollo. PostgreSQL, Ollama y cdxgen son internos.
 
-Material es la biblioteca visual inicial. cdxgen será un scanner aislado, no una dependencia de la API. GitHub y OSV podrán usar el cliente HTTP de Spring; no se agregan SDK sin necesidad. El modo local prioriza análisis manual: GitHub no puede enviar webhooks directamente a localhost. No se abre ningún túnel.
+## Herramientas utilizadas
 
-RAG, pgvector, Ollama, Gemini, Tika/PDFBox y OCR se implementarán en sus fases; no se agregan dependencias inactivas. Codex queda fuera del producto hasta nueva instrucción. No se incluye todavía pipeline de despliegue.
+| Herramienta | Uso |
+| --- | --- |
+| Docker Engine / Compose v2 | Servicios locales |
+| Java 21, Maven, Spring Boot 3.5.16 | Backend |
+| Node.js 24, npm 11, Angular 22 | Frontend |
+| PostgreSQL 17.7, pgvector 0.8.7, Flyway | Datos, vectores y migraciones |
+| Ollama 0.40.17 | Embeddings locales |
+| cdxgen Secure 13.8.0 | Scanner/SBOM aislado |
+| Apache Tika 4.2.0, Tesseract | Extracción/OCR; PDF hasta 500 páginas y 50 OCR |
+| OSV API | Avisos de versiones |
+| Gemini 3.1 Flash Lite | Generación Nexo; costo/cuota dependen de cuenta |
+| jsPDF | PDF de reportes |
+| Mailpit | Correo local de desarrollo |
 
-## Verificación
+No se garantiza una cuota gratuita de Gemini.
 
-```bash
-docker compose --env-file .env.example config --quiet
-docker compose build
-docker compose up -d
-curl --fail http://localhost:8088/health
-```
+## Arranque de una instalación nueva
 
-El build del backend ejecuta `mvn verify`; el frontend usa `npm ci` y build de producción. Para ejecutar las pruebas backend por separado con Java 21 y Maven: `cd backend && mvn verify`.
+Requiere Docker Compose. En PowerShell, crea `.env` si falta y cambia las contraseñas de ejemplo:
 
-Para incluir las pruebas de PostgreSQL real: `mvn verify -Pdatabase-it` desde `backend/`. Testcontainers crea una base aislada por suite en PostgreSQL desechable. Si defines `TEST_DATABASE_URL`, `TEST_DATABASE_USER` y `TEST_DATABASE_PASSWORD`, el usuario necesita `CREATEDB`; las bases temporales se eliminan al cerrar Maven. Usa únicamente un servidor de pruebas desechable. El artefacto ejecutable se genera en `backend/infrastructure/target/infrastructure-0.1.0-SNAPSHOT.jar`.
+~~~powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+# Edita .env; establece contraseñas locales distintas.
+docker compose -p dependency-intelligence up --build -d database ollama cdxgen-scanner backend ollama-model-init
+~~~
 
-Versiones compatibles contrastadas en [Spring Boot](https://docs.spring.io/spring-boot/3.5/system-requirements.html), [springdoc](https://springdoc.org/) y [Angular](https://angular.dev/reference/versions). Versiones transitivas frontend fijadas en `package-lock.json`; backend gestionado por el BOM de Spring Boot.
+El overlay de UI/Mailpit requiere la red `dependency-intelligence_default` del backend:
+
+~~~powershell
+docker compose -p dependency-porfavor-check --profile review -f compose.yaml -f compose.review.yaml up --build -d --no-deps frontend mailpit
+~~~
+
+Publica 8189, 8126 y 1126. No lo ejecutes sobre una instancia activa en esos puertos. Revisa nombre del proyecto/red en otros entornos.
+
+En una base nueva y vacía, el bootstrap de administrador se ejecuta una sola vez:
+
+~~~powershell
+docker compose -p dependency-intelligence --profile bootstrap build platform-admin-bootstrap
+docker compose -p dependency-intelligence --profile bootstrap run --rm -it platform-admin-bootstrap
+~~~
+
+Luego el administrador crea una organización; el registro normal puede requerir aprobación. Consulta [acceso local](docs/ACCESO_LOCAL.md).
+
+`.env` y `.local-secrets/` están ignorados por Git. Gemini se lee desde `.local-secrets/gemini_api_key` y la clave privada GitHub App desde `.local-secrets/github_app_private_key.pem`; se montan de solo lectura. No pongas claves en frontend, commits, capturas ni chat. Login OAuth y acceso de repositorio GitHub App son flujos distintos.
+
+## Desarrollo
+
+~~~powershell
+cd backend
+mvn verify
+
+cd ../frontend
+npm ci
+npm run build
+~~~
+
+`mvn verify -Pdatabase-it` usa una base desechable/configurada, nunca datos de usuario. **No se ejecutaron builds ni pruebas para este cambio documental.**
+
+Referencias: [manual](docs/MANUAL_USUARIO.md), [arquitectura](docs/ARQUITECTURA_BACKEND.md), [RAG](docs/OLLAMA_PGVECTOR_RAG.md), [identidad](docs/IDENTIDAD_GOOGLE_GITHUB.md), [equipos/permisos](docs/INVITACIONES_EQUIPOS_PERMISOS.md), [contexto maestro](docs/DEPENDENCY_INTELLIGENCE_CONTEXTO_MAESTRO.md), [pendientes](docs/PENDIENTES.md).
+
+## Verificación rápida
+
+~~~powershell
+docker ps
+curl.exe -i http://localhost:8189/health
+~~~
+
+El 25/11/2026 la UI escuchaba en 8189 y health respondió; sesión y permisos se comprueban dentro de la aplicación.
