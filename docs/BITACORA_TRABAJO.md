@@ -2268,3 +2268,17 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Verificación.** `docker compose build frontend` pasó con los avisos de presupuesto previos (bundle inicial 646,98 KB/500 KB). Se recreó solo el contenedor frontend de 8189. Falta revisión visual de esta vista dentro de la sesión del usuario, pues el puente nativo de navegador no está disponible en esta sesión.
 
 **Siguiente paso.** Recargar 8189 y revisar la importación local en escritorio y móvil; el aviso 403 de GitHub sigue separado y requiere identificar la petición fallida.
+
+## Bloque 143 — README y manual de usuario (25/11/2026)
+
+**Petición.** Crear README y manual que expliquen embeddings, base de datos, RAG, orquestación, scanner, OSV, herramientas, API e infraestructura localhost.
+
+**Cambios.** Se reemplazó el README inicial, que presentaba varias funciones implementadas como futuras. Se añadió `docs/MANUAL_USUARIO.md` con recorridos para GitHub/carpeta local, análisis, OSV, reportes, documentos, Nexo, roles y diagnóstico. Se reescribió `docs/OLLAMA_PGVECTOR_RAG.md` para reflejar Gemini configurado por Compose, embeddings Ollama, pgvector, recuperación híbrida, RRF, permisos, indexación automática antes de preguntar y límites de datos. README distingue frontend 8189, Mailpit 8126/SMTP host 1126, servicios Docker internos y puertos históricos 8088/8089. No contiene claves ni valores secretos.
+
+**Herramientas y tecnologías utilizadas.** Inspección con rg y PowerShell del backend, frontend, migraciones, Compose, .env.example y documentación existente; docker ps para servicios; curl.exe para health. Se documentan Angular, Spring Boot/Java/Maven, PostgreSQL/pgvector/Flyway, Ollama, Gemini, cdxgen, OSV, Tika/Tesseract, jsPDF y Mailpit ya usados por el proyecto. No se agregaron dependencias.
+
+**Verificación.** `http://localhost:8189/health` respondió HTTP 200. Docker mostró listeners de revisión en 8189, 8126 y 1126; backend, PostgreSQL, Ollama y cdxgen están en redes internas. Los enlaces citados existen y la migración más alta del checkout es V37. No se ejecutaron builds ni pruebas; la revisión fue documental/operativa, no una prueba de flujos autenticados.
+
+**Commit del contenido.** e72f75f (README, manual y guía RAG).
+
+**Siguiente paso.** El usuario puede seguir el manual en su sesión autenticada y anotar diferencias operativas; validar permisos/citas requiere su cuenta y fuentes visibles. El listado central queda en `docs/PENDIENTES.md`.

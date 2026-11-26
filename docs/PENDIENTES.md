@@ -1,3 +1,10 @@
+## README y manual de usuario (25/11/2026)
+
+- [x] Actualizar README con arquitectura, API, puertos actuales, proveedores, herramientas, persistencia y arranque local.
+- [x] Crear `docs/MANUAL_USUARIO.md` con recorridos para GitHub/local, análisis, OSV, reportes, Documentación, Nexo, permisos y diagnóstico.
+- [x] Alinear la guía RAG con Gemini, indexación automática, búsqueda híbrida/RRF y estado de pgvector.
+- [x] Contrastar puertos activos, health HTTP, migración y rutas principales contra Compose/código.
+- [ ] Pendiente: validar recorridos del manual en una sesión autenticada; no se inventa esa verificación.
 ## Gemini y GitHub App (25/11/2026)
 
 - [x] Validar la clave de Gemini sin guardarla en `.env`; `models.list` y `generateContent` respondieron HTTP 200 para `gemini-3.1-flash-lite`.
