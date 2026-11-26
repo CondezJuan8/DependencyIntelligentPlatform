@@ -93,10 +93,15 @@ El acceso combina rol, equipo y permiso por repositorio. Ver **Organización** y
 | --- | --- |
 | `http://localhost:8189` | UI y API de la aplicación bajo `/api`. |
 | `http://localhost:8189/health` | Estado a través del proxy. |
+| `http://localhost:8180/swagger-ui/index.html` | Swagger del backend, habilitado en la configuración local. |
+| `http://localhost:8180/v3/api-docs` | Especificación OpenAPI JSON. |
 | `http://localhost:8126` | Bandeja Mailpit. |
 | `127.0.0.1:1126` | SMTP desde host; desde Docker: `mailpit:1025`. |
+| `127.0.0.1:5433` | Base PostgreSQL Docker para DBeaver. |
 
-PostgreSQL, Ollama y cdxgen son internos; no tienen puerto publicado al navegador. No uses `localhost:11434` ni `localhost:9090` desde el host.
+Ollama y cdxgen son internos y no tienen puerto publicado al host. PostgreSQL también está en `database:5432` dentro de Docker, además del acceso local `127.0.0.1:5433`. No uses `localhost:11434` ni `localhost:9090` desde el host.
+
+Para mostrar tablas en DBeaver, crea una conexión PostgreSQL a `127.0.0.1:5433`, base `dependency_intelligence`, usuario `dependency` y contraseña `POSTGRES_PASSWORD` tomada de `.env`. Abre **Schemas → public → Tables**. El puerto `5432` del equipo corresponde a otro PostgreSQL.
 
 Gemini redacta texto (cuota/costo según cuenta); Ollama hace embeddings localmente y necesita descarga inicial; OSV se consulta en `https://api.osv.dev`; GitHub App tiene credenciales propias y callback no es webhook. Mailpit captura correo de desarrollo, no lo entrega a destinatarios reales.
 

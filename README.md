@@ -2,7 +2,7 @@
 
 Plataforma local para conectar repositorios, analizar dependencias Maven/npm, consultar avisos OSV, documentar contexto y responder preguntas con Nexo.
 
-> **Instancia comprobada el 25/11/2026:** interfaz en `http://localhost:8189`; Mailpit en `http://localhost:8126`. Son puertos del entorno de revisión activo.
+> **Instancia comprobada el 26/11/2026:** interfaz en `http://localhost:8189`; backend directo en `http://localhost:8180`; Mailpit en `http://localhost:8126` y PostgreSQL Docker en `127.0.0.1:5433`. Los puertos directos se configuran en un override local ignorado por Git.
 
 ## Funciones
 
@@ -18,10 +18,14 @@ Plataforma local para conectar repositorios, analizar dependencias Maven/npm, co
 | --- | --- |
 | `http://localhost:8189` | Frontend Angular; Nginx reenvía `/api` y `/health` al backend. |
 | `http://localhost:8189/health` | Estado publicado detrás del proxy. |
+| `http://localhost:8180/actuator/health` | Salud del backend directo. |
+| `http://localhost:8180/swagger-ui/index.html` | Swagger UI del backend. También abre en `http://localhost:8189/swagger-ui/index.html`. |
+| `http://localhost:8180/v3/api-docs` | Especificación OpenAPI JSON. |
 | `http://localhost:8126` | Bandeja de Mailpit para correo de desarrollo. |
 | `127.0.0.1:1126` | SMTP Mailpit desde el host; entre contenedores: `mailpit:1025`. |
+| `127.0.0.1:5433` | PostgreSQL Docker para DBeaver; `5432` en el host pertenece a otra instalación. |
 
-Esta sesión tiene listeners en 8189, 8126 y 1126, no en 8088 ni 8089. `8088` es el valor predeterminado de `.env.example` para otra instalación; `8089` corresponde a una instancia anterior. PostgreSQL (`database:5432`), Ollama (`ollama:11434`), backend (`backend:8080`) y cdxgen (`cdxgen-scanner:9090`) son internos de Docker y no publican puertos al host. Gemini y OSV son HTTPS externos.
+El backend y PostgreSQL siguen comunicándose dentro de Docker como `backend:8080` y `database:5432`; el override publica accesos adicionales solo en `127.0.0.1`. Ollama (`ollama:11434`) y cdxgen (`cdxgen-scanner:9090`) siguen internos. `8088` es el valor predeterminado de `.env.example` para otra instalación; `8089` corresponde a una instancia anterior. Gemini y OSV son HTTPS externos.
 
 ## Arquitectura
 
@@ -78,7 +82,7 @@ La API propia se publica detrás de Nginx bajo `/api`. Rutas representativas:
 | Documentación | `.../documents`, `.../documents/search`, versiones/descarga |
 | Nexo | `.../assistant/conversations`, `.../assistant/index`, `.../assistant/ask` |
 
-`...` representa `/api/organizations/{organizationId}`. Cambios requieren sesión y CSRF; la UI gestiona el token. OpenAPI/Swagger está deshabilitado por defecto.
+`...` representa `/api/organizations/{organizationId}`. Cambios requieren sesión y CSRF; la UI gestiona el token. OpenAPI/Swagger está deshabilitado por defecto en la plantilla, pero la configuración local actual lo habilita.
 
 Gemini usa `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`; Ollama usa `/api/tags` y `/api/embed` en su endpoint interno; OSV consulta `https://api.osv.dev/v1/querybatch`; GitHub REST usa `https://api.github.com`. SMTP envía correo configurado y Mailpit solo lo captura en desarrollo. PostgreSQL, Ollama y cdxgen son internos.
 
@@ -118,6 +122,21 @@ docker compose -p dependency-porfavor-check --profile review -f compose.yaml -f 
 
 Publica 8189, 8126 y 1126. No lo ejecutes sobre una instancia activa en esos puertos. Revisa nombre del proyecto/red en otros entornos.
 
+### Reiniciar el entorno de revisión actual
+
+El archivo local `.local-secrets/compose.dbeaver.yaml` publica el backend en 8180 y PostgreSQL en 5433, ambos solo en loopback. Está ignorado por Git y no contiene contraseñas. Después de iniciar Docker Desktop, usa:
+
+~~~powershell
+docker compose -p dependency-intelligence -f compose.yaml -f .local-secrets/compose.dbeaver.yaml up -d --no-build
+docker compose -p dependency-porfavor-check --profile review -f compose.yaml -f compose.review.yaml up -d --no-build --no-deps frontend mailpit
+~~~
+
+Los servicios `scanner-work-init` y `ollama-model-init` terminan con código 0 después de preparar sus recursos; no son procesos permanentes.
+
+### Mostrar PostgreSQL en DBeaver
+
+Crea una conexión **PostgreSQL** con host `127.0.0.1`, puerto `5433`, base `dependency_intelligence`, usuario `dependency` y la contraseña `POSTGRES_PASSWORD` del archivo local `.env`. En DBeaver pulsa **Test Connection**, luego abre **Databases → dependency_intelligence → Schemas → public → Tables**. No uses `5432` para esta base Docker: ese puerto lo ocupa PostgreSQL nativo del equipo. La conexión por `5433` se comprobó con contraseña, y la base tenía Flyway aplicado hasta V37 y pgvector 0.8.7.
+
 En una base nueva y vacía, el bootstrap de administrador se ejecuta una sola vez:
 
 ~~~powershell
@@ -151,4 +170,4 @@ docker ps
 curl.exe -i http://localhost:8189/health
 ~~~
 
-El 25/11/2026 la UI escuchaba en 8189 y health respondió; sesión y permisos se comprueban dentro de la aplicación.
+El 26/11/2026 frontend, backend, Swagger, OpenAPI, Mailpit y PostgreSQL respondieron; sesión y permisos se comprueban dentro de la aplicación.

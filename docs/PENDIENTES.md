@@ -1,3 +1,11 @@
+## Entorno local listo para revisión (26/11/2026)
+
+- [x] Arrancar Docker Desktop y los seis servicios permanentes: frontend, backend, PostgreSQL, Ollama, cdxgen y Mailpit.
+- [x] Comprobar frontend 8189, backend 8180, Swagger, OpenAPI, Mailpit 8126 y health con HTTP 200.
+- [x] Publicar PostgreSQL Docker solo en 127.0.0.1:5433 y validar credenciales de `.env` desde el host; Flyway V37 y pgvector 0.8.7.
+- [x] Retirar contenedores detenidos duplicados del proyecto de revisión y etiquetas/imágenes sin uso, conservando los volúmenes de datos.
+- [ ] Recorrer la interfaz y Nexo con una sesión autenticada del usuario.
+
 ## README y manual de usuario (25/11/2026)
 
 - [x] Actualizar README con arquitectura, API, puertos actuales, proveedores, herramientas, persistencia y arranque local.

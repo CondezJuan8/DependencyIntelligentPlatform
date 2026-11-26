@@ -2282,3 +2282,15 @@ Se añadió DELETE autenticado por `repository.manage`. GitHub se deshabilita so
 **Commit del contenido.** e72f75f (README, manual y guía RAG).
 
 **Siguiente paso.** El usuario puede seguir el manual en su sesión autenticada y anotar diferencias operativas; validar permisos/citas requiere su cuenta y fuentes visibles. El listado central queda en `docs/PENDIENTES.md`.
+
+## Bloque 144 — Arranque y acceso local de demostración (26/11/2026)
+
+**Petición.** Arrancar todos los servicios, compartir enlaces de frontend/backend/Swagger y permitir mostrar PostgreSQL en DBeaver. El usuario preguntó por contenedores e imágenes duplicados.
+
+**Cambios.** Se inició Docker Desktop y la pila `dependency-intelligence`. Un override local ignorado, `.local-secrets/compose.dbeaver.yaml`, publica únicamente en loopback el backend (8180) y PostgreSQL (5433). Se inició el frontend de revisión (8189) y Mailpit (8126/SMTP 1126) con `--no-deps`, conectados al backend principal. Se retiraron cuatro contenedores antiguos detenidos del proyecto de revisión, dos etiquetas de imagen sobrantes, una etiqueta duplicada de bootstrap y una imagen cdxgen sin uso. Se conservaron todos los volúmenes con datos. README y manual documentan URLs y DBeaver.
+
+**Herramientas y tecnologías.** Docker Desktop, Docker Compose, PowerShell, curl, psql 18, PostgreSQL 17.7/pgvector 0.8.7, OpenAPI/Swagger y Ollama. No se incorporaron dependencias al producto.
+
+**Verificación.** Seis servicios permanentes activos; PostgreSQL, Ollama, cdxgen y Mailpit saludables. Frontend, health, Swagger, OpenAPI y Mailpit respondieron HTTP 200. Conexión autenticada desde Windows a `127.0.0.1:5433` correcta; Flyway V37/37 migraciones y 130 tablas base en esquema público. El modelo `embeddinggemma-2:latest` aparece instalado. Los trabajos de inicialización terminaron con código 0. La sesión de usuario y una pregunta real a Nexo no se probaron en este bloque.
+
+**Siguiente paso.** Abrir DBeaver con el usuario `dependency` y la contraseña del `.env` local; mostrar tablas de `public`. Luego iniciar sesión en 8189 y recorrer los flujos pendientes.
