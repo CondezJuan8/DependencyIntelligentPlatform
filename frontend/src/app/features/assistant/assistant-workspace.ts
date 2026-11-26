@@ -61,30 +61,31 @@ export class AssistantWorkspace {
         error: error => { this.confirmingDelete.set(false); this.error.set(accessError(error)); },
       });
   }
-  loadChats(selectLatest = false): void {
+  loadChats(selectLatest = false, preserveComposer = false): void {
     const org = this.organizationId(); if (!org) { this.chats.set([]); return; }
     this.api.get<ChatSummary[]>(`/api/organizations/${org}/assistant/conversations`).subscribe({
       next: chats => {
         if (this.organizationId() !== org) return;
         this.chats.set(chats);
-        if (selectLatest && chats.length) this.openChat(chats[0].id);
+        if (selectLatest && chats.length) this.openChat(chats[0].id, preserveComposer);
       },
       error: error => this.error.set(accessError(error)),
     });
   }
-  openChat(id: string): void {
+  openChat(id: string, preserveComposer = false): void {
     if (this.pending()) return;
     if (!id) { this.reset(); return; }
     const org = this.organizationId();
     this.api.get<Turn[]>(`/api/organizations/${org}/assistant/conversations/${id}`).subscribe({
-      next: turns => { if (this.organizationId() !== org) return; this.conversationId.set(id); this.turns.set(turns); this.question.set(''); this.error.set(''); this.notice.set(''); },
+      next: turns => { if (this.organizationId() !== org) return; this.conversationId.set(id); this.turns.set(turns); if (!preserveComposer) { this.question.set(''); this.error.set(''); this.notice.set(''); } },
       error: error => this.error.set(accessError(error)),
     });
   }
   ask(event: Event): void {
     event.preventDefault();
     const org = this.organizationId(), question = this.question().trim(); if (!org || !question || this.pending()) return;
-    this.turns.update(turns => [...turns, { role: 'USER', content: question }]);
+    const lastTurn = this.turns().at(-1);
+    if (lastTurn?.role !== 'USER' || lastTurn.content !== question) this.turns.update(turns => [...turns, { role: 'USER', content: question }]);
     this.question.set(''); this.pending.set(true); this.error.set(''); this.notice.set('');
     this.prepareForQuestion(org, question, 0);
   }
@@ -98,7 +99,7 @@ export class AssistantWorkspace {
       },
       error: error => {
         if (error.status === 403) { this.notice.set(''); this.sendQuestion(org, question); return; }
-        this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.pending.set(false); this.notice.set(''); this.error.set(accessError(error));
+        this.question.set(question); this.pending.set(false); this.notice.set(''); this.error.set(`${accessError(error)} ${this.preferences.text('La pregunta se conservó para que puedas volver a intentarlo.')}`);
       },
     });
   }
@@ -113,7 +114,7 @@ export class AssistantWorkspace {
             : result.answer;
           this.turns.update(turns => [...turns, { role: 'ASSISTANT', content: answer, citations: result.citations, proposedRepairPrompt: result.proposedRepairPrompt }]);
         },
-        error: error => { this.turns.update(turns => turns.slice(0, -1)); this.question.set(question); this.error.set(accessError(error)); this.loadChats(true); },
+        error: error => { this.question.set(question); this.error.set(`${accessError(error)} ${this.preferences.text('La pregunta se conservó para que puedas volver a intentarlo.')}`); this.loadChats(true, true); },
       });
   }
   questionKeydown(event: KeyboardEvent):void {
