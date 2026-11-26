@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /** OpenAI Responses adapter. It has no tools and can only produce a reviewable proposal. */
 @Component
@@ -60,8 +61,7 @@ public final class OpenAiAnswerAdapter implements AnswerGeneration {
     }
 
     @Override public Generated answer(String question, List<Evidence> evidence) {
-        if (apiKey.isBlank()) throw new AiProviderUnavailableException("Configura OPENAI_API_KEY en el archivo .env local para habilitar el asistente.");
-        if (model.isBlank()) throw new AiProviderUnavailableException("Configura OPENAI_MODEL para habilitar el asistente.");
+        if (apiKey.isBlank() || model.isBlank()) return sourceSummary(question, evidence);
         try {
             List<Map<String, Object>> sources = java.util.stream.IntStream.range(0, evidence.size()).mapToObj(i -> {
                 Evidence source = evidence.get(i);
@@ -93,10 +93,26 @@ public final class OpenAiAnswerAdapter implements AnswerGeneration {
             validateCitations(diagnosis, evidence.size());
             validateCitations(repairPrompt, evidence.size());
             return new Generated(diagnosis, repairPrompt, model);
-        } catch (AiProviderUnavailableException failure) { throw failure; }
-        catch (RuntimeException | java.io.IOException failure) {
-            throw new AiProviderUnavailableException("OpenAI no pudo completar la respuesta. La consulta puede reintentarse; no se modificó ningún repositorio.", failure);
+        } catch (AiProviderUnavailableException failure) { return sourceSummary(question, evidence); }
+        catch (RestClientException | java.io.IOException failure) {
+            return sourceSummary(question, evidence);
         }
+    }
+
+    static Generated sourceSummary(String question, List<Evidence> evidence) {
+        String normalizedQuestion = question.toLowerCase(java.util.Locale.ROOT);
+        boolean brief = normalizedQuestion.contains("pocas palabras") || normalizedQuestion.contains("breve")
+            || normalizedQuestion.contains("resumen corto");
+        int perSource = brief ? 260 : 520;
+        StringBuilder summary = new StringBuilder("La generación de IA no está disponible. Resumen directo de las fuentes consultadas:\n");
+        for (int index = 0; index < Math.min(evidence.size(), brief ? 2 : 3); index++) {
+            Evidence item = evidence.get(index);
+            String content = item.content().replaceAll("\\s+", " ").strip();
+            if (content.length() > perSource) content = content.substring(0, perSource).stripTrailing() + "…";
+            summary.append("\n").append(item.documentName()).append(": ").append(content)
+                .append(" [").append(index + 1).append("]");
+        }
+        return new Generated(summary.toString(), null, null);
     }
 
     private static String extractOutput(JsonNode response) {

@@ -53,7 +53,9 @@ public final class JdbcWorkspaceEvidenceSearch implements WorkspaceEvidenceSearc
             String url = "?view=vulnerabilities&repositoryId=" + repository.id();
             if (asksVulnerability || !asksReport && !asksScan) {
                 List<VersionAssessment> affected = inventory.assessments().stream()
-                    .filter(item -> !item.advisories().isEmpty()).toList();
+                    .filter(item -> !item.advisories().isEmpty())
+                    .sorted(Comparator.comparingInt((VersionAssessment item) -> item.advisories().stream()
+                        .mapToInt(advisory -> severityRank(advisory.severity())).max().orElse(0)).reversed()).toList();
                 StringBuilder summary = new StringBuilder("Repositorio: " + name + ". Evaluación OSV del último análisis: "
                     + inventory.affectedVersions() + " versiones afectadas, " + inventory.advisoryCount() + " avisos. ");
                 for (VersionAssessment item : affected) {
@@ -111,6 +113,15 @@ public final class JdbcWorkspaceEvidenceSearch implements WorkspaceEvidenceSearc
     private static boolean contains(String text, String... terms) {
         for (String term : terms) if (text.contains(term)) return true;
         return false;
+    }
+    private static int severityRank(String severity) {
+        return switch (normalize(severity)) {
+            case "critical" -> 4;
+            case "high" -> 3;
+            case "medium" -> 2;
+            case "low" -> 1;
+            default -> 0;
+        };
     }
     private static int relevance(String question, String name) {
         String normalizedName = normalize(name);

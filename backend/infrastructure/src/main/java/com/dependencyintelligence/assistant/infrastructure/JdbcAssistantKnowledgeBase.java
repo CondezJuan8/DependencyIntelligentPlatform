@@ -245,7 +245,7 @@ public final class JdbcAssistantKnowledgeBase implements EvidenceSearch, Convers
             jdbc.update("delete from assistant_message_evidences where organization_id=? and message_id in (select id from assistant_messages where organization_id=? and conversation_id=?)",
                 organizationId, organizationId, conversationId);
             jdbc.update("delete from assistant_messages where organization_id=? and conversation_id=?", organizationId, conversationId);
-            jdbc.update("delete from retention_requests where organization_id=? and conversation_id=?", organizationId, conversationId);
+            jdbc.update("delete from data_deletion_requests where organization_id=? and conversation_id=?", organizationId, conversationId);
             jdbc.update("delete from assistant_conversations where organization_id=? and id=?", organizationId, conversationId);
             return null;
         });

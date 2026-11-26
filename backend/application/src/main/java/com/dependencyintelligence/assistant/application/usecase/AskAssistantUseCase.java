@@ -42,9 +42,10 @@ public final class AskAssistantUseCase implements AskAssistant {
             return new Answer(conversation, message, NO_EVIDENCE, null, List.of(), "NO_EVIDENCE", null);
         }
         Generated generated = generation.answer(request.question(), evidence);
-        if (generated.text() == null || generated.text().isBlank() || generated.proposedRepairPrompt() == null || generated.proposedRepairPrompt().isBlank())
-            throw new IllegalStateException("OpenAI devolvió una respuesta incompleta.");
-        String persistedAnswer = generated.text() + "\n\nPrompt de reparación propuesto (requiere revisión humana):\n" + generated.proposedRepairPrompt();
+        if (generated.text() == null || generated.text().isBlank())
+            throw new IllegalStateException("El asistente devolvió una respuesta vacía.");
+        String persistedAnswer = generated.text() + (generated.proposedRepairPrompt() == null || generated.proposedRepairPrompt().isBlank()
+            ? "" : "\n\nPrompt de reparación propuesto (requiere revisión humana):\n" + generated.proposedRepairPrompt());
         UUID message = conversations.saveMessage(request.organizationId(), conversation, userOrdinal + 1, "ASSISTANT", persistedAnswer, generated.model());
         conversations.saveEvidence(request.organizationId(), message, evidence);
         List<Citation> citations = java.util.stream.IntStream.range(0, evidence.size()).mapToObj(index -> {
@@ -52,7 +53,8 @@ public final class AskAssistantUseCase implements AskAssistant {
             return new Citation(item.documentId(), item.versionId(), item.chunkId(), item.documentName(), item.filename(),
                 item.page(), item.section(), excerpt(item.content()), item.sourceUrl(), index + 1);
         }).toList();
-        return new Answer(conversation, message, generated.text(), generated.proposedRepairPrompt(), citations, "ANSWERED", generated.model());
+        return new Answer(conversation, message, generated.text(), generated.proposedRepairPrompt(), citations,
+            generated.model() == null ? "SOURCE_SUMMARY" : "ANSWERED", generated.model());
     }
 
     private static String title(String question) { return question.length() <= 100 ? question : question.substring(0, 97) + "…"; }
